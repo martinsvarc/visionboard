@@ -185,8 +185,17 @@ function VisionBoardComponent() {
         const data = await response.json();
         console.log('Loaded data:', data);
 
+        interface SavedItem {
+          id: string;
+          src: string;
+          position: { x: number; y: number };
+          size: { width: number; height: number };
+          zIndex: number;
+          aspectRatio: number;
+        }
+
         if (data.items && Array.isArray(data.items)) {
-          const transformedItems = data.items.map(item => ({
+          const transformedItems = data.items.map((item: SavedItem) => ({
             id: item.id || `vision-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
             src: item.src,
             x: item.position?.x || 0,
