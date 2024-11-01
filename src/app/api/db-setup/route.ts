@@ -5,13 +5,13 @@ export async function GET(request: Request) {
     try {
         // Log environment check
         console.log('Environment check:', {
-            hasPostgresUrl: !!process.env.POSTGRES_URL,
-            hasPooling: !!process.env.POSTGRES_URL_NON_POOLING,
-            hasPrismaUrl: !!process.env.POSTGRES_PRISMA_URL
+            hasUrl: !!process.env.visionboard_URL,
+            hasPrismaUrl: !!process.env.visionboard_PRISMA_URL,
+            hasNonPooling: !!process.env.visionboard_URL_NON_POOLING
         });
 
-        if (!process.env.POSTGRES_URL) {
-            throw new Error('POSTGRES_URL environment variable is missing');
+        if (!process.env.visionboard_URL) {
+            throw new Error('Database URL environment variable is missing');
         }
 
         // Step 1: Test basic connection
