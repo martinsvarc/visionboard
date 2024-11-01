@@ -16,29 +16,49 @@ export async function GET(request: Request) {
       connectionString: process.env.visionboard_PRISMA_URL
     });
 
-    const { rows } = await pool.sql`
-      SELECT items 
-      FROM vision_boards 
-      WHERE user_id = ${memberId}
+    // First check if the user exists
+    const checkResult = await pool.sql`
+      SELECT EXISTS (
+        SELECT 1 FROM vision_boards WHERE user_id = ${memberId}
+      );
     `;
+    
+    const userExists = checkResult.rows[0].exists;
+    console.log('User exists:', userExists);
 
-    // If no record exists, return empty array
-    if (rows.length === 0) {
+    if (!userExists) {
+      console.log('Creating new user record for:', memberId);
       await pool.sql`
         INSERT INTO vision_boards (user_id, items)
         VALUES (${memberId}, '[]'::jsonb)
+        ON CONFLICT (user_id) DO NOTHING;
       `;
-      return NextResponse.json([]);
     }
 
-    return NextResponse.json(rows[0].items);
+    // Get the user's items
+    const { rows } = await pool.sql`
+      SELECT items, created_at, updated_at
+      FROM vision_boards 
+      WHERE user_id = ${memberId};
+    `;
+
+    return NextResponse.json({
+      items: rows[0]?.items || [],
+      metadata: {
+        createdAt: rows[0]?.created_at,
+        updatedAt: rows[0]?.updated_at,
+        userExists: userExists,
+        userId: memberId
+      }
+    });
     
   } catch (error) {
     console.error('Load vision board error:', error);
-    return NextResponse.json(
-      { error: 'Failed to load vision board' }, 
-      { status: 500 }
-    );
+    return NextResponse.json({ 
+      error: 'Failed to load vision board',
+      details: error instanceof Error ? error.message : 'Unknown error',
+      memberId: memberId 
+    }, { status: 500 });
   }
 }
 
@@ -55,7 +75,9 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Items must be an array' }, { status: 400 });
     }
 
-    // Create a connection pool using the Prisma URL
+    console.log('Saving items for user:', memberId);
+    console.log('Items:', items);
+
     const pool = createPool({
       connectionString: process.env.visionboard_PRISMA_URL
     });
@@ -67,15 +89,30 @@ export async function POST(request: Request) {
       DO UPDATE SET 
         items = ${JSON.stringify(items)}::jsonb,
         updated_at = CURRENT_TIMESTAMP
+      RETURNING *;
     `;
 
-    return NextResponse.json({ success: true });
+    const { rows } = await pool.sql`
+      SELECT items, created_at, updated_at
+      FROM vision_boards 
+      WHERE user_id = ${memberId};
+    `;
+
+    return NextResponse.json({
+      success: true,
+      data: {
+        items: rows[0].items,
+        savedAt: rows[0].updated_at,
+        userId: memberId
+      }
+    });
     
   } catch (error) {
     console.error('Save vision board error:', error);
-    return NextResponse.json(
-      { error: 'Failed to save vision board' }, 
-      { status: 500 }
-    );
+    return NextResponse.json({ 
+      error: 'Failed to save vision board',
+      details: error instanceof Error ? error.message : 'Unknown error',
+      memberId: memberId 
+    }, { status: 500 });
   }
 }
