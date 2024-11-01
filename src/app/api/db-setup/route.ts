@@ -24,8 +24,8 @@ export async function GET(request: Request) {
         const connectionTest = await pool.sql`SELECT 1 as test;`;
         console.log('Connection successful:', connectionTest.rows[0]);
 
-        // Step 2: Create table with better error handling
-        console.log('Creating table...');
+        // Step 2: Create vision_boards table
+        console.log('Creating vision_boards table...');
         await pool.sql`
             CREATE TABLE IF NOT EXISTS vision_boards (
                 id SERIAL PRIMARY KEY,
@@ -35,7 +35,21 @@ export async function GET(request: Request) {
                 updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
             );
         `;
-        console.log('Table created successfully');
+        console.log('Vision boards table created successfully');
+
+        // Step 3: Create user_streaks table
+        console.log('Creating user_streaks table...');
+        await pool.sql`
+            CREATE TABLE IF NOT EXISTS user_streaks (
+                id SERIAL PRIMARY KEY,
+                user_id TEXT NOT NULL,
+                visit_date DATE NOT NULL,
+                url_visited TEXT NOT NULL,
+                created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+                UNIQUE(user_id, visit_date)
+            );
+        `;
+        console.log('User streaks table created successfully');
 
         return NextResponse.json({ 
             message: 'Setup complete',
@@ -53,7 +67,6 @@ export async function GET(request: Request) {
         };
         
         console.error('Detailed error:', errorDetails);
-
         return NextResponse.json({ 
             error: 'Database setup failed',
             details: errorDetails
