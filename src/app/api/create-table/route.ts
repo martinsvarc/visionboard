@@ -54,10 +54,10 @@ export async function GET(request: Request) {
     
   } catch (error) {
     console.error('Load vision board error:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     return NextResponse.json({ 
       error: 'Failed to load vision board',
-      details: error instanceof Error ? error.message : 'Unknown error',
-      memberId: memberId 
+      details: errorMessage
     }, { status: 500 });
   }
 }
@@ -109,10 +109,10 @@ export async function POST(request: Request) {
     
   } catch (error) {
     console.error('Save vision board error:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     return NextResponse.json({ 
       error: 'Failed to save vision board',
-      details: error instanceof Error ? error.message : 'Unknown error',
-      memberId: memberId 
+      details: errorMessage
     }, { status: 500 });
   }
 }
