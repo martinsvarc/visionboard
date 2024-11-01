@@ -3,12 +3,16 @@ import { NextResponse } from 'next/server';
 
 export async function GET(request: Request) {
     try {
-        // Log environment variables (safely)
+        // Log environment check
         console.log('Environment check:', {
-            hasUrl: !!process.env.visionboard_URL,
-            hasHost: !!process.env.visionboard_HOST,
-            hasDb: !!process.env.visionboard_DATABASE,
+            hasPostgresUrl: !!process.env.POSTGRES_URL,
+            hasPooling: !!process.env.POSTGRES_URL_NON_POOLING,
+            hasPrismaUrl: !!process.env.POSTGRES_PRISMA_URL
         });
+
+        if (!process.env.POSTGRES_URL) {
+            throw new Error('POSTGRES_URL environment variable is missing');
+        }
 
         // Step 1: Test basic connection
         console.log('Testing connection...');
