@@ -2,6 +2,7 @@
 
 import React, { useState, useRef, useCallback, useEffect } from 'react'
 import { Button } from "@/components/ui/button"
+import { useSearchParams } from 'next/navigation';
 import {
   Popover,
   PopoverContent,
@@ -140,6 +141,56 @@ export default function Component() {
   const [glowColor, setGlowColor] = useState('rgba(255, 0, 222, 0.5)')
   const boardRef = useRef<HTMLDivElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
+
+  const searchParams = useSearchParams();
+  const memberId = searchParams.get('memberId');
+
+  const saveVisionBoard = async () => {
+    try {
+      await fetch('/api/vision-board', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          memberId,
+          items: visionItems
+        })
+      });
+    } catch (error) {
+      console.error('Error saving vision board:', error);
+    }
+  };
+
+  const loadVisionBoard = async () => {
+    try {
+      const response = await fetch(`/api/vision-board?memberId=${memberId}`);
+      if (response.ok) {
+        const items = await response.json();
+        if (items.length > 0) {
+          setVisionItems(items);
+        }
+      }
+    } catch (error) {
+      console.error('Error loading vision board:', error);
+    }
+  };
+
+  useEffect(() => {
+    if (memberId) {
+      loadVisionBoard();
+    }
+  }, [memberId]);
+
+  useEffect(() => {
+    if (memberId && visionItems.length > 0) {
+      const debounceTimer = setTimeout(() => {
+        saveVisionBoard();
+      }, 1000); // Save after 1 second of no changes
+
+      return () => clearTimeout(debounceTimer);
+    }
+  }, [visionItems]);
 
   const handleFileUpload = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files
