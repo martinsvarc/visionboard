@@ -13,9 +13,9 @@ export async function GET(request: Request) {
             success: true,
             data: result.rows[0],
             connection: {
-                hasUrl: !!process.env.visionboard_URL,
-                hasHost: !!process.env.visionboard_HOST,
-                hasDb: !!process.env.visionboard_DATABASE
+                hasPostgresUrl: !!process.env.POSTGRES_URL,
+                hasPooling: !!process.env.POSTGRES_URL_NON_POOLING,
+                hasPrismaUrl: !!process.env.POSTGRES_PRISMA_URL
             }
         });
 
@@ -26,9 +26,9 @@ export async function GET(request: Request) {
             success: false,
             error: errorMessage,
             connection: {
-                hasUrl: !!process.env.visionboard_URL,
-                hasHost: !!process.env.visionboard_HOST,
-                hasDb: !!process.env.visionboard_DATABASE
+                hasPostgresUrl: !!process.env.POSTGRES_URL,
+                hasPooling: !!process.env.POSTGRES_URL_NON_POOLING,
+                hasPrismaUrl: !!process.env.POSTGRES_PRISMA_URL
             }
         }, { status: 500 });
     }
