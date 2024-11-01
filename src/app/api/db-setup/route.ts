@@ -3,8 +3,14 @@ import { NextResponse } from 'next/server';
 
 export async function GET(request: Request) {
   try {
-    // Create the vision_boards table if it doesn't exist
-    await sql`
+    console.log('Starting database setup...');
+    
+    // First test connection
+    const testConnection = await sql`SELECT NOW();`;
+    console.log('Database connection successful');
+
+    // Create the vision_boards table with more detailed error handling
+    const result = await sql`
       CREATE TABLE IF NOT EXISTS vision_boards (
         id SERIAL PRIMARY KEY,
         user_id TEXT UNIQUE NOT NULL,
@@ -14,9 +20,28 @@ export async function GET(request: Request) {
       );
     `;
     
-    return NextResponse.json({ message: 'Database setup completed' });
+    // Log success
+    console.log('Table creation successful');
+    
+    return NextResponse.json({ 
+      message: 'Database setup completed',
+      details: {
+        timestamp: testConnection.rows[0],
+        tableCreated: true
+      }
+    });
   } catch (error) {
-    console.error('Database setup error:', error);
-    return NextResponse.json({ error: 'Database setup failed' }, { status: 500 });
+    // Detailed error logging
+    console.error('Detailed setup error:', {
+      message: error.message,
+      code: error.code,
+      stack: error.stack
+    });
+    
+    return NextResponse.json({ 
+      error: 'Database setup failed',
+      details: error.message,
+      code: error.code
+    }, { status: 500 });
   }
 }
