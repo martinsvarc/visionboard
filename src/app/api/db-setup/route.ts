@@ -1,8 +1,13 @@
-import { sql } from '@vercel/postgres';
+import { createPool } from '@vercel/postgres';
 import { NextResponse } from 'next/server';
 
 export async function GET(request: Request) {
     try {
+        // Create a connection pool using the Prisma URL
+        const pool = createPool({
+            connectionString: process.env.visionboard_PRISMA_URL
+        });
+
         // Log environment check
         console.log('Environment check:', {
             hasUrl: !!process.env.visionboard_URL,
@@ -10,18 +15,18 @@ export async function GET(request: Request) {
             hasNonPooling: !!process.env.visionboard_URL_NON_POOLING
         });
 
-        if (!process.env.visionboard_URL) {
-            throw new Error('Database URL environment variable is missing');
+        if (!process.env.visionboard_PRISMA_URL) {
+            throw new Error('Database Prisma URL environment variable is missing');
         }
 
         // Step 1: Test basic connection
         console.log('Testing connection...');
-        const connectionTest = await sql`SELECT 1 as test;`;
+        const connectionTest = await pool.sql`SELECT 1 as test;`;
         console.log('Connection successful:', connectionTest.rows[0]);
 
         // Step 2: Create table with better error handling
         console.log('Creating table...');
-        await sql`
+        await pool.sql`
             CREATE TABLE IF NOT EXISTS vision_boards (
                 id SERIAL PRIMARY KEY,
                 user_id TEXT UNIQUE NOT NULL,
