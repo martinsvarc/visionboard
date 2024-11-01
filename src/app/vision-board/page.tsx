@@ -459,4 +459,4 @@ function VisionBoardComponent() {
                     variant="destructive"
                     size="icon"
                     className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-black/80 hover:bg-black/90 backdrop-blur-sm"
-                    onClick={() => deleteItem(item.id)}
+                    onClick={() => delete
