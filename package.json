@@ -18,7 +18,7 @@
     "lucide-react": "^0.263.1",
     "tailwind-merge": "^2.2.0",
     "tailwindcss-animate": "^1.0.7",
-    "@vercel/postgres": "^1.0.0" // Add this line
+    "@vercel/postgres": "^1.0.0"
   },
   "devDependencies": {
     "@types/node": "^20.11.5",
