@@ -431,7 +431,6 @@ function VisionBoardComponent() {
               backgroundPosition: 'center',
             }}
             onMouseMove={handleMouseMove}
-            
             onMouseUp={handleMouseUp}
             onMouseLeave={handleMouseUp}
           >
@@ -459,4 +458,54 @@ function VisionBoardComponent() {
                     variant="destructive"
                     size="icon"
                     className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-black/80 hover:bg-black/90 backdrop-blur-sm"
-                    onClick={() => delete
+                    onClick={() => deleteItem(item.id)}
+                                    oClick={() => deleteItem(item.id)}
+                >
+                  <TrashIcon />
+                </Button>
+                <div
+                  className="absolute bottom-0 right-0 w-6 h-6 bg-white/10 hover:bg-white/20 cursor-se-resize rounded-xl transition-colors backdrop-blur-sm"
+                  onMouseDown={(e) => handleResizeStart(e, item.id)}
+                />
+              </div>
+            </div>
+          ))}
+        </div>
+      </main>
+    </div>
+  </div>
+)
+}
+
+export default function Component() {
+return (
+  <Suspense fallback={<div>Loading...</div>}>
+    <VisionBoardComponent />
+  </Suspense>
+)
+}
+                  onClick={() => deleteItem(item.id)}
+                >
+                  <TrashIcon />
+                </Button>
+                <div
+                  className="absolute bottom-0 right-0 w-6 h-6 bg-white/10 hover:bg-white/20 cursor-se-resize rounded-xl transition-colors backdrop-blur-sm"
+                  onMouseDown={(e) => handleResizeStart(e, item.id)}
+                />
+              </div>
+            </div>
+          ))}
+        </div>
+      </main>
+    </div>
+  </div>
+)
+}
+
+export default function Component() {
+return (
+  <Suspense fallback={<div>Loading...</div>}>
+    <VisionBoardComponent />
+  </Suspense>
+)
+}
