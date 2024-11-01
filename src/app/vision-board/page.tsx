@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useRef, useCallback, useEffect } from 'react'
+import React, { useState, useRef, useCallback, useEffect, Suspense } from 'react'
 import { Button } from "@/components/ui/button"
 import { useSearchParams } from 'next/navigation';
 import {
@@ -131,7 +131,7 @@ function ColorPicker({ color, onChange }: { color: string, onChange: (color: str
   )
 }
 
-export default function Component() {
+function VisionBoardComponent() {
   const [visionItems, setVisionItems] = useState<VisionItem[]>([])
   const [maxZIndex, setMaxZIndex] = useState(0)
   const [draggedItem, setDraggedItem] = useState<string | null>(null)
@@ -442,5 +442,13 @@ export default function Component() {
         </main>
       </div>
     </div>
+  )
+}
+
+export default function Component() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <VisionBoardComponent />
+    </Suspense>
   )
 }
