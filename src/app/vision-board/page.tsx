@@ -147,7 +147,7 @@ function VisionBoardComponent() {
 
   const saveVisionBoard = async () => {
     try {
-      await fetch('/api/vision-board', {
+      await fetch('/api/create-table', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -164,7 +164,7 @@ function VisionBoardComponent() {
 
   const loadVisionBoard = async () => {
     try {
-      const response = await fetch(`/api/vision-board?memberId=${memberId}`);
+      const response = await fetch(`/api/create-table?memberId=${memberId}`);
       if (response.ok) {
         const items = await response.json();
         if (items.length > 0) {
