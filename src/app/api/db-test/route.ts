@@ -13,9 +13,9 @@ export async function GET(request: Request) {
             success: true,
             data: result.rows[0],
             connection: {
-                hasPostgresUrl: !!process.env.POSTGRES_URL,
-                hasPooling: !!process.env.POSTGRES_URL_NON_POOLING,
-                hasPrismaUrl: !!process.env.POSTGRES_PRISMA_URL
+                hasUrl: !!process.env.visionboard_URL,
+                hasPrismaUrl: !!process.env.visionboard_PRISMA_URL,
+                hasNonPooling: !!process.env.visionboard_URL_NON_POOLING
             }
         });
 
@@ -26,9 +26,9 @@ export async function GET(request: Request) {
             success: false,
             error: errorMessage,
             connection: {
-                hasPostgresUrl: !!process.env.POSTGRES_URL,
-                hasPooling: !!process.env.POSTGRES_URL_NON_POOLING,
-                hasPrismaUrl: !!process.env.POSTGRES_PRISMA_URL
+                hasUrl: !!process.env.visionboard_URL,
+                hasPrismaUrl: !!process.env.visionboard_PRISMA_URL,
+                hasNonPooling: !!process.env.visionboard_URL_NON_POOLING
             }
         }, { status: 500 });
     }
