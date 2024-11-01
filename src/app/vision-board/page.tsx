@@ -147,6 +147,23 @@ function VisionBoardComponent() {
 
   const saveVisionBoard = async () => {
     try {
+      const itemsToSave = visionItems.map(item => ({
+        id: item.id,
+        src: item.src, // or store URL if available instead of base64
+        position: {
+          x: item.x,
+          y: item.y
+        },
+        size: {
+          width: item.width,
+          height: item.height
+        },
+        zIndex: item.zIndex,
+        aspectRatio: item.aspectRatio
+      }));
+
+      console.log('Saving items:', itemsToSave); // Debug log
+
       await fetch('/api/create-table', {
         method: 'POST',
         headers: {
@@ -154,7 +171,7 @@ function VisionBoardComponent() {
         },
         body: JSON.stringify({
           memberId,
-          items: visionItems
+          items: itemsToSave
         })
       });
     } catch (error) {
@@ -166,9 +183,22 @@ function VisionBoardComponent() {
     try {
       const response = await fetch(`/api/create-table?memberId=${memberId}`);
       if (response.ok) {
-        const items = await response.json();
-        if (items.length > 0) {
-          setVisionItems(items);
+        const data = await response.json();
+        console.log('Loaded data:', data); // Debug log
+
+        if (data.items && Array.isArray(data.items)) {
+          const transformedItems = data.items.map(item => ({
+            id: item.id || `vision-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+            src: item.src,
+            x: item.position?.x || 0,
+            y: item.position?.y || 0,
+            width: item.size?.width || 300,
+            height: item.size?.height || 300,
+            zIndex: item.zIndex || 1,
+            aspectRatio: item.aspectRatio || 1
+          }));
+          console.log('Transformed items:', transformedItems); // Debug log
+          setVisionItems(transformedItems);
         }
       }
     } catch (error) {
@@ -178,19 +208,21 @@ function VisionBoardComponent() {
 
   useEffect(() => {
     if (memberId) {
+      console.log('Loading vision board for member:', memberId); // Debug log
       loadVisionBoard();
     }
-  }, [memberId]);
+  }, [memberId]); // Only depend on memberId
 
   useEffect(() => {
     if (memberId && visionItems.length > 0) {
+      console.log('Changes detected, preparing to save...'); // Debug log
       const debounceTimer = setTimeout(() => {
         saveVisionBoard();
-      }, 1000); // Save after 1 second of no changes
+      }, 2000); // Increased to 2 seconds
 
       return () => clearTimeout(debounceTimer);
     }
-  }, [visionItems]);
+  }, [visionItems, memberId]);
 
   const handleFileUpload = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files
@@ -428,27 +460,3 @@ function VisionBoardComponent() {
                     size="icon"
                     className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-black/80 hover:bg-black/90 backdrop-blur-sm"
                     onClick={() => deleteItem(item.id)}
-                  >
-                    <TrashIcon />
-                  </Button>
-                  <div
-                    className="absolute bottom-0 right-0 w-6 h-6 bg-white/10 hover:bg-white/20 cursor-se-resize rounded-xl transition-colors backdrop-blur-sm"
-                    onMouseDown={(e) => handleResizeStart(e, item.id)}
-                  />
-                </div>
-              </div>
-            ))}
-          </div>
-        </main>
-      </div>
-    </div>
-  )
-}
-
-export default function Component() {
-  return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <VisionBoardComponent />
-    </Suspense>
-  )
-}
