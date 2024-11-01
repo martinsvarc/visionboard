@@ -1,10 +1,15 @@
-import { sql } from '@vercel/postgres';
+import { createPool } from '@vercel/postgres';
 import { NextResponse } from 'next/server';
 
 export async function GET(request: Request) {
     try {
+        // Create a connection pool using the Prisma URL
+        const pool = createPool({
+            connectionString: process.env.visionboard_PRISMA_URL
+        });
+
         // Simple connection test
-        const result = await sql`
+        const result = await pool.sql`
             SELECT current_database() as db_name, 
                    current_timestamp as server_time;
         `;
