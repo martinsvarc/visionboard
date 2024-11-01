@@ -2,13 +2,14 @@
 
 import React, { useState, useRef, useCallback, useEffect, Suspense } from 'react'
 import { Button } from "@/components/ui/button"
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation'
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
 
+// Icon Components
 const UploadIcon = () => (
   <svg
     width="24"
@@ -70,7 +71,6 @@ interface VisionItem {
   zIndex: number
   aspectRatio: number
 }
-
 function ColorPicker({ color, onChange }: { color: string, onChange: (color: string) => void }) {
   const [hue, setHue] = useState(0)
   const [position, setPosition] = useState({ x: 0, y: 0 })
@@ -142,14 +142,13 @@ function VisionBoardComponent() {
   const boardRef = useRef<HTMLDivElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-  const searchParams = useSearchParams();
-  const memberId = searchParams.get('memberId');
-
+  const searchParams = useSearchParams()
+  const memberId = searchParams.get('memberId')
   const saveVisionBoard = async () => {
     try {
       const itemsToSave = visionItems.map(item => ({
         id: item.id,
-        src: item.src, // or store URL if available instead of base64
+        src: item.src,
         position: {
           x: item.x,
           y: item.y
@@ -162,7 +161,7 @@ function VisionBoardComponent() {
         aspectRatio: item.aspectRatio
       }));
 
-      console.log('Saving items:', itemsToSave); // Debug log
+      console.log('Saving items:', itemsToSave);
 
       await fetch('/api/create-table', {
         method: 'POST',
@@ -184,7 +183,7 @@ function VisionBoardComponent() {
       const response = await fetch(`/api/create-table?memberId=${memberId}`);
       if (response.ok) {
         const data = await response.json();
-        console.log('Loaded data:', data); // Debug log
+        console.log('Loaded data:', data);
 
         if (data.items && Array.isArray(data.items)) {
           const transformedItems = data.items.map(item => ({
@@ -197,7 +196,7 @@ function VisionBoardComponent() {
             zIndex: item.zIndex || 1,
             aspectRatio: item.aspectRatio || 1
           }));
-          console.log('Transformed items:', transformedItems); // Debug log
+          console.log('Transformed items:', transformedItems);
           setVisionItems(transformedItems);
         }
       }
@@ -208,17 +207,17 @@ function VisionBoardComponent() {
 
   useEffect(() => {
     if (memberId) {
-      console.log('Loading vision board for member:', memberId); // Debug log
+      console.log('Loading vision board for member:', memberId);
       loadVisionBoard();
     }
-  }, [memberId]); // Only depend on memberId
+  }, [memberId]);
 
   useEffect(() => {
     if (memberId && visionItems.length > 0) {
-      console.log('Changes detected, preparing to save...'); // Debug log
+      console.log('Changes detected, preparing to save...');
       const debounceTimer = setTimeout(() => {
         saveVisionBoard();
-      }, 2000); // Increased to 2 seconds
+      }, 2000);
 
       return () => clearTimeout(debounceTimer);
     }
@@ -233,7 +232,7 @@ function VisionBoardComponent() {
           const img = new Image()
           img.onload = () => {
             const aspectRatio = img.width / img.height
-            const height = 300 // base height
+            const height = 300
             const width = height * aspectRatio
             
             const newItem: VisionItem = {
@@ -258,7 +257,6 @@ function VisionBoardComponent() {
       fileInputRef.current.value = ''
     }
   }, [maxZIndex])
-
   const updateItemPosition = useCallback((id: string, x: number, y: number) => {
     setVisionItems(prev => prev.map(item => {
       if (item.id === id) {
@@ -289,7 +287,9 @@ function VisionBoardComponent() {
 
   const bringToFront = useCallback((id: string) => {
     setMaxZIndex(prev => prev + 1)
-    setVisionItems(prev => prev.map(item => item.id === id ? { ...item, zIndex: maxZIndex + 1 } : item))
+    setVisionItems(prev => prev.map(item => 
+      item.id === id ? { ...item, zIndex: maxZIndex + 1 } : item
+    ))
   }, [maxZIndex])
 
   const deleteItem = useCallback((id: string) => {
@@ -324,7 +324,6 @@ function VisionBoardComponent() {
       updateItemSize(resizedItem, newWidth, newHeight)
     }
   }
-
   const handleMouseUp = useCallback(() => {
     setDraggedItem(null)
     setDragOffset(null)
@@ -457,23 +456,23 @@ function VisionBoardComponent() {
                   <Button
                     variant="destructive"
                     size="icon"
-                    className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-black/80 hover:bg-black
-                                      onClick={() => deleteItem(item.id)}
-                >
-                  <TrashIcon />
-                </Button>
-                <div
-                  className="absolute bottom-0 right-0 w-6 h-6 bg-white/10 hover:bg-white/20 cursor-se-resize rounded-xl transition-colors backdrop-blur-sm"
-                  onMouseDown={(e) => handleResizeStart(e, item.id)}
-                />
+                    className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-black/80 hover:bg-black/90 backdrop-blur-sm"
+                    onClick={() => deleteItem(item.id)}
+                  >
+                    <TrashIcon />
+                  </Button>
+                  <div
+                    className="absolute bottom-0 right-0 w-6 h-6 bg-white/10 hover:bg-white/20 cursor-se-resize rounded-xl transition-colors backdrop-blur-sm"
+                    onMouseDown={(e) => handleResizeStart(e, item.id)}
+                  />
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
-      </main>
+            ))}
+          </div>
+        </main>
+      </div>
     </div>
-  </div>
-)
+  )
 }
 
 export default function Component() {
