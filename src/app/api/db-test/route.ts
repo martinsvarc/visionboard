@@ -19,11 +19,12 @@ export async function GET(request: Request) {
             }
         });
 
-    } catch (error: any) {
+    } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+        
         return NextResponse.json({ 
             success: false,
-            error: error.message,
-            code: error.code,
+            error: errorMessage,
             connection: {
                 hasUrl: !!process.env.visionboard_URL,
                 hasHost: !!process.env.visionboard_HOST,
