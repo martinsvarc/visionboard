@@ -36,13 +36,11 @@ export async function GET(request: Request) {
             }
         });
 
-    } catch (error: any) {
-        // Detailed error logging
+    } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
         const errorDetails = {
-            message: error.message,
-            code: error.code,
-            stack: error.stack,
-            type: error.constructor.name
+            message: errorMessage,
+            type: error instanceof Error ? error.constructor.name : 'Unknown'
         };
         
         console.error('Detailed error:', errorDetails);
