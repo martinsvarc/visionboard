@@ -22,26 +22,52 @@ export async function GET(request: Request) {
       ORDER BY visit_date DESC;
     `;
 
-    // Calculate streaks
+    // Calculate current streak
     let currentStreak = 0;
-    let longestStreak = 0;
-    let tempStreak = 0;
-    let lastDate = new Date();
+    const today = new Date();
+    let lastDate = today;
 
     for (const row of rows) {
       const visitDate = new Date(row.visit_date);
       const diffDays = Math.floor((lastDate.getTime() - visitDate.getTime()) / (1000 * 60 * 60 * 24));
       
       if (diffDays <= 1) {
-        tempStreak++;
-        currentStreak = tempStreak;
+        currentStreak++;
+        lastDate = visitDate;
       } else {
-        tempStreak = 1;
+        break;
       }
-      
-      longestStreak = Math.max(longestStreak, tempStreak);
-      lastDate = visitDate;
     }
+
+    // Get longest streak
+    const streakQuery = await pool.sql`
+      WITH dates AS (
+        SELECT DISTINCT visit_date
+        FROM user_streaks
+        WHERE user_id = ${memberId}
+        ORDER BY visit_date
+      ),
+      gaps AS (
+        SELECT 
+          visit_date,
+          CASE 
+            WHEN visit_date - LAG(visit_date, 1) OVER (ORDER BY visit_date) = 1 THEN 0
+            ELSE 1
+          END as is_gap
+        FROM dates
+      ),
+      streaks AS (
+        SELECT
+          SUM(is_gap) OVER (ORDER BY visit_date) as streak_group,
+          COUNT(*) as streak_length
+        FROM gaps
+        GROUP BY visit_date, is_gap
+      )
+      SELECT MAX(streak_length) as longest_streak
+      FROM streaks;
+    `;
+
+    const longestStreak = streakQuery.rows[0]?.longest_streak || 0;
 
     return NextResponse.json({
       currentStreak,
