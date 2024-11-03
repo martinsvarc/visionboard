@@ -183,15 +183,15 @@ export default function Component() {
               {week.map((day, dayIndex) => (
                 <div
                   key={dayIndex}
-                  className={cn(
-                    "aspect-square flex items-center justify-center text-sm relative",
-                    {
-                      "text-zinc-400": day && getDateStatus(day) === 'inactive',
-                      "bg-opacity-30 backdrop-blur-md backdrop-filter border border-white/10 text-white font-medium rounded-md": day && getDateStatus(day) === 'current',
-                      "bg-opacity-30 backdrop-blur-md backdrop-filter border border-white/10 text-white font-medium rounded-md": day && getDateStatus(day) === 'longest',
-                      "": !day,
-                    }
-                  )}
+                 className={cn(
+  "aspect-square flex items-center justify-center text-sm relative",
+  {
+    "text-zinc-400": day && getDateStatus(day) === 'inactive',
+    "bg-opacity-30 backdrop-blur-md backdrop-filter border border-white/10 text-white font-medium rounded-md": day && getDateStatus(day) === 'current',
+    "bg-opacity-30 backdrop-blur-md backdrop-filter border border-white/10 text-white font-medium rounded-md": day && getDateStatus(day) === 'longest',
+    "": !day,
+  }
+)}
                 >
                   {day && (
                     <>
