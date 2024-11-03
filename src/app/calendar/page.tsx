@@ -4,28 +4,34 @@ import * as React from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
+import { useSearchParams } from 'next/navigation'
 
 export default function Component() {
   const [currentMonth, setCurrentMonth] = React.useState(new Date())
-  
-  const streakData = React.useMemo(() => {
-    const today = new Date()
-    const currentStreak = 5 // This would be calculated based on actual user data
-    const longestStreak = 7 // This would be stored and updated based on user history
-    const activeDates = [] as string[]
+  const [streakData, setStreakData] = React.useState({
+    current: 0,
+    longest: 0,
+    activeDates: [] as string[]
+  });
 
-    // Generate active dates for the current streak
-    for (let i = 0; i < currentStreak; i++) {
-      const date = new Date(today.getFullYear(), today.getMonth(), today.getDate() - i)
-      activeDates.push(date.toISOString().split('T')[0])
-    }
+  const searchParams = useSearchParams();
+  const memberId = searchParams.get('memberId');
 
-    return {
-      current: currentStreak,
-      longest: longestStreak,
-      activeDates
+  // Load real streak data
+  React.useEffect(() => {
+    if (memberId) {
+      fetch(`/api/track-streak?memberId=${memberId}`)
+        .then(response => response.json())
+        .then(data => {
+          setStreakData({
+            current: data.currentStreak || 0,
+            longest: data.longestStreak || 0,
+            activeDates: data.activeDates || []
+          });
+        })
+        .catch(error => console.error('Error loading streak data:', error));
     }
-  }, [currentMonth])
+  }, [memberId, currentMonth]);
 
   const daysInMonth = new Date(
     currentMonth.getFullYear(),
