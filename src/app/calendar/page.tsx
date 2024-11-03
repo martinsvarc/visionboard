@@ -1,12 +1,13 @@
 "use client"
 
 import * as React from "react"
+import { Suspense } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { useSearchParams } from 'next/navigation'
 
-export default function Component() {
+function CalendarComponent() {
   const [currentMonth, setCurrentMonth] = React.useState(new Date())
   const [streakData, setStreakData] = React.useState({
     current: 0,
@@ -220,4 +221,12 @@ export default function Component() {
       </CardContent>
     </Card>
   )
+}
+
+export default function Page() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <CalendarComponent />
+    </Suspense>
+  );
 }
