@@ -196,31 +196,35 @@ function CalendarComponent() {
             <React.Fragment key={weekIndex}>
               {week.map((day, dayIndex) => (
                 <div
-                  key={dayIndex}
-                  className={cn(
-                    "aspect-square flex items-center justify-center text-sm relative",
-                    {
-                      "text-zinc-400": day && getDateStatus(day) === 'inactive',
-                      "bg-opacity-30 backdrop-blur-md backdrop-filter border border-white/10 text-white font-medium rounded-md": 
-                        day && (getDateStatus(day) === 'current' || getDateStatus(day) === 'longest'),
-                      "": !day,
-                    }
-                  )}
-                >
-                  {day && (
-                    <>
-                      {isToday(day) && (
-                        <div className="absolute inset-0 border border-zinc-400 rounded-md" />
-                      )}
-                      <span className={cn({
-                        "text-blue-300 drop-shadow-[0_0_8px_rgba(59,130,246,0.5)]": getDateStatus(day) === 'current',
-                        "text-emerald-300 drop-shadow-[0_0_8px_rgba(16,185,129,0.5)]": getDateStatus(day) === 'longest',
-                      })}>
-                        {day}
-                      </span>
-                    </>
-                  )}
-                </div>
+  key={dayIndex}
+  className={cn(
+    "aspect-square flex items-center justify-center text-sm relative",
+    {
+      "text-zinc-400": day && getDateStatus(day) === 'inactive',
+      "": !day,
+    }
+  )}
+>
+  {day && (
+    <>
+      {isToday(day) && (
+        <div className="absolute inset-0 border border-zinc-400 rounded-md" />
+      )}
+      <div
+        className={cn(
+          "w-full h-full flex items-center justify-center rounded-md",
+          {
+            "bg-blue-500/30 backdrop-blur-md backdrop-filter border border-white/10 text-blue-300 drop-shadow-[0_0_15px_rgba(59,130,246,0.5)]": 
+              getDateStatus(day) === 'current',
+            "bg-emerald-500/30 backdrop-blur-md backdrop-filter border border-white/10 text-emerald-300 drop-shadow-[0_0_15px_rgba(16,185,129,0.5)]": 
+              getDateStatus(day) === 'longest'
+          }
+        )}>
+        {day}
+      </div>
+    </>
+  )}
+</div>
               ))}
             </React.Fragment>
           ))}
