@@ -75,15 +75,22 @@ function CalendarComponent() {
     const today = new Date()
     const currentDate = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), today.getDate())
     const startOfMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1)
-    const daysToDate = Math.floor((currentDate.getTime() - startOfMonth.getTime()) / (1000 * 60 * 60 * 24)) + 1
+    
+    // Only count days up to today for the current month
+    const daysToDate = Math.min(
+        today.getDate(),
+        Math.floor((currentDate.getTime() - startOfMonth.getTime()) / (1000 * 60 * 60 * 24)) + 1
+    );
 
     const activeDaysThisMonth = streakData.activeDates.filter(date => {
-      const activeDate = new Date(date)
-      return activeDate >= startOfMonth && activeDate <= currentDate
-    }).length
+        const activeDate = new Date(date)
+        return activeDate.getMonth() === currentMonth.getMonth() &&
+               activeDate.getFullYear() === currentMonth.getFullYear() &&
+               activeDate <= today;
+    }).length;
 
-    return Math.round((activeDaysThisMonth / daysToDate) * 100)
-  }
+    return Math.round((activeDaysThisMonth / daysToDate) * 100);
+};
 
   const days = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa']
   const weeks = []
