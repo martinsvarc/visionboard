@@ -7,10 +7,9 @@ interface TooltipProps {
 }
 
 const TooltipProvider = ({ children }: { children: React.ReactNode }) => children;
-
 const TooltipTrigger = ({ children }: { children: React.ReactNode }) => children;
 
-const TooltipContent = React.forwardRef
+const TooltipContent = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
 >(({ className, ...props }, ref) => (
@@ -23,11 +22,12 @@ const TooltipContent = React.forwardRef
     {...props}
   />
 ))
+
 TooltipContent.displayName = "TooltipContent"
 
 const Tooltip = ({ children, content }: TooltipProps) => {
   const [show, setShow] = React.useState(false);
-
+  
   return (
     <div 
       className="relative inline-block"
