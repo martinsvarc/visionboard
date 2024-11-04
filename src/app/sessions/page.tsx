@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { useSearchParams } from 'next/navigation'
 import {
   Tooltip,
   TooltipContent,
@@ -83,14 +84,34 @@ function CircularProgress({ value, max, size = 120, strokeWidth = 12, children, 
 }
 
 export default function Component() {
-  const [monthlyCount, setMonthlyCount] = React.useState(12)
-  const [totalCount, setTotalCount] = React.useState(42)
-  const [todayCount, setTodayCount] = React.useState(5)
-  const [weeklyCount, setWeeklyCount] = React.useState(18)
+  const [monthlyCount, setMonthlyCount] = React.useState(0)
+  const [totalCount, setTotalCount] = React.useState(0)
+  const [todayCount, setTodayCount] = React.useState(0)
+  const [weeklyCount, setWeeklyCount] = React.useState(0)
   const monthlyMax = 30
   const totalMax = 100
   const todayMax = 10
   const weeklyMax = 50
+
+  const searchParams = useSearchParams();
+  const memberId = searchParams.get('memberId');
+
+  // Load session data
+  React.useEffect(() => {
+    if (memberId) {
+      console.log('Loading sessions for member:', memberId);
+      fetch(`/api/track-sessions?memberId=${memberId}`)
+        .then(response => response.json())
+        .then(data => {
+          console.log('Session data:', data);
+          setTodayCount(data.todayCount);
+          setWeeklyCount(data.weeklyCount);
+          setMonthlyCount(data.monthlyCount);
+          setTotalCount(data.totalCount);
+        })
+        .catch(error => console.error('Error loading sessions:', error));
+    }
+  }, [memberId]);
 
   return (
     <Card className="w-[340px] bg-black border-zinc-900 shadow-2xl">
