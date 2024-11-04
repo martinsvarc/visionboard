@@ -139,7 +139,7 @@ export default function Component() {
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger>
-                    <LockIcon className="w-5 h-5 text-yellow-500/80 hover:text-yellow-500 transition-colors" />
+                    <LockIcon />
                   </TooltipTrigger>
                   <TooltipContent>
                     <p>To Unlock a New Achievement</p>
@@ -152,7 +152,7 @@ export default function Component() {
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger>
-                    <LockIcon className="w-5 h-5 text-yellow-500/80 hover:text-yellow-500 transition-colors" />
+                    <LockIcon />
                   </TooltipTrigger>
                   <TooltipContent>
                     <p>To Unlock a New Achievement</p>
@@ -165,7 +165,7 @@ export default function Component() {
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger>
-                    <LockIcon className="w-5 h-5 text-yellow-500/80 hover:text-yellow-500 transition-colors" />
+                    <LockIcon />
                   </TooltipTrigger>
                   <TooltipContent>
                     <p>To Unlock a New Achievement</p>
@@ -178,7 +178,7 @@ export default function Component() {
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger>
-                    <LockIcon className="w-5 h-5 text-yellow-500/80 hover:text-yellow-500 transition-colors" />
+                    <LockIcon />
                   </TooltipTrigger>
                   <TooltipContent>
                     <p>To Unlock a New Achievement</p>
