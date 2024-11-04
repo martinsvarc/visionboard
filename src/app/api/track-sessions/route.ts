@@ -14,20 +14,21 @@ export async function GET(request: Request) {
       connectionString: process.env.visionboard_PRISMA_URL
     });
 
+    // Format dates as strings
     const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    
     const startOfWeek = new Date(today);
     startOfWeek.setDate(today.getDate() - today.getDay());
-    
     const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
 
-    // Get counts for different periods
+    const startOfWeekStr = startOfWeek.toISOString().split('T')[0];
+    const startOfMonthStr = startOfMonth.toISOString().split('T')[0];
+
+    // Get counts for different periods using string dates
     const { rows } = await pool.sql`
       SELECT 
         COUNT(*) FILTER (WHERE DATE(session_date) = CURRENT_DATE) as today_count,
-        COUNT(*) FILTER (WHERE session_date >= ${startOfWeek}::timestamp) as week_count,
-        COUNT(*) FILTER (WHERE session_date >= ${startOfMonth}::timestamp) as month_count,
+        COUNT(*) FILTER (WHERE session_date >= ${startOfWeekStr}::date) as week_count,
+        COUNT(*) FILTER (WHERE session_date >= ${startOfMonthStr}::date) as month_count,
         COUNT(*) as total_count
       FROM user_sessions
       WHERE user_id = ${memberId};
