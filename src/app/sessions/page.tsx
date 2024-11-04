@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { Suspense } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { useSearchParams } from 'next/navigation'
 import {
@@ -83,7 +84,7 @@ function CircularProgress({ value, max, size = 120, strokeWidth = 12, children, 
   )
 }
 
-export default function Component() {
+function SessionsComponent() {
   const [monthlyCount, setMonthlyCount] = React.useState(0)
   const [totalCount, setTotalCount] = React.useState(0)
   const [todayCount, setTodayCount] = React.useState(0)
@@ -211,5 +212,13 @@ export default function Component() {
         </div>
       </CardContent>
     </Card>
+  )
+}
+
+export default function Page() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <SessionsComponent />
+    </Suspense>
   )
 }
