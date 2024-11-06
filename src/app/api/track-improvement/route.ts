@@ -81,33 +81,6 @@ export async function DELETE(request: Request) {
     const memberId = searchParams.get('memberId');
     const improvementId = searchParams.get('id');
     
-    if (!memberId || !improvementId) {
-      return NextResponse.json({ error: 'Member ID and improvement ID required' }, { status: 400 });
-    }
-
-    const pool = createPool({
-      connectionString: process.env.visionboard_PRISMA_URL
-    });
-
-    await pool.sql`
-      DELETE FROM user_improvements 
-      WHERE user_id = ${memberId} 
-      AND id = ${improvementId};
-    `;
-
-    return NextResponse.json({ success: true });
-  } catch (error) {
-    console.error('Error deleting improvement:', error);
-    return NextResponse.json({ error: 'Failed to delete improvement' }, { status: 500 });
-  }
-}
-
-// New DELETE method to delete all improvements for a user
-export async function DELETE_ALL(request: Request) {
-  try {
-    const { searchParams } = new URL(request.url);
-    const memberId = searchParams.get('memberId');
-    
     if (!memberId) {
       return NextResponse.json({ error: 'Member ID required' }, { status: 400 });
     }
@@ -116,15 +89,22 @@ export async function DELETE_ALL(request: Request) {
       connectionString: process.env.visionboard_PRISMA_URL
     });
 
-    // Delete ALL improvements for this user
-    await pool.sql`
-      DELETE FROM user_improvements 
-      WHERE user_id = ${memberId};
-    `;
+    if (improvementId) {
+      await pool.sql`
+        DELETE FROM user_improvements 
+        WHERE user_id = ${memberId} 
+        AND id = ${improvementId};
+      `;
+    } else {
+      await pool.sql`
+        DELETE FROM user_improvements 
+        WHERE user_id = ${memberId};
+      `;
+    }
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error('Error deleting improvements:', error);
-    return NextResponse.json({ error: 'Failed to delete improvements' }, { status: 500 });
+    console.error('Error deleting improvement(s):', error);
+    return NextResponse.json({ error: 'Failed to delete improvement(s)' }, { status: 500 });
   }
 }
