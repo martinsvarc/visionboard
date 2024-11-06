@@ -90,3 +90,15 @@ export async function GET(request: Request) {
         }, { status: 500 });
     }
 }
+// Step 6: Create daily_plans table
+console.log('Creating daily_plans table...');
+await pool.sql`
+    CREATE TABLE IF NOT EXISTS daily_plans (
+        id SERIAL PRIMARY KEY,
+        user_id TEXT NOT NULL,
+        task TEXT NOT NULL,
+        completed BOOLEAN DEFAULT false,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+    );
+`;
+console.log('Daily plans table created successfully');
