@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { Suspense } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { RefreshCw, Target } from "lucide-react"
@@ -44,7 +45,7 @@ function ImprovementTask({ task }) {
 
 const MemoizedImprovementTask = React.memo(ImprovementTask)
 
-export default function DailyPersonalizedImprovementPlan() {
+function PlanComponent() {
   const [isRefreshing, setIsRefreshing] = React.useState(false)
 
   const handleRefresh = async () => {
@@ -91,5 +92,13 @@ export default function DailyPersonalizedImprovementPlan() {
         </Card>
       </ErrorBoundary>
     </div>
+  )
+}
+
+export default function Page() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <PlanComponent />
+    </Suspense>
   )
 }
