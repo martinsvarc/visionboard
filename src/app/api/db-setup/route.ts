@@ -19,6 +19,7 @@ export async function GET(request: Request) {
         console.log('Testing connection...');
         const connectionTest = await pool.sql`SELECT 1 as test;`;
         console.log('Connection successful:', connectionTest.rows[0]);
+        
         // Step 2: Create vision_boards table
         console.log('Creating vision_boards table...');
         await pool.sql`
@@ -31,6 +32,7 @@ export async function GET(request: Request) {
             );
         `;
         console.log('Vision boards table created successfully');
+        
         // Step 3: Create user_streaks table
         console.log('Creating user_streaks table...');
         await pool.sql`
@@ -44,6 +46,7 @@ export async function GET(request: Request) {
             );
         `;
         console.log('User streaks table created successfully');
+        
         // Step 4: Create user_sessions table
         console.log('Creating user_sessions table...');
         await pool.sql`
@@ -69,6 +72,19 @@ export async function GET(request: Request) {
         `;
         console.log('User improvements table created successfully');
 
+        // Step 6: Create daily_plans table
+        console.log('Creating daily_plans table...');
+        await pool.sql`
+            CREATE TABLE IF NOT EXISTS daily_plans (
+                id SERIAL PRIMARY KEY,
+                user_id TEXT NOT NULL,
+                task TEXT NOT NULL,
+                completed BOOLEAN DEFAULT false,
+                created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+            );
+        `;
+        console.log('Daily plans table created successfully');
+
         return NextResponse.json({ 
             message: 'Setup complete',
             details: {
@@ -90,15 +106,3 @@ export async function GET(request: Request) {
         }, { status: 500 });
     }
 }
-// Step 6: Create daily_plans table
-console.log('Creating daily_plans table...');
-await pool.sql`
-    CREATE TABLE IF NOT EXISTS daily_plans (
-        id SERIAL PRIMARY KEY,
-        user_id TEXT NOT NULL,
-        task TEXT NOT NULL,
-        completed BOOLEAN DEFAULT false,
-        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-    );
-`;
-console.log('Daily plans table created successfully');
