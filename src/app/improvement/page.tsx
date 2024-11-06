@@ -4,12 +4,6 @@ import * as React from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { useSearchParams } from 'next/navigation'
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip"
 import { RefreshCw, TrendingUp } from "lucide-react"
 
 export default function AreasOfImprovement() {
@@ -55,25 +49,16 @@ export default function AreasOfImprovement() {
       <Card className="flex-1 min-w-[350px] bg-primary-foreground/10 backdrop-blur-md border-primary-foreground/20 shadow-[0_8px_32px_0_rgba(31,38,135,0.37)] rounded-2xl overflow-hidden">
         <CardHeader className="flex flex-row items-center justify-between py-3 px-4 bg-primary-foreground/5">
           <CardTitle className="text-sm font-medium text-primary-foreground/90">Areas of Improvement</CardTitle>
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button 
-                  variant="outline" 
-                  size="icon" 
-                  className="bg-primary-foreground/10 hover:bg-primary-foreground/20 border-primary-foreground/20 w-6 h-6 p-1"
-                  onClick={fetchImprovements}
-                  disabled={isRefreshing}
-                  aria-label="Refresh"
-                >
-                  <RefreshCw className={`h-4 w-4 text-primary-foreground/90 ${isRefreshing ? 'animate-spin' : ''}`} />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent side="left" className="bg-primary-foreground/10 backdrop-blur-md border-primary-foreground/20">
-                <p className="text-xs text-primary-foreground/90">Updates Automatically Every 24 Hours</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
+          <Button 
+            variant="outline" 
+            size="icon" 
+            className="bg-primary-foreground/10 hover:bg-primary-foreground/20 border-primary-foreground/20 w-6 h-6 p-1"
+            onClick={fetchImprovements}
+            disabled={isRefreshing}
+            title="Updates Automatically Every 24 Hours"
+          >
+            <RefreshCw className={`h-4 w-4 text-primary-foreground/90 ${isRefreshing ? 'animate-spin' : ''}`} />
+          </Button>
         </CardHeader>
         <CardContent className="space-y-4 p-4">
           {loading ? (
