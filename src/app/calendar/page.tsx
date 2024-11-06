@@ -24,7 +24,7 @@ function CalendarComponent() {
   const searchParams = useSearchParams();
   const memberId = searchParams.get('memberId');
 
-  // Keep your existing data fetching
+  // Keep your existing data fetching - NO CHANGES
   React.useEffect(() => {
     if (memberId) {
       fetch(`/api/track-streak?memberId=${memberId}`)
@@ -40,7 +40,7 @@ function CalendarComponent() {
     }
   }, [memberId, currentMonth]);
 
-  // Keep all your existing calendar logic
+  // Keep all your existing calendar logic - NO CHANGES
   const daysInMonth = new Date(
     currentMonth.getFullYear(),
     currentMonth.getMonth() + 1,
@@ -61,7 +61,9 @@ function CalendarComponent() {
     setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1))
   }
 
-  const isToday = (date: number) => {
+  // Updated to handle null
+  const isToday = (date: number | null) => {
+    if (!date) return false;
     const today = new Date()
     return (
       date === today.getDate() &&
@@ -70,7 +72,8 @@ function CalendarComponent() {
     )
   }
 
-  const getDateStatus = (date: number) => {
+  const getDateStatus = (date: number | null) => {
+    if (!date) return 'inactive';
     const dateStr = `${currentMonth.getFullYear()}-${String(currentMonth.getMonth() + 1).padStart(2, '0')}-${String(date).padStart(2, '0')}`
     if (streakData.activeDates.includes(dateStr)) {
       return streakData.current >= streakData.longest ? 'currentStreak' : 'previousStreak'
@@ -78,6 +81,7 @@ function CalendarComponent() {
     return 'inactive'
   }
 
+  // Keep your consistency calculation - NO CHANGES
   const calculateConsistency = () => {
     const today = new Date()
     const currentDate = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), today.getDate())
@@ -209,7 +213,7 @@ function CalendarComponent() {
                         "aspect-square flex items-center justify-center text-sm relative",
                         {
                           "text-gray-400": day && getDateStatus(day) === 'inactive',
-                          "border-2 border-[#556bc7] text-[#556bc7] font-extrabold rounded-xl": isToday(day),
+                          "border-2 border-[#556bc7] text-[#556bc7] font-extrabold rounded-xl": day && isToday(day),
                           "bg-[#51c1a9] border-2 border-[#51c1a9] text-white font-extrabold rounded-xl shadow-md": day && getDateStatus(day) === 'currentStreak',
                           "bg-[#fbb350] text-white font-medium rounded-xl shadow-sm": day && getDateStatus(day) === 'previousStreak',
                           "": !day,
