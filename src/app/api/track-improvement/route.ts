@@ -75,7 +75,6 @@ export async function POST(request: Request) {
   }
 }
 
-// Add DELETE method
 export async function DELETE(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
@@ -100,5 +99,32 @@ export async function DELETE(request: Request) {
   } catch (error) {
     console.error('Error deleting improvement:', error);
     return NextResponse.json({ error: 'Failed to delete improvement' }, { status: 500 });
+  }
+}
+
+// New DELETE method to delete all improvements for a user
+export async function DELETE(request: Request) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const memberId = searchParams.get('memberId');
+    
+    if (!memberId) {
+      return NextResponse.json({ error: 'Member ID required' }, { status: 400 });
+    }
+
+    const pool = createPool({
+      connectionString: process.env.visionboard_PRISMA_URL
+    });
+
+    // Delete ALL improvements for this user
+    await pool.sql`
+      DELETE FROM user_improvements 
+      WHERE user_id = ${memberId};
+    `;
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error('Error deleting improvements:', error);
+    return NextResponse.json({ error: 'Failed to delete improvements' }, { status: 500 });
   }
 }
