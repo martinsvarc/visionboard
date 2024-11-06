@@ -1,10 +1,9 @@
 "use client"
-
 import * as React from "react"
 import { Suspense } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { RefreshCw, Target } from "lucide-react"
+import { RefreshCw } from "lucide-react"
 import {
   Tooltip,
   TooltipContent,
@@ -64,21 +63,22 @@ function PlanComponent() {
             </div>
             <TooltipProvider>
               <Tooltip>
-                <TooltipTrigger>
-                  <div>
-                    <Button 
-                      variant="outline" 
-                      size="icon" 
-                      className="bg-white/10 hover:bg-white/20 border-white/20 w-6 h-6 p-1 -mt-1"
-                      onClick={handleRefresh}
-                      aria-label="Refresh improvement plan"
-                      disabled={isRefreshing}
-                    >
-                      <RefreshCw className={`w-4 h-4 text-white/90 ${isRefreshing ? 'animate-spin' : ''}`} />
-                    </Button>
-                  </div>
+                <TooltipTrigger asChild>
+                  <Button 
+                    variant="outline" 
+                    size="icon" 
+                    className="bg-white/10 hover:bg-white/20 border-white/20 w-6 h-6 p-1 -mt-1"
+                    onClick={handleRefresh}
+                    aria-label="Refresh improvement plan"
+                    disabled={isRefreshing}
+                  >
+                    <RefreshCw className={`w-4 h-4 text-white/90 ${isRefreshing ? 'animate-spin' : ''}`} />
+                  </Button>
                 </TooltipTrigger>
-                <TooltipContent side="left" className="backdrop-blur-xl bg-white/10 border-white/20 text-white/90">
+                <TooltipContent 
+                  sideOffset={5}
+                  className="backdrop-blur-xl bg-white/10 border-white/20 text-white/90"
+                >
                   <p className="text-xs">Updates Automatically Every 24 Hours</p>
                 </TooltipContent>
               </Tooltip>
