@@ -7,8 +7,13 @@ import { Button } from "@/components/ui/button"
 import { useSearchParams } from 'next/navigation'
 import { RefreshCw, TrendingUp } from "lucide-react"
 
+interface Improvement {
+  id: number;
+  text: string;
+}
+
 function ImprovementComponent() {
-  const [improvements, setImprovements] = React.useState<string[]>([])
+  const [improvements, setImprovements] = React.useState<Improvement[]>([])
   const [loading, setLoading] = React.useState(true)
   const [error, setError] = React.useState<string | null>(null)
   const [isRefreshing, setIsRefreshing] = React.useState(false)
@@ -80,14 +85,14 @@ function ImprovementComponent() {
             <p className="text-primary-foreground/90">No improvements found</p>
           ) : (
             <ul className="space-y-2">
-              {improvements.map((improvement, index) => (
+              {improvements.map((improvement) => (
                 <li 
-                  key={index}
+                  key={improvement.id}
                   className="flex items-center gap-3 p-3 rounded-lg bg-primary-foreground/5 hover:bg-primary-foreground/10 transition-all duration-300 backdrop-blur-sm border border-primary-foreground/10"
                 >
                   <TrendingUp className="w-5 h-5 text-primary-foreground/70" />
                   <span className="flex-1 text-sm font-medium text-primary-foreground/90">
-                    {improvement}
+                    {improvement.text}
                   </span>
                 </li>
               ))}
@@ -99,7 +104,6 @@ function ImprovementComponent() {
   )
 }
 
-// Default export wrapped in Suspense
 export default function Page() {
   return (
     <Suspense fallback={<div>Loading...</div>}>
