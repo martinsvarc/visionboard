@@ -20,7 +20,7 @@ const improvementTasks = [
   "Role-play these specific customer personas"
 ]
 
-function ErrorFallback({ error, resetErrorBoundary }) {
+function ErrorFallback({ error, resetErrorBoundary }: { error: Error, resetErrorBoundary: () => void }) {
   return (
     <div role="alert" className="text-red-500 p-4">
       <p>Something went wrong:</p>
@@ -30,7 +30,7 @@ function ErrorFallback({ error, resetErrorBoundary }) {
   )
 }
 
-function ImprovementTask({ task }) {
+function ImprovementTask({ task }: { task: string }) {
   return (
     <div 
       className="flex items-center gap-3 p-3 rounded-lg backdrop-blur-md bg-white/10 hover:bg-white/20 border border-white/20 transition-all duration-300 shadow-[inset_0_0_1px_rgba(255,255,255,0.2)]"
