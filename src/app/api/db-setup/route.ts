@@ -44,7 +44,6 @@ export async function GET(request: Request) {
             );
         `;
         console.log('User streaks table created successfully');
-
         // Step 4: Create user_sessions table
         console.log('Creating user_sessions table...');
         await pool.sql`
@@ -57,6 +56,18 @@ export async function GET(request: Request) {
             );
         `;
         console.log('User sessions table created successfully');
+
+        // Step 5: Create user_improvements table
+        console.log('Creating user_improvements table...');
+        await pool.sql`
+            CREATE TABLE IF NOT EXISTS user_improvements (
+                id SERIAL PRIMARY KEY,
+                user_id TEXT NOT NULL,
+                improvement TEXT NOT NULL,
+                created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+            );
+        `;
+        console.log('User improvements table created successfully');
 
         return NextResponse.json({ 
             message: 'Setup complete',
