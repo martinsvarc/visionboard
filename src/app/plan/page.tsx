@@ -5,13 +5,7 @@ import { Suspense } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { useSearchParams } from 'next/navigation'
-import { RefreshCw, Target } from "lucide-react"
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip"
+import { RefreshCw } from "lucide-react"
 import { Checkbox } from "@/components/ui/checkbox"
 
 interface Improvement {
@@ -64,27 +58,16 @@ function PlanComponent() {
           <div>
             <CardTitle className="text-sm font-medium text-white/90 mt-1">Daily Personalized Improvement Plan</CardTitle>
           </div>
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button 
-                  variant="outline" 
-                  size="icon" 
-                  className="bg-white/10 hover:bg-white/20 border-white/20 w-6 h-6 p-1 -mt-1"
-                  onClick={fetchImprovements}
-                  disabled={isRefreshing}
-                >
-                  <RefreshCw className={`w-4 h-4 text-white/90 ${isRefreshing ? 'animate-spin' : ''}`} />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent 
-                sideOffset={5}
-                className="backdrop-blur-xl bg-white/10 border-white/20 text-white/90"
-              >
-                <p className="text-xs">Updates Automatically Every 24 Hours</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
+          <Button 
+            variant="outline" 
+            size="icon" 
+            className="bg-white/10 hover:bg-white/20 border-white/20 w-6 h-6 p-1 -mt-1"
+            onClick={fetchImprovements}
+            disabled={isRefreshing}
+            title="Updates Automatically Every 24 Hours"
+          >
+            <RefreshCw className={`w-4 h-4 text-white/90 ${isRefreshing ? 'animate-spin' : ''}`} />
+          </Button>
         </CardHeader>
         <CardContent className="space-y-4 p-4">
           {loading ? (
