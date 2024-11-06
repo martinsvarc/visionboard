@@ -103,7 +103,7 @@ export async function DELETE(request: Request) {
 }
 
 // New DELETE method to delete all improvements for a user
-export async function DELETE(request: Request) {
+export async function DELETE_ALL(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const memberId = searchParams.get('memberId');
