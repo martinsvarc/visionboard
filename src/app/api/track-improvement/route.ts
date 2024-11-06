@@ -14,17 +14,20 @@ export async function GET(request: Request) {
       connectionString: process.env.visionboard_PRISMA_URL
     });
 
-    // Get improvements for the specific member
+    // Get only the 3 most recent improvements
     const { rows } = await pool.sql`
-      SELECT improvement, created_at 
+      SELECT improvement, id
       FROM user_improvements 
       WHERE user_id = ${memberId}
       ORDER BY created_at DESC
-      LIMIT 5;
+      LIMIT 3;
     `;
 
     return NextResponse.json({
-      improvements: rows.map(row => row.improvement)
+      improvements: rows.map(row => ({
+        id: row.id,
+        text: row.improvement
+      }))
     });
 
   } catch (error) {
@@ -35,25 +38,67 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
-    const { memberId, improvement } = await request.json();
+    const { memberId, improvements } = await request.json();
     
-    if (!memberId || !improvement) {
-      return NextResponse.json({ error: 'Member ID and improvement required' }, { status: 400 });
+    if (!memberId || !improvements || !Array.isArray(improvements)) {
+      return NextResponse.json({ error: 'Member ID and improvements array required' }, { status: 400 });
     }
 
     const pool = createPool({
       connectionString: process.env.visionboard_PRISMA_URL
     });
 
-    // Add improvement
+    // Delete old improvements first
     await pool.sql`
-      INSERT INTO user_improvements (user_id, improvement)
-      VALUES (${memberId}, ${improvement});
+      DELETE FROM user_improvements 
+      WHERE user_id = ${memberId} 
+      AND id NOT IN (
+        SELECT id FROM user_improvements 
+        WHERE user_id = ${memberId} 
+        ORDER BY created_at DESC 
+        LIMIT 3
+      );
+    `;
+
+    // Add new improvements
+    for (const improvement of improvements) {
+      await pool.sql`
+        INSERT INTO user_improvements (user_id, improvement)
+        VALUES (${memberId}, ${improvement});
+      `;
+    }
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error('Error adding improvements:', error);
+    return NextResponse.json({ error: 'Failed to add improvements' }, { status: 500 });
+  }
+}
+
+// Add DELETE method
+export async function DELETE(request: Request) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const memberId = searchParams.get('memberId');
+    const improvementId = searchParams.get('id');
+    
+    if (!memberId || !improvementId) {
+      return NextResponse.json({ error: 'Member ID and improvement ID required' }, { status: 400 });
+    }
+
+    const pool = createPool({
+      connectionString: process.env.visionboard_PRISMA_URL
+    });
+
+    await pool.sql`
+      DELETE FROM user_improvements 
+      WHERE user_id = ${memberId} 
+      AND id = ${improvementId};
     `;
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error('Error adding improvement:', error);
-    return NextResponse.json({ error: 'Failed to add improvement' }, { status: 500 });
+    console.error('Error deleting improvement:', error);
+    return NextResponse.json({ error: 'Failed to delete improvement' }, { status: 500 });
   }
 }
