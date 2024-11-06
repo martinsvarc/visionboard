@@ -1,9 +1,9 @@
 'use client'
 
 import * as React from "react"
-import { createClient } from '@supabase/supabase-js'
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import { useSearchParams } from 'next/navigation'
 import {
   Tooltip,
   TooltipContent,
@@ -12,40 +12,30 @@ import {
 } from "@/components/ui/tooltip"
 import { RefreshCw, TrendingUp } from "lucide-react"
 
-const supabase = createClient(
-  'https://mmbluqkupxdgkdkmwzvj.supabase.co',
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1tYmx1cWt1cHhkZ2tka213enZqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mjk0NzgwODcsImV4cCI6MjA0NTA1NDA4N30.5WwH-WwpEKMs0PPvYX0jhMfF3X5mwlFl5IfMTyW48GU'
-)
-
 export default function AreasOfImprovement() {
   const [improvements, setImprovements] = React.useState([])
   const [loading, setLoading] = React.useState(true)
   const [error, setError] = React.useState(null)
   const [isRefreshing, setIsRefreshing] = React.useState(false)
 
+  const searchParams = useSearchParams();
+  const memberId = searchParams.get('memberId');
+
   const fetchImprovements = React.useCallback(async () => {
+    if (!memberId) return;
+    
     try {
       setIsRefreshing(true)
       setError(null)
 
-      const { data, error: supabaseError } = await supabase
-        .from('Call Logs')
-        .select('improvement')
-        .eq('id', 'agent10@example.com') // Using the ID we saw in the test output
-        .single()
+      const response = await fetch(`/api/track-improvement?memberId=${memberId}`);
+      const data = await response.json();
 
-      if (supabaseError) {
-        throw supabaseError
+      if (data.error) {
+        throw new Error(data.error);
       }
 
-      if (data?.improvement) {
-        // If improvement data exists, split it into an array
-        const improvementArray = data.improvement.split(',').map(item => item.trim())
-        setImprovements(improvementArray)
-      } else {
-        // Handle the case where improvement is null
-        setImprovements([])
-      }
+      setImprovements(data.improvements || []);
     } catch (err) {
       console.error('Error fetching improvements:', err)
       setError('Failed to fetch improvements')
@@ -54,7 +44,7 @@ export default function AreasOfImprovement() {
       setLoading(false)
       setIsRefreshing(false)
     }
-  }, [])
+  }, [memberId])
 
   React.useEffect(() => {
     fetchImprovements()
