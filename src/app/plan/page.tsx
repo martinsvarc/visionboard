@@ -78,7 +78,6 @@ function PlanComponent() {
                   </div>
                 </TooltipTrigger>
                 <TooltipContent 
-                  sideOffset={5}
                   className="backdrop-blur-xl bg-white/10 border-white/20 text-white/90"
                 >
                   <p className="text-xs">Updates Automatically Every 24 Hours</p>
