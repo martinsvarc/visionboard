@@ -63,17 +63,19 @@ function PlanComponent() {
             </div>
             <TooltipProvider>
               <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button 
-                    variant="outline" 
-                    size="icon" 
-                    className="bg-white/10 hover:bg-white/20 border-white/20 w-6 h-6 p-1 -mt-1"
-                    onClick={handleRefresh}
-                    aria-label="Refresh improvement plan"
-                    disabled={isRefreshing}
-                  >
-                    <RefreshCw className={`w-4 h-4 text-white/90 ${isRefreshing ? 'animate-spin' : ''}`} />
-                  </Button>
+                <TooltipTrigger>
+                  <div>
+                    <Button 
+                      variant="outline" 
+                      size="icon" 
+                      className="bg-white/10 hover:bg-white/20 border-white/20 w-6 h-6 p-1 -mt-1"
+                      onClick={handleRefresh}
+                      aria-label="Refresh improvement plan"
+                      disabled={isRefreshing}
+                    >
+                      <RefreshCw className={`w-4 h-4 text-white/90 ${isRefreshing ? 'animate-spin' : ''}`} />
+                    </Button>
+                  </div>
                 </TooltipTrigger>
                 <TooltipContent 
                   sideOffset={5}
