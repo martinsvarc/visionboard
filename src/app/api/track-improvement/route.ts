@@ -29,7 +29,6 @@ export async function GET(request: Request) {
         text: row.improvement
       }))
     });
-
   } catch (error) {
     console.error('Error getting improvements:', error);
     return NextResponse.json({ error: 'Failed to get improvements' }, { status: 500 });
