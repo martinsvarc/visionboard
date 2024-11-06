@@ -13,9 +13,9 @@ import {
 import { RefreshCw, TrendingUp } from "lucide-react"
 
 export default function AreasOfImprovement() {
-  const [improvements, setImprovements] = React.useState([])
+  const [improvements, setImprovements] = React.useState<string[]>([])
   const [loading, setLoading] = React.useState(true)
-  const [error, setError] = React.useState(null)
+  const [error, setError] = React.useState<string | null>(null)
   const [isRefreshing, setIsRefreshing] = React.useState(false)
 
   const searchParams = useSearchParams();
