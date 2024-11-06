@@ -29,7 +29,7 @@ function PlanComponent() {
       setIsRefreshing(true)
       setError(null)
 
-      const response = await fetch(`/api/track-improvement?memberId=${memberId}`);
+const response = await fetch(`/api/daily-plans?memberId=${memberId}`);
       const data = await response.json();
 
       if (data.error) {
