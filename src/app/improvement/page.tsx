@@ -1,12 +1,13 @@
 'use client'
 
 import * as React from "react"
+import { Suspense } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { useSearchParams } from 'next/navigation'
 import { RefreshCw, TrendingUp } from "lucide-react"
 
-export default function AreasOfImprovement() {
+function ImprovementComponent() {
   const [improvements, setImprovements] = React.useState<string[]>([])
   const [loading, setLoading] = React.useState(true)
   const [error, setError] = React.useState<string | null>(null)
@@ -96,4 +97,13 @@ export default function AreasOfImprovement() {
       </Card>
     </div>
   )
+}
+
+// Default export wrapped in Suspense
+export default function Page() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <ImprovementComponent />
+    </Suspense>
+  );
 }
