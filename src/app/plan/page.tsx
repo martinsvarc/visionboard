@@ -13,7 +13,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
-import { ErrorBoundary } from "react-error-boundary"
+import { ErrorBoundary, FallbackProps } from "react-error-boundary"
 
 interface Improvement {
   id: number;
@@ -22,7 +22,7 @@ interface Improvement {
 
 const colors = ["#fbb350", "#51c1a9", "#556bc7"]
 
-function ErrorFallback({ error, resetErrorBoundary }) {
+function ErrorFallback({ error, resetErrorBoundary }: FallbackProps) {
   return (
     <div role="alert" className="text-red-500 p-4">
       <p>Something went wrong:</p>
