@@ -9,7 +9,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 
-// Keep your existing icon components
+// Icon Components
 const UploadIcon = () => (
   <svg
     width="24"
@@ -61,7 +61,6 @@ const TrashIcon = () => (
   </svg>
 )
 
-// Keep your existing interfaces
 interface VisionItem {
   id: string
   src: string
@@ -73,7 +72,6 @@ interface VisionItem {
   aspectRatio: number
 }
 
-// Keep your existing ColorPicker component
 function ColorPicker({ color, onChange }: { color: string, onChange: (color: string) => void }) {
   const [hue, setHue] = useState(0)
   const [position, setPosition] = useState({ x: 0, y: 0 })
@@ -132,7 +130,6 @@ function ColorPicker({ color, onChange }: { color: string, onChange: (color: str
 }
 
 function VisionBoardComponent() {
-  // Keep your existing state and refs
   const [visionItems, setVisionItems] = useState<VisionItem[]>([])
   const [maxZIndex, setMaxZIndex] = useState(0)
   const [draggedItem, setDraggedItem] = useState<string | null>(null)
@@ -146,46 +143,34 @@ function VisionBoardComponent() {
   const searchParams = useSearchParams()
   const memberId = searchParams.get('memberId')
 
-  // Keep your existing API functions
+  // API Functions
   const saveVisionBoard = async () => {
     try {
       const itemsToSave = visionItems.map(item => ({
         id: item.id,
         src: item.src,
-        position: {
-          x: item.x,
-          y: item.y
-        },
-        size: {
-          width: item.width,
-          height: item.height
-        },
+        position: { x: item.x, y: item.y },
+        size: { width: item.width, height: item.height },
         zIndex: item.zIndex,
         aspectRatio: item.aspectRatio
-      }));
+      }))
 
       await fetch('/api/create-table', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          memberId,
-          items: itemsToSave
-        })
-      });
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ memberId, items: itemsToSave })
+      })
     } catch (error) {
-      console.error('Error saving vision board:', error);
+      console.error('Error saving vision board:', error)
     }
-  };
+  }
 
   const loadVisionBoard = async () => {
     try {
-      const response = await fetch(`/api/create-table?memberId=${memberId}`);
+      const response = await fetch(`/api/create-table?memberId=${memberId}`)
       if (response.ok) {
-        const data = await response.json();
-        
-        if (data.items && Array.isArray(data.items)) {
+        const data = await response.json()
+        if (data.items?.length) {
           const transformedItems = data.items.map((item: any) => ({
             id: item.id || `vision-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
             src: item.src,
@@ -195,33 +180,30 @@ function VisionBoardComponent() {
             height: item.size?.height || 300,
             zIndex: item.zIndex || 1,
             aspectRatio: item.aspectRatio || 1
-          }));
-          setVisionItems(transformedItems);
+          }))
+          setVisionItems(transformedItems)
         }
       }
     } catch (error) {
-      console.error('Error loading vision board:', error);
+      console.error('Error loading vision board:', error)
     }
-  };
+  }
 
-  // Keep your existing effects
   useEffect(() => {
     if (memberId) {
-      loadVisionBoard();
+      loadVisionBoard()
     }
-  }, [memberId]);
+  }, [memberId])
 
   useEffect(() => {
     if (memberId && visionItems.length > 0) {
       const debounceTimer = setTimeout(() => {
-        saveVisionBoard();
-      }, 2000);
-
-      return () => clearTimeout(debounceTimer);
+        saveVisionBoard()
+      }, 2000)
+      return () => clearTimeout(debounceTimer)
     }
-  }, [visionItems, memberId]);
+  }, [visionItems, memberId])
 
-  // Keep all your existing handler functions
   const handleFileUpload = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files
     if (files && boardRef.current) {
@@ -263,47 +245,6 @@ function VisionBoardComponent() {
     }
   }, [maxZIndex])
 
-  // Keep your existing update functions
-  const updateItemPosition = useCallback((id: string, x: number, y: number) => {
-    setVisionItems(prev => prev.map(item => {
-      if (item.id === id && boardRef.current) {
-        const board = boardRef.current.getBoundingClientRect()
-        const maxX = board.width - item.width
-        const maxY = board.height - item.height
-        return {
-          ...item,
-          x: Math.min(Math.max(0, x), maxX),
-          y: Math.min(Math.max(0, y), maxY)
-        }
-      }
-      return item
-    }))
-  }, [])
-
-  const updateItemSize = useCallback((id: string, width: number, height: number, x: number, y: number) => {
-    setVisionItems(prev => prev.map(item => {
-      if (item.id === id && boardRef.current) {
-        const board = boardRef.current.getBoundingClientRect()
-        const newWidth = Math.min(Math.max(100, width), board.width - x)
-        const newHeight = Math.min(Math.max(100, height), board.height - y)
-        const newX = Math.max(0, Math.min(x, board.width - newWidth))
-        const newY = Math.max(0, Math.min(y, board.height - newHeight))
-        return { ...item, width: newWidth, height: newHeight, x: newX, y: newY }
-      }
-      return item
-    }))
-  }, [])
-
-  const bringToFront = useCallback((id: string) => {
-    setMaxZIndex(prev => prev + 1)
-    setVisionItems(prev => prev.map(item => item.id === id ? { ...item, zIndex: maxZIndex + 1 } : item))
-  }, [maxZIndex])
-
-  const deleteItem = useCallback((id: string) => {
-    setVisionItems(prev => prev.filter(item => item.id !== id))
-  }, [])
-
-  // Keep your existing mouse handlers
   const handleMouseDown = (event: React.MouseEvent, id: string) => {
     if (event.button !== 0) return
     const item = visionItems.find(item => item.id === id)
@@ -360,7 +301,6 @@ function VisionBoardComponent() {
             return
         }
 
-        // Maintain aspect ratio
         const aspectRatio = item.aspectRatio
         if (newWidth / newHeight > aspectRatio) {
           newWidth = newHeight * aspectRatio
@@ -385,3 +325,58 @@ function VisionBoardComponent() {
     event.preventDefault()
     const item = visionItems.find(item => item.id === id)
     if (item && boardRef.current) {
+      const board = boardRef.current.getBoundingClientRect()
+      setResizedItem(id)
+      setResizeStart({
+        x: event.clientX - board.left,
+        y: event.clientY - board.top,
+        width: item.width,
+        height: item.height,
+        corner
+      })
+      bringToFront(id)
+    }
+  }
+
+  const updateItemPosition = useCallback((id: string, x: number, y: number) => {
+    setVisionItems(prev => prev.map(item => {
+      if (item.id === id && boardRef.current) {
+        const board = boardRef.current.getBoundingClientRect()
+        const maxX = board.width - item.width
+        const maxY = board.height - item.height
+        return {
+          ...item,
+          x: Math.min(Math.max(0, x), maxX),
+          y: Math.min(Math.max(0, y), maxY)
+        }
+      }
+      return item
+    }))
+  }, [])
+
+  const updateItemSize = useCallback((id: string, width: number, height: number, x: number, y: number) => {
+    setVisionItems(prev => prev.map(item => {
+      if (item.id === id && boardRef.current) {
+        const board = boardRef.current.getBoundingClientRect()
+        const newWidth = Math.min(Math.max(100, width), board.width - x)
+        const newHeight = Math.min(Math.max(100, height), board.height - y)
+        const newX = Math.max(0, Math.min(x, board.width - newWidth))
+        const newY = Math.max(0, Math.min(y, board.height - newHeight))
+        return { ...item, width: newWidth, height: newHeight, x: newX, y: newY }
+      }
+      return item
+    }))
+  }, [])
+
+  const bringToFront = useCallback((id: string) => {
+    setMaxZIndex(prev => prev + 1)
+    setVisionItems(prev => prev.map(item => 
+      item.id === id ? { ...item, zIndex: maxZIndex + 1 } : item
+    ))
+  }, [maxZIndex])
+
+  const deleteItem = useCallback((id: string) => {
+    setVisionItems(prev => prev.filter(item => item.id !== id))
+  }, [])
+
+  useEffect(() => {
