@@ -131,10 +131,10 @@ function ColorPicker({ color, onChange }: { color: string, onChange: (color: str
 function VisionBoardComponent() {
   const [visionItems, setVisionItems] = useState<VisionItem[]>([])
   const [maxZIndex, setMaxZIndex] = useState(0)
-  const [draggedItem, setDraggedItem] = useState<string | null>(null)
-  const [resizedItem, setResizedItem] = useState<string | null>(null)
-  const [dragOffset, setDragOffset] = useState<{ x: number, y: number } | null>(null)
-  const [resizeStart, setResizeStart] = useState<{ x: number, y: number, width: number, height: number, corner: string } | null>(null)
+  const [activeItem, setActiveItem] = useState<string | null>(null)
+  const [interactionType, setInteractionType] = useState<'move' | 'resize' | null>(null)
+  const [interactionStart, setInteractionStart] = useState<{ x: number, y: number } | null>(null)
+  const [resizeDirection, setResizeDirection] = useState<string | null>(null)
   const [glowColor, setGlowColor] = useState('rgba(85, 107, 199, 0.3)')
   const boardRef = useRef<HTMLDivElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -242,30 +242,51 @@ const handleFileUpload = useCallback((event: React.ChangeEvent<HTMLInputElement>
     }
   }, [maxZIndex])
 
-  const updateItemPosition = useCallback((id: string, x: number, y: number) => {
+  const updateItemPosition = useCallback((id: string, deltaX: number, deltaY: number) => {
     setVisionItems(prev => prev.map(item => {
       if (item.id === id && boardRef.current) {
         const board = boardRef.current.getBoundingClientRect()
-        const maxX = board.width - item.width
-        const maxY = board.height - item.height
-        return {
-          ...item,
-          x: Math.min(Math.max(0, x), maxX),
-          y: Math.min(Math.max(0, y), maxY)
-        }
+        const newX = Math.min(Math.max(0, item.x + deltaX), board.width - item.width)
+        const newY = Math.min(Math.max(0, item.y + deltaY), board.height - item.height)
+        return { ...item, x: newX, y: newY }
       }
       return item
     }))
   }, [])
 
-  const updateItemSize = useCallback((id: string, width: number, height: number, x: number, y: number) => {
+  const updateItemSize = useCallback((id: string, deltaWidth: number, deltaHeight: number, direction: string) => {
     setVisionItems(prev => prev.map(item => {
       if (item.id === id && boardRef.current) {
         const board = boardRef.current.getBoundingClientRect()
-        const newWidth = Math.min(Math.max(100, width), board.width - x)
-        const newHeight = Math.min(Math.max(100, height), board.height - y)
-        const newX = Math.max(0, Math.min(x, board.width - newWidth))
-        const newY = Math.max(0, Math.min(y, board.height - newHeight))
+        let newWidth = item.width
+        let newHeight = item.height
+        let newX = item.x
+        let newY = item.y
+
+        if (direction.includes('right')) {
+          newWidth = Math.min(Math.max(100, item.width + deltaWidth), board.width - item.x)
+        } else if (direction.includes('left')) {
+          const potentialWidth = Math.min(Math.max(100, item.width - deltaWidth), item.x + item.width)
+          newX = item.x + (item.width - potentialWidth)
+          newWidth = potentialWidth
+        }
+
+        if (direction.includes('bottom')) {
+          newHeight = Math.min(Math.max(100, item.height + deltaHeight), board.height - item.y)
+        } else if (direction.includes('top')) {
+          const potentialHeight = Math.min(Math.max(100, item.height - deltaHeight), item.y + item.height)
+          newY = item.y + (item.height - potentialHeight)
+          newHeight = potentialHeight
+        }
+
+        // Maintain aspect ratio
+        const aspectRatio = item.aspectRatio
+        if (newWidth / newHeight > aspectRatio) {
+          newWidth = newHeight * aspectRatio
+        } else {
+          newHeight = newWidth / aspectRatio
+        }
+
         return { ...item, width: newWidth, height: newHeight, x: newX, y: newY }
       }
       return item
@@ -274,118 +295,58 @@ const handleFileUpload = useCallback((event: React.ChangeEvent<HTMLInputElement>
 
   const bringToFront = useCallback((id: string) => {
     setMaxZIndex(prev => prev + 1)
-    setVisionItems(prev => prev.map(item => 
-      item.id === id ? { ...item, zIndex: maxZIndex + 1 } : item
-    ))
+    setVisionItems(prev => prev.map(item => item.id === id ? { ...item, zIndex: maxZIndex + 1 } : item))
   }, [maxZIndex])
 
   const deleteItem = useCallback((id: string) => {
     setVisionItems(prev => prev.filter(item => item.id !== id))
   }, [])
 
-  const handleMouseDown = (event: React.MouseEvent, id: string) => {
-    if (event.button !== 0) return
-    const item = visionItems.find(item => item.id === id)
-    if (item) {
-      setDraggedItem(id)
-      setDragOffset({
-        x: event.clientX - item.x,
-        y: event.clientY - item.y
-      })
-      bringToFront(id)
-    }
-  }
-
-  const handleMouseMove = (event: React.MouseEvent) => {
-    if (draggedItem && dragOffset && boardRef.current) {
-      const board = boardRef.current.getBoundingClientRect()
-      const x = event.clientX - board.left - dragOffset.x
-      const y = event.clientY - board.top - dragOffset.y
-      updateItemPosition(draggedItem, x, y)
-    } else if (resizedItem && resizeStart && boardRef.current) {
-      const board = boardRef.current.getBoundingClientRect()
-      const item = visionItems.find(item => item.id === resizedItem)
-      if (item) {
-        let newWidth, newHeight, newX, newY
-        const deltaX = event.clientX - board.left - resizeStart.x
-        const deltaY = event.clientY - board.top - resizeStart.y
-
-        switch (resizeStart.corner) {
-          case 'top-left':
-            newWidth = resizeStart.width - deltaX
-            newHeight = resizeStart.height - deltaY
-            newX = resizeStart.x + deltaX
-            newY = resizeStart.y + deltaY
-            break
-          case 'top-right':
-            newWidth = resizeStart.width + deltaX
-            newHeight = resizeStart.height - deltaY
-            newX = resizeStart.x
-            newY = resizeStart.y + deltaY
-            break
-          case 'bottom-left':
-            newWidth = resizeStart.width - deltaX
-            newHeight = resizeStart.height + deltaY
-            newX = resizeStart.x + deltaX
-            newY = resizeStart.y
-            break
-          case 'bottom-right':
-            newWidth = resizeStart.width + deltaX
-            newHeight = resizeStart.height + deltaY
-            newX = resizeStart.x
-            newY = resizeStart.y
-            break
-          default:
-            return
-        }
-
-        const aspectRatio = item.aspectRatio
-        if (newWidth / newHeight > aspectRatio) {
-          newWidth = newHeight * aspectRatio
-        } else {
-          newHeight = newWidth / aspectRatio
-        }
-
-        updateItemSize(resizedItem, newWidth, newHeight, newX, newY)
-      }
-    }
-  }
-
-  const handleMouseUp = useCallback(() => {
-    setDraggedItem(null)
-    setDragOffset(null)
-    setResizedItem(null)
-    setResizeStart(null)
-  }, [])
-
-  const handleResizeStart = (event: React.MouseEvent, id: string, corner: string) => {
+  const handleInteractionStart = (event: React.MouseEvent, id: string, type: 'move' | 'resize', direction?: string) => {
+    if (event.button !== 0) return // Only handle left mouse button
     event.stopPropagation()
     event.preventDefault()
-    const item = visionItems.find(item => item.id === id)
-    if (item && boardRef.current) {
-      const board = boardRef.current.getBoundingClientRect()
-      setResizedItem(id)
-      setResizeStart({
-        x: event.clientX - board.left,
-        y: event.clientY - board.top,
-        width: item.width,
-        height: item.height,
-        corner
-      })
-      bringToFront(id)
+    setActiveItem(id)
+    setInteractionType(type)
+    setInteractionStart({ x: event.clientX, y: event.clientY })
+    if (type === 'resize' && direction) {
+      setResizeDirection(direction)
     }
+    bringToFront(id)
+  }
+
+  const handleInteractionMove = (event: React.MouseEvent) => {
+    if (!activeItem || !interactionStart) return
+
+    const deltaX = event.clientX - interactionStart.x
+    const deltaY = event.clientY - interactionStart.y
+
+    if (interactionType === 'move') {
+      updateItemPosition(activeItem, deltaX, deltaY)
+    } else if (interactionType === 'resize' && resizeDirection) {
+      updateItemSize(activeItem, deltaX, deltaY, resizeDirection)
+    }
+
+    setInteractionStart({ x: event.clientX, y: event.clientY })
+  }
+
+  const handleInteractionEnd = () => {
+    setActiveItem(null)
+    setInteractionType(null)
+    setInteractionStart(null)
+    setResizeDirection(null)
   }
 
   useEffect(() => {
     const handleGlobalMouseUp = () => {
-      handleMouseUp()
+      handleInteractionEnd()
     }
 
     window.addEventListener('mouseup', handleGlobalMouseUp)
     return () => {
       window.removeEventListener('mouseup', handleGlobalMouseUp)
     }
-  }, [handleMouseUp])
+  }, [])
 return (
     <div className="fixed inset-0 bg-white">
       <div className="flex flex-col h-screen w-screen overflow-hidden">
@@ -441,9 +402,9 @@ return (
                 borderColor: glowColor,
                 boxShadow: `0 0 10px ${glowColor}, 0 0 20px ${glowColor.replace('0.3', '0.2')}`
               }}
-              onMouseMove={handleMouseMove}
-              onMouseUp={handleMouseUp}
-              onMouseLeave={handleMouseUp}
+              onMouseMove={handleInteractionMove}
+              onMouseUp={handleInteractionEnd}
+              onMouseLeave={handleInteractionEnd}
             >
               <div className="absolute inset-0 overflow-hidden">
                 {visionItems.map((item) => (
@@ -457,13 +418,13 @@ return (
                       height: `${item.height}px`,
                       zIndex: item.zIndex,
                     }}
-                    onMouseDown={(e) => handleMouseDown(e, item.id)}
+                    onMouseDown={(e) => handleInteractionStart(e, item.id, 'move')}
                   >
                     <div className="relative w-full h-full rounded-2xl overflow-hidden border shadow-lg transition-all duration-300"
-  style={{
-    borderColor: glowColor,
-    boxShadow: `0 0 10px ${glowColor}, 0 0 20px ${glowColor.replace('0.3', '0.2')}`
-  }}>
+                      style={{
+                        borderColor: glowColor,
+                        boxShadow: `0 0 10px ${glowColor}, 0 0 20px ${glowColor.replace('0.3', '0.2')}`
+                      }}>
                       <img 
                         src={item.src} 
                         alt="Vision Item" 
@@ -480,19 +441,19 @@ return (
                       </Button>
                       <div 
                         className="resize-handle resize-handle-tl" 
-                        onMouseDown={(e) => handleResizeStart(e, item.id, 'top-left')} 
+                        onMouseDown={(e) => handleInteractionStart(e, item.id, 'resize', 'top-left')} 
                       />
                       <div 
                         className="resize-handle resize-handle-tr" 
-                        onMouseDown={(e) => handleResizeStart(e, item.id, 'top-right')} 
+                        onMouseDown={(e) => handleInteractionStart(e, item.id, 'resize', 'top-right')} 
                       />
                       <div 
                         className="resize-handle resize-handle-bl" 
-                        onMouseDown={(e) => handleResizeStart(e, item.id, 'bottom-left')} 
+                        onMouseDown={(e) => handleInteractionStart(e, item.id, 'resize', 'bottom-left')} 
                       />
                       <div 
                         className="resize-handle resize-handle-br" 
-                        onMouseDown={(e) => handleResizeStart(e, item.id, 'bottom-right')} 
+                        onMouseDown={(e) => handleInteractionStart(e, item.id, 'resize', 'bottom-right')} 
                       />
                     </div>
                   </div>
