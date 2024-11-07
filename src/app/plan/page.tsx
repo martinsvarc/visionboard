@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { useSearchParams } from 'next/navigation'
 import { RefreshCw, Check } from "lucide-react"
 import { Checkbox } from "@/components/ui/checkbox"
+import type { CheckedState } from "@radix-ui/react-checkbox"
 import {
   Tooltip,
   TooltipContent,
@@ -33,7 +34,11 @@ function ErrorFallback({ error, resetErrorBoundary }: FallbackProps) {
 }
 
 function ImprovementTask({ improvement, color }: { improvement: Improvement; color: string }) {
-  const [isChecked, setIsChecked] = React.useState(false)
+  const [isChecked, setIsChecked] = React.useState<boolean>(false)
+  
+  const handleCheckedChange = (checked: CheckedState) => {
+    setIsChecked(checked === true)
+  }
   
   return (
     <div 
@@ -43,7 +48,7 @@ function ImprovementTask({ improvement, color }: { improvement: Improvement; col
       <div className="relative flex items-center justify-center">
         <Checkbox 
           checked={isChecked}
-          onCheckedChange={setIsChecked}
+          onCheckedChange={handleCheckedChange}
           className="h-5 w-5 rounded-lg border-2 border-white data-[state=checked]:bg-transparent data-[state=checked]:border-white"
         />
         {isChecked && (
