@@ -1,4 +1,4 @@
-'use client'
+"use client"
 
 import React, { useState, useRef, useCallback, useEffect, Suspense } from 'react'
 import { Button } from "@/components/ui/button"
@@ -9,7 +9,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 
-// Icon Components
+// Keep your existing icon components
 const UploadIcon = () => (
   <svg
     width="24"
@@ -61,6 +61,7 @@ const TrashIcon = () => (
   </svg>
 )
 
+// Keep your existing interfaces
 interface VisionItem {
   id: string
   src: string
@@ -71,6 +72,8 @@ interface VisionItem {
   zIndex: number
   aspectRatio: number
 }
+
+// Keep your existing ColorPicker component
 function ColorPicker({ color, onChange }: { color: string, onChange: (color: string) => void }) {
   const [hue, setHue] = useState(0)
   const [position, setPosition] = useState({ x: 0, y: 0 })
@@ -122,28 +125,28 @@ function ColorPicker({ color, onChange }: { color: string, onChange: (color: str
         max="360"
         value={hue}
         onChange={handleHueChange}
-        className="w-full h-3 rounded-lg appearance-none cursor-pointer"
-        style={{
-          background: 'linear-gradient(to right, #ff0000 0%, #ffff00 17%, #00ff00 33%, #00ffff 50%, #0000ff 67%, #ff00ff 83%, #ff0000 100%)'
-        }}
+        className="color-slider w-full h-3 rounded-lg appearance-none cursor-pointer"
       />
     </div>
   )
 }
 
 function VisionBoardComponent() {
+  // Keep your existing state and refs
   const [visionItems, setVisionItems] = useState<VisionItem[]>([])
   const [maxZIndex, setMaxZIndex] = useState(0)
   const [draggedItem, setDraggedItem] = useState<string | null>(null)
   const [resizedItem, setResizedItem] = useState<string | null>(null)
   const [dragOffset, setDragOffset] = useState<{ x: number, y: number } | null>(null)
-  const [resizeStart, setResizeStart] = useState<{ x: number, y: number, width: number, height: number } | null>(null)
-  const [glowColor, setGlowColor] = useState('rgba(255, 0, 222, 0.5)')
+  const [resizeStart, setResizeStart] = useState<{ x: number, y: number, width: number, height: number, corner: string } | null>(null)
+  const [glowColor, setGlowColor] = useState('rgba(85, 107, 199, 0.3)')
   const boardRef = useRef<HTMLDivElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const searchParams = useSearchParams()
   const memberId = searchParams.get('memberId')
+
+  // Keep your existing API functions
   const saveVisionBoard = async () => {
     try {
       const itemsToSave = visionItems.map(item => ({
@@ -160,8 +163,6 @@ function VisionBoardComponent() {
         zIndex: item.zIndex,
         aspectRatio: item.aspectRatio
       }));
-
-      console.log('Saving items:', itemsToSave);
 
       await fetch('/api/create-table', {
         method: 'POST',
@@ -183,19 +184,9 @@ function VisionBoardComponent() {
       const response = await fetch(`/api/create-table?memberId=${memberId}`);
       if (response.ok) {
         const data = await response.json();
-        console.log('Loaded data:', data);
-
-        interface SavedItem {
-          id: string;
-          src: string;
-          position: { x: number; y: number };
-          size: { width: number; height: number };
-          zIndex: number;
-          aspectRatio: number;
-        }
-
+        
         if (data.items && Array.isArray(data.items)) {
-          const transformedItems = data.items.map((item: SavedItem) => ({
+          const transformedItems = data.items.map((item: any) => ({
             id: item.id || `vision-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
             src: item.src,
             x: item.position?.x || 0,
@@ -205,7 +196,6 @@ function VisionBoardComponent() {
             zIndex: item.zIndex || 1,
             aspectRatio: item.aspectRatio || 1
           }));
-          console.log('Transformed items:', transformedItems);
           setVisionItems(transformedItems);
         }
       }
@@ -214,16 +204,15 @@ function VisionBoardComponent() {
     }
   };
 
+  // Keep your existing effects
   useEffect(() => {
     if (memberId) {
-      console.log('Loading vision board for member:', memberId);
       loadVisionBoard();
     }
   }, [memberId]);
 
   useEffect(() => {
     if (memberId && visionItems.length > 0) {
-      console.log('Changes detected, preparing to save...');
       const debounceTimer = setTimeout(() => {
         saveVisionBoard();
       }, 2000);
@@ -232,6 +221,7 @@ function VisionBoardComponent() {
     }
   }, [visionItems, memberId]);
 
+  // Keep all your existing handler functions
   const handleFileUpload = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files
     if (files && boardRef.current) {
@@ -243,12 +233,18 @@ function VisionBoardComponent() {
             const aspectRatio = img.width / img.height
             const height = 300
             const width = height * aspectRatio
+            const board = boardRef.current!.getBoundingClientRect()
+            
+            const maxX = board.width - width
+            const maxY = board.height - height
+            const x = Math.min(Math.max(0, Math.random() * maxX), maxX)
+            const y = Math.min(Math.max(0, Math.random() * maxY), maxY)
             
             const newItem: VisionItem = {
               id: `vision-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
               src: e.target?.result as string,
-              x: Math.random() * (boardRef.current!.clientWidth - width),
-              y: Math.random() * (boardRef.current!.clientHeight - height),
+              x,
+              y,
               width,
               height,
               zIndex: maxZIndex + 1,
@@ -266,29 +262,33 @@ function VisionBoardComponent() {
       fileInputRef.current.value = ''
     }
   }, [maxZIndex])
+
+  // Keep your existing update functions
   const updateItemPosition = useCallback((id: string, x: number, y: number) => {
     setVisionItems(prev => prev.map(item => {
-      if (item.id === id) {
-        const boardWidth = boardRef.current?.clientWidth ?? 0
-        const boardHeight = boardRef.current?.clientHeight ?? 0
+      if (item.id === id && boardRef.current) {
+        const board = boardRef.current.getBoundingClientRect()
+        const maxX = board.width - item.width
+        const maxY = board.height - item.height
         return {
           ...item,
-          x: Math.min(Math.max(0, x), boardWidth - item.width),
-          y: Math.min(Math.max(0, y), boardHeight - item.height)
+          x: Math.min(Math.max(0, x), maxX),
+          y: Math.min(Math.max(0, y), maxY)
         }
       }
       return item
     }))
   }, [])
 
-  const updateItemSize = useCallback((id: string, width: number, height: number) => {
+  const updateItemSize = useCallback((id: string, width: number, height: number, x: number, y: number) => {
     setVisionItems(prev => prev.map(item => {
-      if (item.id === id) {
-        const boardWidth = boardRef.current?.clientWidth ?? 0
-        const boardHeight = boardRef.current?.clientHeight ?? 0
-        const newWidth = Math.min(Math.max(100, width), boardWidth - item.x)
-        const newHeight = Math.min(Math.max(100, height), boardHeight - item.y)
-        return { ...item, width: newWidth, height: newHeight }
+      if (item.id === id && boardRef.current) {
+        const board = boardRef.current.getBoundingClientRect()
+        const newWidth = Math.min(Math.max(100, width), board.width - x)
+        const newHeight = Math.min(Math.max(100, height), board.height - y)
+        const newX = Math.max(0, Math.min(x, board.width - newWidth))
+        const newY = Math.max(0, Math.min(y, board.height - newHeight))
+        return { ...item, width: newWidth, height: newHeight, x: newX, y: newY }
       }
       return item
     }))
@@ -296,15 +296,14 @@ function VisionBoardComponent() {
 
   const bringToFront = useCallback((id: string) => {
     setMaxZIndex(prev => prev + 1)
-    setVisionItems(prev => prev.map(item => 
-      item.id === id ? { ...item, zIndex: maxZIndex + 1 } : item
-    ))
+    setVisionItems(prev => prev.map(item => item.id === id ? { ...item, zIndex: maxZIndex + 1 } : item))
   }, [maxZIndex])
 
   const deleteItem = useCallback((id: string) => {
     setVisionItems(prev => prev.filter(item => item.id !== id))
   }, [])
 
+  // Keep your existing mouse handlers
   const handleMouseDown = (event: React.MouseEvent, id: string) => {
     if (event.button !== 0) return
     const item = visionItems.find(item => item.id === id)
@@ -326,13 +325,54 @@ function VisionBoardComponent() {
       updateItemPosition(draggedItem, x, y)
     } else if (resizedItem && resizeStart && boardRef.current) {
       const board = boardRef.current.getBoundingClientRect()
-      const deltaX = event.clientX - board.left - resizeStart.x
-      const deltaY = event.clientY - board.top - resizeStart.y
-      const newWidth = resizeStart.width + deltaX
-      const newHeight = resizeStart.height + deltaY
-      updateItemSize(resizedItem, newWidth, newHeight)
+      const item = visionItems.find(item => item.id === resizedItem)
+      if (item) {
+        let newWidth, newHeight, newX, newY
+        const deltaX = event.clientX - board.left - resizeStart.x
+        const deltaY = event.clientY - board.top - resizeStart.y
+
+        switch (resizeStart.corner) {
+          case 'top-left':
+            newWidth = resizeStart.width - deltaX
+            newHeight = resizeStart.height - deltaY
+            newX = resizeStart.x + deltaX
+            newY = resizeStart.y + deltaY
+            break
+          case 'top-right':
+            newWidth = resizeStart.width + deltaX
+            newHeight = resizeStart.height - deltaY
+            newX = resizeStart.x
+            newY = resizeStart.y + deltaY
+            break
+          case 'bottom-left':
+            newWidth = resizeStart.width - deltaX
+            newHeight = resizeStart.height + deltaY
+            newX = resizeStart.x + deltaX
+            newY = resizeStart.y
+            break
+          case 'bottom-right':
+            newWidth = resizeStart.width + deltaX
+            newHeight = resizeStart.height + deltaY
+            newX = resizeStart.x
+            newY = resizeStart.y
+            break
+          default:
+            return
+        }
+
+        // Maintain aspect ratio
+        const aspectRatio = item.aspectRatio
+        if (newWidth / newHeight > aspectRatio) {
+          newWidth = newHeight * aspectRatio
+        } else {
+          newHeight = newWidth / aspectRatio
+        }
+
+        updateItemSize(resizedItem, newWidth, newHeight, newX, newY)
+      }
     }
   }
+
   const handleMouseUp = useCallback(() => {
     setDraggedItem(null)
     setDragOffset(null)
@@ -340,154 +380,8 @@ function VisionBoardComponent() {
     setResizeStart(null)
   }, [])
 
-  const handleResizeStart = (event: React.MouseEvent, id: string) => {
+  const handleResizeStart = (event: React.MouseEvent, id: string, corner: string) => {
     event.stopPropagation()
     event.preventDefault()
     const item = visionItems.find(item => item.id === id)
     if (item && boardRef.current) {
-      const board = boardRef.current.getBoundingClientRect()
-      setResizedItem(id)
-      setResizeStart({
-        x: event.clientX - board.left,
-        y: event.clientY - board.top,
-        width: item.width,
-        height: item.height
-      })
-      bringToFront(id)
-    }
-  }
-
-  useEffect(() => {
-    const handleGlobalMouseUp = () => {
-      handleMouseUp()
-    }
-
-    window.addEventListener('mouseup', handleGlobalMouseUp)
-    return () => {
-      window.removeEventListener('mouseup', handleGlobalMouseUp)
-    }
-  }, [handleMouseUp])
-
-  return (
-    <div className="fixed inset-0 bg-black">
-      <style jsx global>{`
-        .neon-border {
-          border: 2px solid ${glowColor};
-          box-shadow: 0 0 10px ${glowColor},
-                      0 0 20px ${glowColor.replace('0.5', '0.2')};
-          transition: all 0.3s ease;
-        }
-
-        .resizing .neon-border {
-          border-color: rgba(255, 255, 255, 0.2);
-          box-shadow: none;
-        }
-
-        .board-border {
-          border: 4px solid ${glowColor};
-          box-shadow: 0 0 10px ${glowColor},
-                      0 0 20px ${glowColor.replace('0.5', '0.2')};
-        }
-      `}</style>
-      <div className="flex flex-col h-screen w-screen overflow-hidden">
-        <header className="flex items-center justify-between px-6 py-4 bg-black/80 backdrop-blur-xl border-b border-white/10">
-          <h1 className="text-2xl font-medium bg-gradient-to-r from-white to-white/60 bg-clip-text text-transparent">
-            Interactive Vision Board
-          </h1>
-          <div className="flex items-center gap-2">
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  size="lg"
-                  className="bg-white/5 border-white/10 hover:bg-white/10 hover:border-white/20 text-white gap-2"
-                >
-                  <PaletteIcon />
-                  Color
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="end">
-                <ColorPicker color={glowColor} onChange={setGlowColor} />
-              </PopoverContent>
-            </Popover>
-            <Button
-              variant="outline"
-              size="lg"
-              className="bg-white/5 border-white/10 hover:bg-white/10 hover:border-white/20 text-white gap-2"
-              onClick={() => fileInputRef.current?.click()}
-            >
-              <UploadIcon />
-              Add Vision
-            </Button>
-            <input
-              ref={fileInputRef}
-              type="file"
-              multiple
-              accept="image/*"
-              className="hidden"
-              onChange={handleFileUpload}
-            />
-          </div>
-        </header>
-        <main className="flex-grow relative">
-          <div 
-            ref={boardRef} 
-            className="absolute inset-0 w-full h-full board-border"
-            style={{
-              backgroundImage: `url('https://hebbkx1anhila5yf.public.blob.vercel-storage.com/WhatsApp%20Image%202024-10-30%20at%2023.57.20_ed2f1e31-aPdwQSRkwi53AybFdiD3fKtsJDczh6.jpg')`,
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
-            }}
-            onMouseMove={handleMouseMove}
-            onMouseUp={handleMouseUp}
-            onMouseLeave={handleMouseUp}
-          >
-            {visionItems.map((item) => (
-              <div
-                key={item.id}
-                className={`absolute cursor-move group select-none ${resizedItem === item.id ? 'resizing' : ''}`}
-                style={{
-                  left: `${item.x}px`,
-                  top: `${item.y}px`,
-                  width: `${item.width}px`,
-                  height: `${item.height}px`,
-                  zIndex: item.zIndex,
-                }}
-                onMouseDown={(e) => handleMouseDown(e, item.id)}
-              >
-                <div className="relative w-full h-full neon-border rounded-xl overflow-hidden">
-                  <img 
-                    src={item.src} 
-                    alt="Vision Item" 
-                    className="w-full h-full object-cover select-none" 
-                    draggable="false"
-                  />
-                  <Button
-                    variant="destructive"
-                    size="icon"
-                    className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-black/80 hover:bg-black/90 backdrop-blur-sm"
-                    onClick={() => deleteItem(item.id)}
-                  >
-                    <TrashIcon />
-                  </Button>
-                  <div
-                    className="absolute bottom-0 right-0 w-6 h-6 bg-white/10 hover:bg-white/20 cursor-se-resize rounded-xl transition-colors backdrop-blur-sm"
-                    onMouseDown={(e) => handleResizeStart(e, item.id)}
-                  />
-                </div>
-              </div>
-            ))}
-          </div>
-        </main>
-      </div>
-    </div>
-  )
-}
-
-export default function Component() {
-  return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <VisionBoardComponent />
-    </Suspense>
-  )
-}
