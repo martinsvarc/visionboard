@@ -1,3 +1,5 @@
+'use client'
+
 import React, { useState, useRef, useCallback, useEffect, Suspense } from 'react'
 import { Button } from "@/components/ui/button"
 import { useSearchParams } from 'next/navigation'
