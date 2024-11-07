@@ -67,7 +67,7 @@ function ImprovementComponent() {
               <CardTitle className="text-base font-extrabold text-[#556bc7]">Areas of Improvement</CardTitle>
               <TooltipProvider>
                 <Tooltip>
-                  <TooltipTrigger asChild>
+                  <TooltipTrigger>
                     <Button 
                       variant="outline" 
                       size="icon" 
@@ -79,7 +79,7 @@ function ImprovementComponent() {
                       <RefreshCw className={`h-4 w-4 text-[#556bc7] ${isRefreshing ? 'animate-spin' : ''}`} />
                     </Button>
                   </TooltipTrigger>
-                  <TooltipContent side="left" className="bg-white border-gray-200">
+                  <TooltipContent className="bg-white border-gray-200">
                     <p className="text-xs text-gray-600 font-medium">Updates Automatically Every 24 Hours</p>
                   </TooltipContent>
                 </Tooltip>
