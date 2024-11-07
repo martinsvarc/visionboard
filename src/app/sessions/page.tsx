@@ -159,7 +159,7 @@ function SessionsComponent() {
                     <div className="flex items-center gap-4">
                       <TooltipProvider>
                         <Tooltip>
-                          <TooltipTrigger asChild>
+                          <TooltipTrigger>
                             <Button 
                               size="icon" 
                               variant="ghost" 
