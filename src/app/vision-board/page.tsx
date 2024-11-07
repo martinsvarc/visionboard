@@ -9,6 +9,17 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 
+interface VisionItem {
+  id: string
+  src: string
+  x: number
+  y: number
+  width: number
+  height: number
+  zIndex: number
+  aspectRatio: number
+}
+
 // Icon Components remain the same
 const UploadIcon = () => (
   <svg
