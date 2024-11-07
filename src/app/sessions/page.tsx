@@ -10,23 +10,17 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
+import { Button } from "@/components/ui/button"
+import { Lock, Unlock } from "lucide-react"
+import Image from "next/image"
 
-const LockIcon = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="20"
-    height="20"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-    <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-  </svg>
-)
+interface SessionData {
+  count: number
+  max: number
+  label: string
+  color: string
+  badge: string
+}
 
 function CircularProgress({ value, max, size = 120, strokeWidth = 12, children, color }: {
   value: number
@@ -47,7 +41,7 @@ function CircularProgress({ value, max, size = 120, strokeWidth = 12, children, 
         style={{ width: size, height: size }}
       >
         <circle
-          className="stroke-zinc-800"
+          className="stroke-[#f2f3f9]"
           strokeWidth={strokeWidth}
           fill="transparent"
           r={radius}
@@ -55,7 +49,8 @@ function CircularProgress({ value, max, size = 120, strokeWidth = 12, children, 
           cy={size / 2}
         />
         <circle
-          className={`${color} transition-all duration-700 ease-out-expo`}
+          stroke={color}
+          className="transition-all duration-700 ease-out-expo"
           strokeWidth={strokeWidth}
           strokeLinecap="round"
           fill="transparent"
@@ -65,15 +60,6 @@ function CircularProgress({ value, max, size = 120, strokeWidth = 12, children, 
           style={{
             strokeDasharray: circumference,
             strokeDashoffset: offset,
-            filter: `drop-shadow(0 0 8px ${
-              color === 'stroke-yellow-500'
-                ? 'rgba(234, 179, 8, 0.4)'
-                : color === 'stroke-blue-500'
-                ? 'rgba(59, 130, 246, 0.4)'
-                : color === 'stroke-green-500'
-                ? 'rgba(34, 197, 94, 0.4)'
-                : 'rgba(236, 72, 153, 0.4)'
-            })`
           }}
         />
       </svg>
@@ -85,133 +71,136 @@ function CircularProgress({ value, max, size = 120, strokeWidth = 12, children, 
 }
 
 function SessionsComponent() {
-  const [monthlyCount, setMonthlyCount] = React.useState(0)
-  const [totalCount, setTotalCount] = React.useState(0)
-  const [todayCount, setTodayCount] = React.useState(0)
-  const [weeklyCount, setWeeklyCount] = React.useState(0)
-  const monthlyMax = 30
-  const totalMax = 100
-  const todayMax = 10
-  const weeklyMax = 50
+  const [sessions, setSessions] = React.useState<Record<string, SessionData>>({
+    today: { 
+      count: 0, 
+      max: 10, 
+      label: "today", 
+      color: "#546bc8",
+      badge: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/bronze-badge-OViNeupnapYUCtB5vwzJVMdZuGuBV5.svg"
+    },
+    week: { 
+      count: 0, 
+      max: 50, 
+      label: "this week", 
+      color: "#50c2aa",
+      badge: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/silver-badge-enVkwENGFRkFzSnZhPx1Ou3Vny1Ydi.svg"
+    },
+    month: { 
+      count: 0, 
+      max: 30, 
+      label: "this month", 
+      color: "#fb9851",
+      badge: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/gold-badge-riUne9cvOoQqD1jkSdP6BpoVbJI58A.svg"
+    },
+    total: { 
+      count: 0, 
+      max: 100, 
+      label: "total", 
+      color: "#fbb351",
+      badge: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/diamond-badge-NBii8nLIX5QheqCHQgHbZvTPXiH4hu.svg"
+    },
+  })
 
-  const searchParams = useSearchParams();
-  const memberId = searchParams.get('memberId');
+  const searchParams = useSearchParams()
+  const memberId = searchParams.get('memberId')
 
   // Load session data
   React.useEffect(() => {
     if (memberId) {
-      console.log('Loading sessions for member:', memberId);
+      console.log('Loading sessions for member:', memberId)
       fetch(`/api/track-sessions?memberId=${memberId}`)
         .then(response => response.json())
         .then(data => {
-          console.log('Session data:', data);
-          setTodayCount(data.todayCount);
-          setWeeklyCount(data.weeklyCount);
-          setMonthlyCount(data.monthlyCount);
-          setTotalCount(data.totalCount);
+          console.log('Session data:', data)
+          setSessions(prev => ({
+            ...prev,
+            today: { ...prev.today, count: data.todayCount },
+            week: { ...prev.week, count: data.weeklyCount },
+            month: { ...prev.month, count: data.monthlyCount },
+            total: { ...prev.total, count: data.totalCount }
+          }))
         })
-        .catch(error => console.error('Error loading sessions:', error));
+        .catch(error => console.error('Error loading sessions:', error))
     }
-  }, [memberId]);
+  }, [memberId])
 
   return (
-    <Card className="w-[340px] bg-black border-zinc-900 shadow-2xl">
-      <CardHeader>
-        <CardTitle className="text-zinc-100">Sessions</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="flex flex-col items-center gap-6">
-          <div className="grid grid-cols-2 gap-4">
-            <CircularProgress value={todayCount} max={todayMax} size={140} color="stroke-green-500">
-              <div className="text-center">
-                <div className="text-3xl font-bold text-green-500 drop-shadow-[0_0_3px_rgba(34,197,94,0.5)]">
-                  {todayCount}
-                </div>
-                <div className="text-xs text-zinc-400">today</div>
+    <div className="min-h-screen w-full bg-transparent p-8 flex items-center justify-center">
+      <div className="bg-[#f2f3f9] p-6 rounded-3xl shadow-xl">
+        <Card className="w-full max-w-[380px] bg-white border-none shadow-lg rounded-2xl">
+          <CardHeader className="text-left pb-2">
+            <CardTitle className="text-[#546bc8] text-2xl font-medium">Activity</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-col items-center gap-8">
+              <div className="grid grid-cols-2 gap-8">
+                {Object.entries(sessions).map(([key, session]) => (
+                  <CircularProgress key={key} value={session.count} max={session.max} size={140} color={session.color}>
+                    <div className="text-center">
+                      <div className="text-4xl font-semibold" style={{ color: session.color }}>
+                        {session.count}
+                      </div>
+                      <div className="text-sm text-slate-400 font-medium mt-1">{session.label}</div>
+                    </div>
+                  </CircularProgress>
+                ))}
               </div>
-            </CircularProgress>
-            <CircularProgress value={weeklyCount} max={weeklyMax} size={140} color="stroke-pink-500">
-              <div className="text-center">
-                <div className="text-3xl font-bold text-pink-500 drop-shadow-[0_0_3px_rgba(236,72,153,0.5)]">
-                  {weeklyCount}
-                </div>
-                <div className="text-xs text-zinc-400">this week</div>
+              <div className="flex flex-col gap-3 text-sm w-full">
+                {Object.entries(sessions).map(([key, session]) => (
+                  <div 
+                    key={key} 
+                    className="flex items-center justify-between rounded-full py-4 px-6" 
+                    style={{ backgroundColor: session.color }}
+                  >
+                    <span className="font-medium text-white text-lg">
+                      {session.label.charAt(0).toUpperCase() + session.label.slice(1)}: {session.count} of {session.max}
+                    </span>
+                    <div className="flex items-center gap-4">
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button 
+                              size="icon" 
+                              variant="ghost" 
+                              className="h-8 w-8 text-white hover:bg-white/10 relative group overflow-hidden"
+                            >
+                              <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-100 transition-opacity rounded-full" />
+                              <div className={`absolute inset-1 transition-opacity ${session.count === session.max ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
+                                <Image
+                                  src={session.badge}
+                                  alt={`${key} badge`}
+                                  width={24}
+                                  height={24}
+                                  className="w-full h-full object-contain"
+                                />
+                              </div>
+                              {session.count === session.max ? (
+                                <Unlock className="w-5 h-5 text-green-500 absolute" />
+                              ) : (
+                                <Lock className="w-5 h-5 group-hover:opacity-0 transition-opacity absolute" />
+                              )}
+                              <span className="sr-only">Achievement info</span>
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            {session.count === session.max ? (
+                              <p>{key.charAt(0).toUpperCase() + key.slice(1)} achievement badge unlocked!</p>
+                            ) : (
+                              <p>Unlock {key} achievement badge!</p>
+                            )}
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </div>
+                  </div>
+                ))}
               </div>
-            </CircularProgress>
-            <CircularProgress value={monthlyCount} max={monthlyMax} size={140} color="stroke-yellow-500">
-              <div className="text-center">
-                <div className="text-3xl font-bold text-yellow-500 drop-shadow-[0_0_3px_rgba(234,179,8,0.5)]">
-                  {monthlyCount}
-                </div>
-                <div className="text-xs text-zinc-400">this month</div>
-              </div>
-            </CircularProgress>
-            <CircularProgress value={totalCount} max={totalMax} size={140} color="stroke-blue-500">
-              <div className="text-center">
-                <div className="text-3xl font-bold text-blue-500 drop-shadow-[0_0_3px_rgba(59,130,246,0.5)]">
-                  {totalCount}
-                </div>
-                <div className="text-xs text-zinc-400">total</div>
-              </div>
-            </CircularProgress>
-          </div>
-          <div className="flex flex-col gap-2 text-sm text-zinc-400 w-full">
-            <div className="flex items-center justify-between">
-              <span>Today: {todayCount} of {todayMax}</span>
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger>
-                    <LockIcon />
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>To Unlock a New Achievement</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
             </div>
-            <div className="flex items-center justify-between">
-              <span>This Week: {weeklyCount} of {weeklyMax}</span>
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger>
-                    <LockIcon />
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>To Unlock a New Achievement</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            </div>
-            <div className="flex items-center justify-between">
-              <span>This Month: {monthlyCount} of {monthlyMax}</span>
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger>
-                    <LockIcon />
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>To Unlock a New Achievement</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            </div>
-            <div className="flex items-center justify-between">
-              <span>Total: {totalCount} of {totalMax}</span>
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger>
-                    <LockIcon />
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>To Unlock a New Achievement</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            </div>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
   )
 }
 
