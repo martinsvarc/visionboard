@@ -459,7 +459,11 @@ return (
                     }}
                     onMouseDown={(e) => handleMouseDown(e, item.id)}
                   >
-                    <div className="relative w-full h-full rounded-2xl overflow-hidden border shadow-lg">
+                    <div className="relative w-full h-full rounded-2xl overflow-hidden border shadow-lg transition-all duration-300"
+  style={{
+    borderColor: glowColor,
+    boxShadow: `0 0 10px ${glowColor}, 0 0 20px ${glowColor.replace('0.3', '0.2')}`
+  }}>
                       <img 
                         src={item.src} 
                         alt="Vision Item" 
