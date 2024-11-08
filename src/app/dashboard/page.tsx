@@ -13,6 +13,7 @@ import { format, startOfWeek, endOfWeek, startOfMonth, endOfMonth, subDays } fro
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { useSearchParams } from 'next/navigation'
 import { TooltipProvider, TooltipContent, TooltipTrigger, Tooltip } from "@/components/ui/tooltip"
+import { DateRange } from "react-day-picker";
 
 interface CallLog {
   id: number;
@@ -166,16 +167,15 @@ const Chart: React.FC<ChartProps> = ({ data, category, dateRange, setDateRange }
                   initialFocus
                   mode="range"
                   defaultMonth={dateRange?.from || new Date()}
-                  selected={dateRange?.from ? dateRange : undefined}
-                  onSelect={(range: { from: Date | null; to: Date | null } | undefined) => {
-                    if (range?.from) {
-                      setDateRange({ 
-                        from: range.from, 
-                        to: range.to 
-                      });
-                    } else {
-                      setDateRange({ from: null, to: null });
-                    }
+                  selected={{
+                    from: dateRange?.from ? new Date(dateRange.from) : undefined,
+                    to: dateRange?.to ? new Date(dateRange.to) : undefined
+                  }}
+                  onSelect={(range: DateRange | undefined) => {
+                    setDateRange({
+                      from: range?.from || null,
+                      to: range?.to || null
+                    });
                   }}
                   numberOfMonths={2}
                 />
