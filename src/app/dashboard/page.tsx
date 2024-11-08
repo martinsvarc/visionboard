@@ -97,7 +97,7 @@ const Chart: React.FC<ChartProps> = ({ data, category, dateRange, setDateRange }
       setSelectedPoints([]);
       setPercentageChange(null);
     } else if (selectedPoints.length === 1) {
-      if (point.name > selectedPoints[0].name) {
+      if (Number(point.name) > Number(selectedPoints[0].name)) {  // Added Number conversion here
         const newSelectedPoints = [...selectedPoints, point].sort((a, b) => 
           Number(a.name) - Number(b.name)
         );
@@ -145,6 +145,8 @@ const Chart: React.FC<ChartProps> = ({ data, category, dateRange, setDateRange }
     const { x, y, width } = viewBox;
     const centerX = x + width / 2;
     const centerY = y;
+    const numericValue = parseFloat(value);
+
     return (
       <g>
         <rect 
@@ -164,7 +166,7 @@ const Chart: React.FC<ChartProps> = ({ data, category, dateRange, setDateRange }
           fontSize="12"
           fontWeight="500"
         >
-          {value > 0 ? `+${value}%` : `${value}%`}
+          {numericValue > 0 ? `+${value}%` : `${value}%`}
         </text>
       </g>
     );
