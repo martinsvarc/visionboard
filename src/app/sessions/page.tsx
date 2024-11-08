@@ -10,8 +10,6 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
-import { Button } from "@/components/ui/button"
-import { Lock, Unlock } from "lucide-react"
 import Image from "next/image"
 
 interface SessionData {
@@ -126,78 +124,54 @@ function SessionsComponent() {
   }, [memberId])
 
   return (
-    <div className="min-h-screen w-full bg-white p-8 flex items-center justify-center">
-      <Card className="w-full max-w-[480px] bg-white border-none shadow-lg rounded-3xl">
-        <CardHeader className="text-left pb-2">
-          <CardTitle className="text-[#546bc8] text-3xl font-medium">Activity</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex flex-col items-center gap-8">
-            <div className="grid grid-cols-2 gap-x-12 gap-y-10 p-4">
-              {Object.entries(sessions).map(([key, session]) => (
-                <CircularProgress key={key} value={session.count} max={session.max} size={180} color={session.color}>
-                  <div className="text-center">
-                    <div className="text-5xl font-semibold" style={{ color: session.color }}>
-                      {session.count}
-                    </div>
-                    <div className="text-base text-slate-400 font-medium mt-2">{session.label}</div>
-                  </div>
-                </CircularProgress>
-              ))}
-            </div>
-            <div className="flex flex-col gap-4 text-sm w-full px-4 pb-4">
-              {Object.entries(sessions).map(([key, session]) => (
-                <div 
-                  key={key} 
-                  className="flex items-center justify-between rounded-full py-4 px-8" 
-                  style={{ backgroundColor: session.color }}
-                >
-                  <span className="font-medium text-white text-xl">
-                    {session.label.charAt(0).toUpperCase() + session.label.slice(1)}: {session.count} of {session.max}
-                  </span>
-                  <div className="flex items-center gap-4">
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger>
-                          <Button 
-                            size="icon" 
-                            variant="ghost" 
-                            className="h-10 w-10 text-white hover:bg-white/10 relative group overflow-hidden"
-                          >
-                            <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-100 transition-opacity rounded-full" />
-                            <div className={`absolute inset-1 transition-opacity ${session.count === session.max ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
+    <div className="min-h-screen w-full bg-transparent p-8 flex items-center justify-center">
+      <div className="bg-[#f2f3f9] p-6 rounded-3xl shadow-xl">
+        <Card className="w-full max-w-[380px] bg-white border-none shadow-lg rounded-2xl">
+          <CardHeader className="text-left pb-2">
+            <CardTitle className="text-[#546bc8] text-2xl font-medium">Activity</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-col items-center">
+              <div className="grid grid-cols-2 gap-8">
+                {Object.entries(sessions).map(([key, session]) => (
+                  <TooltipProvider key={key}>
+                    <Tooltip>
+                      <TooltipTrigger>
+                        <CircularProgress value={session.count} max={session.max} size={140} color={session.color}>
+                          <div className="text-center">
+                            <div className="text-4xl font-semibold" style={{ color: session.color }}>
+                              {session.count}
+                            </div>
+                            <div className="text-sm text-slate-400 font-medium mt-1">{session.label}</div>
+                          </div>
+                        </CircularProgress>
+                      </TooltipTrigger>
+                      <TooltipContent side="bottom">
+                        <div className="text-center">
+                          <p className="font-medium">{session.label.charAt(0).toUpperCase() + session.label.slice(1)}</p>
+                          <p>{session.count} of {session.max}</p>
+                          {session.count === session.max && (
+                            <div className="mt-2">
                               <Image
                                 src={session.badge}
                                 alt={`${key} badge`}
-                                width={28}
-                                height={28}
-                                className="w-full h-full object-contain"
+                                width={40}
+                                height={40}
+                                className="mx-auto"
                               />
+                              <p className="mt-1 text-green-500">Badge Unlocked!</p>
                             </div>
-                            {session.count === session.max ? (
-                              <Unlock className="w-6 h-6 text-green-500 absolute" />
-                            ) : (
-                              <Lock className="w-6 h-6 group-hover:opacity-0 transition-opacity absolute" />
-                            )}
-                            <span className="sr-only">Achievement info</span>
-                          </Button>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          {session.count === session.max ? (
-                            <p>{key.charAt(0).toUpperCase() + key.slice(1)} achievement badge unlocked!</p>
-                          ) : (
-                            <p>Unlock {key} achievement badge!</p>
                           )}
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  </div>
-                </div>
-              ))}
+                        </div>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                ))}
+              </div>
             </div>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   )
 }
