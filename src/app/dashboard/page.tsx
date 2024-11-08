@@ -113,9 +113,20 @@ const Chart: React.FC<ChartProps> = ({ data, category, dateRange, setDateRange }
     }
   };
 
-  const CustomizedDot = (props: any) => {
+  interface CustomDotProps {
+    cx: number;
+    cy: number;
+    value: number;
+    payload: {
+      name: string;
+      value: number;
+    };
+  }
+
+  const CustomizedDot = (props: CustomDotProps) => {
     const { cx, cy, payload } = props;
     const isSelected = selectedPoints.some(point => point.name === payload.name);
+    
     if (isSelected) {
       return (
         <circle 
@@ -128,7 +139,14 @@ const Chart: React.FC<ChartProps> = ({ data, category, dateRange, setDateRange }
         />
       );
     }
-    return null;
+    return (
+      <circle 
+        cx={cx} 
+        cy={cy} 
+        r={0} 
+        fill="none" 
+      />
+    );
   };
 
   const CustomTooltip = ({ active, payload, label }: any) => {
