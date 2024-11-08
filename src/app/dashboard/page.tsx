@@ -114,17 +114,7 @@ const Chart: React.FC<ChartProps> = ({ data, category, dateRange, setDateRange }
     }
   };
 
-  interface CustomDotProps {
-    cx: number;
-    cy: number;
-    value: number;
-    payload: {
-      name: string;
-      value: number;
-    };
-  }
-
-  const CustomizedDot = (props: CustomDotProps) => {
+  const CustomizedDot = (props: any) => {
     const { cx, cy, payload } = props;
     const isSelected = selectedPoints.some(point => point.name === payload.name);
     
@@ -147,6 +137,36 @@ const Chart: React.FC<ChartProps> = ({ data, category, dateRange, setDateRange }
         r={0} 
         fill="none" 
       />
+    );
+  };
+
+  const CustomizedLabel = ({ value, viewBox }: { value: string, viewBox: any }) => {
+    if (!viewBox) return null;
+    const { x, y, width } = viewBox;
+    const centerX = x + width / 2;
+    const centerY = y;
+    return (
+      <g>
+        <rect 
+          x={centerX - 30} 
+          y={centerY - 12} 
+          width="60" 
+          height="24" 
+          fill="rgba(0, 0, 0, 0.7)" 
+          rx="4" 
+          ry="4" 
+        />
+        <text 
+          x={centerX} 
+          y={centerY + 4} 
+          textAnchor="middle" 
+          fill="#ffffff" 
+          fontSize="12"
+          fontWeight="500"
+        >
+          {value > 0 ? `+${value}%` : `${value}%`}
+        </text>
+      </g>
     );
   };
 
@@ -189,67 +209,183 @@ const Chart: React.FC<ChartProps> = ({ data, category, dateRange, setDateRange }
                   )}
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="end">
-                <CalendarComponent
-                  initialFocus
-                  mode="range"
-                  defaultMonth={dateRange?.from || new Date()}
-                  selected={{
-                    from: dateRange?.from ? new Date(dateRange.from) : undefined,
-                    to: dateRange?.to ? new Date(dateRange.to) : undefined
-                  }}
-                  onSelect={(range: DateRange | undefined) => {
-                    setDateRange({
-                      from: range?.from || null,
-                      to: range?.to || null
-                    });
-                  }}
-                  numberOfMonths={2}
-                />
+              <PopoverContent 
+                className="bg-white border border-slate-200 p-0 shadow-lg rounded-xl w-auto" 
+                align="end"
+                sideOffset={8}
+                style={{ zIndex: 9999 }}
+              >
+                <div className="flex flex-col space-y-4 p-4">
+                  <Button
+                    variant="outline"
+                    className="w-full justify-center text-center font-normal col-span-2"
+                    onClick={() => setDateRange({ from: null, to: null })}
+                  >
+                    All time
+                  </Button>
+                  <CalendarComponent
+                    initialFocus
+                    mode="range"
+                    defaultMonth={dateRange?.from || new Date()}
+                    selected={{
+                      from: dateRange?.from ? new Date(dateRange.from) : undefined,
+                      to: dateRange?.to ? new Date(dateRange.to) : undefined
+                    }}
+                    onSelect={(range: DateRange | undefined) => {
+                      setDateRange({
+                        from: range?.from || null,
+                        to: range?.to || null
+                      });
+                    }}
+                    numberOfMonths={2}
+                    className="bg-white [&_.rdp]:p-0 [&_.rdp-months]:space-x-4 [&_.rdp-month]:w-full [&_.rdp-day]:h-10 [&_.rdp-day]:w-10 [&_.rdp-day]:text-sm [&_.rdp-day]:font-normal [&_.rdp-day_span]:flex [&_.rdp-day_span]:h-full [&_.rdp-day_span]:w-full [&_.rdp-day_span]:items-center [&_.rdp-day_span]:justify-center [&_.rdp-day]:hover:bg-slate-100 [&_.rdp-day_button]:font-normal [&_.rdp-day_button]:hover:bg-slate-100 [&_.rdp-button]:hover:bg-slate-100 [&_.rdp-nav_button]:h-9 [&_.rdp-nav_button]:w-9 [&_.rdp-nav_button]:bg-transparent [&_.rdp-nav_button]:hover:bg-slate-100 [&_.rdp-head_cell]:font-normal [&_.rdp-head_cell]:text-slate-500 [&_.rdp-caption_label]:font-medium [&_.rdp-caption_label]:text-slate-900 [&_.rdp-day_selected]:bg-white [&_.rdp-day_selected]:text-slate-900 [&_.rdp-day_selected]:border-2 [&_.rdp-day_selected]:border-dashed [&_.rdp-day_selected]:border-slate-900 [&_.rdp-day_selected]:hover:bg-slate-100 [&_.rdp-day_range_start]:bg-slate-900 [&_.rdp-day_range_start]:text-white [&_.rdp-day_range_end]:bg-slate-900 [&_.rdp-day_range_end]:text-white [&_.rdp-day_range_middle]:bg-slate-100 [&_.rdp-day_today]:font-bold"
+                  />
+                  <div className="grid grid-cols-2 gap-2">
+                    <Button
+                      variant="outline"
+                      className="w-full justify-center text-center font-normal rounded-xl h-11 hover:bg-slate-100"
+                      onClick={() => {
+                        const end = new Date();
+                        const start = startOfWeek(end);
+                        setDateRange({ from: start, to: end });
+                      }}
+                    >
+                      This Week
+                    </Button>
+                    <Button
+                      variant="outline"
+                      className="w-full justify-center text-center font-normal rounded-xl h-11 hover:bg-slate-100"
+                      onClick={() => {
+                        const end = subDays(startOfWeek(new Date()), 1);
+                        const start = startOfWeek(end);
+                        setDateRange({ from: start, to: end });
+                      }}
+                    >
+                      Last Week
+                    </Button>
+                    <Button
+                      variant="outline"
+                      className="w-full justify-center text-center font-normal rounded-xl h-11 hover:bg-slate-100"
+                      onClick={() => {
+                        const end = new Date();
+                        const start = subDays(end, 7);
+                        setDateRange({ from: start, to: end });
+                      }}
+                    >
+                      Last 7 Days
+                    </Button>
+                    <Button
+                      variant="outline"
+                      className="w-full justify-center text-center font-normal rounded-xl h-11 hover:bg-slate-100"
+                      onClick={() => {
+                        const end = endOfMonth(new Date());
+                        const start = startOfMonth(new Date());
+                        setDateRange({ from: start, to: end });
+                      }}
+                    >
+                      This Month
+                    </Button>
+                    <Button
+                      variant="outline"
+                      className="w-full justify-center text-center font-normal rounded-xl h-11 hover:bg-slate-100"
+                      onClick={() => {
+                        const end = new Date();
+                        const start = subDays(end, 14);
+                        setDateRange({ from: start, to: end });
+                      }}
+                    >
+                      Last 14 Days
+                    </Button>
+                    <Button
+                      variant="outline"
+                      className="w-full justify-center text-center font-normal rounded-xl h-11 hover:bg-slate-100"
+                      onClick={() => {
+                        const end = new Date();
+                        const start = subDays(end, 30);
+                        setDateRange({ from: start, to: end });
+                      }}
+                    >
+                      Last 30 Days
+                    </Button>
+                  </div>
+                </div>
               </PopoverContent>
             </Popover>
           )}
         </div>
-        <div className="h-[240px]">
-          <ResponsiveContainer width="100%" height="100%">
-            <AreaChart 
-              data={chartData} 
-              margin={{ top: 20, right: 0, bottom: 0, left: -32 }}
-              onClick={(data) => data && data.activePayload 
-                ? handleClick(data.activePayload[0].payload) 
-                : handleClick(null)}
-            >
-              <defs>
-                <linearGradient id={`colorGradient-${category ? category.key : 'overall'}`} x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor={category ? category.color : "#F59E0B"} stopOpacity={0.3}/>
-                  <stop offset="95%" stopColor={category ? category.color : "#F59E0B"} stopOpacity={0.1}/>
-                </linearGradient>
-              </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.1)" />
-              <XAxis 
-                dataKey="name" 
-                axisLine={false} 
-                tickLine={false}
-                tick={{ fill: 'rgba(0,0,0,0.6)', fontSize: 10 }}
-              />
-              <YAxis 
-                axisLine={false} 
-                tickLine={false} 
-                tick={{ fill: 'rgba(0,0,0,0.6)', fontSize: 10 }} 
-                domain={[0, 100]} 
-              />
-              <RechartsTooltip content={<CustomTooltip />} />
-              <Area 
-                type="monotone" 
-                dataKey="value" 
-                stroke={category ? category.color : "#F59E0B"}
-                strokeWidth={3}
-                fill={`url(#colorGradient-${category ? category.key : 'overall'})`}
-                dot={CustomizedDot}
-                activeDot={{ r: 8, fill: category ? category.color : "#F59E0B", stroke: '#FFFFFF', strokeWidth: 2 }}
-              />
-            </AreaChart>
-          </ResponsiveContainer>
+        <div className="h-[240px] relative">
+          {chartData.length === 0 && (
+            <div className="flex flex-col items-center justify-center h-full space-y-4">
+              <span className="text-slate-600 text-xl">No calls found</span>
+              <Button variant="outline" onClick={() => setDateRange({ from: null, to: null })}>View all time</Button>
+            </div>
+          )}
+          {chartData.length > 0 && (
+            <>
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart 
+                  data={chartData} 
+                  margin={{ top: 20, right: 0, bottom: 0, left: -32 }}
+                  onClick={(data) => data && data.activePayload 
+                    ? handleClick(data.activePayload[0].payload) 
+                    : handleClick(null)}
+                >
+                  <defs>
+                    <linearGradient id={`colorGradient-${category ? category.key : 'overall'}`} x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor={category ? category.color : "#F59E0B"} stopOpacity={0.3}/>
+                      <stop offset="95%" stopColor={category ? category.color : "#F59E0B"} stopOpacity={0.1}/>
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.1)" />
+                  <XAxis 
+                    dataKey="name" 
+                    axisLine={false} 
+                    tickLine={false}
+                    tick={{ fill: 'rgba(0,0,0,0.6)', fontSize: 10 }}
+                  />
+                  <YAxis 
+                    axisLine={false} 
+                    tickLine={false} 
+                    tick={{ fill: 'rgba(0,0,0,0.6)', fontSize: 10 }} 
+                    domain={[0, 100]} 
+                  />
+                  <RechartsTooltip content={<CustomTooltip />} />
+                  <Area 
+                    type="monotone" 
+                    dataKey="value" 
+                    stroke={category ? category.color : "#F59E0B"}
+                    strokeWidth={3}
+                    fill={`url(#colorGradient-${category ? category.key : 'overall'})`}
+                    dot={CustomizedDot}
+                    activeDot={{ r: 8, fill: category ? category.color : "#F59E0B", stroke: '#FFFFFF', strokeWidth: 2 }}
+                  />
+                  {selectedPoints.length > 1 && (
+                    <ReferenceLine
+                      segment={selectedPoints.map(point => ({ x: point.name, y: point.value }))}
+                      stroke="rgba(0, 0, 0, 0.2)"
+                      strokeWidth={2}
+                      strokeDasharray="3 3"
+                      label={<CustomizedLabel 
+                        value={percentageChange} 
+                        viewBox={{
+                          x: Math.min(selectedPoints[0].name, selectedPoints[1].name),
+                          y: Math.min(selectedPoints[0].value, selectedPoints[1].value),
+                          width: Math.abs(selectedPoints[1].name - selectedPoints[0].name)
+                        }} 
+                      />}
+                      position="center"
+                    />
+                  )}
+                </AreaChart>
+              </ResponsiveContainer>
+              <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex flex-col items-center" style={{ zIndex: 0 }}>
+                <div className="text-lg text-slate-600 mb-2">Average Score</div>
+                <div className="text-6xl font-bold tracking-tight" style={{ color: category ? category.color : "#fbb350" }}>
+                  {Math.round(latestValue)}<span className="text-4xl">/100</span>
+                </div>
+              </div>
+            </>
+          )}
         </div>
       </CardContent>
     </Card>
