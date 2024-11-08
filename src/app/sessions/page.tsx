@@ -39,7 +39,7 @@ function CircularProgress({ value, max, size = 120, strokeWidth = 12, children, 
         style={{ width: size, height: size }}
       >
         <circle
-          className="stroke-[#f2f3f9]/10"
+          className="stroke-[#f2f3f9]"
           strokeWidth={strokeWidth}
           fill="transparent"
           r={radius}
@@ -124,25 +124,25 @@ function SessionsComponent() {
   }, [memberId])
 
   return (
-    <div className="min-h-screen w-full bg-black p-8 flex items-center justify-center">
-      <div className="bg-[#f2f3f9]/5 p-6 rounded-3xl">
-        <Card className="w-full max-w-[320px] bg-white/5 border-none shadow-lg rounded-2xl backdrop-blur-sm">
+    <div className="min-h-screen w-full bg-white p-8 flex items-center justify-center">
+      <div className="bg-white p-6 rounded-3xl shadow-xl">
+        <Card className="w-full max-w-[480px] bg-white border-none shadow-lg rounded-2xl">
           <CardHeader className="text-left pb-2">
             <CardTitle className="text-[#546bc8] text-2xl font-medium">Activity</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex flex-col items-center">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-12 p-6">
                 {Object.entries(sessions).map(([key, session]) => (
                   <TooltipProvider key={key}>
                     <Tooltip>
                       <TooltipTrigger className="cursor-pointer">
-                        <CircularProgress value={session.count} max={session.max} size={120} strokeWidth={8} color={session.color}>
+                        <CircularProgress value={session.count} max={session.max} size={160} strokeWidth={10} color={session.color}>
                           <div className="text-center">
-                            <div className="text-3xl font-semibold" style={{ color: session.color }}>
+                            <div className="text-4xl font-semibold" style={{ color: session.color }}>
                               {session.count}
                             </div>
-                            <div className="text-xs text-slate-400 font-medium mt-1">{session.label}</div>
+                            <div className="text-sm text-slate-400 font-medium mt-1">{session.label}</div>
                           </div>
                         </CircularProgress>
                       </TooltipTrigger>
