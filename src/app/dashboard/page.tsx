@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useState, useCallback } from 'react'
+import React, { useEffect, useState, useCallback, Suspense } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -255,7 +255,7 @@ const Chart: React.FC<ChartProps> = ({ data, category, dateRange, setDateRange }
     </Card>
   );
 };
-export default function Component() {
+function DashboardComponent() {
   const [callLogs, setCallLogs] = useState<CallLog[]>([]);
   const [filteredCallLogs, setFilteredCallLogs] = useState<CallLog[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -535,5 +535,17 @@ const indexOfLastRecord = currentPage * recordsPerPage;
         </DialogContent>
       </Dialog>
     </div>
+  );
+}
+// Export the wrapped version
+export default function Page() {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center min-h-screen bg-slate-50">
+        <div className="animate-spin h-8 w-8 border-4 border-blue-500 rounded-full border-t-transparent"></div>
+      </div>
+    }>
+      <DashboardComponent />
+    </Suspense>
   );
 }
