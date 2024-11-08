@@ -165,9 +165,14 @@ const Chart: React.FC<ChartProps> = ({ data, category, dateRange, setDateRange }
                 <CalendarComponent
                   initialFocus
                   mode="range"
-                  defaultMonth={dateRange?.from}
-                  selected={dateRange}
-                  onSelect={setDateRange}
+                  defaultMonth={dateRange?.from || new Date()}
+                  selected={{
+                    from: dateRange?.from || null,
+                    to: dateRange?.to || null
+                  }}
+                  onSelect={(range: { from: Date | null; to: Date | null } | undefined) => 
+                    setDateRange(range || { from: null, to: null })
+                  }
                   numberOfMonths={2}
                 />
               </PopoverContent>
