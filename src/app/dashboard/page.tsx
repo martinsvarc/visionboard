@@ -13,7 +13,7 @@ import { format, startOfWeek, endOfWeek, startOfMonth, endOfMonth, subDays } fro
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { useSearchParams } from 'next/navigation'
 import { TooltipProvider, TooltipContent, TooltipTrigger, Tooltip } from "@/components/ui/tooltip"
-import { DateRange } from "react-day-picker";
+import { DateRange } from "react-day-picker"
 
 interface CallLog {
   id: number;
@@ -113,11 +113,19 @@ const Chart: React.FC<ChartProps> = ({ data, category, dateRange, setDateRange }
     }
   };
 
-  const CustomizedDot = ({ cx, cy, payload }: { cx: number; cy: number; payload: ChartDataPoint }) => {
+  const CustomizedDot = (props: any) => {
+    const { cx, cy, payload } = props;
     const isSelected = selectedPoints.some(point => point.name === payload.name);
     if (isSelected) {
       return (
-        <circle cx={cx} cy={cy} r={6} fill={category ? category.color : "#10B981"} stroke="#FFFFFF" strokeWidth={2} />
+        <circle 
+          cx={cx} 
+          cy={cy} 
+          r={6} 
+          fill={category ? category.color : "#10B981"} 
+          stroke="#FFFFFF" 
+          strokeWidth={2} 
+        />
       );
     }
     return null;
@@ -218,7 +226,7 @@ const Chart: React.FC<ChartProps> = ({ data, category, dateRange, setDateRange }
                 stroke={category ? category.color : "#F59E0B"}
                 strokeWidth={3}
                 fill={`url(#colorGradient-${category ? category.key : 'overall'})`}
-                dot={<CustomizedDot />}
+                dot={CustomizedDot}
                 activeDot={{ r: 8, fill: category ? category.color : "#F59E0B", stroke: '#FFFFFF', strokeWidth: 2 }}
               />
             </AreaChart>
