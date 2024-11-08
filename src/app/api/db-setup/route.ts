@@ -1,5 +1,6 @@
 import { createPool } from '@vercel/postgres';
 import { NextResponse } from 'next/server';
+
 export async function GET(request: Request) {
     try {
         // Create a connection pool using the Prisma URL
@@ -12,9 +13,11 @@ export async function GET(request: Request) {
             hasPrismaUrl: !!process.env.visionboard_PRISMA_URL,
             hasNonPooling: !!process.env.visionboard_URL_NON_POOLING
         });
+
         if (!process.env.visionboard_PRISMA_URL) {
             throw new Error('Database Prisma URL environment variable is missing');
         }
+
         // Step 1: Test basic connection
         console.log('Testing connection...');
         const connectionTest = await pool.sql`SELECT 1 as test;`;
@@ -84,6 +87,64 @@ export async function GET(request: Request) {
             );
         `;
         console.log('Daily plans table created successfully');
+
+        // Step 7: Create call_logs table
+        console.log('Creating call_logs table...');
+        await pool.sql`
+            CREATE TABLE IF NOT EXISTS call_logs (
+                id SERIAL PRIMARY KEY,
+                member_id TEXT NOT NULL,
+                call_number INTEGER NOT NULL,
+                agent_name TEXT NOT NULL,
+                agent_picture_url TEXT,
+                call_recording_url TEXT,
+                call_details TEXT,
+                call_date TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+                engagement_score DECIMAL,
+                objection_handling_score DECIMAL,
+                information_gathering_score DECIMAL,
+                program_explanation_score DECIMAL,
+                closing_skills_score DECIMAL,
+                overall_effectiveness_score DECIMAL,
+                average_success_score DECIMAL,
+                engagement_feedback TEXT,
+                objection_handling_feedback TEXT,
+                information_gathering_feedback TEXT,
+                program_explanation_feedback TEXT,
+                closing_skills_feedback TEXT,
+                overall_effectiveness_feedback TEXT
+            );
+        `;
+        console.log('Call logs table created successfully');
+
+        // Insert test data for call_logs
+        console.log('Inserting test data into call_logs...');
+        await pool.sql`
+            INSERT INTO call_logs (
+                member_id,
+                call_number,
+                agent_name,
+                engagement_score,
+                objection_handling_score,
+                information_gathering_score,
+                program_explanation_score,
+                closing_skills_score,
+                overall_effectiveness_score,
+                average_success_score
+            ) VALUES (
+                'test123',
+                1,
+                'Test Agent',
+                85.5,
+                90.0,
+                88.5,
+                92.0,
+                87.5,
+                89.0,
+                88.75
+            ) ON CONFLICT DO NOTHING;
+        `;
+        console.log('Test data inserted successfully');
 
         return NextResponse.json({ 
             message: 'Setup complete',
