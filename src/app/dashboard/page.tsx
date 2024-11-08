@@ -388,7 +388,6 @@ return (
                           width: Math.abs(Number(selectedPoints[1].name) - Number(selectedPoints[0].name))
                         }} 
                       />}
-                      position="center"
                     />
                   )}
                 </AreaChart>
