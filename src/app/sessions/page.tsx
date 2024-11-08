@@ -125,13 +125,13 @@ function SessionsComponent() {
 
   return (
     <div className="w-full h-screen bg-white flex items-center justify-center overflow-hidden">
-      <Card className="w-[560px] bg-white border-none shadow-lg rounded-3xl">
-        <CardHeader className="text-left pb-2 pt-8 px-8">
+      <Card className="w-[600px] bg-white rounded-3xl border border-slate-200/60 shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
+        <CardHeader className="text-left pb-2 pt-8 px-12">
           <CardTitle className="text-[#546bc8] text-2xl font-medium">Activity</CardTitle>
         </CardHeader>
-        <CardContent className="px-8 pb-8">
+        <CardContent className="px-12 pb-12">
           <div className="flex flex-col items-center">
-            <div className="grid grid-cols-2 gap-12">
+            <div className="grid grid-cols-2 gap-16">
               {Object.entries(sessions).map(([key, session]) => (
                 <TooltipProvider key={key}>
                   <Tooltip>
