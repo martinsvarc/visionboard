@@ -97,7 +97,7 @@ const Chart: React.FC<ChartProps> = ({ data, category, dateRange, setDateRange }
       setSelectedPoints([]);
       setPercentageChange(null);
     } else if (selectedPoints.length === 1) {
-      if (Number(point.name) > Number(selectedPoints[0].name)) {  // Added Number conversion here
+      if (Number(point.name) > Number(selectedPoints[0].name)) {
         const newSelectedPoints = [...selectedPoints, point].sort((a, b) => 
           Number(a.name) - Number(b.name)
         );
@@ -114,7 +114,13 @@ const Chart: React.FC<ChartProps> = ({ data, category, dateRange, setDateRange }
     }
   };
 
-  const CustomizedDot = (props: any) => {
+  interface CustomDotProps {
+    cx: number;
+    cy: number;
+    payload: ChartDataPoint;
+  }
+
+  const CustomizedDot = (props: CustomDotProps) => {
     const { cx, cy, payload } = props;
     const isSelected = selectedPoints.some(point => point.name === payload.name);
     
@@ -140,8 +146,16 @@ const Chart: React.FC<ChartProps> = ({ data, category, dateRange, setDateRange }
     );
   };
 
-  const CustomizedLabel = ({ value, viewBox }: { value: string, viewBox: any }) => {
-    if (!viewBox) return null;
+  interface CustomizedLabelProps {
+    value: string;
+    viewBox: {
+      x: number;
+      y: number;
+      width: number;
+    };
+  }
+
+  const CustomizedLabel = ({ value, viewBox }: CustomizedLabelProps) => {
     const { x, y, width } = viewBox;
     const centerX = x + width / 2;
     const centerY = y;
@@ -361,18 +375,18 @@ const Chart: React.FC<ChartProps> = ({ data, category, dateRange, setDateRange }
                     dot={CustomizedDot}
                     activeDot={{ r: 8, fill: category ? category.color : "#F59E0B", stroke: '#FFFFFF', strokeWidth: 2 }}
                   />
-                  {selectedPoints.length > 1 && (
+                  {selectedPoints.length > 1 && percentageChange !== null && (
                     <ReferenceLine
                       segment={selectedPoints.map(point => ({ x: point.name, y: point.value }))}
                       stroke="rgba(0, 0, 0, 0.2)"
                       strokeWidth={2}
                       strokeDasharray="3 3"
                       label={<CustomizedLabel 
-                        value={percentageChange} 
+                        value={percentageChange}
                         viewBox={{
-                          x: Math.min(selectedPoints[0].name, selectedPoints[1].name),
+                          x: Math.min(Number(selectedPoints[0].name), Number(selectedPoints[1].name)),
                           y: Math.min(selectedPoints[0].value, selectedPoints[1].value),
-                          width: Math.abs(selectedPoints[1].name - selectedPoints[0].name)
+                          width: Math.abs(Number(selectedPoints[1].name) - Number(selectedPoints[0].name))
                         }} 
                       />}
                       position="center"
@@ -383,16 +397,7 @@ const Chart: React.FC<ChartProps> = ({ data, category, dateRange, setDateRange }
               <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex flex-col items-center" style={{ zIndex: 0 }}>
                 <div className="text-lg text-slate-600 mb-2">Average Score</div>
                 <div className="text-6xl font-bold tracking-tight" style={{ color: category ? category.color : "#fbb350" }}>
-                  {Math.round(latestValue)}<span className="text-4xl">/100</span>
-                </div>
-              </div>
-            </>
-          )}
-        </div>
-      </CardContent>
-    </Card>
-  );
-};
+                  {Math.round(latestValue)}<span className
 function DashboardComponent() {
   const [callLogs, setCallLogs] = useState<CallLog[]>([]);
   const [filteredCallLogs, setFilteredCallLogs] = useState<CallLog[]>([]);
