@@ -136,20 +136,18 @@ function SessionsComponent() {
                 {Object.entries(sessions).map(([key, session]) => (
                   <TooltipProvider key={key}>
                     <Tooltip>
-                      <TooltipTrigger asChild>
-                        <div>
-                          <CircularProgress value={session.count} max={session.max} size={140} color={session.color}>
-                            <div className="text-center">
-                              <div className="text-4xl font-semibold" style={{ color: session.color }}>
-                                {session.count}
-                              </div>
-                              <div className="text-sm text-slate-400 font-medium mt-1">{session.label}</div>
+                      <TooltipTrigger className="cursor-pointer">
+                        <CircularProgress value={session.count} max={session.max} size={140} color={session.color}>
+                          <div className="text-center">
+                            <div className="text-4xl font-semibold" style={{ color: session.color }}>
+                              {session.count}
                             </div>
-                          </CircularProgress>
-                        </div>
+                            <div className="text-sm text-slate-400 font-medium mt-1">{session.label}</div>
+                          </div>
+                        </CircularProgress>
                       </TooltipTrigger>
-                      <TooltipContent align="center" sideOffset={4}>
-                        <div className="text-center">
+                      <TooltipContent className="text-center">
+                        <div>
                           <p className="font-medium">{session.label.charAt(0).toUpperCase() + session.label.slice(1)}</p>
                           <p>{session.count} of {session.max}</p>
                           {session.count === session.max && (
