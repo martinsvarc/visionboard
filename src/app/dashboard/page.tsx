@@ -18,7 +18,6 @@ interface CallLog {
   id: number;
   call_number: number;
   agent_name: string;
-  agent_picture_url: string;
   call_date: string;
   call_recording_url: string;
   call_details: string;
@@ -41,6 +40,27 @@ interface CallLog {
   };
 }
 
+interface Category {
+  key: string;
+  label: string;
+  color: string;
+}
+
+interface ChartProps {
+  data: CallLog[];
+  category?: Category;
+  dateRange: {
+    from: Date | null;
+    to: Date | null;
+  };
+  setDateRange: (range: { from: Date | null; to: Date | null }) => void;
+}
+
+interface ChartDataPoint {
+  name: string;
+  value: number;
+}
+
 const scoreCategories = [
   { key: 'engagement', label: 'Engagement', color: '#556bc7' },
   { key: 'objection_handling', label: 'Objection Handling', color: '#556bc7' },
@@ -48,11 +68,10 @@ const scoreCategories = [
   { key: 'program_explanation', label: 'Program Explanation', color: '#556bc7' },
   { key: 'closing_skills', label: 'Closing Skills', color: '#556bc7' },
   { key: 'overall_effectiveness', label: 'Overall Effectiveness', color: '#556bc7' }
-]
-
-const Chart = ({ data, category, dateRange, setDateRange }) => {
-  const [selectedPoints, setSelectedPoints] = useState([])
-  const [percentageChange, setPercentageChange] = useState(null)
+] as const;
+const Chart: React.FC<ChartProps> = ({ data, category, dateRange, setDateRange }) => {
+  const [selectedPoints, setSelectedPoints] = useState<ChartDataPoint[]>([]);
+  const [percentageChange, setPercentageChange] = useState<string | null>(null);
 
   const chartData = data.filter((item) => {
     if (!dateRange || !dateRange.from || !dateRange.to) return true;
@@ -60,47 +79,50 @@ const Chart = ({ data, category, dateRange, setDateRange }) => {
     return itemDate >= dateRange.from && itemDate <= dateRange.to;
   }).map((item, index) => ({
     name: String(index + 1),
-    value: category ? item.scores[category.key] : item.scores.overall_effectiveness
-  }))
+    value: category ? item.scores[category.key as keyof typeof item.scores] : item.scores.overall_effectiveness
+  }));
 
-  const latestValue = chartData.length > 0 ? chartData[chartData.length - 1].value : null
+  const latestValue = chartData.length > 0 ? chartData[chartData.length - 1].value : null;
 
-  const handleClick = (point) => {
+  const handleClick = (point: ChartDataPoint | null) => {
     if (!point) {
-      setSelectedPoints([])
-      setPercentageChange(null)
-      return
+      setSelectedPoints([]);
+      setPercentageChange(null);
+      return;
     }
 
     if (selectedPoints.length === 2) {
-      setSelectedPoints([])
-      setPercentageChange(null)
+      setSelectedPoints([]);
+      setPercentageChange(null);
     } else if (selectedPoints.length === 1) {
       if (point.name > selectedPoints[0].name) {
-        const newSelectedPoints = [...selectedPoints, point].sort((a, b) => a.name - b.name)
-        setSelectedPoints(newSelectedPoints)
-        const change = ((newSelectedPoints[1].value - newSelectedPoints[0].value) / newSelectedPoints[0].value) * 100
-        setPercentageChange(change.toFixed(2))
+        const newSelectedPoints = [...selectedPoints, point].sort((a, b) => 
+          Number(a.name) - Number(b.name)
+        );
+        setSelectedPoints(newSelectedPoints);
+        const change = ((newSelectedPoints[1].value - newSelectedPoints[0].value) / 
+          newSelectedPoints[0].value) * 100;
+        setPercentageChange(change.toFixed(2));
       } else {
-        setSelectedPoints([])
-        setPercentageChange(null)
+        setSelectedPoints([]);
+        setPercentageChange(null);
       }
     } else {
-      setSelectedPoints([point])
+      setSelectedPoints([point]);
     }
-  }
+  };
 
-  const CustomizedDot = ({ cx, cy, payload }) => {
-    const isSelected = selectedPoints.some(point => point.name === payload.name)
+  const CustomizedDot = ({ cx, cy, payload }: { cx: number; cy: number; payload: ChartDataPoint }) => {
+    const isSelected = selectedPoints.some(point => point.name === payload.name);
     if (isSelected) {
       return (
         <circle cx={cx} cy={cy} r={6} fill={category ? category.color : "#10B981"} stroke="#FFFFFF" strokeWidth={2} />
-      )
+      );
     }
-    return null
-  }
+    return null;
+  };
 
-  const CustomTooltip = ({ active, payload, label }) => {
+  const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       return (
         <div className="bg-black/80 text-white p-2 rounded-lg text-sm">
@@ -115,7 +137,9 @@ const Chart = ({ data, category, dateRange, setDateRange }) => {
     <Card className="relative overflow-hidden border-0 bg-white rounded-[32px] shadow-lg">
       <CardContent className="p-6">
         <div className="flex justify-between items-center mb-6">
-          <span className="text-slate-900 text-xl font-semibold">{category ? category.label : 'Overall Performance'}</span>
+          <span className="text-slate-900 text-xl font-semibold">
+            {category ? category.label : 'Overall Performance'}
+          </span>
           {!category && (
             <Popover>
               <PopoverTrigger asChild>
@@ -155,7 +179,9 @@ const Chart = ({ data, category, dateRange, setDateRange }) => {
             <AreaChart 
               data={chartData} 
               margin={{ top: 20, right: 0, bottom: 0, left: -32 }}
-              onClick={(data) => handleClick(data && data.activePayload ? data.activePayload[0].payload : null)}
+              onClick={(data) => data && data.activePayload 
+                ? handleClick(data.activePayload[0].payload) 
+                : handleClick(null)}
             >
               <defs>
                 <linearGradient id={`colorGradient-${category ? category.key : 'overall'}`} x1="0" y1="0" x2="0" y2="1">
@@ -176,7 +202,7 @@ const Chart = ({ data, category, dateRange, setDateRange }) => {
                 tick={{ fill: 'rgba(0,0,0,0.6)', fontSize: 10 }} 
                 domain={[0, 100]} 
               />
-              <Tooltip content={<CustomTooltip />} />
+              <RechartsTooltip content={<CustomTooltip />} />
               <Area 
                 type="monotone" 
                 dataKey="value" 
@@ -191,77 +217,87 @@ const Chart = ({ data, category, dateRange, setDateRange }) => {
         </div>
       </CardContent>
     </Card>
-  )
-}
-
+  );
+};
 export default function Component() {
-  const [callLogs, setCallLogs] = useState<CallLog[]>([])
-  const [filteredCallLogs, setFilteredCallLogs] = useState<CallLog[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const [dateRange, setDateRange] = useState({ from: null, to: null })
-  const [activeModal, setActiveModal] = useState({ isOpen: false, category: null, value: null, feedback: null })
-  const [playCallModal, setPlayCallModal] = useState({ isOpen: false, callId: null })
-  const [detailsModal, setDetailsModal] = useState({ isOpen: false, call: null })
-  const [currentPage, setCurrentPage] = useState(1)
-  const recordsPerPage = 10
+  const [callLogs, setCallLogs] = useState<CallLog[]>([]);
+  const [filteredCallLogs, setFilteredCallLogs] = useState<CallLog[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [dateRange, setDateRange] = useState<{ from: Date | null; to: Date | null }>({ from: null, to: null });
+  const [activeModal, setActiveModal] = useState<{
+    isOpen: boolean;
+    category: string | null;
+    value: number | null;
+    feedback: string | null;
+  }>({ isOpen: false, category: null, value: null, feedback: null });
+  const [playCallModal, setPlayCallModal] = useState<{
+    isOpen: boolean;
+    callId: number | null;
+  }>({ isOpen: false, callId: null });
+  const [detailsModal, setDetailsModal] = useState<{
+    isOpen: boolean;
+    call: CallLog | null;
+  }>({ isOpen: false, call: null });
+  const [currentPage, setCurrentPage] = useState(1);
+  const recordsPerPage = 10;
 
-  const searchParams = useSearchParams()
-  const memberId = searchParams.get('memberId')
+  const searchParams = useSearchParams();
+  const memberId = searchParams.get('memberId');
 
   const fetchCallLogs = useCallback(async () => {
     if (!memberId) return;
     
-    setIsLoading(true)
-    setError(null)
+    setIsLoading(true);
+    setError(null);
     try {
-      const response = await fetch(`/api/dashboard?memberId=${memberId}`)
-      const data = await response.json()
+      const response = await fetch(`/api/dashboard?memberId=${memberId}`);
+      const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to fetch call logs')
+        throw new Error(data.error || 'Failed to fetch call logs');
       }
 
-      setCallLogs(data)
-      setFilteredCallLogs(data)
+      setCallLogs(data);
+      setFilteredCallLogs(data);
     } catch (err) {
-      console.error('Error fetching call logs:', err)
-      setError('Failed to fetch call logs. Please try again later.')
+      console.error('Error fetching call logs:', err);
+      setError('Failed to fetch call logs. Please try again later.');
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }, [memberId])
+  }, [memberId]);
 
   useEffect(() => {
-    fetchCallLogs()
-  }, [fetchCallLogs])
+    fetchCallLogs();
+  }, [fetchCallLogs]);
 
   useEffect(() => {
     if (dateRange?.from && dateRange?.to) {
       const filtered = callLogs.filter(call => {
-        const callDate = new Date(call.call_date)
-        return callDate >= dateRange.from && callDate <= dateRange.to
-      })
-      setFilteredCallLogs(filtered)
+        const callDate = new Date(call.call_date);
+        return callDate >= dateRange.from! && callDate <= dateRange.to!;
+      });
+      setFilteredCallLogs(filtered);
     } else {
-      setFilteredCallLogs(callLogs)
+      setFilteredCallLogs(callLogs);
     }
-  }, [callLogs, dateRange])
+  }, [callLogs, dateRange]);
 
   const handlePlayCall = (callId: number) => {
-    setPlayCallModal({ isOpen: true, callId })
-  }
+    setPlayCallModal({ isOpen: true, callId });
+  };
 
   const handleViewDetails = (call: CallLog) => {
-    setDetailsModal({ isOpen: true, call })
-  }
+    setDetailsModal({ isOpen: true, call });
+  };
 
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-slate-50">
         <RefreshCw className="w-6 h-6 text-slate-600 animate-spin" />
       </div>
-    )
+    );
   }
 
   if (error) {
@@ -276,13 +312,12 @@ export default function Component() {
           </CardContent>
         </Card>
       </div>
-    )
+    );
   }
-
-  const indexOfLastRecord = currentPage * recordsPerPage
-  const indexOfFirstRecord = indexOfLastRecord - recordsPerPage
-  const currentRecords = filteredCallLogs.slice(indexOfFirstRecord, indexOfLastRecord)
-  const totalPages = Math.ceil(filteredCallLogs.length / recordsPerPage)
+const indexOfLastRecord = currentPage * recordsPerPage;
+  const indexOfFirstRecord = indexOfLastRecord - recordsPerPage;
+  const currentRecords = filteredCallLogs.slice(indexOfFirstRecord, indexOfLastRecord);
+  const totalPages = Math.ceil(filteredCallLogs.length / recordsPerPage);
 
   return (
     <div className="min-h-screen p-8 bg-slate-50">
@@ -312,7 +347,7 @@ export default function Component() {
           <h2 className="text-3xl font-bold text-center text-slate-900">
             CALL RECORDS
           </h2>
-          {currentRecords.map((call, index) => (
+          {currentRecords.map((call) => (
             <Card key={call.id} className="bg-white rounded-2xl shadow-lg overflow-hidden border-0">
               <CardContent className="p-8">
                 <div className="flex flex-col md:flex-row gap-8">
@@ -320,7 +355,7 @@ export default function Component() {
                   <div className="md:w-1/3 space-y-4">
                     <div className="flex flex-col items-center">
                       <Avatar className="h-24 w-24 mb-4">
-                        <AvatarImage src={call.agent_picture_url} />
+                        <AvatarImage src={call.agent_picture_url} alt={call.agent_name} />
                         <AvatarFallback>{call.agent_name.slice(0, 2).toUpperCase()}</AvatarFallback>
                       </Avatar>
                       <h3 className="text-2xl font-bold text-slate-900">{call.agent_name}</h3>
@@ -349,7 +384,7 @@ export default function Component() {
                         View Details <ChevronRight className="ml-2 h-4 w-4" />
                       </Button>
                     </div>
-</div>
+                  </div>
 
                   {/* Scores Grid */}
                   <div className="md:w-2/3">
@@ -360,8 +395,8 @@ export default function Component() {
                           onClick={() => setActiveModal({ 
                             isOpen: true, 
                             category: key, 
-                            value: call.scores[key],
-                            feedback: call.feedback[key]
+                            value: call.scores[key as keyof typeof call.scores],
+                            feedback: call.feedback[key as keyof typeof call.feedback]
                           })}
                           className="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-shadow"
                         >
@@ -369,7 +404,7 @@ export default function Component() {
                             {label}
                           </div>
                           <div className="text-4xl font-bold text-center text-[#556bc7]">
-                            {call.scores[key]}
+                            {call.scores[key as keyof typeof call.scores]}
                             <span className="text-lg text-slate-600">/100</span>
                           </div>
                         </button>
@@ -380,8 +415,7 @@ export default function Component() {
               </CardContent>
             </Card>
           ))}
-
-          {/* Pagination */}
+{/* Pagination */}
           <div className="flex items-center justify-center gap-2 mt-8">
             <Button
               variant="ghost"
@@ -417,7 +451,9 @@ export default function Component() {
       <Dialog open={activeModal.isOpen} onOpenChange={(isOpen) => setActiveModal({ ...activeModal, isOpen })}>
         <DialogContent className="bg-white">
           <DialogHeader>
-            <DialogTitle>{scoreCategories.find(c => c.key === activeModal.category)?.label}</DialogTitle>
+            <DialogTitle>
+              {scoreCategories.find(c => c.key === activeModal.category)?.label}
+            </DialogTitle>
             <DialogDescription>
               <div className="text-6xl font-bold text-center text-[#556bc7] my-4">
                 {activeModal.value}
@@ -463,5 +499,5 @@ export default function Component() {
         </DialogContent>
       </Dialog>
     </div>
-  )
+  );
 }
