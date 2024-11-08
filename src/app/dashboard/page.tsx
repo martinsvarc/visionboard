@@ -196,8 +196,7 @@ const Chart: React.FC<ChartProps> = ({ data, category, dateRange, setDateRange }
     }
     return null;
   };
-
-  return (
+return (
     <Card className="relative overflow-hidden border-0 bg-white rounded-[32px] shadow-lg">
       <CardContent className="p-6">
         <div className="flex justify-between items-center mb-6">
@@ -397,7 +396,16 @@ const Chart: React.FC<ChartProps> = ({ data, category, dateRange, setDateRange }
               <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex flex-col items-center" style={{ zIndex: 0 }}>
                 <div className="text-lg text-slate-600 mb-2">Average Score</div>
                 <div className="text-6xl font-bold tracking-tight" style={{ color: category ? category.color : "#fbb350" }}>
-                  {Math.round(latestValue)}<span className
+                  {Math.round(latestValue)}<span className="text-4xl">/100</span>
+                </div>
+              </div>
+            </>
+          )}
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
 function DashboardComponent() {
   const [callLogs, setCallLogs] = useState<CallLog[]>([]);
   const [filteredCallLogs, setFilteredCallLogs] = useState<CallLog[]>([]);
