@@ -19,6 +19,7 @@ interface CallLog {
   id: number;
   call_number: number;
   agent_name: string;
+  agent_picture_url: string;
   call_date: string;
   call_recording_url: string;
   call_details: string;
