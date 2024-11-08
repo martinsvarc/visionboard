@@ -125,51 +125,53 @@ function SessionsComponent() {
 
   return (
     <div className="w-full h-screen bg-white flex items-center justify-center overflow-hidden">
-      <Card className="w-[600px] bg-white rounded-3xl border border-slate-200/60 shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
-        <CardHeader className="text-left pb-2 pt-8 px-12">
-          <CardTitle className="text-[#546bc8] text-2xl font-medium">Activity</CardTitle>
-        </CardHeader>
-        <CardContent className="px-12 pb-12">
-          <div className="flex flex-col items-center">
-            <div className="grid grid-cols-2 gap-16">
-              {Object.entries(sessions).map(([key, session]) => (
-                <TooltipProvider key={key}>
-                  <Tooltip>
-                    <TooltipTrigger className="cursor-pointer">
-                      <CircularProgress value={session.count} max={session.max} size={160} strokeWidth={10} color={session.color}>
-                        <div className="text-center">
-                          <div className="text-4xl font-semibold" style={{ color: session.color }}>
-                            {session.count}
+      <div className="bg-[#f2f3f9] p-6 rounded-3xl">
+        <Card className="w-[650px] bg-white rounded-2xl border-none shadow-lg">
+          <CardHeader className="text-left pb-2 pt-8 px-12">
+            <CardTitle className="text-[#546bc8] text-2xl font-medium">Activity</CardTitle>
+          </CardHeader>
+          <CardContent className="px-12 pb-12">
+            <div className="flex flex-col items-center">
+              <div className="grid grid-cols-2 gap-20">
+                {Object.entries(sessions).map(([key, session]) => (
+                  <TooltipProvider key={key}>
+                    <Tooltip>
+                      <TooltipTrigger className="cursor-pointer">
+                        <CircularProgress value={session.count} max={session.max} size={160} strokeWidth={10} color={session.color}>
+                          <div className="text-center">
+                            <div className="text-4xl font-semibold" style={{ color: session.color }}>
+                              {session.count}
+                            </div>
+                            <div className="text-sm text-slate-400 font-medium mt-1">{session.label}</div>
                           </div>
-                          <div className="text-sm text-slate-400 font-medium mt-1">{session.label}</div>
+                        </CircularProgress>
+                      </TooltipTrigger>
+                      <TooltipContent className="text-center">
+                        <div>
+                          <p className="font-medium">{session.label.charAt(0).toUpperCase() + session.label.slice(1)}</p>
+                          <p>{session.count} of {session.max}</p>
+                          {session.count === session.max && (
+                            <div className="mt-2">
+                              <Image
+                                src={session.badge}
+                                alt={`${key} badge`}
+                                width={40}
+                                height={40}
+                                className="mx-auto"
+                              />
+                              <p className="mt-1 text-green-500">Badge Unlocked!</p>
+                            </div>
+                          )}
                         </div>
-                      </CircularProgress>
-                    </TooltipTrigger>
-                    <TooltipContent className="text-center">
-                      <div>
-                        <p className="font-medium">{session.label.charAt(0).toUpperCase() + session.label.slice(1)}</p>
-                        <p>{session.count} of {session.max}</p>
-                        {session.count === session.max && (
-                          <div className="mt-2">
-                            <Image
-                              src={session.badge}
-                              alt={`${key} badge`}
-                              width={40}
-                              height={40}
-                              className="mx-auto"
-                            />
-                            <p className="mt-1 text-green-500">Badge Unlocked!</p>
-                          </div>
-                        )}
-                      </div>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              ))}
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                ))}
+              </div>
             </div>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   )
 }
