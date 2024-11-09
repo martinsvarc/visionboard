@@ -584,16 +584,20 @@ const indexOfLastRecord = currentPage * recordsPerPage;
     value: call.scores[key as keyof typeof call.scores],
     feedback: call.feedback[key as keyof typeof call.feedback]
   })}
-  className="bg-white p-10 rounded-3xl shadow-lg hover:shadow-xl transition-shadow w-full h-48 flex flex-col items-center justify-center gap-4"
+  className="bg-white p-6 rounded-3xl shadow-lg hover:shadow-xl transition-shadow w-full h-48 relative"
 >
-  <div className="text-base font-medium text-slate-600 text-center">
-    {label}
+  <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-full">
+    <div className="text-base font-medium text-slate-600 text-center">
+      {label}
+    </div>
   </div>
-  <div className="flex items-baseline justify-center">
-    <span className="text-5xl font-bold text-[#556bc7]">
-      {call.scores[key as keyof typeof call.scores]}
-    </span>
-    <span className="text-xl text-slate-600 ml-1">/100</span>
+  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 w-full">
+    <div className="flex items-baseline justify-center">
+      <span className="text-5xl font-bold text-[#556bc7]">
+        {call.scores[key as keyof typeof call.scores]}
+      </span>
+      <span className="text-xl text-slate-600 ml-1">/100</span>
+    </div>
   </div>
 </button>
                       ))}
