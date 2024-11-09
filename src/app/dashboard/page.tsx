@@ -595,7 +595,8 @@ const indexOfLastRecord = currentPage * recordsPerPage;
     </div>
     <div className="h-4"></div> {/* Spacer na spodku */}
   </button>
-</div>                      {scoreCategories.map(({ key, label }) => (
+</div>
+                      {scoreCategories.map(({ key, label }) => (
                        <button 
   key={key}
   onClick={() => setActiveModal({ 
