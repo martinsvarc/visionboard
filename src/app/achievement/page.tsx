@@ -51,7 +51,7 @@ function BadgeGrid({ badges, showIndividualProgress }: BadgeGridProps) {
     <TooltipProvider>
       {badges.map((badge, index) => (
         <Tooltip key={index}>
-          <TooltipTrigger asChild>
+          <TooltipTrigger>
             <div className="space-y-1">
               <div className={`relative transition-all duration-300 hover:scale-110 ${
                   !badge.unlocked ? "opacity-50 grayscale" : ""
@@ -94,12 +94,7 @@ function BadgeGrid({ badges, showIndividualProgress }: BadgeGridProps) {
               )}
             </div>
           </TooltipTrigger>
-          <TooltipContent 
-            side="top" 
-            align="center" 
-            className="bg-white/80 backdrop-blur-sm border-white/20 p-1 rounded-lg shadow-lg z-[9999] text-xs"
-            sideOffset={5}
-          >
+          <TooltipContent className="bg-white/80 backdrop-blur-sm border-white/20 p-1 rounded-lg shadow-lg text-xs">
             <p className="font-extrabold whitespace-nowrap">
               {badge.unlocked 
                 ? badge.description 
