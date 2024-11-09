@@ -11,6 +11,7 @@ import {
   Tooltip,
   XAxis,
   YAxis,
+  TooltipProps as RechartsTooltipProps
 } from "recharts"
 
 type LeagueData = {
@@ -26,14 +27,16 @@ type CategoryNames = {
   [key: string]: string
 }
 
-interface TooltipProps {
-  active?: boolean;
+// Updated tooltip props to match Recharts types
+interface CustomTooltipProps extends Omit<RechartsTooltipProps<number, string>, 'payload'> {
   payload?: Array<{
     value: number;
     dataKey: string;
-    name: string;
+    payload: {
+      date: string;
+      points: number;
+    };
   }>;
-  label?: string;
 }
 
 const categoryNames: CategoryNames = {
@@ -170,12 +173,12 @@ export default function Component() {
                     dx={-10}
                   />
                   <Tooltip
-                    content={({ active, payload }: TooltipProps) => {
-                      if (active && payload && payload.length > 0) {
+                    content={(props: CustomTooltipProps) => {
+                      if (props.active && props.payload && props.payload.length > 0) {
                         return (
                           <div className="rounded-[12px] border border-gray-200 bg-white p-2 shadow-lg">
                             <p className="text-xs text-gray-600">
-                              {`${payload[0].value.toLocaleString()} points`}
+                              {`${props.payload[0].value.toLocaleString()} points`}
                             </p>
                           </div>
                         );
