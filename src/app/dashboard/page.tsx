@@ -63,6 +63,13 @@ interface ChartDataPoint {
   value: number;
 }
 
+const getScoreColor = (score: number) => {
+  if (score >= 95) return "#556bc7"; // Blue
+  if (score >= 70) return "#22c55e"; // Green
+  if (score >= 40) return "#f97316"; // Orange
+  return "#ef4444"; // Red
+};
+
 const scoreCategories = [
   { key: 'engagement', label: 'Engagement', color: '#556bc7' },
   { key: 'objection_handling', label: 'Objection Handling', color: '#556bc7' },
@@ -346,11 +353,11 @@ return (
                     : handleClick(null)}
                 >
                   <defs>
-                    <linearGradient id={`colorGradient-${category ? category.key : 'overall'}`} x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor={category ? category.color : "#F59E0B"} stopOpacity={0.3}/>
-                      <stop offset="95%" stopColor={category ? category.color : "#F59E0B"} stopOpacity={0.1}/>
-                    </linearGradient>
-                  </defs>
+  <linearGradient id={`colorGradient-${category ? category.key : 'overall'}`} x1="0" y1="0" x2="0" y2="1">
+    <stop offset="5%" stopColor={getScoreColor(latestValue ?? 0)} stopOpacity={0.3}/>
+    <stop offset="95%" stopColor={getScoreColor(latestValue ?? 0)} stopOpacity={0.1}/>
+  </linearGradient>
+</defs>
                   <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.1)" />
                   <XAxis 
                     dataKey="name" 
@@ -365,15 +372,15 @@ return (
                     domain={[0, 100]} 
                   />
                   <RechartsTooltip content={<CustomTooltip />} />
-                  <Area 
-                    type="monotone" 
-                    dataKey="value" 
-                    stroke={category ? category.color : "#F59E0B"}
-                    strokeWidth={3}
-                    fill={`url(#colorGradient-${category ? category.key : 'overall'})`}
-                    dot={CustomizedDot}
-                    activeDot={{ r: 8, fill: category ? category.color : "#F59E0B", stroke: '#FFFFFF', strokeWidth: 2 }}
-                  />
+                <Area 
+  type="monotone" 
+  dataKey="value" 
+  stroke={getScoreColor(latestValue ?? 0)}
+  strokeWidth={3}
+  fill={`url(#colorGradient-${category ? category.key : 'overall'})`}
+  dot={CustomizedDot}
+  activeDot={{ r: 8, fill: getScoreColor(latestValue ?? 0), stroke: '#FFFFFF', strokeWidth: 2 }}
+/>
                   {selectedPoints.length > 1 && percentageChange !== null && (
                     <ReferenceLine
                       segment={selectedPoints.map(point => ({ x: point.name, y: point.value }))}
@@ -593,7 +600,10 @@ const currentRecords = filteredCallLogs.slice().reverse().slice(indexOfFirstReco
   </div>
   <div className="absolute top-1/2 left-1/2 -translate-x-1/2 w-full">
     <div className="flex items-baseline justify-center">
-      <span className="text-5xl font-bold text-[#556bc7]">
+      <span 
+        className="text-5xl font-bold" 
+        style={{ color: getScoreColor(call.scores[key as keyof typeof call.scores]) }}
+      >
         {call.scores[key as keyof typeof call.scores]}
       </span>
       <span className="text-xl text-slate-600 ml-1">/100</span>
