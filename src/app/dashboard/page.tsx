@@ -589,9 +589,9 @@ const indexOfLastRecord = currentPage * recordsPerPage;
   <div className="text-lg font-medium text-slate-600 text-center mb-4">
     {label}
   </div>
-  <div className="text-6xl font-bold text-center text-[#556bc7]">
+  <div className="text-4xl font-bold text-center text-[#556bc7]">
     {call.scores[key as keyof typeof call.scores]}
-    <span className="text-2xl text-slate-600">/100</span>
+    <span className="text-lg text-slate-600">/100</span>
   </div>
 </button>
                       ))}
