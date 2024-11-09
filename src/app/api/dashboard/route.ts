@@ -22,7 +22,6 @@ interface CategoryFeedback {
 }
 
 interface CallData {
-  call_number: number;
   agent_name: string;
   agent_picture_url: string;
   call_recording_url: string;
@@ -99,6 +98,15 @@ export const POST = async (request: Request) => {
       connectionString: process.env.visionboard_PRISMA_URL
     });
 
+    // Get the current highest call number for this member
+    const { rows: existingCalls } = await pool.sql`
+      SELECT COALESCE(MAX(call_number), 0) as max_call_number
+      FROM call_logs
+      WHERE member_id = ${memberId};
+    `;
+
+    const nextCallNumber = parseInt(existingCalls[0].max_call_number) + 1;
+
     const { rows } = await pool.sql`
       INSERT INTO call_logs (
         member_id,
@@ -122,7 +130,7 @@ export const POST = async (request: Request) => {
         overall_effectiveness_feedback
       ) VALUES (
         ${memberId},
-        ${callData.call_number},
+        ${nextCallNumber},
         ${callData.agent_name},
         ${callData.agent_picture_url},
         ${callData.call_recording_url},
