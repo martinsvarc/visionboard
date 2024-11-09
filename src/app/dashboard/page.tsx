@@ -400,11 +400,11 @@ return (
                 </AreaChart>
               </ResponsiveContainer>
               <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex flex-col items-center" style={{ zIndex: 0 }}>
-                <div className="text-lg text-slate-600 mb-2">Average Score</div>
-                <div className="text-6xl font-bold tracking-tight" style={{ color: category ? category.color : "#fbb350" }}>
-                  {Math.round(latestValue ?? 0)}<span className="text-4xl">/100</span>
-                </div>
-              </div>
+  <div className="text-lg text-slate-600 mb-2">Average Score</div>
+  <div className="text-6xl font-bold tracking-tight" style={{ color: getScoreColor(latestValue ?? 0) }}>
+    {Math.round(latestValue ?? 0)}<span className="text-4xl">/100</span>
+  </div>
+</div>
             </>
           )}
         </div>
@@ -556,11 +556,11 @@ const currentRecords = filteredCallLogs.slice().reverse().slice(indexOfFirstReco
                       <p className="text-sm text-slate-600">
                         {format(new Date(call.call_date), 'PPpp')}
                       </p>
-                      <div className="text-6xl font-bold text-[#556bc7] mt-4">
-                        {call.scores.overall_effectiveness}
-                        <span className="text-2xl text-slate-600">/100</span>
-                      </div>
-                      <p className="text-lg text-slate-600">Overall Effectiveness</p>
+                      <div className="text-6xl font-bold mt-4" style={{ color: getScoreColor(call.scores.overall_effectiveness) }}>
+  {call.scores.overall_effectiveness}
+  <span className="text-2xl text-slate-600">/100</span>
+</div>
+<p className="text-lg" style={{ color: getScoreColor(call.scores.overall_effectiveness) }}>Overall Effectiveness</p>
                     </div>
                     <div className="flex flex-col gap-2">
                       <Button 
