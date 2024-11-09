@@ -586,14 +586,14 @@ const indexOfLastRecord = currentPage * recordsPerPage;
   })}
   className="bg-white p-10 rounded-3xl shadow-lg hover:shadow-xl transition-shadow w-full h-48 flex flex-col justify-between"
 >
-  <div className="text-lg font-medium text-slate-600 text-center">
+  <div className="text-sm font-medium text-slate-600 text-center">
     {label}
   </div>
   <div className="flex items-baseline justify-center">
-    <span className="text-6xl font-bold text-[#556bc7]">
+    <span className="text-4xl font-bold text-[#556bc7]">
       {call.scores[key as keyof typeof call.scores]}
     </span>
-    <span className="text-2xl text-slate-600 ml-1">/100</span>
+    <span className="text-lg text-slate-600 ml-1">/100</span>
   </div>
 </button>
                       ))}
