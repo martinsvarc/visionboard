@@ -22,6 +22,7 @@ interface CategoryFeedback {
 }
 
 interface CallData {
+  user_name: string;
   agent_name: string;
   agent_picture_url: string;
   call_recording_url: string;
@@ -54,6 +55,7 @@ export const GET = async (request: Request) => {
     const transformedRows = rows.map(row => ({
       id: row.id,
       call_number: row.call_number,
+      user_name: row.user_name,
       agent_name: row.agent_name,
       agent_picture_url: row.agent_picture_url,
       call_date: row.call_date,
@@ -111,6 +113,7 @@ export const POST = async (request: Request) => {
       INSERT INTO call_logs (
         member_id,
         call_number,
+        user_name,
         agent_name,
         agent_picture_url,
         call_recording_url,
@@ -131,6 +134,7 @@ export const POST = async (request: Request) => {
       ) VALUES (
         ${memberId},
         ${nextCallNumber},
+        ${callData.user_name},
         ${callData.agent_name},
         ${callData.agent_picture_url},
         ${callData.call_recording_url},
