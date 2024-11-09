@@ -26,6 +26,16 @@ type CategoryNames = {
   [key: string]: string
 }
 
+interface TooltipProps {
+  active?: boolean;
+  payload?: Array<{
+    value: number;
+    dataKey: string;
+    name: string;
+  }>;
+  label?: string;
+}
+
 const categoryNames: CategoryNames = {
   daily: "Daily Leaderboard",
   weekly: "Weekly Leaderboard",
@@ -39,7 +49,6 @@ export default function Component() {
   const [isLoading, setIsLoading] = React.useState(true)
   const [error, setError] = React.useState<string | null>(null)
 
-  // Fetch leaderboard data from our API
   const fetchLeaderboardData = async () => {
     setIsLoading(true)
     setError(null)
@@ -56,7 +65,6 @@ export default function Component() {
     setIsLoading(false)
   }
 
-  // Fetch data when category changes
   React.useEffect(() => {
     fetchLeaderboardData()
   }, [category])
@@ -162,15 +170,17 @@ export default function Component() {
                     dx={-10}
                   />
                   <Tooltip
-                    content={({ active, payload }) => {
-                      if (active && payload && payload.length) {
+                    content={({ active, payload }: TooltipProps) => {
+                      if (active && payload && payload.length > 0) {
                         return (
                           <div className="rounded-[12px] border border-gray-200 bg-white p-2 shadow-lg">
-                            <p className="text-xs text-gray-600">{`${payload[0].value.toLocaleString()} points`}</p>
+                            <p className="text-xs text-gray-600">
+                              {`${payload[0].value.toLocaleString()} points`}
+                            </p>
                           </div>
-                        )
+                        );
                       }
-                      return null
+                      return null;
                     }}
                   />
                   <Area
@@ -223,7 +233,8 @@ export default function Component() {
                         <Image
                           src="/placeholder.svg?height=32&width=32"
                           alt={user.user_name}
-                          fill
+                          width={32}
+                          height={32}
                           className="object-cover"
                         />
                       </div>
