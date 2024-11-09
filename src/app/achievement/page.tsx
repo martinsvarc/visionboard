@@ -192,3 +192,58 @@ export default function Component() {
     { count: 10, period: "day", image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/InBodPWuQrymOXROYwUwow-removebg-preview-IEGWv6kNCTAusDQjfDnJXpHoQRgFQR.png", description: "10/Day", unlocked: false, current: dailyActivity, target: 10 },
     { count: 50, period: "week", image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/DuZdTwN_T8SRiCdUHDt-AQ-removebg-preview%20(1)-7g7ItwNB5ISjQHja5mcpjzxc8hr0s7.png", description: "50/Week", unlocked: false, current: weeklyActivity, target: 50 },
     { count: 100, period: "month", image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/73z7d5wLQiyhufwfTdw5OA-removebg-preview%20(1)-5AC5dKLPkTLUI9LEOfALqI2ksNMNzd.png", description: "100/Month", unlocked: false,
+const activityBadges: Badge[] = [
+    { count: 10, period: "day", image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/InBodPWuQrymOXROYwUwow-removebg-preview-IEGWv6kNCTAusDQjfDnJXpHoQRgFQR.png", description: "10/Day", unlocked: false, current: dailyActivity, target: 10 },
+    { count: 50, period: "week", image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/DuZdTwN_T8SRiCdUHDt-AQ-removebg-preview%20(1)-7g7ItwNB5ISjQHja5mcpjzxc8hr0s7.png", description: "50/Week", unlocked: false, current: weeklyActivity, target: 50 },
+    { count: 100, period: "month", image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/73z7d5wLQiyhufwfTdw5OA-removebg-preview%20(1)-5AC5dKLPkTLUI9LEOfALqI2ksNMNzd.png", description: "100/Month", unlocked: false, current: monthlyActivity, target: 100 }
+  ]
+
+  const leagueBadges: Badge[] = [
+    { rank: "Bronze", image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/a-3d-render-of-a-large-radiant-bronze-medal-with-a-t0r6ItMuRVOEve22GfVYdw-KxQg20b_SdOR5Y3HVUaVZg-removebg-preview-FQvuwEgYxWGz6qrgC1TDFLJgNCqMTd.png", description: "3rd place", unlocked: true },
+    { rank: "Silver", image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/a-3d-render-of-a-large-radiant-silver-medal-with-a-SF8CEVMrSWaKtCH-SS0KPw-xITb8y53Tw-95YbTOpEHoQ-removebg-preview-U6690RSmf0Tv9j0qzPESh3bBQJKIB4.png", description: "2nd place", unlocked: true },
+    { rank: "Gold", image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/a-3d-render-of-a-large-radiant-gold-medal-with-a-b-T5VpM4deRuWtnNpknWeXKA-oVpwYeqBTOuOBOCRRskHXg-removebg-preview-o68fcm402jSQQlsuqIHnmTKovqR92D.png", description: "Reach the 1st place in league", unlocked: false }
+  ]
+
+  return (
+    <div className={`${montserrat.variable} font-sans bg-white min-h-screen flex items-center justify-center p-4`}>
+      <div className="bg-[#f2f3f9] p-6 rounded-xl shadow-lg max-w-md w-full">
+        <Card className="w-full overflow-hidden bg-white border-white/20 shadow-sm">
+          <CardHeader className="border-b border-white/20 p-3">
+            <CardTitle className="text-lg font-extrabold text-[#556bc7]">
+              Achievement Showcase
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-3">
+            <div className="space-y-4">
+              <CategorySection
+                title="Sign-in Streaks"
+                currentStreak={signInStreak}
+                nextMilestone={90}
+                progress={(signInStreak / 90) * 100}
+                badges={signInBadges}
+              />
+              <CategorySection
+                title="Completed Calls"
+                currentStreak={completedCalls}
+                nextMilestone={100}
+                progress={(completedCalls / 100) * 100}
+                badges={callsBadges}
+              />
+              <CategorySection
+                title="Activity Goals"
+                description="Daily, Weekly, Monthly"
+                badges={activityBadges}
+                showIndividualProgress
+              />
+              <CategorySection
+                title="League Places"
+                description={`Current League: ${currentLeagueRank}`}
+                badges={leagueBadges}
+              />
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  )
+}
