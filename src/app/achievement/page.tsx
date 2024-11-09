@@ -191,10 +191,6 @@ export default function Component() {
   const activityBadges: Badge[] = [
     { count: 10, period: "day", image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/InBodPWuQrymOXROYwUwow-removebg-preview-IEGWv6kNCTAusDQjfDnJXpHoQRgFQR.png", description: "10/Day", unlocked: false, current: dailyActivity, target: 10 },
     { count: 50, period: "week", image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/DuZdTwN_T8SRiCdUHDt-AQ-removebg-preview%20(1)-7g7ItwNB5ISjQHja5mcpjzxc8hr0s7.png", description: "50/Week", unlocked: false, current: weeklyActivity, target: 50 },
-    { count: 100, period: "month", image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/73z7d5wLQiyhufwfTdw5OA-removebg-preview%20(1)-5AC5dKLPkTLUI9LEOfALqI2ksNMNzd.png", description: "100/Month", unlocked: false,
-const activityBadges: Badge[] = [
-    { count: 10, period: "day", image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/InBodPWuQrymOXROYwUwow-removebg-preview-IEGWv6kNCTAusDQjfDnJXpHoQRgFQR.png", description: "10/Day", unlocked: false, current: dailyActivity, target: 10 },
-    { count: 50, period: "week", image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/DuZdTwN_T8SRiCdUHDt-AQ-removebg-preview%20(1)-7g7ItwNB5ISjQHja5mcpjzxc8hr0s7.png", description: "50/Week", unlocked: false, current: weeklyActivity, target: 50 },
     { count: 100, period: "month", image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/73z7d5wLQiyhufwfTdw5OA-removebg-preview%20(1)-5AC5dKLPkTLUI9LEOfALqI2ksNMNzd.png", description: "100/Month", unlocked: false, current: monthlyActivity, target: 100 }
   ]
 
