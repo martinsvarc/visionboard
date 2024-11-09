@@ -11,7 +11,7 @@ import {
   Tooltip,
   XAxis,
   YAxis,
-  TooltipProps as RechartsTooltipProps
+  TooltipProps
 } from "recharts"
 
 type LeagueData = {
@@ -27,17 +27,18 @@ type CategoryNames = {
   [key: string]: string
 }
 
-// Updated tooltip props to match Recharts types
-interface CustomTooltipProps extends Omit<RechartsTooltipProps<number, string>, 'payload'> {
-  payload?: Array<{
-    value: number;
-    dataKey: string;
-    payload: {
-      date: string;
-      points: number;
-    };
-  }>;
-}
+const CustomTooltip = ({ active, payload }: TooltipProps<number, string>) => {
+  if (active && payload && payload.length > 0) {
+    return (
+      <div className="rounded-[12px] border border-gray-200 bg-white p-2 shadow-lg">
+        <p className="text-xs text-gray-600">
+          {`${payload[0].value?.toLocaleString()} points`}
+        </p>
+      </div>
+    );
+  }
+  return null;
+};
 
 const categoryNames: CategoryNames = {
   daily: "Daily Leaderboard",
@@ -172,20 +173,7 @@ export default function Component() {
                     tick={{ fill: '#333', fontSize: 11 }}
                     dx={-10}
                   />
-                  <Tooltip
-                    content={(props: CustomTooltipProps) => {
-                      if (props.active && props.payload && props.payload.length > 0) {
-                        return (
-                          <div className="rounded-[12px] border border-gray-200 bg-white p-2 shadow-lg">
-                            <p className="text-xs text-gray-600">
-                              {`${props.payload[0].value.toLocaleString()} points`}
-                            </p>
-                          </div>
-                        );
-                      }
-                      return null;
-                    }}
-                  />
+                  <Tooltip content={CustomTooltip} />
                   <Area
                     type="monotone"
                     dataKey="points"
