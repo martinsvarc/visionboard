@@ -576,24 +576,24 @@ const indexOfLastRecord = currentPage * recordsPerPage;
                   <div className="md:w-2/3">
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                       {scoreCategories.map(({ key, label }) => (
-                        <button 
-                          key={key}
-                          onClick={() => setActiveModal({ 
-                            isOpen: true, 
-                            category: key, 
-                            value: call.scores[key as keyof typeof call.scores],
-                            feedback: call.feedback[key as keyof typeof call.feedback]
-                          })}
-                          className="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-shadow"
-                        >
-                          <div className="text-sm font-medium text-slate-600 text-center mb-2">
-                            {label}
-                          </div>
-                          <div className="text-6xl font-bold text-center text-[#556bc7]">
-                            {call.scores[key as keyof typeof call.scores]}
-                            <span className="text-2xl text-slate-600">/100</span>
-                          </div>
-                        </button>
+                       <button 
+  key={key}
+  onClick={() => setActiveModal({ 
+    isOpen: true, 
+    category: key, 
+    value: call.scores[key as keyof typeof call.scores],
+    feedback: call.feedback[key as keyof typeof call.feedback]
+  })}
+  className="bg-white p-10 rounded-3xl shadow-lg hover:shadow-xl transition-shadow w-full h-48"
+>
+  <div className="text-lg font-medium text-slate-600 text-center mb-4">
+    {label}
+  </div>
+  <div className="text-6xl font-bold text-center text-[#556bc7]">
+    {call.scores[key as keyof typeof call.scores]}
+    <span className="text-2xl text-slate-600">/100</span>
+  </div>
+</button>
                       ))}
                     </div>
                   </div>
