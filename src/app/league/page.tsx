@@ -219,17 +219,24 @@ export default function Component() {
                         )}
                       </div>
                       <div className={`
-                        relative w-8 h-8 rounded-full overflow-hidden
-                        ${rankColor}
-                      `}>
-                        <Image
-                          src={user.profile_picture_url}
-                          alt={user.user_name}
-                          width={32}
-                          height={32}
-                          className="object-cover"
-                        />
-                      </div>
+  relative w-8 h-8 rounded-full overflow-hidden
+  ${rankColor}
+`}>
+  <Image
+    src={user.profile_picture_url || "/placeholder.svg?height=32&width=32"}
+    alt={user.user_name}
+    width={32}
+    height={32}
+    className="object-contain"
+    loading="eager"
+    unoptimized
+    onError={(e) => {
+      console.error('Failed to load image:', user.profile_picture_url);
+      console.error('Error event:', e);
+      e.currentTarget.src = '/placeholder.svg?height=32&width=32';
+    }}
+  />
+</div>
                       <div className={`
                         flex-1 text-sm font-medium flex items-center gap-2
                         ${rank <= 3
