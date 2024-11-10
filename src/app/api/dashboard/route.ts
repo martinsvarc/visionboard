@@ -23,6 +23,7 @@ interface CategoryFeedback {
 
 interface CallData {
   user_name: string;
+  user_picture_url: string;  // Added this line
   agent_name: string;
   agent_picture_url: string;
   call_recording_url: string;
@@ -139,8 +140,8 @@ export const POST = async (request: Request) => {
         ${callData.agent_name},
         ${callData.agent_picture_url},
         ${callData.call_recording_url},
-        ${callData.user_picture_url},
         ${callData.call_details},
+        ${callData.user_picture_url},
         ${callData.scores.engagement},
         ${callData.scores.objection_handling},
         ${callData.scores.information_gathering},
