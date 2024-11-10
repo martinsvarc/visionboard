@@ -104,8 +104,10 @@ function BadgeGrid({ badge, showIndividualProgress }: BadgeGridProps) {
   return (
     <TooltipProvider>
       <Tooltip>
-        <TooltipTrigger asChild>
-          {BadgeContent}
+        <TooltipTrigger>
+          <button type="button" className="w-full">
+            {BadgeContent}
+          </button>
         </TooltipTrigger>
         <TooltipContent className="bg-white/80 backdrop-blur-sm border-white/20 p-1 rounded-lg shadow-lg text-xs">
           <p className="font-extrabold whitespace-nowrap">{badge.tooltipTitle}</p>
