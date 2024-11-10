@@ -315,14 +315,14 @@ const activityBadges: Badge[] = [
     },
     { 
       count: 100, 
-      period: "week", 
-      image: "https://res.cloudinary.com/dmbzcxhjn/image/upload/v1731206168/N3kPQOnXZxSlHf6wHlI-dA-removebg-preview_nzthza.png", 
-      description: "100/Week", 
+      period: "month", 
+      image: "https://res.cloudinary.com/dmbzcxhjn/image/upload/v1731206169/73z7d5wLQiyhufwfTdw5OA-removebg-preview_1_ktrxif.png", 
+      description: "100/Month", 
       unlocked: false, 
-      current: weeklyActivity, 
+      current: monthlyActivity, 
       target: 100,
       tooltipTitle: "High Performer",
-      tooltipSubtitle: "Complete 100 weekly activities"
+      tooltipSubtitle: "Complete 100 monthly sessions"
     }
   ];
 
