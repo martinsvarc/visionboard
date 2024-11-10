@@ -21,7 +21,7 @@ type LeagueData = {
   last_call_date: string;
   score_history: number[];
   rank: number;
- profile_picture_url: string;
+  profile_picture_url: string;
 }
 
 type CategoryNames = {
@@ -219,18 +219,17 @@ export default function Component() {
                         )}
                       </div>
                       <div className={`
-                      <div className={`
-  relative w-8 h-8 rounded-full overflow-hidden
-  ${rankColor}
-`}>
-  <Image
-    src={user.profile_picture_url} // Update this line
-    alt={user.user_name}
-    width={32}
-    height={32}
-    className="object-cover"
-  />
-</div>
+                        relative w-8 h-8 rounded-full overflow-hidden
+                        ${rankColor}
+                      `}>
+                        <Image
+                          src={user.profile_picture_url}
+                          alt={user.user_name}
+                          width={32}
+                          height={32}
+                          className="object-cover"
+                        />
+                      </div>
                       <div className={`
                         flex-1 text-sm font-medium flex items-center gap-2
                         ${rank <= 3
