@@ -28,6 +28,8 @@ interface Badge {
   unlocked: boolean;
   current?: number;
   target?: number;
+ tooltipTitle?: string;    // Add this
+  tooltipSubtitle?: string; // Add this
 }
 
 interface CategorySectionProps {
