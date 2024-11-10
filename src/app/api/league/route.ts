@@ -20,7 +20,7 @@ export const GET = async (request: Request) => {
             COUNT(*) as call_count,
             MAX(call_date) as last_call_date,
             ARRAY_AGG(overall_effectiveness_score ORDER BY call_date) as score_history,
-            MAX(agent_picture_url) as profile_picture_url
+            COALESCE(MAX(user_picture_url), MAX(agent_picture_url)) as profile_picture_url
           FROM call_logs
           WHERE user_name IS NOT NULL
           AND call_date >= CURRENT_DATE
@@ -46,7 +46,7 @@ export const GET = async (request: Request) => {
             COUNT(*) as call_count,
             MAX(call_date) as last_call_date,
             ARRAY_AGG(overall_effectiveness_score ORDER BY call_date) as score_history,
-            MAX(agent_picture_url) as profile_picture_url
+            COALESCE(MAX(user_picture_url), MAX(agent_picture_url)) as profile_picture_url
           FROM call_logs
           WHERE user_name IS NOT NULL
           AND call_date >= CURRENT_DATE - INTERVAL '7 days'
@@ -73,7 +73,7 @@ export const GET = async (request: Request) => {
             COUNT(*) as call_count,
             MAX(call_date) as last_call_date,
             ARRAY_AGG(overall_effectiveness_score ORDER BY call_date) as score_history,
-            MAX(agent_picture_url) as profile_picture_url
+            COALESCE(MAX(user_picture_url), MAX(agent_picture_url)) as profile_picture_url
           FROM call_logs
           WHERE user_name IS NOT NULL
           AND call_date >= CURRENT_DATE - INTERVAL '30 days'
