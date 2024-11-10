@@ -63,6 +63,14 @@ function BadgeGrid({ badges, showIndividualProgress }: BadgeGridProps) {
                   width={40}
                   height={40}
                   className="relative object-contain drop-shadow-md"
+                  loading="eager"
+                  unoptimized
+                  onError={(e) => {
+                    console.error('Failed to load image:', badge.image);
+                    console.error('Error event:', e);
+                    // Optionally set a fallback image
+                    e.currentTarget.src = 'https://placehold.co/40x40';
+                  }}
                 />
                 {!badge.unlocked && (
                   <div className="absolute inset-0 flex items-center justify-center">
