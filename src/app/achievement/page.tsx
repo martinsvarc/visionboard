@@ -326,7 +326,32 @@ const activityBadges: Badge[] = [
     }
   ];
 
-
+const leagueBadges: Badge[] = [
+    { 
+      rank: "Bronze", 
+      image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/a-3d-render-of-a-large-radiant-bronze-medal-with-a-t0r6ItMuRVOEve22GfVYdw-KxQg20b_SdOR5Y3HVUaVZg-removebg-preview-FQvuwEgYxWGz6qrgC1TDFLJgNCqMTd.png", 
+      description: "3rd place", 
+      unlocked: true,
+      tooltipTitle: "For Steady Hands",
+      tooltipSubtitle: "3rd Place in Monthly League"
+    },
+    { 
+      rank: "Silver", 
+      image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/a-3d-render-of-a-large-radiant-silver-medal-with-a-SF8CEVMrSWaKtCH-SS0KPw-xITb8y53Tw-95YbTOpEHoQ-removebg-preview-U6690RSmf0Tv9j0qzPESh3bBQJKIB4.png", 
+      description: "2nd place", 
+      unlocked: true,
+      tooltipTitle: "For Steady Hands",
+      tooltipSubtitle: "2nd Place in Monthly League"
+    },
+    { 
+      rank: "Gold", 
+      image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/a-3d-render-of-a-large-radiant-gold-medal-with-a-b-T5VpM4deRuWtnNpknWeXKA-oVpwYeqBTOuOBOCRRskHXg-removebg-preview-o68fcm402jSQQlsuqIHnmTKovqR92D.png", 
+      description: "1st place", 
+      unlocked: false,
+      tooltipTitle: "For Steady Hands",
+      tooltipSubtitle: "1st Place in Monthly League"
+    }
+];
 
   return (
     <div className={`${montserrat.variable} font-sans bg-white min-h-screen flex items-center justify-center p-4`}>
