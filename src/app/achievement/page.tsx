@@ -103,34 +103,38 @@ function BadgeGrid({ badge, showIndividualProgress }: BadgeGridProps) {
   }
 
   return (
-    <Tooltip>
-      <TooltipTrigger>
-        {BadgeContent}
-      </TooltipTrigger>
-      <TooltipContent className="bg-white/80 backdrop-blur-sm border-white/20 p-1 rounded-lg shadow-lg text-xs">
-        <p className="font-extrabold whitespace-nowrap">
-          {badge.period
-            ? `Complete ${badge.target! - badge.current!} more activities this ${badge.period}`
-            : badge.rank
-              ? `Reach ${badge.rank} League`
-              : badge.days
-                ? `Next: ${badge.days} Day Streak`
-                : badge.calls
-                  ? `Next: ${badge.calls} Calls`
-                  : 'Locked'
-          }
-        </p>
-        <p className="text-slate-500 whitespace-nowrap font-medium">
-          {badge.days 
-            ? "For Steady Hands" 
-            : badge.calls 
-              ? "For Drillers" 
-              : badge.rank
-                ? "For Monthly League Winners"
-                : "For Massive Action Takers"}
-        </p>
-      </TooltipContent>
-    </Tooltip>
+    <TooltipProvider>
+      <div className="relative">
+        <Tooltip>
+          <TooltipTrigger asChild>
+            {BadgeContent}
+          </TooltipTrigger>
+          <TooltipContent className="bg-white/80 backdrop-blur-sm border-white/20 p-1 rounded-lg shadow-lg text-xs">
+            <p className="font-extrabold whitespace-nowrap">
+              {badge.period
+                ? `Complete ${badge.target! - badge.current!} more activities this ${badge.period}`
+                : badge.rank
+                  ? `Reach ${badge.rank} League`
+                  : badge.days
+                    ? `Next: ${badge.days} Day Streak`
+                    : badge.calls
+                      ? `Next: ${badge.calls} Calls`
+                      : 'Locked'
+              }
+            </p>
+            <p className="text-slate-500 whitespace-nowrap font-medium">
+              {badge.days 
+                ? "For Steady Hands" 
+                : badge.calls 
+                  ? "For Drillers" 
+                  : badge.rank
+                    ? "For Monthly League Winners"
+                    : "For Massive Action Takers"}
+            </p>
+          </TooltipContent>
+        </Tooltip>
+      </div>
+    </TooltipProvider>
   )
 }
 
