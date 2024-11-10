@@ -367,5 +367,3 @@ const activityBadges: Badge[] = [
     </div>
   )
 }
-
-export default Component;
