@@ -44,18 +44,18 @@ export const GET = async (request: Request) => {
     if (period === 'daily') {
       query = await pool.sql`
         WITH UserScores AS (
-          SELECT 
-            user_name,
-            SUM(overall_effectiveness_score) as total_points,
-            COUNT(*) as call_count,
-            MAX(call_date) as last_call_date,
-            ARRAY_AGG(overall_effectiveness_score ORDER BY call_date) as score_history,
-            COALESCE(MAX(user_picture_url), MAX(agent_picture_url)) as profile_picture_url
-          FROM call_logs
-          WHERE user_name IS NOT NULL
-          AND call_date >= CURRENT_DATE
-          GROUP BY user_name
-        )
+  SELECT 
+    user_name,
+    SUM(overall_effectiveness_score) as total_points,
+    COUNT(*) as call_count,
+    MAX(call_date) as last_call_date,
+    ARRAY_AGG(overall_effectiveness_score ORDER BY call_date) as score_history,
+    MAX(user_picture_url) as profile_picture_url
+  FROM call_logs
+  WHERE user_name IS NOT NULL
+  AND call_date >= CURRENT_DATE
+  GROUP BY user_name
+)
         SELECT 
           user_name,
           total_points,
@@ -69,19 +69,19 @@ export const GET = async (request: Request) => {
       `;
     } else if (period === 'weekly') {
       query = await pool.sql`
-        WITH UserScores AS (
-          SELECT 
-            user_name,
-            SUM(overall_effectiveness_score) as total_points,
-            COUNT(*) as call_count,
-            MAX(call_date) as last_call_date,
-            ARRAY_AGG(overall_effectiveness_score ORDER BY call_date) as score_history,
-            COALESCE(MAX(user_picture_url), MAX(agent_picture_url)) as profile_picture_url
-          FROM call_logs
-          WHERE user_name IS NOT NULL
-          AND call_date >= CURRENT_DATE - INTERVAL '7 days'
-          GROUP BY user_name
-        )
+       WITH UserScores AS (
+  SELECT 
+    user_name,
+    SUM(overall_effectiveness_score) as total_points,
+    COUNT(*) as call_count,
+    MAX(call_date) as last_call_date,
+    ARRAY_AGG(overall_effectiveness_score ORDER BY call_date) as score_history,
+    MAX(user_picture_url) as profile_picture_url
+  FROM call_logs
+  WHERE user_name IS NOT NULL
+  AND call_date >= CURRENT_DATE - INTERVAL '7 days'
+  GROUP BY user_name
+)
         SELECT 
           user_name,
           total_points,
@@ -97,18 +97,18 @@ export const GET = async (request: Request) => {
       // monthly
       query = await pool.sql`
         WITH UserScores AS (
-          SELECT 
-            user_name,
-            SUM(overall_effectiveness_score) as total_points,
-            COUNT(*) as call_count,
-            MAX(call_date) as last_call_date,
-            ARRAY_AGG(overall_effectiveness_score ORDER BY call_date) as score_history,
-            COALESCE(MAX(user_picture_url), MAX(agent_picture_url)) as profile_picture_url
-          FROM call_logs
-          WHERE user_name IS NOT NULL
-          AND call_date >= CURRENT_DATE - INTERVAL '30 days'
-          GROUP BY user_name
-        )
+  SELECT 
+    user_name,
+    SUM(overall_effectiveness_score) as total_points,
+    COUNT(*) as call_count,
+    MAX(call_date) as last_call_date,
+    ARRAY_AGG(overall_effectiveness_score ORDER BY call_date) as score_history,
+    MAX(user_picture_url) as profile_picture_url
+  FROM call_logs
+  WHERE user_name IS NOT NULL
+  AND call_date >= CURRENT_DATE - INTERVAL '30 days'
+  GROUP BY user_name
+)
         SELECT 
           user_name,
           total_points,
