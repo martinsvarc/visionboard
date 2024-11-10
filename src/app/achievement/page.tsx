@@ -154,10 +154,10 @@ function CategorySection({ title, currentStreak, nextMilestone, progress, badges
         <p className="text-xs text-slate-600">{description}</p>
       )}
       <div className="grid grid-cols-5 gap-1">
-  {badges.map((badge, index) => (
-    <BadgeGrid key={index} badge={badge} showIndividualProgress={showIndividualProgress} />
-  ))}
-</div>
+        {badges.map((badge, index) => (
+          <BadgeGrid key={index} badge={badge} showIndividualProgress={showIndividualProgress} />
+        ))}
+      </div>
     </div>
   )
 }
@@ -170,7 +170,7 @@ export default function Component() {
   const [monthlyActivity, setMonthlyActivity] = useState(75)
   const [currentLeagueRank, setCurrentLeagueRank] = useState("Silver")
 
-const signInBadges: Badge[] = [
+  const signInBadges: Badge[] = [
     { days: 5, image: "https://res.cloudinary.com/dmbzcxhjn/image/upload/v1731206168/a-3d-render-of-a-chunky-cartoon-calendar-icon-with-HWOAO1EUTGSglSzZlSFjHA-dQjZimptRd-0SpN_-6oU5w-removebg-preview_iatnoy.png", description: "5 Day Streak", unlocked: true },
     { days: 10, image: "https://res.cloudinary.com/dmbzcxhjn/image/upload/v1731206168/a-3d-render-of-a-chunky-cartoon-calendar-icon-with-QHfb4ipTQUu1iR54Vmxo6g-RFBtanJsS0aS2a2tOFHHXg-removebg-preview_kzjyge.png", description: "10 Day Streak", unlocked: true },
     { days: 30, image: "https://res.cloudinary.com/dmbzcxhjn/image/upload/v1731206168/a-pixar-style-3d-render-of-a-cartoon-calendar-icon-CSU-cRrnTDCAuvGYTSV90w-taY5gPBoQxydiszFPNpDvQ-removebg-preview_hnqjkl.png", description: "30 Day Streak", unlocked: true },
@@ -192,7 +192,7 @@ const signInBadges: Badge[] = [
     { calls: 2500, image: "https://res.cloudinary.com/dmbzcxhjn/image/upload/v1731206169/WhatsApp_Image_2024-11-07_at_23.19.01_b4416b2f-removebg-preview_jd6136.png", description: "2500 Calls", unlocked: false }
   ]
 
-    const activityBadges: Badge[] = [
+  const activityBadges: Badge[] = [
     { count: 10, period: "day", image: "https://res.cloudinary.com/dmbzcxhjn/image/upload/v1731206168/InBodPWuQrymOXROYwUwow-removebg-preview_b9fn8n.png", description: "10/Day", unlocked: false, current: dailyActivity, target: 10 },
     { count: 50, period: "week", image: "https://res.cloudinary.com/dmbzcxhjn/image/upload/v1731206169/DuZdTwN_T8SRiCdUHDt-AQ-removebg-preview_1_jcg1nm.png", description: "50/Week", unlocked: false, current: weeklyActivity, target: 50 },
     { count: 100, period: "month", image: "https://res.cloudinary.com/dmbzcxhjn/image/upload/v1731206169/73z7d5wLQiyhufwfTdw5OA-removebg-preview_1_ktrxif.png", description: "100/Month", unlocked: false, current: monthlyActivity, target: 100 }
@@ -204,7 +204,7 @@ const signInBadges: Badge[] = [
     { rank: "Gold", image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/a-3d-render-of-a-large-radiant-gold-medal-with-a-b-T5VpM4deRuWtnNpknWeXKA-oVpwYeqBTOuOBOCRRskHXg-removebg-preview-o68fcm402jSQQlsuqIHnmTKovqR92D.png", description: "Reach the 1st place in league", unlocked: false }
   ]
 
- return (
+  return (
     <TooltipProvider>
       <div className={`${montserrat.variable} font-sans bg-white min-h-screen flex items-center justify-center p-4`}>
         <div className="bg-[#f2f3f9] p-6 rounded-xl shadow-lg max-w-md w-full">
@@ -248,3 +248,4 @@ const signInBadges: Badge[] = [
       </div>
     </TooltipProvider>
   )
+}
