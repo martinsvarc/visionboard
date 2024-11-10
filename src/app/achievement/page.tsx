@@ -161,32 +161,32 @@ export default function Component() {
   const [monthlyActivity, setMonthlyActivity] = useState(75)
   const [currentLeagueRank, setCurrentLeagueRank] = useState("Silver")
 
-  const signInBadges: Badge[] = [
-    { days: 5, image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/a-3d-render-of-a-chunky-cartoon-calendar-icon-with-HWOAO1EUTGSglSzZlSFjHA-dQjZimptRd-0SpN_-6oU5w-removebg-preview-kqCdBji4NtHiKw4VNgVdM4AvaoJTeG.png", description: "5 Day Streak", unlocked: true },
-    { days: 10, image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/a-3d-render-of-a-chunky-cartoon-calendar-icon-with-QHfb4ipTQUu1iR54Vmxo6g-RFBtanJsS0aS2a2tOFHHXg-removebg-preview-v7ErIfzS4KWNaGOsrDHAlKE567RPBl.png", description: "10 Day Streak", unlocked: true },
-    { days: 30, image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/a-pixar-style-3d-render-of-a-cartoon-calendar-icon-CSU-cRrnTDCAuvGYTSV90w-taY5gPBoQxydiszFPNpDvQ-removebg-preview-icmW2h12SQM5AuIhCFGS6QgVtHH4bl.png", description: "30 Day Streak", unlocked: true },
-    { days: 90, image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/a-pixar-style-3d-render-of-a-cartoon-calendar-icon-RCaF4tpKT7aJoICZ2L508Q-UCW5RDP4Q4KfvoRnq8NlfA-removebg-preview-uTOgO6F3TcAT7mgifJaah0IMdp7aBL.png", description: "90 Day Streak", unlocked: false },
-    { days: 180, image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/a-pixar-style-3d-render-of-a-cartoon-calendar-icon-L5aDOKYDTgKsB2lxHimuQQ-2xr3cxz6RCeNCL9HhBtylA-removebg-preview-EjyMwQ76jCkYGHpc22uRIkJ4b0c6gu.png", description: "180 Day Streak", unlocked: false },
-    { days: 365, image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/a-pixar-style-3d-render-of-a-cartoon-calendar-icon-9Ut5P-Z7Q-qcpgWOIlslCA-YQ3T7zHwThCVVysgv9KyEg-removebg-preview-6Gy0yI5Pl0pFnfMYafKQCjqqmtUVEL.png", description: "365 Day Streak", unlocked: false }
+const signInBadges: Badge[] = [
+    { days: 5, image: "https://i.ibb.co/D997gfg/110.jpg", description: "5 Day Streak", unlocked: true },
+    { days: 10, image: "https://i.ibb.co/p2vdRTL/117.jpg", description: "10 Day Streak", unlocked: true },
+    { days: 30, image: "https://i.ibb.co/t3MDw4p/116.jpg", description: "30 Day Streak", unlocked: true },
+    { days: 90, image: "https://i.ibb.co/hYFqxvL/115.jpg", description: "90 Day Streak", unlocked: false },
+    { days: 180, image: "https://i.ibb.co/t8ScZ7S/114.jpg", description: "180 Day Streak", unlocked: false },
+    { days: 365, image: "https://i.ibb.co/C5gXJbt/113.jpg", description: "365 Day Streak", unlocked: false }
   ]
 
   const callsBadges: Badge[] = [
-    { calls: 10, image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/WhatsApp_Image_2024-11-07_at_23.19.01_2cecae84-removebg-preview-HpwJXY8H5IMISoTv4km3ojTHoSZR8l.png", description: "10 Calls", unlocked: true },
-    { calls: 25, image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/WhatsApp_Image_2024-11-07_at_23.19.00_410bcd52-removebg-preview-dlLwx4QulGYXIPJ1SngulFRrwEzsAK.png", description: "25 Calls", unlocked: true },
-    { calls: 50, image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/WhatsApp_Image_2024-11-07_at_23.19.00_e9686083-removebg-preview-MDIRXQ0AssJavrWhCOpsWNpEU5d4Ju.png", description: "50 Calls", unlocked: true },
-    { calls: 100, image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/WhatsApp_Image_2024-11-07_at_23.18.59_aaafd20b-removebg-preview-XjPy3hlhfslMzznTbnidnUwXshcQfA.png", description: "100 Calls", unlocked: false },
-    { calls: 250, image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/WhatsApp_Image_2024-11-07_at_23.18.58_e34cbb5f-removebg-preview-a9uNWRXCjGbpOHLSqf3TpeOCzxTRd7.png", description: "250 Calls", unlocked: false },
-    { calls: 500, image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/WhatsApp_Image_2024-11-07_at_23.18.59_dac37adb-removebg-preview-hJMSixcu6MZEXimLJmrsyO2temyFDg.png", description: "500 Calls", unlocked: false },
-    { calls: 750, image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/WhatsApp_Image_2024-11-07_at_23.18.57_f7535a53-removebg-preview-Vr88OikuiRNF7hIVXzXNPrsJFX1mpv.png", description: "750 Calls", unlocked: false },
-    { calls: 1000, image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/WhatsApp_Image_2024-11-07_at_23.18.57_717b1f9c-removebg-preview-NEfGEVDhw3AK6EJSo0gtm42sq28oy2.png", description: "1000 Calls", unlocked: false },
-    { calls: 1500, image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/WhatsApp_Image_2024-11-07_at_23.18.58_44ffd513-removebg-preview-3KJg104tTgbQo53R75ZJIdE4Pv6jBi.png", description: "1500 Calls", unlocked: false },
-    { calls: 2500, image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/WhatsApp_Image_2024-11-07_at_23.19.01_b4416b2f-removebg-preview-wl3Pqdmr7gt9BFVpspJ0ggm41XedWZ.png", description: "2500 Calls", unlocked: false }
+    { calls: 10, image: "https://i.ibb.co/GMm73Rn/101.jpg", description: "10 Calls", unlocked: true },
+    { calls: 25, image: "https://i.ibb.co/7S73sNv/112.jpg", description: "25 Calls", unlocked: true },
+    { calls: 50, image: "https://i.ibb.co/HPrvgmc/111.jpg", description: "50 Calls", unlocked: true },
+    { calls: 100, image: "https://i.ibb.co/crJwybZ/109.jpg", description: "100 Calls", unlocked: false },
+    { calls: 250, image: "https://i.ibb.co/8jn8084/108.jpg", description: "250 Calls", unlocked: false },
+    { calls: 500, image: "https://i.ibb.co/mttB3xC/107.jpg", description: "500 Calls", unlocked: false },
+    { calls: 750, image: "https://i.ibb.co/tm6ZYmB/106.jpg", description: "750 Calls", unlocked: false },
+    { calls: 1000, image: "https://i.ibb.co/JpywNtj/105.jpg", description: "1000 Calls", unlocked: false },
+    { calls: 1500, image: "https://i.ibb.co/n3zNLQq/104.jpg", description: "1500 Calls", unlocked: false },
+    { calls: 2500, image: "https://i.ibb.co/q5jS9np/113.jpg", description: "2500 Calls", unlocked: false }
   ]
 
-  const activityBadges: Badge[] = [
-    { count: 10, period: "day", image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/InBodPWuQrymOXROYwUwow-removebg-preview-IEGWv6kNCTAusDQjfDnJXpHoQRgFQR.png", description: "10/Day", unlocked: false, current: dailyActivity, target: 10 },
-    { count: 50, period: "week", image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/DuZdTwN_T8SRiCdUHDt-AQ-removebg-preview%20(1)-7g7ItwNB5ISjQHja5mcpjzxc8hr0s7.png", description: "50/Week", unlocked: false, current: weeklyActivity, target: 50 },
-    { count: 100, period: "month", image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/73z7d5wLQiyhufwfTdw5OA-removebg-preview%20(1)-5AC5dKLPkTLUI9LEOfALqI2ksNMNzd.png", description: "100/Month", unlocked: false, current: monthlyActivity, target: 100 }
+    const activityBadges: Badge[] = [
+    { count: 10, period: "day", image: "https://i.ibb.co/80wpvxh/103.jpg", description: "10/Day", unlocked: false, current: dailyActivity, target: 10 },
+    { count: 50, period: "week", image: "https://i.ibb.co/YBDXdFP/102.jpg", description: "50/Week", unlocked: false, current: weeklyActivity, target: 50 },
+    { count: 100, period: "month", image: "https://i.ibb.co/GMm73Rn/101.jpg", description: "100/Month", unlocked: false, current: monthlyActivity, target: 100 }
   ]
 
   const leagueBadges: Badge[] = [
