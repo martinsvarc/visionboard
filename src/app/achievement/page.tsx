@@ -108,27 +108,8 @@ function BadgeGrid({ badge, showIndividualProgress }: BadgeGridProps) {
           {BadgeContent}
         </TooltipTrigger>
         <TooltipContent className="bg-white/80 backdrop-blur-sm border-white/20 p-1 rounded-lg shadow-lg text-xs">
-          <p className="font-extrabold whitespace-nowrap">
-            {badge.period
-              ? `Complete ${badge.target! - badge.current!} more activities this ${badge.period}`
-              : badge.rank
-                ? `Reach ${badge.rank} League`
-                : badge.days
-                  ? `Next: ${badge.days} Day Streak`
-                  : badge.calls
-                    ? `Next: ${badge.calls} Calls`
-                    : 'Locked'
-            }
-          </p>
-          <p className="text-slate-500 whitespace-nowrap font-medium">
-            {badge.days 
-              ? "For Steady Hands" 
-              : badge.calls 
-                ? "For Drillers" 
-                : badge.rank
-                  ? "For Monthly League Winners"
-                  : "For Massive Action Takers"}
-          </p>
+          <p className="font-extrabold whitespace-nowrap">{badge.tooltipTitle}</p>
+          <p className="text-slate-500 whitespace-nowrap font-medium">{badge.tooltipSubtitle}</p>
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>
@@ -171,39 +152,177 @@ export default function Component() {
   const [monthlyActivity, setMonthlyActivity] = useState(75)
   const [currentLeagueRank, setCurrentLeagueRank] = useState("Silver")
 
-  const signInBadges: Badge[] = [
-    { days: 5, image: "https://res.cloudinary.com/dmbzcxhjn/image/upload/v1731206168/a-3d-render-of-a-chunky-cartoon-calendar-icon-with-HWOAO1EUTGSglSzZlSFjHA-dQjZimptRd-0SpN_-6oU5w-removebg-preview_iatnoy.png", description: "5 Day Streak", unlocked: true },
-    { days: 10, image: "https://res.cloudinary.com/dmbzcxhjn/image/upload/v1731206168/a-3d-render-of-a-chunky-cartoon-calendar-icon-with-QHfb4ipTQUu1iR54Vmxo6g-RFBtanJsS0aS2a2tOFHHXg-removebg-preview_kzjyge.png", description: "10 Day Streak", unlocked: true },
-    { days: 30, image: "https://res.cloudinary.com/dmbzcxhjn/image/upload/v1731206168/a-pixar-style-3d-render-of-a-cartoon-calendar-icon-CSU-cRrnTDCAuvGYTSV90w-taY5gPBoQxydiszFPNpDvQ-removebg-preview_hnqjkl.png", description: "30 Day Streak", unlocked: true },
-    { days: 90, image: "https://res.cloudinary.com/dmbzcxhjn/image/upload/v1731206168/a-pixar-style-3d-render-of-a-cartoon-calendar-icon-RCaF4tpKT7aJoICZ2L508Q-UCW5RDP4Q4KfvoRnq8NlfA-removebg-preview_tevelw.png", description: "90 Day Streak", unlocked: false },
-    { days: 180, image: "https://res.cloudinary.com/dmbzcxhjn/image/upload/v1731206168/a-pixar-style-3d-render-of-a-cartoon-calendar-icon-L5aDOKYDTgKsB2lxHimuQQ-2xr3cxz6RCeNCL9HhBtylA-removebg-preview_oooy2m.png", description: "180 Day Streak", unlocked: false },
-    { days: 365, image: "https://res.cloudinary.com/dmbzcxhjn/image/upload/v1731206168/a-pixar-style-3d-render-of-a-cartoon-calendar-icon-9Ut5P-Z7Q-qcpgWOIlslCA-YQ3T7zHwThCVVysgv9KyEg-removebg-preview_dlplgi.png", description: "365 Day Streak", unlocked: false }
-  ]
+const signInBadges: Badge[] = [
+    { 
+      days: 5, 
+      image: "https://res.cloudinary.com/dmbzcxhjn/image/upload/v1731206168/a-3d-render-of-a-chunky-cartoon-calendar-icon-with-HWOAO1EUTGSglSzZlSFjHA-dQjZimptRd-0SpN_-6oU5w-removebg-preview_iatnoy.png", 
+      description: "5 Day Streak", 
+      unlocked: true,
+      tooltipTitle: "Beginner's Commitment",
+      tooltipSubtitle: "Sign in for 5 consecutive days"
+    },
+    { 
+      days: 10, 
+      image: "https://res.cloudinary.com/dmbzcxhjn/image/upload/v1731206168/a-3d-render-of-a-chunky-cartoon-calendar-icon-with-QHfb4ipTQUu1iR54Vmxo6g-RFBtanJsS0aS2a2tOFHHXg-removebg-preview_kzjyge.png", 
+      description: "10 Day Streak", 
+      unlocked: true,
+      tooltipTitle: "Steady Progress",
+      tooltipSubtitle: "Maintain a 10-day streak"
+    },
+    { 
+      days: 30, 
+      image: "https://res.cloudinary.com/dmbzcxhjn/image/upload/v1731206168/a-pixar-style-3d-render-of-a-cartoon-calendar-icon-CSU-cRrnTDCAuvGYTSV90w-taY5gPBoQxydiszFPNpDvQ-removebg-preview_hnqjkl.png", 
+      description: "30 Day Streak", 
+      unlocked: true,
+      tooltipTitle: "Monthly Master",
+      tooltipSubtitle: "Complete a full month of sign-ins"
+    },
+    { 
+      days: 90, 
+      image: "https://res.cloudinary.com/dmbzcxhjn/image/upload/v1731206168/a-pixar-style-3d-render-of-a-cartoon-calendar-icon-RCaF4tpKT7aJoICZ2L508Q-UCW5RDP4Q4KfvoRnq8NlfA-removebg-preview_tevelw.png", 
+      description: "90 Day Streak", 
+      unlocked: false,
+      tooltipTitle: "Quarterly Champion",
+      tooltipSubtitle: "Stay committed for 90 days"
+    },
+    { 
+      days: 180, 
+      image: "https://res.cloudinary.com/dmbzcxhjn/image/upload/v1731206168/a-pixar-style-3d-render-of-a-cartoon-calendar-icon-L5aDOKYDTgKsB2lxHimuQQ-2xr3cxz6RCeNCL9HhBtylA-removebg-preview_oooy2m.png", 
+      description: "180 Day Streak", 
+      unlocked: false,
+      tooltipTitle: "Half-Year Hero",
+      tooltipSubtitle: "Reach 180 days of dedication"
+    },
+    { 
+      days: 365, 
+      image: "https://res.cloudinary.com/dmbzcxhjn/image/upload/v1731206168/a-pixar-style-3d-render-of-a-cartoon-calendar-icon-9Ut5P-Z7Q-qcpgWOIlslCA-YQ3T7zHwThCVVysgv9KyEg-removebg-preview_dlplgi.png", 
+      description: "365 Day Streak", 
+      unlocked: false,
+      tooltipTitle: "Year-Long Legend",
+      tooltipSubtitle: "Complete a full year of consistency"
+    }
+  ];
 
-  const callsBadges: Badge[] = [
-    { calls: 10, image: "https://res.cloudinary.com/dmbzcxhjn/image/upload/v1731206170/WhatsApp_Image_2024-11-07_at_23.19.01_2cecae84-removebg-preview_radody.png", description: "10 Calls", unlocked: true },
-    { calls: 25, image: "https://res.cloudinary.com/dmbzcxhjn/image/upload/v1731206169/WhatsApp_Image_2024-11-07_at_23.19.00_410bcd52-removebg-preview_bi6eon.png", description: "25 Calls", unlocked: true },
-    { calls: 50, image: "https://res.cloudinary.com/dmbzcxhjn/image/upload/v1731206170/WhatsApp_Image_2024-11-07_at_23.19.00_e9686083-removebg-preview_qt9tyx.png", description: "50 Calls", unlocked: true },
-    { calls: 100, image: "https://res.cloudinary.com/dmbzcxhjn/image/upload/v1731206169/WhatsApp_Image_2024-11-07_at_23.18.59_aaafd20b-removebg-preview_mniysw.png", description: "100 Calls", unlocked: false },
-    { calls: 250, image: "https://res.cloudinary.com/dmbzcxhjn/image/upload/v1731206169/WhatsApp_Image_2024-11-07_at_23.18.58_e34cbb5f-removebg-preview_nm6c8a.png", description: "250 Calls", unlocked: false },
-    { calls: 500, image: "https://res.cloudinary.com/dmbzcxhjn/image/upload/v1731206170/WhatsApp_Image_2024-11-07_at_23.18.59_dac37adb-removebg-preview_xfpwp9.png", description: "500 Calls", unlocked: false },
-    { calls: 750, image: "https://res.cloudinary.com/dmbzcxhjn/image/upload/v1731206169/WhatsApp_Image_2024-11-07_at_23.18.57_f7535a53-removebg-preview_we2xbp.png", description: "750 Calls", unlocked: false },
-    { calls: 1000, image: "https://res.cloudinary.com/dmbzcxhjn/image/upload/v1731206168/WhatsApp_Image_2024-11-07_at_23.18.57_717b1f9c-removebg-preview_yupyox.png", description: "1000 Calls", unlocked: false },
-    { calls: 1500, image: "https://res.cloudinary.com/dmbzcxhjn/image/upload/v1731206169/WhatsApp_Image_2024-11-07_at_23.18.58_44ffd513-removebg-preview_jsmszk.png", description: "1500 Calls", unlocked: false },
-    { calls: 2500, image: "https://res.cloudinary.com/dmbzcxhjn/image/upload/v1731206169/WhatsApp_Image_2024-11-07_at_23.19.01_b4416b2f-removebg-preview_jd6136.png", description: "2500 Calls", unlocked: false }
-  ]
+const callsBadges: Badge[] = [
+    { 
+      calls: 10, 
+      image: "https://res.cloudinary.com/dmbzcxhjn/image/upload/v1731206170/WhatsApp_Image_2024-11-07_at_23.19.01_2cecae84-removebg-preview_radody.png", 
+      description: "10 Calls", 
+      unlocked: true,
+      tooltipTitle: "First Steps",
+      tooltipSubtitle: "Complete your first 10 calls"
+    },
+    { 
+      calls: 25, 
+      image: "https://res.cloudinary.com/dmbzcxhjn/image/upload/v1731206169/WhatsApp_Image_2024-11-07_at_23.19.00_410bcd52-removebg-preview_bi6eon.png", 
+      description: "25 Calls", 
+      unlocked: true,
+      tooltipTitle: "Getting Started",
+      tooltipSubtitle: "Make 25 successful calls"
+    },
+    { 
+      calls: 50, 
+      image: "https://res.cloudinary.com/dmbzcxhjn/image/upload/v1731206170/WhatsApp_Image_2024-11-07_at_23.19.00_e9686083-removebg-preview_qt9tyx.png", 
+      description: "50 Calls", 
+      unlocked: true,
+      tooltipTitle: "Call Enthusiast",
+      tooltipSubtitle: "Reach 50 calls milestone"
+    },
+    { 
+      calls: 100, 
+      image: "https://res.cloudinary.com/dmbzcxhjn/image/upload/v1731206169/WhatsApp_Image_2024-11-07_at_23.18.59_aaafd20b-removebg-preview_mniysw.png", 
+      description: "100 Calls", 
+      unlocked: false,
+      tooltipTitle: "Century Caller",
+      tooltipSubtitle: "Hit your first 100 calls"
+    },
+    { 
+      calls: 250, 
+      image: "https://res.cloudinary.com/dmbzcxhjn/image/upload/v1731206169/WhatsApp_Image_2024-11-07_at_23.18.58_e34cbb5f-removebg-preview_nm6c8a.png", 
+      description: "250 Calls", 
+      unlocked: false,
+      tooltipTitle: "Call Expert",
+      tooltipSubtitle: "Master 250 calls"
+    },
+    { 
+      calls: 500, 
+      image: "https://res.cloudinary.com/dmbzcxhjn/image/upload/v1731206170/WhatsApp_Image_2024-11-07_at_23.18.59_dac37adb-removebg-preview_xfpwp9.png", 
+      description: "500 Calls", 
+      unlocked: false,
+      tooltipTitle: "Call Virtuoso",
+      tooltipSubtitle: "Achieve 500 successful calls"
+    },
+    { 
+      calls: 750, 
+      image: "https://res.cloudinary.com/dmbzcxhjn/image/upload/v1731206169/WhatsApp_Image_2024-11-07_at_23.18.57_f7535a53-removebg-preview_we2xbp.png", 
+      description: "750 Calls", 
+      unlocked: false,
+      tooltipTitle: "Elite Caller",
+      tooltipSubtitle: "Join the elite with 750 calls"
+    },
+    { 
+      calls: 1000, 
+      image: "https://res.cloudinary.com/dmbzcxhjn/image/upload/v1731206168/WhatsApp_Image_2024-11-07_at_23.18.57_717b1f9c-removebg-preview_yupyox.png", 
+      description: "1000 Calls", 
+      unlocked: false,
+      tooltipTitle: "Call Master",
+      tooltipSubtitle: "Reach the impressive 1000 calls"
+    },
+    { 
+      calls: 1500, 
+      image: "https://res.cloudinary.com/dmbzcxhjn/image/upload/v1731206169/WhatsApp_Image_2024-11-07_at_23.18.58_44ffd513-removebg-preview_jsmszk.png", 
+      description: "1500 Calls", 
+      unlocked: false,
+      tooltipTitle: "Call Legend",
+      tooltipSubtitle: "Achieve legendary status"
+    },
+    { 
+      calls: 2500, 
+      image: "https://res.cloudinary.com/dmbzcxhjn/image/upload/v1731206169/WhatsApp_Image_2024-11-07_at_23.19.01_b4416b2f-removebg-preview_jd6136.png", 
+      description: "2500 Calls", 
+      unlocked: false,
+      tooltipTitle: "Ultimate Caller",
+      tooltipSubtitle: "Reach the pinnacle of calling"
+    }
+  ];
 
-  const activityBadges: Badge[] = [
-    { count: 10, period: "day", image: "https://res.cloudinary.com/dmbzcxhjn/image/upload/v1731206168/InBodPWuQrymOXROYwUwow-removebg-preview_b9fn8n.png", description: "10/Day", unlocked: false, current: dailyActivity, target: 10 },
-    { count: 50, period: "week", image: "https://res.cloudinary.com/dmbzcxhjn/image/upload/v1731206169/DuZdTwN_T8SRiCdUHDt-AQ-removebg-preview_1_jcg1nm.png", description: "50/Week", unlocked: false, current: weeklyActivity, target: 50 },
-    { count: 100, period: "month", image: "https://res.cloudinary.com/dmbzcxhjn/image/upload/v1731206169/73z7d5wLQiyhufwfTdw5OA-removebg-preview_1_ktrxif.png", description: "100/Month", unlocked: false, current: monthlyActivity, target: 100 }
-  ]
+const activityBadges: Badge[] = [
+    { 
+      count: 10, 
+      period: "day", 
+      image: "https://res.cloudinary.com/dmbzcxhjn/image/upload/v1731206168/InBodPWuQrymOXROYwUwow-removebg-preview_b9fn8n.png", 
+      description: "10/Day", 
+      unlocked: false, 
+      current: dailyActivity, 
+      target: 10,
+      tooltipTitle: "Daily Achiever",
+      tooltipSubtitle: "Complete 10 activities in one day"
+    },
+    { 
+      count: 50, 
+      period: "week", 
+      image: "https://res.cloudinary.com/dmbzcxhjn/image/upload/v1731206169/DuZdTwN_T8SRiCdUHDt-AQ-removebg-preview_1_jcg1nm.png", 
+      description: "50/Week", 
+      unlocked: false, 
+      current: weeklyActivity, 
+      target: 50,
+      tooltipTitle: "Weekly Warrior",
+      tooltipSubtitle: "Hit 50 activities in a week"
+    },
+    { 
+      count: 100, 
+      period: "week", 
+      image: "https://res.cloudinary.com/dmbzcxhjn/image/upload/v1731206168/N3kPQOnXZxSlHf6wHlI-dA-removebg-preview_nzthza.png", 
+      description: "100/Week", 
+      unlocked: false, 
+      current: weeklyActivity, 
+      target: 100,
+      tooltipTitle: "High Performer",
+      tooltipSubtitle: "Complete 100 weekly activities"
+    }
+  ];
 
-  const leagueBadges: Badge[] = [
-    { rank: "Bronze", image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/a-3d-render-of-a-large-radiant-bronze-medal-with-a-t0r6ItMuRVOEve22GfVYdw-KxQg20b_SdOR5Y3HVUaVZg-removebg-preview-FQvuwEgYxWGz6qrgC1TDFLJgNCqMTd.png", description: "3rd place", unlocked: true },
-    { rank: "Silver", image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/a-3d-render-of-a-large-radiant-silver-medal-with-a-SF8CEVMrSWaKtCH-SS0KPw-xITb8y53Tw-95YbTOpEHoQ-removebg-preview-U6690RSmf0Tv9j0qzPESh3bBQJKIB4.png", description: "2nd place", unlocked: true },
-{ rank: "Gold", image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/a-3d-render-of-a-large-radiant-gold-medal-with-a-b-T5VpM4deRuWtnNpknWeXKA-oVpwYeqBTOuOBOCRRskHXg-removebg-preview-o68fcm402jSQQlsuqIHnmTKovqR92D.png", description: "Reach the 1st place in league", unlocked: false }
-  ]
+
 
   return (
     <div className={`${montserrat.variable} font-sans bg-white min-h-screen flex items-center justify-center p-4`}>
