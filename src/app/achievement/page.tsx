@@ -103,37 +103,34 @@ function BadgeGrid({ badge, showIndividualProgress }: BadgeGridProps) {
   }
 
   return (
-    <TooltipProvider>
-      <Tooltip>
-        <TooltipTrigger>
-          {BadgeContent}
-        </TooltipTrigger>
-        <TooltipContent className="bg-white/80 backdrop-blur-sm border-white/20 p-1 rounded-lg shadow-lg text-xs">
-          <p className="font-extrabold whitespace-nowrap">
-            {badge.period
-              ? `Complete ${badge.target! - badge.current!} more activities this ${badge.period}`
+    <Tooltip>
+      <TooltipTrigger>
+        {BadgeContent}
+      </TooltipTrigger>
+      <TooltipContent className="bg-white/80 backdrop-blur-sm border-white/20 p-1 rounded-lg shadow-lg text-xs">
+        <p className="font-extrabold whitespace-nowrap">
+          {badge.period
+            ? `Complete ${badge.target! - badge.current!} more activities this ${badge.period}`
+            : badge.rank
+              ? `Reach ${badge.rank} League`
+              : badge.days
+                ? `Next: ${badge.days} Day Streak`
+                : badge.calls
+                  ? `Next: ${badge.calls} Calls`
+                  : 'Locked'
+          }
+        </p>
+        <p className="text-slate-500 whitespace-nowrap font-medium">
+          {badge.days 
+            ? "For Steady Hands" 
+            : badge.calls 
+              ? "For Drillers" 
               : badge.rank
-                ? `Reach ${badge.rank} League`
-                : badge.days
-                  ? `Next: ${badge.days} Day Streak`
-                  : badge.calls
-                    ? `Next: ${badge.calls} Calls`
-                    : 'Locked'
-            }
-          </p>
-          {!badge.unlocked && (
-            <p className="text-slate-500 whitespace-nowrap font-medium">
-              {badge.days 
-                ? "For Steady Hands" 
-                : badge.calls 
-                  ? "For Drillers" 
-                  : badge.rank
-                    ? "For Monthly League Winners"
-                    : "For Massive Action Takers"}
-          </p>
-        </TooltipContent>
-      </Tooltip>
-    </TooltipProvider>
+                ? "For Monthly League Winners"
+                : "For Massive Action Takers"}
+        </p>
+      </TooltipContent>
+    </Tooltip>
   )
 }
 
@@ -207,46 +204,47 @@ const signInBadges: Badge[] = [
     { rank: "Gold", image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/a-3d-render-of-a-large-radiant-gold-medal-with-a-b-T5VpM4deRuWtnNpknWeXKA-oVpwYeqBTOuOBOCRRskHXg-removebg-preview-o68fcm402jSQQlsuqIHnmTKovqR92D.png", description: "Reach the 1st place in league", unlocked: false }
   ]
 
-  return (
-    <div className={`${montserrat.variable} font-sans bg-white min-h-screen flex items-center justify-center p-4`}>
-      <div className="bg-[#f2f3f9] p-6 rounded-xl shadow-lg max-w-md w-full">
-        <Card className="w-full overflow-hidden bg-white border-white/20 shadow-sm">
-          <CardHeader className="border-b border-white/20 p-3">
-            <CardTitle className="text-lg font-extrabold text-[#556bc7]">
-              Achievement Showcase
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="p-3">
-            <div className="space-y-4">
-              <CategorySection
-                title="Sign-in Streaks"
-                currentStreak={signInStreak}
-                nextMilestone={90}
-                progress={(signInStreak / 90) * 100}
-                badges={signInBadges}
-              />
-              <CategorySection
-                title="Completed Calls"
-                currentStreak={completedCalls}
-                nextMilestone={100}
-                progress={(completedCalls / 100) * 100}
-                badges={callsBadges}
-              />
-              <CategorySection
-                title="Activity Goals"
-                description="Daily, Weekly, Monthly"
-                badges={activityBadges}
-                showIndividualProgress
-              />
-              <CategorySection
-                title="League Places"
-                description={`Current League: ${currentLeagueRank}`}
-                badges={leagueBadges}
-              />
-            </div>
-          </CardContent>
-        </Card>
+ return (
+    <TooltipProvider>
+      <div className={`${montserrat.variable} font-sans bg-white min-h-screen flex items-center justify-center p-4`}>
+        <div className="bg-[#f2f3f9] p-6 rounded-xl shadow-lg max-w-md w-full">
+          <Card className="w-full overflow-hidden bg-white border-white/20 shadow-sm">
+            <CardHeader className="border-b border-white/20 p-3">
+              <CardTitle className="text-lg font-extrabold text-[#556bc7]">
+                Achievement Showcase
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-3">
+              <div className="space-y-4">
+                <CategorySection
+                  title="Sign-in Streaks"
+                  currentStreak={signInStreak}
+                  nextMilestone={90}
+                  progress={(signInStreak / 90) * 100}
+                  badges={signInBadges}
+                />
+                <CategorySection
+                  title="Completed Calls"
+                  currentStreak={completedCalls}
+                  nextMilestone={100}
+                  progress={(completedCalls / 100) * 100}
+                  badges={callsBadges}
+                />
+                <CategorySection
+                  title="Activity Goals"
+                  description="Daily, Weekly, Monthly"
+                  badges={activityBadges}
+                  showIndividualProgress
+                />
+                <CategorySection
+                  title="League Places"
+                  description={`Current League: ${currentLeagueRank}`}
+                  badges={leagueBadges}
+                />
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       </div>
-    </div>
+    </TooltipProvider>
   )
-}
