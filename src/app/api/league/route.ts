@@ -1,6 +1,36 @@
 import { createPool } from '@vercel/postgres';
 import { NextResponse } from 'next/server';
 
+interface CategoryScores {
+  engagement: number;
+  objection_handling: number;
+  information_gathering: number;
+  program_explanation: number;
+  closing_skills: number;
+  overall_effectiveness: number;
+  average_success: number;
+}
+
+interface CategoryFeedback {
+  engagement: string;
+  objection_handling: string;
+  information_gathering: string;
+  program_explanation: string;
+  closing_skills: string;
+  overall_effectiveness: string;
+}
+
+interface CallData {
+  user_name: string;
+  user_picture_url: string;  // Added new field here
+  agent_name: string;
+  agent_picture_url: string;
+  call_recording_url: string;
+  call_details: string;
+  scores: CategoryScores;
+  feedback: CategoryFeedback;
+}
+
 export const GET = async (request: Request) => {
   try {
     const { searchParams } = new URL(request.url);
