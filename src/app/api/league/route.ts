@@ -19,7 +19,8 @@ export const GET = async (request: Request) => {
             SUM(overall_effectiveness_score) as total_points,
             COUNT(*) as call_count,
             MAX(call_date) as last_call_date,
-            ARRAY_AGG(overall_effectiveness_score ORDER BY call_date) as score_history
+            ARRAY_AGG(overall_effectiveness_score ORDER BY call_date) as score_history,
+            MAX(agent_picture_url) as profile_picture_url
           FROM call_logs
           WHERE user_name IS NOT NULL
           AND call_date >= CURRENT_DATE
@@ -31,6 +32,7 @@ export const GET = async (request: Request) => {
           call_count,
           last_call_date,
           score_history,
+          COALESCE(profile_picture_url, '/placeholder.svg?height=32&width=32') as profile_picture_url,
           RANK() OVER (ORDER BY total_points DESC) as rank
         FROM UserScores
         ORDER BY total_points DESC;
@@ -43,7 +45,8 @@ export const GET = async (request: Request) => {
             SUM(overall_effectiveness_score) as total_points,
             COUNT(*) as call_count,
             MAX(call_date) as last_call_date,
-            ARRAY_AGG(overall_effectiveness_score ORDER BY call_date) as score_history
+            ARRAY_AGG(overall_effectiveness_score ORDER BY call_date) as score_history,
+            MAX(agent_picture_url) as profile_picture_url
           FROM call_logs
           WHERE user_name IS NOT NULL
           AND call_date >= CURRENT_DATE - INTERVAL '7 days'
@@ -55,6 +58,7 @@ export const GET = async (request: Request) => {
           call_count,
           last_call_date,
           score_history,
+          COALESCE(profile_picture_url, '/placeholder.svg?height=32&width=32') as profile_picture_url,
           RANK() OVER (ORDER BY total_points DESC) as rank
         FROM UserScores
         ORDER BY total_points DESC;
@@ -68,7 +72,8 @@ export const GET = async (request: Request) => {
             SUM(overall_effectiveness_score) as total_points,
             COUNT(*) as call_count,
             MAX(call_date) as last_call_date,
-            ARRAY_AGG(overall_effectiveness_score ORDER BY call_date) as score_history
+            ARRAY_AGG(overall_effectiveness_score ORDER BY call_date) as score_history,
+            MAX(agent_picture_url) as profile_picture_url
           FROM call_logs
           WHERE user_name IS NOT NULL
           AND call_date >= CURRENT_DATE - INTERVAL '30 days'
@@ -80,6 +85,7 @@ export const GET = async (request: Request) => {
           call_count,
           last_call_date,
           score_history,
+          COALESCE(profile_picture_url, '/placeholder.svg?height=32&width=32') as profile_picture_url,
           RANK() OVER (ORDER BY total_points DESC) as rank
         FROM UserScores
         ORDER BY total_points DESC;
@@ -94,7 +100,8 @@ export const GET = async (request: Request) => {
       call_count: parseInt(row.call_count),
       last_call_date: row.last_call_date,
       score_history: row.score_history.map((score: string) => parseFloat(score)),
-      rank: parseInt(row.rank)
+      rank: parseInt(row.rank),
+      profile_picture_url: row.profile_picture_url
     }));
 
     // Get chart data based on period
