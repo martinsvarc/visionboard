@@ -49,7 +49,7 @@ const categoryNames: CategoryNames = {
   monthly: "Monthly Leaderboard",
 }
 
-function LeaderboardContent() {
+function LeaderboardComponent() {
   const [category, setCategory] = React.useState<'daily' | 'weekly' | 'monthly'>('daily')
   const [leagueData, setLeagueData] = React.useState<LeagueData[]>([])
   const [chartData, setChartData] = React.useState<{ date: string; points: number }[]>([])
