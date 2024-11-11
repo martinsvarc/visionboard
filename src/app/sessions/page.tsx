@@ -35,11 +35,11 @@ function CircularProgress({ value, max, size = 120, strokeWidth = 12, children, 
   return (
     <div className="relative" style={{ width: size, height: size }}>
       <svg
-        className="transform -rotate-90"
-        style={{ width: size, height: size }}
+        className="w-full h-full"
+        viewBox={`0 0 ${size} ${size}`}
       >
         <circle
-          className="stroke-[#edeef5]"
+          className="stroke-[#f2f3f9]"
           strokeWidth={strokeWidth}
           fill="transparent"
           r={radius}
@@ -59,6 +59,7 @@ function CircularProgress({ value, max, size = 120, strokeWidth = 12, children, 
             strokeDasharray: circumference,
             strokeDashoffset: offset,
           }}
+          transform={`rotate(-90 ${size / 2} ${size / 2})`}
         />
       </svg>
       <div className="absolute inset-0 flex items-center justify-center">
@@ -124,45 +125,47 @@ function SessionsComponent() {
   }, [memberId])
 
   return (
-    <div className="w-full h-screen bg-white flex items-center justify-center overflow-hidden">
-      <div className="bg-[#f2f3f9] p-6 rounded-3xl">
-        <Card className="w-[650px] bg-white rounded-2xl border-none shadow-lg">
-          <CardHeader className="text-left pb-2 pt-8 px-12">
-            <CardTitle className="text-[#546bc8] text-2xl font-medium">Activity</CardTitle>
+    <div className="min-h-screen w-full bg-transparent p-8 flex items-center justify-center">
+      <div className="bg-[#f2f3f9] p-6 rounded-3xl shadow-xl">
+        <Card className="w-full max-w-[800px] bg-white border-none shadow-lg rounded-2xl p-6">
+          <CardHeader>
+            <CardTitle className="text-[#546bc8] text-3xl font-medium text-center">Activity circles</CardTitle>
           </CardHeader>
-          <CardContent className="px-12 pb-12">
+          <CardContent>
             <div className="flex flex-col items-center">
-              <div className="grid grid-cols-2 gap-20">
+              <div className="grid grid-cols-4 gap-4">
                 {Object.entries(sessions).map(([key, session]) => (
                   <TooltipProvider key={key}>
                     <Tooltip>
-                      <TooltipTrigger className="cursor-pointer">
-                        <CircularProgress value={session.count} max={session.max} size={160} strokeWidth={10} color={session.color}>
-                          <div className="text-center">
-                            <div className="text-4xl font-semibold" style={{ color: session.color }}>
-                              {session.count}
+                      <TooltipTrigger asChild>
+                        <div className="cursor-pointer relative group">
+                          <CircularProgress value={session.count} max={session.max} size={140} color={session.color}>
+                            <div className="text-center">
+                              <div className="text-4xl font-semibold" style={{ color: session.color }}>
+                                {session.count}
+                              </div>
+                              <div className="text-sm text-slate-400 font-medium mt-1">{session.label}</div>
                             </div>
-                            <div className="text-sm text-slate-400 font-medium mt-1">{session.label}</div>
-                          </div>
-                        </CircularProgress>
-                      </TooltipTrigger>
-                      <TooltipContent className="text-center">
-                        <div>
-                          <p className="font-medium">{session.label.charAt(0).toUpperCase() + session.label.slice(1)}</p>
-                          <p>{session.count} of {session.max}</p>
-                          {session.count === session.max && (
-                            <div className="mt-2">
-                              <Image
-                                src={session.badge}
-                                alt={`${key} badge`}
-                                width={40}
-                                height={40}
-                                className="mx-auto"
-                              />
-                              <p className="mt-1 text-green-500">Badge Unlocked!</p>
-                            </div>
-                          )}
+                          </CircularProgress>
+                          <div className="absolute inset-0 rounded-full opacity-0 group-hover:opacity-20 transition-opacity duration-200" style={{ backgroundColor: session.color }}></div>
                         </div>
+                      </TooltipTrigger>
+                      <TooltipContent side="bottom" className="bg-white p-2 rounded-md shadow-md border border-gray-200">
+                        <p className="text-sm font-medium text-gray-700">
+                          {session.label.charAt(0).toUpperCase() + session.label.slice(1)}: {session.count} of {session.max}
+                        </p>
+                        {session.count === session.max && (
+                          <div className="mt-2 text-center">
+                            <Image
+                              src={session.badge}
+                              alt={`${key} badge`}
+                              width={40}
+                              height={40}
+                              className="mx-auto"
+                            />
+                            <p className="mt-1 text-xs text-green-500 font-medium">Badge Unlocked!</p>
+                          </div>
+                        )}
                       </TooltipContent>
                     </Tooltip>
                   </TooltipProvider>
