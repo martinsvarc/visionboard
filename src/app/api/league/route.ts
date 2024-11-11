@@ -1,8 +1,7 @@
-export const dynamic = 'force-dynamic'
-export const runtime = 'edge'
-
 import { createPool } from '@vercel/postgres';
 import { NextResponse } from 'next/server';
+
+export const dynamic = 'force-dynamic'
 
 export async function GET(request: Request) {
   try {
@@ -18,30 +17,21 @@ export async function GET(request: Request) {
       connectionString: process.env.visionboard_PRISMA_URL
     });
 
-    // Check if user exists, if not create them
-    const { rows: userExists } = await pool.sql`
-      SELECT * FROM user_leaderboard WHERE user_id = ${memberId};
-    `;
-
-    if (!userExists.length) {
-      await pool.sql`
-        INSERT INTO user_leaderboard (user_id, user_name, daily_score, weekly_score, all_time_score)
-        VALUES (${memberId}, 'New User', 100, 100, 100);
-      `;
-    }
-
     // Get leaderboard data
     const { rows: leaderboardData } = await pool.sql`
-      SELECT 
-        user_id,
-        user_name,
-        profile_image_url,
-        daily_score as score,
-        ROW_NUMBER() OVER (ORDER BY daily_score DESC) as rank
-      FROM user_leaderboard
-      WHERE daily_score > 0
-      ORDER BY daily_score DESC
-      LIMIT 10;
+      WITH RankedUsers AS (
+        SELECT 
+          user_id,
+          user_name,
+          profile_image_url,
+          daily_score as score,
+          ROW_NUMBER() OVER (ORDER BY daily_score DESC) as rank
+        FROM user_leaderboard
+        WHERE daily_score > 0
+      )
+      SELECT * FROM RankedUsers
+      WHERE rank <= 10
+      ORDER BY rank ASC;
     `;
 
     // Get user stats
@@ -60,23 +50,110 @@ export async function GET(request: Request) {
       WHERE user_id = ${memberId};
     `;
 
-    // Get chart data (last 7 days)
-    const chartData = Array.from({ length: 7 }, (_, i) => ({
-      date: new Date(Date.now() - i * 24 * 60 * 60 * 1000).toLocaleDateString('en-US', { weekday: 'short' }),
-      user_points: Math.floor(Math.random() * 50) + 50,
-      top_user_points: Math.floor(Math.random() * 50) + 100
-    })).reverse();
+    // Get chart data for the past 7 days
+    const { rows: chartData } = await pool.sql`
+      SELECT 
+        DATE_TRUNC('day', created_at) as date,
+        daily_score as user_points,
+        (SELECT MAX(daily_score) 
+         FROM user_leaderboard 
+         WHERE DATE_TRUNC('day', created_at) = DATE_TRUNC('day', ul.created_at)
+        ) as top_user_points
+      FROM user_leaderboard ul
+      WHERE created_at >= CURRENT_DATE - INTERVAL '7 days'
+        AND user_id = ${memberId}
+      GROUP BY DATE_TRUNC('day', created_at), daily_score, ul.created_at
+      ORDER BY date ASC;
+    `;
 
     return NextResponse.json({
       leaderboard: leaderboardData,
-      chartData: chartData,
-      userStats: userStats[0]
+      chartData: chartData.map(row => ({
+        ...row,
+        date: new Date(row.date).toLocaleDateString('en-US', { weekday: 'short' })
+      })),
+      userStats: userStats[0] || null
     });
 
   } catch (error) {
     console.error('Leaderboard error:', error);
     return NextResponse.json({ 
       error: 'Failed to load leaderboard',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    }, { 
+      status: 500 
+    });
+  }
+}
+
+export async function POST(request: Request) {
+  try {
+    const { memberId, userName, profileImageUrl, score } = await request.json();
+    
+    if (!memberId || !userName || typeof score !== 'number') {
+      return NextResponse.json({ 
+        error: 'Missing required fields',
+        receivedData: { memberId, userName, score }
+      }, { status: 400 });
+    }
+
+    const pool = createPool({
+      connectionString: process.env.visionboard_PRISMA_URL
+    });
+
+    console.log('Updating leaderboard:', {
+      memberId,
+      userName,
+      score,
+      profileImageUrl
+    });
+
+    // Insert or update user score
+    await pool.sql`
+      INSERT INTO user_leaderboard (
+        user_id, 
+        user_name, 
+        profile_image_url,
+        daily_score
+      )
+      VALUES (
+        ${memberId}, 
+        ${userName}, 
+        ${profileImageUrl || null},
+        ${score}
+      )
+      ON CONFLICT (user_id) 
+      DO UPDATE SET 
+        user_name = EXCLUDED.user_name,
+        profile_image_url = COALESCE(EXCLUDED.profile_image_url, user_leaderboard.profile_image_url),
+        daily_score = EXCLUDED.daily_score,
+        updated_at = CURRENT_TIMESTAMP;
+    `;
+
+    // Get updated user data
+    const { rows: updatedUser } = await pool.sql`
+      SELECT 
+        user_id,
+        user_name,
+        profile_image_url,
+        daily_score,
+        weekly_score,
+        all_time_score,
+        updated_at
+      FROM user_leaderboard
+      WHERE user_id = ${memberId};
+    `;
+
+    return NextResponse.json({
+      success: true,
+      message: 'Score updated successfully',
+      data: updatedUser[0]
+    });
+    
+  } catch (error) {
+    console.error('Update leaderboard error:', error);
+    return NextResponse.json({ 
+      error: 'Failed to update leaderboard',
       details: error instanceof Error ? error.message : 'Unknown error'
     }, { 
       status: 500 
