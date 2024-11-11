@@ -7,6 +7,7 @@ export async function GET() {
       connectionString: process.env.visionboard_PRISMA_URL
     });
 
+    // Create table
     await pool.sql`
       CREATE TABLE IF NOT EXISTS user_leaderboard (
         id SERIAL PRIMARY KEY,
@@ -19,15 +20,18 @@ export async function GET() {
         created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
         UNIQUE(user_id)
-      );
+      )
+    `;
 
+    // Create index in separate statement
+    await pool.sql`
       CREATE INDEX IF NOT EXISTS idx_user_leaderboard_scores 
-      ON user_leaderboard(weekly_score DESC, all_time_score DESC);
+      ON user_leaderboard(weekly_score DESC, all_time_score DESC)
     `;
 
     return NextResponse.json({ 
       success: true, 
-      message: 'Table created successfully' 
+      message: 'Table and index created successfully' 
     });
 
   } catch (error) {
