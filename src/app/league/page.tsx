@@ -1,6 +1,7 @@
 'use client'
 
 import * as React from "react"
+import { Suspense } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useSearchParams } from 'next/navigation'
@@ -48,7 +49,7 @@ const categoryNames: CategoryNames = {
   monthly: "Monthly Leaderboard",
 }
 
-export default function Component() {
+function LeaderboardContent() {
   const [category, setCategory] = React.useState<'daily' | 'weekly' | 'monthly'>('daily')
   const [leagueData, setLeagueData] = React.useState<LeagueData[]>([])
   const [chartData, setChartData] = React.useState<{ date: string; points: number }[]>([])
@@ -283,5 +284,12 @@ export default function Component() {
         </Card>
       </div>
     </div>
+  )
+}
+export default function Page() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <LeaderboardContent />
+    </Suspense>
   )
 }
