@@ -19,7 +19,6 @@ export async function GET(request: Request) {
     const startOfWeek = new Date(today);
     startOfWeek.setDate(today.getDate() - today.getDay());
     const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-
     const startOfWeekStr = startOfWeek.toISOString().split('T')[0];
     const startOfMonthStr = startOfMonth.toISOString().split('T')[0];
 
@@ -40,7 +39,6 @@ export async function GET(request: Request) {
       monthlyCount: parseInt(rows[0].month_count),
       totalCount: parseInt(rows[0].total_count)
     });
-
   } catch (error) {
     console.error('Error getting session data:', error);
     return NextResponse.json({ error: 'Failed to get session data' }, { status: 500 });
