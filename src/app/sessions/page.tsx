@@ -150,7 +150,7 @@ function SessionsComponent() {
                           <div className="absolute inset-0 rounded-full opacity-0 group-hover:opacity-20 transition-opacity duration-200" style={{ backgroundColor: session.color }}></div>
                         </div>
                       </TooltipTrigger>
-                      <TooltipContent side="bottom" className="bg-white p-2 rounded-md shadow-md border border-gray-200">
+                      <TooltipContent className="bg-white p-2 rounded-md shadow-md border border-gray-200">
                         <p className="text-sm font-medium text-gray-700">
                           {session.label.charAt(0).toUpperCase() + session.label.slice(1)}: {session.count} of {session.max}
                         </p>
