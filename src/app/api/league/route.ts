@@ -109,27 +109,26 @@ export async function POST(request: Request) {
     });
 
     // Insert or update user score
-    await pool.sql`
-      INSERT INTO user_leaderboard (
-        user_id, 
-        user_name, 
-        profile_image_url,
-        daily_score
-      )
-      VALUES (
-        ${memberId}, 
-        ${userName}, 
-        ${profileImageUrl || null},
-        ${score}
-      )
-      ON CONFLICT (user_id) 
-      DO UPDATE SET 
-        user_name = EXCLUDED.user_name,
-        profile_image_url = COALESCE(EXCLUDED.profile_image_url, user_leaderboard.profile_image_url),
-        daily_score = EXCLUDED.daily_score,
-        updated_at = CURRENT_TIMESTAMP;
-    `;
-
+   await pool.sql`
+  INSERT INTO user_leaderboard (
+    user_id, 
+    user_name, 
+    profile_image_url,
+    daily_score
+  )
+  VALUES (
+    ${memberId}, 
+    ${userName}, 
+    ${profileImageUrl || 'https://placehold.co/48x48'},
+    ${score}
+  )
+  ON CONFLICT (user_id) 
+  DO UPDATE SET 
+    user_name = EXCLUDED.user_name,
+    profile_image_url = COALESCE(EXCLUDED.profile_image_url, 'https://placehold.co/48x48'),
+    daily_score = EXCLUDED.daily_score,
+    updated_at = CURRENT_TIMESTAMP;
+`;
     // Get updated user data
     const { rows: updatedUser } = await pool.sql`
       SELECT 
