@@ -69,7 +69,10 @@ function CircularProgress({ value, max, size = 120, strokeWidth = 12, children, 
   )
 }
 
-function SessionsComponent() {
+// Separate component for data fetching
+function SessionsData() {
+  const searchParams = useSearchParams()
+  const memberId = searchParams.get('memberId')
   const [sessions, setSessions] = React.useState<Record<string, SessionData>>({
     today: { 
       count: 0, 
@@ -101,10 +104,6 @@ function SessionsComponent() {
     },
   })
 
-  const searchParams = useSearchParams()
-  const memberId = searchParams.get('memberId')
-
-  // Load session data
   React.useEffect(() => {
     if (memberId) {
       console.log('Loading sessions for member:', memberId)
@@ -125,6 +124,51 @@ function SessionsComponent() {
   }, [memberId])
 
   return (
+    <div className="flex flex-col items-center">
+      <div className="grid grid-cols-4 gap-4">
+        {Object.entries(sessions).map(([key, session]) => (
+          <TooltipProvider key={key}>
+            <Tooltip>
+              <TooltipTrigger>
+                <div className="cursor-pointer relative group">
+                  <CircularProgress value={session.count} max={session.max} size={140} color={session.color}>
+                    <div className="text-center">
+                      <div className="text-4xl font-semibold" style={{ color: session.color }}>
+                        {session.count}
+                      </div>
+                      <div className="text-sm text-slate-400 font-medium mt-1">{session.label}</div>
+                    </div>
+                  </CircularProgress>
+                  <div className="absolute inset-0 rounded-full opacity-0 group-hover:opacity-20 transition-opacity duration-200" style={{ backgroundColor: session.color }}></div>
+                </div>
+              </TooltipTrigger>
+              <TooltipContent className="bg-white p-2 rounded-md shadow-md border border-gray-200">
+                <p className="text-sm font-medium text-gray-700">
+                  {session.label.charAt(0).toUpperCase() + session.label.slice(1)}: {session.count} of {session.max}
+                </p>
+                {session.count === session.max && (
+                  <div className="mt-2 text-center">
+                    <Image
+                      src={session.badge}
+                      alt={`${key} badge`}
+                      width={40}
+                      height={40}
+                      className="mx-auto"
+                    />
+                    <p className="mt-1 text-xs text-green-500 font-medium">Badge Unlocked!</p>
+                  </div>
+                )}
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function SessionsComponent() {
+  return (
     <div className="min-h-screen w-full bg-white p-8 flex items-center justify-center">
       <div className="bg-[#f2f3f9] p-6 rounded-3xl shadow-xl">
         <Card className="w-full max-w-[800px] bg-white border-none shadow-lg rounded-2xl p-6">
@@ -132,46 +176,9 @@ function SessionsComponent() {
             <CardTitle className="text-[#546bc8] text-3xl font-medium text-center">Activity circles</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="flex flex-col items-center">
-              <div className="grid grid-cols-4 gap-4">
-                {Object.entries(sessions).map(([key, session]) => (
-                  <TooltipProvider key={key}>
-                    <Tooltip>
-                      <TooltipTrigger>
-                        <div className="cursor-pointer relative group">
-                          <CircularProgress value={session.count} max={session.max} size={140} color={session.color}>
-                            <div className="text-center">
-                              <div className="text-4xl font-semibold" style={{ color: session.color }}>
-                                {session.count}
-                              </div>
-                              <div className="text-sm text-slate-400 font-medium mt-1">{session.label}</div>
-                            </div>
-                          </CircularProgress>
-                          <div className="absolute inset-0 rounded-full opacity-0 group-hover:opacity-20 transition-opacity duration-200" style={{ backgroundColor: session.color }}></div>
-                        </div>
-                      </TooltipTrigger>
-                      <TooltipContent className="bg-white p-2 rounded-md shadow-md border border-gray-200">
-                        <p className="text-sm font-medium text-gray-700">
-                          {session.label.charAt(0).toUpperCase() + session.label.slice(1)}: {session.count} of {session.max}
-                        </p>
-                        {session.count === session.max && (
-                          <div className="mt-2 text-center">
-                            <Image
-                              src={session.badge}
-                              alt={`${key} badge`}
-                              width={40}
-                              height={40}
-                              className="mx-auto"
-                            />
-                            <p className="mt-1 text-xs text-green-500 font-medium">Badge Unlocked!</p>
-                          </div>
-                        )}
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-                ))}
-              </div>
-            </div>
+            <Suspense fallback={<div>Loading sessions...</div>}>
+              <SessionsData />
+            </Suspense>
           </CardContent>
         </Card>
       </div>
