@@ -88,25 +88,18 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
-    const { memberId, userName, profileImageUrl, score } = await request.json();
-    
-    if (!memberId || !userName || typeof score !== 'number') {
+    const body = await request.json();
+    console.log('Received body:', body); // Debug log
+
+    if (!body.memberId || !body.userName || !body.score) {
       return NextResponse.json({ 
         error: 'Missing required fields',
-        receivedData: { memberId, userName, score }
+        receivedData: body
       }, { status: 400 });
     }
 
     const pool = createPool({
       connectionString: process.env.visionboard_PRISMA_URL
-    });
-
-    // Debug log
-    console.log('Received data:', {
-      memberId,
-      userName,
-      profileImageUrl,
-      score
     });
 
     await pool.sql`
@@ -117,10 +110,10 @@ export async function POST(request: Request) {
         daily_score
       )
       VALUES (
-        ${memberId}, 
-        ${userName}, 
-        ${profileImageUrl || 'https://placehold.co/48x48'},
-        ${score}
+        ${body.memberId}, 
+        ${body.userName}, 
+        ${body.profileImageUrl || 'https://placehold.co/48x48'},
+        ${Number(body.score)}
       )
       ON CONFLICT (user_id) 
       DO UPDATE SET 
@@ -132,14 +125,16 @@ export async function POST(request: Request) {
 
     return NextResponse.json({
       success: true,
-      message: 'Score updated successfully'
+      message: 'Score updated successfully',
+      receivedData: body
     });
     
   } catch (error) {
     console.error('Update leaderboard error:', error);
     return NextResponse.json({ 
       error: 'Failed to update leaderboard',
-      details: error instanceof Error ? error.message : 'Unknown error'
+      details: error instanceof Error ? error.message : 'Unknown error',
+      receivedData: error
     }, { 
       status: 500 
     });
