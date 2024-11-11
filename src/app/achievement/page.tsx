@@ -28,8 +28,8 @@ interface Badge {
   unlocked: boolean;
   current?: number;
   target?: number;
- tooltipTitle?: string;    // Add this
-  tooltipSubtitle?: string; // Add this
+  tooltipTitle?: string;
+  tooltipSubtitle?: string;
 }
 
 interface CategorySectionProps {
@@ -57,15 +57,14 @@ function BadgeGrid({ badge, showIndividualProgress }: BadgeGridProps) {
         <Image
           src={badge.image}
           alt={badge.description}
-          width={40}
-          height={40}
-          className="relative object-contain drop-shadow-md"
+          width={56}
+          height={56}
+          className="relative object-contain drop-shadow-md mx-auto"
           loading="eager"
           unoptimized
           onError={(e) => {
             console.error('Failed to load image:', badge.image);
-            console.error('Error event:', e);
-            e.currentTarget.src = 'https://placehold.co/40x40';
+            e.currentTarget.src = 'https://placehold.co/56x56';
           }}
         />
         {!badge.unlocked && (
@@ -93,7 +92,7 @@ function BadgeGrid({ badge, showIndividualProgress }: BadgeGridProps) {
       {showIndividualProgress && badge.current !== undefined && badge.target !== undefined && (
         <Progress 
           value={(badge.current / badge.target) * 100} 
-          className="h-0.5 w-full bg-white/50 [&>div]:bg-[#51c1a9]" 
+          className="h-2 w-full bg-white/50 [&>div]:bg-[#51c1a9]" 
         />
       )}
     </div>
@@ -111,9 +110,9 @@ function BadgeGrid({ badge, showIndividualProgress }: BadgeGridProps) {
             {BadgeContent}
           </button>
         </TooltipTrigger>
-        <TooltipContent className="bg-white/80 backdrop-blur-sm border-white/20 p-1 rounded-lg shadow-lg text-xs">
-          <p className="font-extrabold whitespace-nowrap">{badge.tooltipTitle}</p>
-          <p className="text-slate-500 whitespace-nowrap font-medium">{badge.tooltipSubtitle}</p>
+        <TooltipContent className="bg-white p-2 rounded-md shadow-md border border-gray-200">
+          <p className="text-sm font-bold whitespace-nowrap">{badge.tooltipTitle}</p>
+          <p className="text-xs text-slate-500 whitespace-nowrap">{badge.tooltipSubtitle}</p>
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>
@@ -122,24 +121,26 @@ function BadgeGrid({ badge, showIndividualProgress }: BadgeGridProps) {
 
 function CategorySection({ title, currentStreak, nextMilestone, progress, badges, description, showIndividualProgress }: CategorySectionProps) {
   return (
-    <div className="space-y-2">
-      <h3 className="text-base font-extrabold text-[#556bc7]">{title}</h3>
+    <div className="space-y-4">
+      <div>
+        <h3 className="text-xl font-bold text-[#556bc7] mb-2">{title}</h3>
+        {description && (
+          <p className="text-sm text-slate-600">{description}</p>
+        )}
+      </div>
       {(currentStreak !== undefined && nextMilestone !== undefined) && (
-        <div className="space-y-1">
-          <div className="flex justify-between text-xs text-slate-600">
-            <span className="font-medium">Current: {currentStreak} {currentStreak === 1 ? 'day' : 'days'}</span>
+        <div className="space-y-2">
+          <div className="flex justify-between text-sm text-slate-600">
+            <span>Current: {currentStreak} {currentStreak === 1 ? 'day' : 'days'}</span>
             <span>Next: {nextMilestone} days</span>
           </div>
           <Progress 
             value={progress} 
-            className="h-1 bg-white/50 [&>div]:bg-[#51c1a9]" 
+            className="h-2 bg-white/50 [&>div]:bg-[#51c1a9]" 
           />
         </div>
       )}
-      {description && (
-        <p className="text-xs text-slate-600">{description}</p>
-      )}
-      <div className="grid grid-cols-5 gap-1">
+      <div className="grid grid-cols-5 gap-4">
         {badges.map((badge, index) => (
           <BadgeGrid key={index} badge={badge} showIndividualProgress={showIndividualProgress} />
         ))}
@@ -156,10 +157,10 @@ export default function Component() {
   const [monthlyActivity, setMonthlyActivity] = useState(75)
   const [currentLeagueRank, setCurrentLeagueRank] = useState("Silver")
 
-const signInBadges: Badge[] = [
+  const signInBadges: Badge[] = [
     { 
       days: 5, 
-      image: "https://res.cloudinary.com/dmbzcxhjn/image/upload/v1731206168/a-3d-render-of-a-chunky-cartoon-calendar-icon-with-HWOAO1EUTGSglSzZlSFjHA-dQjZimptRd-0SpN_-6oU5w-removebg-preview_iatnoy.png", 
+      image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/a-3d-render-of-a-chunky-cartoon-calendar-icon-with-HWOAO1EUTGSglSzZlSFjHA-dQjZimptRd-0SpN_-6oU5w-removebg-preview-kqCdBji4NtHiKw4VNgVdM4AvaoJTeG.png", 
       description: "5 Day Streak", 
       unlocked: true,
       tooltipTitle: "Beginner's Commitment",
@@ -167,7 +168,7 @@ const signInBadges: Badge[] = [
     },
     { 
       days: 10, 
-      image: "https://res.cloudinary.com/dmbzcxhjn/image/upload/v1731206168/a-3d-render-of-a-chunky-cartoon-calendar-icon-with-QHfb4ipTQUu1iR54Vmxo6g-RFBtanJsS0aS2a2tOFHHXg-removebg-preview_kzjyge.png", 
+      image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/a-3d-render-of-a-chunky-cartoon-calendar-icon-with-QHfb4ipTQUu1iR54Vmxo6g-RFBtanJsS0aS2a2tOFHHXg-removebg-preview-v7ErIfzS4KWNaGOsrDHAlKE567RPBl.png", 
       description: "10 Day Streak", 
       unlocked: true,
       tooltipTitle: "Steady Progress",
@@ -175,7 +176,7 @@ const signInBadges: Badge[] = [
     },
     { 
       days: 30, 
-      image: "https://res.cloudinary.com/dmbzcxhjn/image/upload/v1731206168/a-pixar-style-3d-render-of-a-cartoon-calendar-icon-CSU-cRrnTDCAuvGYTSV90w-taY5gPBoQxydiszFPNpDvQ-removebg-preview_hnqjkl.png", 
+      image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/a-pixar-style-3d-render-of-a-cartoon-calendar-icon-CSU-cRrnTDCAuvGYTSV90w-taY5gPBoQxydiszFPNpDvQ-removebg-preview-icmW2h12SQM5AuIhCFGS6QgVtHH4bl.png", 
       description: "30 Day Streak", 
       unlocked: true,
       tooltipTitle: "Monthly Master",
@@ -183,7 +184,7 @@ const signInBadges: Badge[] = [
     },
     { 
       days: 90, 
-      image: "https://res.cloudinary.com/dmbzcxhjn/image/upload/v1731206168/a-pixar-style-3d-render-of-a-cartoon-calendar-icon-RCaF4tpKT7aJoICZ2L508Q-UCW5RDP4Q4KfvoRnq8NlfA-removebg-preview_tevelw.png", 
+      image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/a-pixar-style-3d-render-of-a-cartoon-calendar-icon-RCaF4tpKT7aJoICZ2L508Q-UCW5RDP4Q4KfvoRnq8NlfA-removebg-preview-uTOgO6F3TcAT7mgifJaah0IMdp7aBL.png", 
       description: "90 Day Streak", 
       unlocked: false,
       tooltipTitle: "Quarterly Champion",
@@ -191,7 +192,7 @@ const signInBadges: Badge[] = [
     },
     { 
       days: 180, 
-      image: "https://res.cloudinary.com/dmbzcxhjn/image/upload/v1731206168/a-pixar-style-3d-render-of-a-cartoon-calendar-icon-L5aDOKYDTgKsB2lxHimuQQ-2xr3cxz6RCeNCL9HhBtylA-removebg-preview_oooy2m.png", 
+      image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/a-pixar-style-3d-render-of-a-cartoon-calendar-icon-L5aDOKYDTgKsB2lxHimuQQ-2xr3cxz6RCeNCL9HhBtylA-removebg-preview-EjyMwQ76jCkYGHpc22uRIkJ4b0c6gu.png", 
       description: "180 Day Streak", 
       unlocked: false,
       tooltipTitle: "Half-Year Hero",
@@ -199,7 +200,7 @@ const signInBadges: Badge[] = [
     },
     { 
       days: 365, 
-      image: "https://res.cloudinary.com/dmbzcxhjn/image/upload/v1731206168/a-pixar-style-3d-render-of-a-cartoon-calendar-icon-9Ut5P-Z7Q-qcpgWOIlslCA-YQ3T7zHwThCVVysgv9KyEg-removebg-preview_dlplgi.png", 
+      image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/a-pixar-style-3d-render-of-a-cartoon-calendar-icon-9Ut5P-Z7Q-qcpgWOIlslCA-YQ3T7zHwThCVVysgv9KyEg-removebg-preview-6Gy0yI5Pl0pFnfMYafKQCjqqmtUVEL.png", 
       description: "365 Day Streak", 
       unlocked: false,
       tooltipTitle: "Year-Long Legend",
@@ -207,10 +208,10 @@ const signInBadges: Badge[] = [
     }
   ];
 
-const callsBadges: Badge[] = [
+  const callsBadges: Badge[] = [
     { 
       calls: 10, 
-      image: "https://res.cloudinary.com/dmbzcxhjn/image/upload/v1731206170/WhatsApp_Image_2024-11-07_at_23.19.01_2cecae84-removebg-preview_radody.png", 
+      image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/WhatsApp_Image_2024-11-07_at_23.19.01_2cecae84-removebg-preview-HpwJXY8H5IMISoTv4km3ojTHoSZR8l.png", 
       description: "10 Calls", 
       unlocked: true,
       tooltipTitle: "First Steps",
@@ -218,7 +219,7 @@ const callsBadges: Badge[] = [
     },
     { 
       calls: 25, 
-      image: "https://res.cloudinary.com/dmbzcxhjn/image/upload/v1731206169/WhatsApp_Image_2024-11-07_at_23.19.00_410bcd52-removebg-preview_bi6eon.png", 
+      image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/WhatsApp_Image_2024-11-07_at_23.19.00_410bcd52-removebg-preview-dlLwx4QulGYXIPJ1SngulFRrwEzsAK.png", 
       description: "25 Calls", 
       unlocked: true,
       tooltipTitle: "Getting Started",
@@ -226,7 +227,7 @@ const callsBadges: Badge[] = [
     },
     { 
       calls: 50, 
-      image: "https://res.cloudinary.com/dmbzcxhjn/image/upload/v1731206170/WhatsApp_Image_2024-11-07_at_23.19.00_e9686083-removebg-preview_qt9tyx.png", 
+      image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/WhatsApp_Image_2024-11-07_at_23.19.00_e9686083-removebg-preview-MDIRXQ0AssJavrWhCOpsWNpEU5d4Ju.png", 
       description: "50 Calls", 
       unlocked: true,
       tooltipTitle: "Call Enthusiast",
@@ -234,7 +235,7 @@ const callsBadges: Badge[] = [
     },
     { 
       calls: 100, 
-      image: "https://res.cloudinary.com/dmbzcxhjn/image/upload/v1731206169/WhatsApp_Image_2024-11-07_at_23.18.59_aaafd20b-removebg-preview_mniysw.png", 
+      image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/WhatsApp_Image_2024-11-07_at_23.18.59_aaafd20b-removebg-preview-XjPy3hlhfslMzznTbnidnUwXshcQfA.png", 
       description: "100 Calls", 
       unlocked: false,
       tooltipTitle: "Century Caller",
@@ -242,7 +243,7 @@ const callsBadges: Badge[] = [
     },
     { 
       calls: 250, 
-      image: "https://res.cloudinary.com/dmbzcxhjn/image/upload/v1731206169/WhatsApp_Image_2024-11-07_at_23.18.58_e34cbb5f-removebg-preview_nm6c8a.png", 
+      image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/WhatsApp_Image_2024-11-07_at_23.18.58_e34cbb5f-removebg-preview-a9uNWRXCjGbpOHLSqf3TpeOCzxTRd7.png", 
       description: "250 Calls", 
       unlocked: false,
       tooltipTitle: "Call Expert",
@@ -250,7 +251,7 @@ const callsBadges: Badge[] = [
     },
     { 
       calls: 500, 
-      image: "https://res.cloudinary.com/dmbzcxhjn/image/upload/v1731206170/WhatsApp_Image_2024-11-07_at_23.18.59_dac37adb-removebg-preview_xfpwp9.png", 
+      image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/WhatsApp_Image_2024-11-07_at_23.18.59_dac37adb-removebg-preview-hJMSixcu6MZEXimLJmrsyO2temyFDg.png", 
       description: "500 Calls", 
       unlocked: false,
       tooltipTitle: "Call Virtuoso",
@@ -258,7 +259,7 @@ const callsBadges: Badge[] = [
     },
     { 
       calls: 750, 
-      image: "https://res.cloudinary.com/dmbzcxhjn/image/upload/v1731206169/WhatsApp_Image_2024-11-07_at_23.18.57_f7535a53-removebg-preview_we2xbp.png", 
+      image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/WhatsApp_Image_2024-11-07_at_23.18.57_f7535a53-removebg-preview-Vr88OikuiRNF7hIVXzXNPrsJFX1mpv.png", 
       description: "750 Calls", 
       unlocked: false,
       tooltipTitle: "Elite Caller",
@@ -266,7 +267,7 @@ const callsBadges: Badge[] = [
     },
     { 
       calls: 1000, 
-      image: "https://res.cloudinary.com/dmbzcxhjn/image/upload/v1731206168/WhatsApp_Image_2024-11-07_at_23.18.57_717b1f9c-removebg-preview_yupyox.png", 
+      image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/WhatsApp_Image_2024-11-07_at_23.18.57_717b1f9c-removebg-preview-NEfGEVDhw3AK6EJSo0gtm42sq28oy2.png", 
       description: "1000 Calls", 
       unlocked: false,
       tooltipTitle: "Call Master",
@@ -274,7 +275,7 @@ const callsBadges: Badge[] = [
     },
     { 
       calls: 1500, 
-      image: "https://res.cloudinary.com/dmbzcxhjn/image/upload/v1731206169/WhatsApp_Image_2024-11-07_at_23.18.58_44ffd513-removebg-preview_jsmszk.png", 
+      image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/WhatsApp_Image_2024-11-07_at_23.18.58_44ffd513-removebg-preview-3KJg104tTgbQo53R75ZJIdE4Pv6jBi.png", 
       description: "1500 Calls", 
       unlocked: false,
       tooltipTitle: "Call Legend",
@@ -282,7 +283,7 @@ const callsBadges: Badge[] = [
     },
     { 
       calls: 2500, 
-      image: "https://res.cloudinary.com/dmbzcxhjn/image/upload/v1731206169/WhatsApp_Image_2024-11-07_at_23.19.01_b4416b2f-removebg-preview_jd6136.png", 
+      image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/WhatsApp_Image_2024-11-07_at_23.19.01_b4416b2f-removebg-preview-wl3Pqdmr7gt9BFVpspJ0ggm41XedWZ.png", 
       description: "2500 Calls", 
       unlocked: false,
       tooltipTitle: "Ultimate Caller",
@@ -290,11 +291,11 @@ const callsBadges: Badge[] = [
     }
   ];
 
-const activityBadges: Badge[] = [
+  const activityBadges: Badge[] = [
     { 
       count: 10, 
       period: "day", 
-      image: "https://res.cloudinary.com/dmbzcxhjn/image/upload/v1731206168/InBodPWuQrymOXROYwUwow-removebg-preview_b9fn8n.png", 
+      image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/InBodPWuQrymOXROYwUwow-removebg-preview-IEGWv6kNCTAusDQjfDnJXpHoQRgFQR.png", 
       description: "10/Day", 
       unlocked: false, 
       current: dailyActivity, 
@@ -305,7 +306,7 @@ const activityBadges: Badge[] = [
     { 
       count: 50, 
       period: "week", 
-      image: "https://res.cloudinary.com/dmbzcxhjn/image/upload/v1731206169/DuZdTwN_T8SRiCdUHDt-AQ-removebg-preview_1_jcg1nm.png", 
+      image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/DuZdTwN_T8SRiCdUHDt-AQ-removebg-preview%20(1)-7g7ItwNB5ISjQHja5mcpjzxc8hr0s7.png", 
       description: "50/Week", 
       unlocked: false, 
       current: weeklyActivity, 
@@ -316,7 +317,7 @@ const activityBadges: Badge[] = [
     { 
       count: 100, 
       period: "month", 
-      image: "https://res.cloudinary.com/dmbzcxhjn/image/upload/v1731206169/73z7d5wLQiyhufwfTdw5OA-removebg-preview_1_ktrxif.png", 
+      image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/73z7d5wLQiyhufwfTdw5OA-removebg-preview%20(1)-5AC5dKLPkTLUI9LEOfALqI2ksNMNzd.png", 
       description: "100/Month", 
       unlocked: false, 
       current: monthlyActivity, 
@@ -326,7 +327,7 @@ const activityBadges: Badge[] = [
     }
   ];
 
-const leagueBadges: Badge[] = [
+  const leagueBadges: Badge[] = [
     { 
       rank: "Bronze", 
       image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/a-3d-render-of-a-large-radiant-bronze-medal-with-a-t0r6ItMuRVOEve22GfVYdw-KxQg20b_SdOR5Y3HVUaVZg-removebg-preview-FQvuwEgYxWGz6qrgC1TDFLJgNCqMTd.png", 
@@ -351,19 +352,19 @@ const leagueBadges: Badge[] = [
       tooltipTitle: "For Steady Hands",
       tooltipSubtitle: "1st Place in Monthly League"
     }
-];
+  ];
 
   return (
-    <div className={`${montserrat.variable} font-sans bg-white min-h-screen flex items-center justify-center p-4`}>
-      <div className="bg-[#f2f3f9] p-6 rounded-xl shadow-lg max-w-md w-full">
+    <div className={`${montserrat.variable} font-sans bg-white min-h-screen flex items-center justify-center p-8`}>
+      <div className="bg-[#f2f3f9] p-8 rounded-xl shadow-lg w-full max-w-4xl mx-auto">
         <Card className="w-full overflow-hidden bg-white border-white/20 shadow-sm">
           <CardHeader className="border-b border-white/20 p-3">
-            <CardTitle className="text-lg font-extrabold text-[#556bc7]">
+            <CardTitle className="text-2xl font-extrabold text-[#556bc7] text-center">
               Achievement Showcase
             </CardTitle>
           </CardHeader>
-          <CardContent className="p-3">
-            <div className="space-y-4">
+          <CardContent className="p-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <CategorySection
                 title="Sign-in Streaks"
                 currentStreak={signInStreak}
