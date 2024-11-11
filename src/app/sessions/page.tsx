@@ -137,7 +137,7 @@ function SessionsComponent() {
                 {Object.entries(sessions).map(([key, session]) => (
                   <TooltipProvider key={key}>
                     <Tooltip>
-                      <TooltipTrigger asChild>
+                      <TooltipTrigger>
                         <div className="cursor-pointer relative group">
                           <CircularProgress value={session.count} max={session.max} size={140} color={session.color}>
                             <div className="text-center">
