@@ -15,35 +15,11 @@ import {
 } from "recharts"
 import { useSearchParams } from 'next/navigation'
 
-type LeaderboardData = {
-  user_id: string
-  user_name: string
-  profile_image_url: string
-  score: number
-  rank: number
-}
-
-type ChartData = {
-  date: string
-  user_points: number
-  top_user_points: number
-}
-
-type UserStats = {
-  user_id: string
-  user_name: string
-  profile_image_url: string
-  daily_score: number
-  weekly_score: number
-  all_time_score: number
-  rank: number
-}
-
 function LeaderboardComponent() {
   const [category, setCategory] = React.useState<'daily' | 'weekly' | 'monthly'>('daily')
-  const [leaderboardData, setLeaderboardData] = React.useState<LeaderboardData[]>([])
-  const [chartData, setChartData] = React.useState<ChartData[]>([])
-  const [userStats, setUserStats] = React.useState<UserStats | null>(null)
+  const [leaderboardData, setLeaderboardData] = React.useState<any[]>([])
+  const [chartData, setChartData] = React.useState<any[]>([])
+  const [userStats, setUserStats] = React.useState<any>(null)
   const [isLoading, setIsLoading] = React.useState(true)
   const [error, setError] = React.useState<string | null>(null)
 
@@ -64,19 +40,29 @@ function LeaderboardComponent() {
     setError(null)
     
     try {
-      const response = await fetch(`/api/leaderboard?memberId=${memberId}&category=${category}`)
+      // Encode the category parameter properly
+      const queryParams = new URLSearchParams({
+        memberId: memberId,
+        category: category
+      }).toString()
+      
+      const response = await fetch(`/api/league?${queryParams}`)
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+      
       const data = await response.json()
       
-      if (!response.ok) throw new Error(data.error)
-      
-      setLeaderboardData(data.leaderboard)
-      setChartData(data.chartData.map((item: any) => ({
+      setLeaderboardData(data.leaderboard || [])
+      setChartData((data.chartData || []).map((item: any) => ({
         date: new Date(item.date).toLocaleDateString('en-US', { weekday: 'short' }),
-        user_points: item.user_points,
-        top_user_points: item.top_user_points
+        user_points: item.user_points || 0,
+        top_user_points: item.top_user_points || 0
       })))
-      setUserStats(data.userStats)
+      setUserStats(data.userStats || null)
     } catch (err) {
+      console.error('Fetch error:', err)
       setError(err instanceof Error ? err.message : 'Failed to fetch data')
     } finally {
       setIsLoading(false)
@@ -119,6 +105,7 @@ function LeaderboardComponent() {
             </Tabs>
           </CardHeader>
           <CardContent className="space-y-4 pt-4">
+            {/* Chart section */}
             <div className="h-[200px] w-full bg-gray-100 rounded-[16px] p-3">
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart
@@ -154,10 +141,10 @@ function LeaderboardComponent() {
                         return (
                           <div className="rounded-[12px] border border-gray-200 bg-white p-3 shadow-lg">
                             <p className="text-sm font-medium" style={{ color: '#fbb350' }}>
-                              Top Score: {payload[0].payload.top_user_points.toLocaleString()} points
+                              Top Score: {payload[0]?.payload?.top_user_points?.toLocaleString() || 0} points
                             </p>
                             <p className="text-sm font-medium" style={{ color: '#51c1a9' }}>
-                              Your Score: {payload[1].payload.user_points.toLocaleString()} points
+                              Your Score: {payload[0]?.payload?.user_points?.toLocaleString() || 0} points
                             </p>
                           </div>
                         )
@@ -187,6 +174,7 @@ function LeaderboardComponent() {
               </ResponsiveContainer>
             </div>
 
+            {/* Leaderboard section */}
             {isLoading ? (
               <div className="text-gray-600 text-center">Loading...</div>
             ) : error ? (
@@ -197,7 +185,7 @@ function LeaderboardComponent() {
                 {userStats && (
                   <div className="flex items-center gap-3 p-3 rounded-[16px] bg-gray-100/50 border border-gray-200">
                     <div className="flex-none w-12 text-sm font-medium">
-                      <span className="text-gray-600">#{userStats.rank}</span>
+                      <span className="text-gray-600">#{userStats.rank || '-'}</span>
                     </div>
                     <div className="relative w-12 h-12 rounded-full overflow-hidden ring-1 ring-white/50">
                       <Image
@@ -208,18 +196,18 @@ function LeaderboardComponent() {
                         className="object-cover"
                       />
                     </div>
-                    <div className="flex-1 text-sm font-medium text-gray-600 flex items-center gap-2">
-                      {userStats.user_name}
+                    <div className="flex-1 text-sm font-medium text-gray-600">
+                      {userStats.user_name || 'You'}
                     </div>
                     <div className="text-sm font-medium text-gray-600">
-                      {userStats[category === 'daily' ? 'daily_score' : 
-                               category === 'weekly' ? 'weekly_score' : 
-                               'all_time_score'].toLocaleString()} pts
+                      {(userStats[category === 'daily' ? 'daily_score' : 
+                                category === 'weekly' ? 'weekly_score' : 
+                                'all_time_score'] || 0).toLocaleString()} pts
                     </div>
                   </div>
                 )}
 
-                {/* Leaderboard */}
+                {/* Leaderboard list */}
                 {leaderboardData.map((user, index) => {
                   const rank = index + 1
                   const getRankColor = (rank: number) => {
@@ -241,15 +229,14 @@ function LeaderboardComponent() {
                       `}
                     >
                       <div className="flex-none w-12 text-sm font-medium">
-                        {rank === 1 ? (
-                          <span className="text-[#fbb350]">#{rank}</span>
-                        ) : rank === 2 ? (
-                          <span className="text-[#556bc7]">#{rank}</span>
-                        ) : rank === 3 ? (
-                          <span className="text-[#51c1a9]">#{rank}</span>
-                        ) : (
-                          <span className="text-gray-600">#{rank}</span>
-                        )}
+                        <span className={
+                          rank === 1 ? "text-[#fbb350]" :
+                          rank === 2 ? "text-[#556bc7]" :
+                          rank === 3 ? "text-[#51c1a9]" :
+                          "text-gray-600"
+                        }>
+                          #{rank}
+                        </span>
                       </div>
                       <div className={`
                         relative w-12 h-12 rounded-full overflow-hidden
