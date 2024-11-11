@@ -5,8 +5,12 @@ export const GET = async (request: Request) => {
   try {
     const { searchParams } = new URL(request.url);
     const period = searchParams.get('period') || 'weekly';
-    const currentUserId = searchParams.get('currentUserId'); // Add this to identify current user
+    const currentUserId = searchParams.get('currentUserId');
     
+    if (!currentUserId) {
+      return NextResponse.json({ error: 'Current user ID is required' }, { status: 400 });
+    }
+
     const pool = createPool({
       connectionString: process.env.visionboard_PRISMA_URL
     });
@@ -16,17 +20,17 @@ export const GET = async (request: Request) => {
       query = await pool.sql`
         WITH UserScores AS (
           SELECT 
-            cl.member_id,
-            MAX(cl.user_name) as user_name,
-            SUM(cl.overall_effectiveness_score) as total_points,
+            member_id,
+            MAX(user_name) as user_name,
+            SUM(overall_effectiveness_score) as total_points,
             COUNT(*) as call_count,
-            MAX(cl.call_date) as last_call_date,
-            ARRAY_AGG(cl.overall_effectiveness_score ORDER BY cl.call_date) as score_history,
-            MAX(cl.user_picture_url) as profile_picture_url
-          FROM call_logs cl
-          WHERE cl.member_id IS NOT NULL
-            AND cl.call_date >= CURRENT_DATE - INTERVAL '7 days'
-          GROUP BY cl.member_id
+            MAX(call_date) as last_call_date,
+            ARRAY_AGG(overall_effectiveness_score ORDER BY call_date) as score_history,
+            MAX(user_picture_url) as profile_picture_url
+          FROM call_logs
+          WHERE member_id IS NOT NULL
+          AND call_date >= CURRENT_DATE - INTERVAL '7 days'
+          GROUP BY member_id
         )
         SELECT 
           member_id,
@@ -44,16 +48,16 @@ export const GET = async (request: Request) => {
       query = await pool.sql`
         WITH UserScores AS (
           SELECT 
-            cl.member_id,
-            MAX(cl.user_name) as user_name,
-            SUM(cl.overall_effectiveness_score) as total_points,
+            member_id,
+            MAX(user_name) as user_name,
+            SUM(overall_effectiveness_score) as total_points,
             COUNT(*) as call_count,
-            MAX(cl.call_date) as last_call_date,
-            ARRAY_AGG(cl.overall_effectiveness_score ORDER BY cl.call_date) as score_history,
-            MAX(cl.user_picture_url) as profile_picture_url
-          FROM call_logs cl
-          WHERE cl.member_id IS NOT NULL
-          GROUP BY cl.member_id
+            MAX(call_date) as last_call_date,
+            ARRAY_AGG(overall_effectiveness_score ORDER BY call_date) as score_history,
+            MAX(user_picture_url) as profile_picture_url
+          FROM call_logs
+          WHERE member_id IS NOT NULL
+          GROUP BY member_id
         )
         SELECT 
           member_id,
@@ -68,21 +72,21 @@ export const GET = async (request: Request) => {
         ORDER BY total_points DESC;
       `;
     } else {
-      // teamAllTime - assuming teams are grouped by some team_id field
+      // teamAllTime
       query = await pool.sql`
         WITH TeamScores AS (
           SELECT 
-            t.team_id as member_id,
-            MAX(t.team_name) as user_name,
-            SUM(cl.overall_effectiveness_score) as total_points,
+            team_id as member_id,
+            MAX(team_name) as user_name,
+            SUM(overall_effectiveness_score) as total_points,
             COUNT(*) as call_count,
-            MAX(cl.call_date) as last_call_date,
-            ARRAY_AGG(cl.overall_effectiveness_score ORDER BY cl.call_date) as score_history,
-            MAX(t.team_picture_url) as profile_picture_url
-          FROM call_logs cl
-          JOIN teams t ON cl.team_id = t.team_id
-          WHERE t.team_id IS NOT NULL
-          GROUP BY t.team_id
+            MAX(call_date) as last_call_date,
+            ARRAY_AGG(overall_effectiveness_score ORDER BY call_date) as score_history,
+            MAX(team_picture_url) as profile_picture_url
+          FROM call_logs
+          JOIN teams USING (team_id)
+          WHERE team_id IS NOT NULL
+          GROUP BY team_id
         )
         SELECT 
           member_id,
@@ -112,7 +116,7 @@ export const GET = async (request: Request) => {
       profile_picture_url: row.profile_picture_url
     }));
 
-    // Get chart data - now including both user and leader points
+    // Get chart data for current user and leader
     let chartQuery;
     if (period === 'weekly') {
       chartQuery = await pool.sql`
@@ -148,29 +152,28 @@ export const GET = async (request: Request) => {
         ORDER BY ls.date ASC;
       `;
     } else {
-      // Similar queries for allTime and teamAllTime periods
-      // Adjust the time interval accordingly
+      // For allTime and teamAllTime, show weekly aggregates
       chartQuery = await pool.sql`
-        WITH DailyScores AS (
+        WITH WeeklyScores AS (
           SELECT 
             DATE_TRUNC('week', call_date) as date,
             member_id,
-            SUM(overall_effectiveness_score) as daily_total
+            SUM(overall_effectiveness_score) as weekly_total
           FROM call_logs
           GROUP BY DATE_TRUNC('week', call_date), member_id
         ),
         LeaderScores AS (
           SELECT 
             date,
-            MAX(daily_total) as leader_points
-          FROM DailyScores
+            MAX(weekly_total) as leader_points
+          FROM WeeklyScores
           GROUP BY date
         ),
         UserScores AS (
           SELECT 
             date,
-            daily_total as user_points
-          FROM DailyScores
+            weekly_total as user_points
+          FROM WeeklyScores
           WHERE member_id = ${currentUserId}
         )
         SELECT 
