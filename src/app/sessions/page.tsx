@@ -125,9 +125,9 @@ function SessionsComponent() {
   }, [memberId])
 
   return (
-    <div className="min-h-screen w-full bg-transparent p-8 flex items-center justify-center">
-      <div className="bg-[#f2f3f9] p-6 rounded-3xl shadow-xl">
-        <Card className="w-full max-w-[800px] bg-white border-none shadow-lg rounded-2xl p-6">
+    <div className="min-h-screen w-full bg-white p-8 flex items-center justify-center">
+      <div className="bg-white p-6 rounded-3xl">
+        <Card className="w-full max-w-[800px] bg-white border-none shadow-none rounded-2xl p-6">
           <CardHeader>
             <CardTitle className="text-[#546bc8] text-3xl font-medium text-center">Activity circles</CardTitle>
           </CardHeader>
