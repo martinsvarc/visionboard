@@ -13,10 +13,11 @@ import {
   YAxis,
   TooltipProps
 } from "recharts"
+import { useSearchParams } from 'next/navigation'
 
 type LeagueData = {
+  member_id: string;
   user_name: string;
-  member_id: string; // Added member_id
   total_points: number;
   call_count: number;
   last_call_date: string;
@@ -49,6 +50,9 @@ const categoryNames: CategoryNames = {
 }
 
 export default function Component() {
+  const searchParams = useSearchParams()
+  const memberId = searchParams.get('memberId')
+  
   const [category, setCategory] = React.useState<'weekly' | 'allTime' | 'teamAllTime'>('weekly')
   const [leagueData, setLeagueData] = React.useState<LeagueData[]>([])
   const [chartData, setChartData] = React.useState<{ date: string; userPoints: number; leaderPoints: number }[]>([])
@@ -56,29 +60,39 @@ export default function Component() {
   const [error, setError] = React.useState<string | null>(null)
 
   const fetchLeaderboardData = async () => {
-    setIsLoading(true)
-    setError(null)
-    try {
-      const response = await fetch(`/api/league?period=${category}`)
-      if (!response.ok) throw new Error('Failed to fetch leaderboard data')
-      const data = await response.json()
-      setLeagueData(data.leaderboard)
-      setChartData(data.chartData)
-    } catch (err) {
-      console.error('Error fetching leaderboard data:', err)
-      setError('Failed to fetch leaderboard data')
+    if (!memberId) {
+      setError('Member ID not provided');
+      setIsLoading(false);
+      return;
     }
-    setIsLoading(false)
-  }
+
+    setIsLoading(true);
+    setError(null);
+    try {
+      const response = await fetch(`/api/league?period=${category}&currentUserId=${memberId}`);
+      if (!response.ok) throw new Error('Failed to fetch leaderboard data');
+      const data = await response.json();
+      
+      if (data.leaderboard?.length > 0) {
+        setLeagueData(data.leaderboard);
+        setChartData(data.chartData || []);
+      } else {
+        setError('No leaderboard data available');
+      }
+    } catch (err) {
+      console.error('Error fetching leaderboard data:', err);
+      setError('Failed to fetch leaderboard data');
+    }
+    setIsLoading(false);
+  };
 
   React.useEffect(() => {
-    fetchLeaderboardData()
-  }, [category])
+    fetchLeaderboardData();
+  }, [category, memberId]);
 
   const getCurrentUserPoints = () => {
-    // Find current user's points (you'll need to implement logic to identify current user)
-    const currentUser = leagueData.find(user => user.member_id === 'current-user-id')
-    return currentUser ? currentUser.total_points : 0
+    const currentUser = leagueData.find(user => user.member_id === memberId);
+    return currentUser ? currentUser.total_points : 0;
   }
 
   const getRankColor = (rank: number) => {
@@ -135,7 +149,7 @@ export default function Component() {
           </CardHeader>
           <CardContent className="space-y-4 pt-4">
             <div className="h-[160px] w-full bg-gray-100 rounded-[16px] p-3">
-              <ResponsiveContainer width="100%" height="100%">
+              <ResponsiveContainer width="100%" height={160}>
                 <AreaChart
                   data={chartData}
                   margin={{ top: 5, right: 20, left: 10, bottom: 5 }}
@@ -192,7 +206,9 @@ export default function Component() {
               <div className="text-red-500 text-center">{error}</div>
             ) : (
               <div className="space-y-2">
-                {leagueData.map((user, index) => {
+                {leagueData.map((user) => {
+                  if (!user?.user_name) return null;
+                  
                   const rank = user.rank;
                   const rankColor = getRankColor(rank);
                   const isAgent45 = user.user_name.toLowerCase() === 'agent45';
@@ -258,7 +274,7 @@ export default function Component() {
                         {user.total_points.toLocaleString()} pts
                       </div>
                     </div>
-                  )
+                  );
                 })}
               </div>
             )}
@@ -266,5 +282,5 @@ export default function Component() {
         </Card>
       </div>
     </div>
-  )
+  );
 }
