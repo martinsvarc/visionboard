@@ -288,8 +288,12 @@ function LeaderboardContent() {
 }
 export default function Page() {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <LeaderboardContent />
+    <Suspense fallback={
+      <div className="flex items-center justify-center min-h-screen bg-white">
+        <div className="animate-spin h-8 w-8 border-4 border-blue-500 rounded-full border-t-transparent"></div>
+      </div>
+    }>
+      <LeaderboardComponent />
     </Suspense>
-  )
+  );
 }
