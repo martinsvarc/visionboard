@@ -1,8 +1,9 @@
-"use client"
+'use client'
 
 import * as React from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { useSearchParams } from 'next/navigation'
 import Image from "next/image"
 import {
   Area,
@@ -54,11 +55,16 @@ export default function Component() {
   const [isLoading, setIsLoading] = React.useState(true)
   const [error, setError] = React.useState<string | null>(null)
 
-  const fetchLeaderboardData = async () => {
+  const searchParams = useSearchParams()
+  const memberId = searchParams.get('memberId')
+
+  const fetchLeaderboardData = React.useCallback(async () => {
+    if (!memberId) return
+
     setIsLoading(true)
     setError(null)
     try {
-      const response = await fetch(`/api/league?period=${category}`)
+      const response = await fetch(`/api/league?period=${category}&memberId=${memberId}`)
       if (!response.ok) throw new Error('Failed to fetch leaderboard data')
       const data = await response.json()
       setLeagueData(data.leaderboard)
@@ -68,11 +74,17 @@ export default function Component() {
       setError('Failed to fetch leaderboard data')
     }
     setIsLoading(false)
-  }
+  }, [category, memberId])
 
   React.useEffect(() => {
     fetchLeaderboardData()
-  }, [category])
+  }, [fetchLeaderboardData])
+
+  const getCurrentUserPoints = () => {
+    if (!leagueData.length) return 0
+    const currentUser = leagueData.find(user => user.user_name === memberId)
+    return currentUser ? currentUser.total_points : 0
+  }
 
   const getGlowColor = (rank: number) => {
     switch (rank) {
@@ -85,11 +97,6 @@ export default function Component() {
       default:
         return ''
     }
-  }
-
-  const getCurrentUserPoints = () => {
-    const topUser = leagueData[0]
-    return topUser ? topUser.total_points : 0
   }
 
   const getRankColor = (rank: number) => {
@@ -115,7 +122,7 @@ export default function Component() {
           <CardHeader className="flex flex-col gap-4 pb-0">
             <div className="flex flex-col items-center justify-center mb-2">
               <CardTitle className="text-2xl font-extrabold text-[#556bc7] mb-1 text-center">
-                Top Score in {categoryNames[category]}
+                Your Score in {categoryNames[category]}
               </CardTitle>
               <div className="text-5xl font-extrabold text-[#556bc7]">
                 {getCurrentUserPoints().toLocaleString()}
@@ -197,6 +204,7 @@ export default function Component() {
                   const rank = user.rank;
                   const rankColor = getRankColor(rank);
                   const isAgent45 = user.user_name.toLowerCase() === 'agent45';
+                  const isCurrentUser = user.user_name === memberId;
                   
                   return (
                     <div 
@@ -204,6 +212,7 @@ export default function Component() {
                       className={`
                         flex items-center gap-3 p-3 rounded-[16px] 
                         ${rank <= 3 ? 'bg-gray-100' : 'bg-white hover:bg-gray-100'}
+                        ${isCurrentUser ? 'border-2 border-[#556bc7] bg-blue-50' : ''}
                         transition-all duration-300
                       `}
                     >
@@ -219,24 +228,23 @@ export default function Component() {
                         )}
                       </div>
                       <div className={`
-  relative w-8 h-8 rounded-full overflow-hidden
-  ${rankColor}
-`}>
-  <Image
-    src={user.profile_picture_url || "/placeholder.svg?height=32&width=32"}
-    alt={user.user_name}
-    width={32}
-    height={32}
-    className="object-contain"
-    loading="eager"
-    unoptimized
-    onError={(e) => {
-      console.error('Failed to load image:', user.profile_picture_url);
-      console.error('Error event:', e);
-      e.currentTarget.src = '/placeholder.svg?height=32&width=32';
-    }}
-  />
-</div>
+                        relative w-8 h-8 rounded-full overflow-hidden
+                        ${rankColor}
+                      `}>
+                        <Image
+                          src={user.profile_picture_url || "/placeholder.svg?height=32&width=32"}
+                          alt={user.user_name}
+                          width={32}
+                          height={32}
+                          className="object-contain"
+                          loading="eager"
+                          unoptimized
+                          onError={(e) => {
+                            console.error('Failed to load image:', user.profile_picture_url);
+                            e.currentTarget.src = '/placeholder.svg?height=32&width=32';
+                          }}
+                        />
+                      </div>
                       <div className={`
                         flex-1 text-sm font-medium flex items-center gap-2
                         ${rank <= 3
