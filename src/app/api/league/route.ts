@@ -1,3 +1,6 @@
+export const dynamic = 'force-dynamic'
+export const runtime = 'edge'
+
 import { createPool } from '@vercel/postgres';
 import { NextResponse } from 'next/server';
 
