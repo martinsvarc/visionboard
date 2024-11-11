@@ -101,52 +101,38 @@ export async function POST(request: Request) {
       connectionString: process.env.visionboard_PRISMA_URL
     });
 
-    console.log('Updating leaderboard:', {
+    // Debug log
+    console.log('Received data:', {
       memberId,
       userName,
-      score,
-      profileImageUrl
+      profileImageUrl,
+      score
     });
 
-    // Insert or update user score
-   await pool.sql`
-  INSERT INTO user_leaderboard (
-    user_id, 
-    user_name, 
-    profile_image_url,
-    daily_score
-  )
-  VALUES (
-    ${memberId}, 
-    ${userName}, 
-    ${profileImageUrl || 'https://placehold.co/48x48'},
-    ${score}
-  )
-  ON CONFLICT (user_id) 
-  DO UPDATE SET 
-    user_name = EXCLUDED.user_name,
-    profile_image_url = COALESCE(EXCLUDED.profile_image_url, 'https://placehold.co/48x48'),
-    daily_score = EXCLUDED.daily_score,
-    updated_at = CURRENT_TIMESTAMP;
-`;
-    // Get updated user data
-    const { rows: updatedUser } = await pool.sql`
-      SELECT 
-        user_id,
-        user_name,
+    await pool.sql`
+      INSERT INTO user_leaderboard (
+        user_id, 
+        user_name, 
         profile_image_url,
-        daily_score,
-        weekly_score,
-        all_time_score,
-        updated_at
-      FROM user_leaderboard
-      WHERE user_id = ${memberId};
+        daily_score
+      )
+      VALUES (
+        ${memberId}, 
+        ${userName}, 
+        ${profileImageUrl || 'https://placehold.co/48x48'},
+        ${score}
+      )
+      ON CONFLICT (user_id) 
+      DO UPDATE SET 
+        user_name = EXCLUDED.user_name,
+        profile_image_url = COALESCE(EXCLUDED.profile_image_url, 'https://placehold.co/48x48'),
+        daily_score = EXCLUDED.daily_score,
+        updated_at = CURRENT_TIMESTAMP;
     `;
 
     return NextResponse.json({
       success: true,
-      message: 'Score updated successfully',
-      data: updatedUser[0]
+      message: 'Score updated successfully'
     });
     
   } catch (error) {
