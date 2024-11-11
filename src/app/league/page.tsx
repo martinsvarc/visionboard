@@ -13,10 +13,8 @@ import {
   YAxis,
   TooltipProps
 } from "recharts"
-import { useSearchParams } from 'next/navigation'
 
 type LeagueData = {
-  member_id: string;
   user_name: string;
   total_points: number;
   call_count: number;
@@ -44,55 +42,54 @@ const CustomTooltip = ({ active, payload }: TooltipProps<number, string>) => {
 };
 
 const categoryNames: CategoryNames = {
-  weekly: "Weekly League",
-  allTime: "All Time Leaderboard",
-  teamAllTime: "All Time Team Leaderboard",
+  daily: "Daily Leaderboard",
+  weekly: "Weekly Leaderboard",
+  monthly: "Monthly Leaderboard",
 }
 
 export default function Component() {
-  const searchParams = useSearchParams()
-  const memberId = searchParams.get('memberId')
-  
-  const [category, setCategory] = React.useState<'weekly' | 'allTime' | 'teamAllTime'>('weekly')
+  const [category, setCategory] = React.useState<'daily' | 'weekly' | 'monthly'>('daily')
   const [leagueData, setLeagueData] = React.useState<LeagueData[]>([])
-  const [chartData, setChartData] = React.useState<{ date: string; userPoints: number; leaderPoints: number }[]>([])
+  const [chartData, setChartData] = React.useState<{ date: string; points: number }[]>([])
   const [isLoading, setIsLoading] = React.useState(true)
   const [error, setError] = React.useState<string | null>(null)
 
   const fetchLeaderboardData = async () => {
-    if (!memberId) {
-      setError('Member ID not provided');
-      setIsLoading(false);
-      return;
-    }
-
-    setIsLoading(true);
-    setError(null);
+    setIsLoading(true)
+    setError(null)
     try {
-      const response = await fetch(`/api/league?period=${category}&currentUserId=${memberId}`);
-      if (!response.ok) throw new Error('Failed to fetch leaderboard data');
-      const data = await response.json();
-      
-      if (data.leaderboard?.length > 0) {
-        setLeagueData(data.leaderboard);
-        setChartData(data.chartData || []);
-      } else {
-        setError('No leaderboard data available');
-      }
+      const response = await fetch(`/api/league?period=${category}`)
+      if (!response.ok) throw new Error('Failed to fetch leaderboard data')
+      const data = await response.json()
+      setLeagueData(data.leaderboard)
+      setChartData(data.chartData)
     } catch (err) {
-      console.error('Error fetching leaderboard data:', err);
-      setError('Failed to fetch leaderboard data');
+      console.error('Error fetching leaderboard data:', err)
+      setError('Failed to fetch leaderboard data')
     }
-    setIsLoading(false);
-  };
+    setIsLoading(false)
+  }
 
   React.useEffect(() => {
-    fetchLeaderboardData();
-  }, [category, memberId]);
+    fetchLeaderboardData()
+  }, [category])
+
+  const getGlowColor = (rank: number) => {
+    switch (rank) {
+      case 1:
+        return 'shadow-[0_0_20px_rgba(255,215,0,0.6)] border-2 border-yellow-400 bg-yellow-500/20'
+      case 2:
+        return 'shadow-[0_0_20px_rgba(192,192,192,0.6)] border-2 border-gray-300 bg-gray-400/20'
+      case 3:
+        return 'shadow-[0_0_20px_rgba(205,127,50,0.6)] border-2 border-yellow-600 bg-yellow-700/20'
+      default:
+        return ''
+    }
+  }
 
   const getCurrentUserPoints = () => {
-    const currentUser = leagueData.find(user => user.member_id === memberId);
-    return currentUser ? currentUser.total_points : 0;
+    const topUser = leagueData[0]
+    return topUser ? topUser.total_points : 0
   }
 
   const getRankColor = (rank: number) => {
@@ -118,50 +115,50 @@ export default function Component() {
           <CardHeader className="flex flex-col gap-4 pb-0">
             <div className="flex flex-col items-center justify-center mb-2">
               <CardTitle className="text-2xl font-extrabold text-[#556bc7] mb-1 text-center">
-                Your Score in {categoryNames[category]}
+                Top Score in {categoryNames[category]}
               </CardTitle>
               <div className="text-5xl font-extrabold text-[#556bc7]">
                 {getCurrentUserPoints().toLocaleString()}
               </div>
             </div>
-            <Tabs value={category} onValueChange={(value) => setCategory(value as 'weekly' | 'allTime' | 'teamAllTime')} className="w-full">
+            <Tabs value={category} onValueChange={(value) => setCategory(value as 'daily' | 'weekly' | 'monthly')} className="w-full">
               <TabsList className="grid w-full grid-cols-3 bg-gray-100 p-1 rounded-[16px]">
+                <TabsTrigger 
+                  value="daily" 
+                  className="font-medium text-sm text-gray-600 data-[state=active]:bg-[#fbb350] data-[state=active]:text-white rounded-[12px]"
+                >
+                  Daily
+                </TabsTrigger>
                 <TabsTrigger 
                   value="weekly" 
                   className="font-medium text-sm text-gray-600 data-[state=active]:bg-[#fbb350] data-[state=active]:text-white rounded-[12px]"
                 >
-                  Weekly League
+                  Weekly
                 </TabsTrigger>
                 <TabsTrigger 
-                  value="allTime" 
+                  value="monthly" 
                   className="font-medium text-sm text-gray-600 data-[state=active]:bg-[#fbb350] data-[state=active]:text-white rounded-[12px]"
                 >
-                  All Time
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="teamAllTime" 
-                  className="font-medium text-sm text-gray-600 data-[state=active]:bg-[#fbb350] data-[state=active]:text-white rounded-[12px]"
-                >
-                  Team All Time
+                  Monthly
                 </TabsTrigger>
               </TabsList>
             </Tabs>
           </CardHeader>
           <CardContent className="space-y-4 pt-4">
             <div className="h-[160px] w-full bg-gray-100 rounded-[16px] p-3">
-              <ResponsiveContainer width="100%" height={160}>
+              <ResponsiveContainer width="100%" height="100%">
                 <AreaChart
                   data={chartData}
                   margin={{ top: 5, right: 20, left: 10, bottom: 5 }}
                 >
                   <defs>
-                    <linearGradient id="colorUserPoints" x1="0" y1="0" x2="0" y2="1">
+                    <linearGradient id="colorPoints" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="5%" stopColor="#51c1a9" stopOpacity={0.8} />
                       <stop offset="95%" stopColor="#51c1a9" stopOpacity={0} />
                     </linearGradient>
-                    <linearGradient id="colorLeaderPoints" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#fbb350" stopOpacity={0.8} />
-                      <stop offset="95%" stopColor="#fbb350" stopOpacity={0} />
+                    <linearGradient id="lineGradient" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#51c1a9" stopOpacity={1} />
+                      <stop offset="95%" stopColor="#51c1a9" stopOpacity={0.5} />
                     </linearGradient>
                   </defs>
                   <XAxis
@@ -180,21 +177,11 @@ export default function Component() {
                   <Tooltip content={CustomTooltip} />
                   <Area
                     type="monotone"
-                    dataKey="userPoints"
-                    stroke="#51c1a9"
+                    dataKey="points"
+                    stroke="url(#lineGradient)"
                     strokeWidth={2}
-                    fill="url(#colorUserPoints)"
+                    fill="url(#colorPoints)"
                     dot={false}
-                    name="Your Points"
-                  />
-                  <Area
-                    type="monotone"
-                    dataKey="leaderPoints"
-                    stroke="#fbb350"
-                    strokeWidth={2}
-                    fill="url(#colorLeaderPoints)"
-                    dot={false}
-                    name="Leader Points"
                   />
                 </AreaChart>
               </ResponsiveContainer>
@@ -206,16 +193,14 @@ export default function Component() {
               <div className="text-red-500 text-center">{error}</div>
             ) : (
               <div className="space-y-2">
-                {leagueData.map((user) => {
-                  if (!user?.user_name) return null;
-                  
+                {leagueData.map((user, index) => {
                   const rank = user.rank;
                   const rankColor = getRankColor(rank);
                   const isAgent45 = user.user_name.toLowerCase() === 'agent45';
                   
                   return (
                     <div 
-                      key={user.member_id}
+                      key={index}
                       className={`
                         flex items-center gap-3 p-3 rounded-[16px] 
                         ${rank <= 3 ? 'bg-gray-100' : 'bg-white hover:bg-gray-100'}
@@ -234,25 +219,30 @@ export default function Component() {
                         )}
                       </div>
                       <div className={`
-                        relative w-8 h-8 rounded-full overflow-hidden
-                        ${rankColor}
-                      `}>
-                        <Image
-                          src={user.profile_picture_url || "/placeholder.svg?height=32&width=32"}
-                          alt={user.user_name}
-                          width={32}
-                          height={32}
-                          className="object-contain"
-                          loading="eager"
-                          unoptimized
-                          onError={(e) => {
-                            e.currentTarget.src = '/placeholder.svg?height=32&width=32';
-                          }}
-                        />
-                      </div>
+  relative w-8 h-8 rounded-full overflow-hidden
+  ${rankColor}
+`}>
+  <Image
+    src={user.profile_picture_url || "/placeholder.svg?height=32&width=32"}
+    alt={user.user_name}
+    width={32}
+    height={32}
+    className="object-contain"
+    loading="eager"
+    unoptimized
+    onError={(e) => {
+      console.error('Failed to load image:', user.profile_picture_url);
+      console.error('Error event:', e);
+      e.currentTarget.src = '/placeholder.svg?height=32&width=32';
+    }}
+  />
+</div>
                       <div className={`
                         flex-1 text-sm font-medium flex items-center gap-2
-                        ${rank <= 3 ? 'text-gray-800' : 'text-gray-600'}
+                        ${rank <= 3
+                          ? 'text-gray-800'
+                          : 'text-gray-600'
+                        }
                       `}>
                         {user.user_name}
                         {isAgent45 && (
@@ -269,12 +259,15 @@ export default function Component() {
                       </div>
                       <div className={`
                         text-sm font-medium
-                        ${rank <= 3 ? 'text-gray-800' : 'text-gray-600'}
+                        ${rank <= 3
+                          ? 'text-gray-800'
+                          : 'text-gray-600'
+                        }
                       `}>
                         {user.total_points.toLocaleString()} pts
                       </div>
                     </div>
-                  );
+                  )
                 })}
               </div>
             )}
@@ -282,5 +275,5 @@ export default function Component() {
         </Card>
       </div>
     </div>
-  );
+  )
 }
