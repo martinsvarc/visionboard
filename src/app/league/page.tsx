@@ -1,7 +1,6 @@
 "use client"
 
 import * as React from "react"
-import { Suspense } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import Image from "next/image"
@@ -40,13 +39,12 @@ function LeaderboardComponent() {
     setError(null)
     
     try {
-      // Encode the category parameter properly
-      const queryParams = new URLSearchParams({
+      const params = new URLSearchParams({
         memberId: memberId,
         category: category
       }).toString()
       
-      const response = await fetch(`/api/league?${queryParams}`)
+      const response = await fetch(`/api/league?${params}`)
       
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`)
@@ -55,11 +53,7 @@ function LeaderboardComponent() {
       const data = await response.json()
       
       setLeaderboardData(data.leaderboard || [])
-      setChartData((data.chartData || []).map((item: any) => ({
-        date: new Date(item.date).toLocaleDateString('en-US', { weekday: 'short' }),
-        user_points: item.user_points || 0,
-        top_user_points: item.top_user_points || 0
-      })))
+      setChartData(data.chartData || [])
       setUserStats(data.userStats || null)
     } catch (err) {
       console.error('Fetch error:', err)
@@ -69,7 +63,6 @@ function LeaderboardComponent() {
     }
   }
 
-  // Fetch data when category or memberId changes
   React.useEffect(() => {
     fetchLeaderboardData()
   }, [category, memberId])
@@ -105,7 +98,6 @@ function LeaderboardComponent() {
             </Tabs>
           </CardHeader>
           <CardContent className="space-y-4 pt-4">
-            {/* Chart section */}
             <div className="h-[200px] w-full bg-gray-100 rounded-[16px] p-3">
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart
@@ -141,25 +133,16 @@ function LeaderboardComponent() {
                         return (
                           <div className="rounded-[12px] border border-gray-200 bg-white p-3 shadow-lg">
                             <p className="text-sm font-medium" style={{ color: '#fbb350' }}>
-                              Top Score: {payload[0]?.payload?.top_user_points?.toLocaleString() || 0} points
+                              Top Score: {payload[1]?.value?.toLocaleString()} points
                             </p>
                             <p className="text-sm font-medium" style={{ color: '#51c1a9' }}>
-                              Your Score: {payload[0]?.payload?.user_points?.toLocaleString() || 0} points
+                              Your Score: {payload[0]?.value?.toLocaleString()} points
                             </p>
                           </div>
                         )
                       }
                       return null
                     }}
-                  />
-                  <Area
-                    type="monotone"
-                    dataKey="top_user_points"
-                    stroke="#fbb350"
-                    strokeWidth={2}
-                    fillOpacity={0.3}
-                    fill="url(#goldGradient)"
-                    dot={false}
                   />
                   <Area
                     type="monotone"
@@ -170,22 +153,29 @@ function LeaderboardComponent() {
                     fill="url(#colorPoints)"
                     dot={false}
                   />
+                  <Area
+                    type="monotone"
+                    dataKey="top_user_points"
+                    stroke="#fbb350"
+                    strokeWidth={2}
+                    fillOpacity={0.3}
+                    fill="url(#goldGradient)"
+                    dot={false}
+                  />
                 </AreaChart>
               </ResponsiveContainer>
             </div>
 
-            {/* Leaderboard section */}
             {isLoading ? (
               <div className="text-gray-600 text-center">Loading...</div>
             ) : error ? (
               <div className="text-red-500 text-center">{error}</div>
             ) : (
               <div className="space-y-2">
-                {/* Current User Stats */}
                 {userStats && (
                   <div className="flex items-center gap-3 p-3 rounded-[16px] bg-gray-100/50 border border-gray-200">
                     <div className="flex-none w-12 text-sm font-medium">
-                      <span className="text-gray-600">#{userStats.rank || '-'}</span>
+                      <span className="text-gray-600">#{userStats.rank}</span>
                     </div>
                     <div className="relative w-12 h-12 rounded-full overflow-hidden ring-1 ring-white/50">
                       <Image
@@ -197,17 +187,16 @@ function LeaderboardComponent() {
                       />
                     </div>
                     <div className="flex-1 text-sm font-medium text-gray-600">
-                      {userStats.user_name || 'You'}
+                      {userStats.user_name}
                     </div>
                     <div className="text-sm font-medium text-gray-600">
-                      {(userStats[category === 'daily' ? 'daily_score' : 
-                                category === 'weekly' ? 'weekly_score' : 
-                                'all_time_score'] || 0).toLocaleString()} pts
+                      {userStats[category === 'daily' ? 'daily_score' : 
+                               category === 'weekly' ? 'weekly_score' : 
+                               'all_time_score'].toLocaleString()} pts
                     </div>
                   </div>
                 )}
 
-                {/* Leaderboard list */}
                 {leaderboardData.map((user, index) => {
                   const rank = index + 1
                   const getRankColor = (rank: number) => {
@@ -275,9 +264,5 @@ function LeaderboardComponent() {
 }
 
 export default function Page() {
-  return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <LeaderboardComponent />
-    </Suspense>
-  )
+  return <LeaderboardComponent />
 }
