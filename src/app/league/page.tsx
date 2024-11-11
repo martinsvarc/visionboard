@@ -16,6 +16,7 @@ import {
 
 type LeagueData = {
   user_name: string;
+  member_id: string; // Added member_id
   total_points: number;
   call_count: number;
   last_call_date: string;
@@ -42,15 +43,15 @@ const CustomTooltip = ({ active, payload }: TooltipProps<number, string>) => {
 };
 
 const categoryNames: CategoryNames = {
-  daily: "Daily Leaderboard",
-  weekly: "Weekly Leaderboard",
-  monthly: "Monthly Leaderboard",
+  weekly: "Weekly League",
+  allTime: "All Time Leaderboard",
+  teamAllTime: "All Time Team Leaderboard",
 }
 
 export default function Component() {
-  const [category, setCategory] = React.useState<'daily' | 'weekly' | 'monthly'>('daily')
+  const [category, setCategory] = React.useState<'weekly' | 'allTime' | 'teamAllTime'>('weekly')
   const [leagueData, setLeagueData] = React.useState<LeagueData[]>([])
-  const [chartData, setChartData] = React.useState<{ date: string; points: number }[]>([])
+  const [chartData, setChartData] = React.useState<{ date: string; userPoints: number; leaderPoints: number }[]>([])
   const [isLoading, setIsLoading] = React.useState(true)
   const [error, setError] = React.useState<string | null>(null)
 
@@ -74,22 +75,10 @@ export default function Component() {
     fetchLeaderboardData()
   }, [category])
 
-  const getGlowColor = (rank: number) => {
-    switch (rank) {
-      case 1:
-        return 'shadow-[0_0_20px_rgba(255,215,0,0.6)] border-2 border-yellow-400 bg-yellow-500/20'
-      case 2:
-        return 'shadow-[0_0_20px_rgba(192,192,192,0.6)] border-2 border-gray-300 bg-gray-400/20'
-      case 3:
-        return 'shadow-[0_0_20px_rgba(205,127,50,0.6)] border-2 border-yellow-600 bg-yellow-700/20'
-      default:
-        return ''
-    }
-  }
-
   const getCurrentUserPoints = () => {
-    const topUser = leagueData[0]
-    return topUser ? topUser.total_points : 0
+    // Find current user's points (you'll need to implement logic to identify current user)
+    const currentUser = leagueData.find(user => user.member_id === 'current-user-id')
+    return currentUser ? currentUser.total_points : 0
   }
 
   const getRankColor = (rank: number) => {
@@ -115,31 +104,31 @@ export default function Component() {
           <CardHeader className="flex flex-col gap-4 pb-0">
             <div className="flex flex-col items-center justify-center mb-2">
               <CardTitle className="text-2xl font-extrabold text-[#556bc7] mb-1 text-center">
-                Top Score in {categoryNames[category]}
+                Your Score in {categoryNames[category]}
               </CardTitle>
               <div className="text-5xl font-extrabold text-[#556bc7]">
                 {getCurrentUserPoints().toLocaleString()}
               </div>
             </div>
-            <Tabs value={category} onValueChange={(value) => setCategory(value as 'daily' | 'weekly' | 'monthly')} className="w-full">
+            <Tabs value={category} onValueChange={(value) => setCategory(value as 'weekly' | 'allTime' | 'teamAllTime')} className="w-full">
               <TabsList className="grid w-full grid-cols-3 bg-gray-100 p-1 rounded-[16px]">
-                <TabsTrigger 
-                  value="daily" 
-                  className="font-medium text-sm text-gray-600 data-[state=active]:bg-[#fbb350] data-[state=active]:text-white rounded-[12px]"
-                >
-                  Daily
-                </TabsTrigger>
                 <TabsTrigger 
                   value="weekly" 
                   className="font-medium text-sm text-gray-600 data-[state=active]:bg-[#fbb350] data-[state=active]:text-white rounded-[12px]"
                 >
-                  Weekly
+                  Weekly League
                 </TabsTrigger>
                 <TabsTrigger 
-                  value="monthly" 
+                  value="allTime" 
                   className="font-medium text-sm text-gray-600 data-[state=active]:bg-[#fbb350] data-[state=active]:text-white rounded-[12px]"
                 >
-                  Monthly
+                  All Time
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="teamAllTime" 
+                  className="font-medium text-sm text-gray-600 data-[state=active]:bg-[#fbb350] data-[state=active]:text-white rounded-[12px]"
+                >
+                  Team All Time
                 </TabsTrigger>
               </TabsList>
             </Tabs>
@@ -152,13 +141,13 @@ export default function Component() {
                   margin={{ top: 5, right: 20, left: 10, bottom: 5 }}
                 >
                   <defs>
-                    <linearGradient id="colorPoints" x1="0" y1="0" x2="0" y2="1">
+                    <linearGradient id="colorUserPoints" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="5%" stopColor="#51c1a9" stopOpacity={0.8} />
                       <stop offset="95%" stopColor="#51c1a9" stopOpacity={0} />
                     </linearGradient>
-                    <linearGradient id="lineGradient" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#51c1a9" stopOpacity={1} />
-                      <stop offset="95%" stopColor="#51c1a9" stopOpacity={0.5} />
+                    <linearGradient id="colorLeaderPoints" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#fbb350" stopOpacity={0.8} />
+                      <stop offset="95%" stopColor="#fbb350" stopOpacity={0} />
                     </linearGradient>
                   </defs>
                   <XAxis
@@ -177,11 +166,21 @@ export default function Component() {
                   <Tooltip content={CustomTooltip} />
                   <Area
                     type="monotone"
-                    dataKey="points"
-                    stroke="url(#lineGradient)"
+                    dataKey="userPoints"
+                    stroke="#51c1a9"
                     strokeWidth={2}
-                    fill="url(#colorPoints)"
+                    fill="url(#colorUserPoints)"
                     dot={false}
+                    name="Your Points"
+                  />
+                  <Area
+                    type="monotone"
+                    dataKey="leaderPoints"
+                    stroke="#fbb350"
+                    strokeWidth={2}
+                    fill="url(#colorLeaderPoints)"
+                    dot={false}
+                    name="Leader Points"
                   />
                 </AreaChart>
               </ResponsiveContainer>
@@ -200,7 +199,7 @@ export default function Component() {
                   
                   return (
                     <div 
-                      key={index}
+                      key={user.member_id}
                       className={`
                         flex items-center gap-3 p-3 rounded-[16px] 
                         ${rank <= 3 ? 'bg-gray-100' : 'bg-white hover:bg-gray-100'}
@@ -219,30 +218,25 @@ export default function Component() {
                         )}
                       </div>
                       <div className={`
-  relative w-8 h-8 rounded-full overflow-hidden
-  ${rankColor}
-`}>
-  <Image
-    src={user.profile_picture_url || "/placeholder.svg?height=32&width=32"}
-    alt={user.user_name}
-    width={32}
-    height={32}
-    className="object-contain"
-    loading="eager"
-    unoptimized
-    onError={(e) => {
-      console.error('Failed to load image:', user.profile_picture_url);
-      console.error('Error event:', e);
-      e.currentTarget.src = '/placeholder.svg?height=32&width=32';
-    }}
-  />
-</div>
+                        relative w-8 h-8 rounded-full overflow-hidden
+                        ${rankColor}
+                      `}>
+                        <Image
+                          src={user.profile_picture_url || "/placeholder.svg?height=32&width=32"}
+                          alt={user.user_name}
+                          width={32}
+                          height={32}
+                          className="object-contain"
+                          loading="eager"
+                          unoptimized
+                          onError={(e) => {
+                            e.currentTarget.src = '/placeholder.svg?height=32&width=32';
+                          }}
+                        />
+                      </div>
                       <div className={`
                         flex-1 text-sm font-medium flex items-center gap-2
-                        ${rank <= 3
-                          ? 'text-gray-800'
-                          : 'text-gray-600'
-                        }
+                        ${rank <= 3 ? 'text-gray-800' : 'text-gray-600'}
                       `}>
                         {user.user_name}
                         {isAgent45 && (
@@ -259,10 +253,7 @@ export default function Component() {
                       </div>
                       <div className={`
                         text-sm font-medium
-                        ${rank <= 3
-                          ? 'text-gray-800'
-                          : 'text-gray-600'
-                        }
+                        ${rank <= 3 ? 'text-gray-800' : 'text-gray-600'}
                       `}>
                         {user.total_points.toLocaleString()} pts
                       </div>
