@@ -89,7 +89,7 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    console.log('Received body:', body); // Debug log
+    console.log('Received body:', body);
 
     if (!body.memberId || !body.userName || !body.score) {
       return NextResponse.json({ 
@@ -119,22 +119,28 @@ export async function POST(request: Request) {
       DO UPDATE SET 
         user_name = EXCLUDED.user_name,
         profile_image_url = COALESCE(EXCLUDED.profile_image_url, 'https://placehold.co/48x48'),
-        daily_score = EXCLUDED.daily_score,
+        daily_score = user_leaderboard.daily_score + EXCLUDED.daily_score,
+        weekly_score = user_leaderboard.weekly_score + EXCLUDED.daily_score,
+        all_time_score = user_leaderboard.all_time_score + EXCLUDED.daily_score,
         updated_at = CURRENT_TIMESTAMP;
+    `;
+
+    // Get updated total after addition
+    const { rows: updatedUser } = await pool.sql`
+      SELECT * FROM user_leaderboard WHERE user_id = ${body.memberId};
     `;
 
     return NextResponse.json({
       success: true,
       message: 'Score updated successfully',
-      receivedData: body
+      user: updatedUser[0]
     });
     
   } catch (error) {
     console.error('Update leaderboard error:', error);
     return NextResponse.json({ 
       error: 'Failed to update leaderboard',
-      details: error instanceof Error ? error.message : 'Unknown error',
-      receivedData: error
+      details: error instanceof Error ? error.message : 'Unknown error'
     }, { 
       status: 500 
     });
