@@ -228,17 +228,23 @@ export default function LeaderboardComponent() {
                         </span>
                       </div>
                       <div className={`
-                        relative w-12 h-12 rounded-full overflow-hidden
-                        ${getRankColor(rank)}
-                      `}>
-                        <Image
-                          src={user.profile_image_url || "/placeholder.jpg"}
-                          alt={user.user_name}
-                          width={48}
-                          height={48}
-                          className="object-cover"
-                        />
-                      </div>
+  relative w-12 h-12 rounded-full overflow-hidden
+  ${getRankColor(rank)}
+`}>
+  <Image
+    src={user.profile_image_url || "/placeholder.jpg"}
+    alt={user.user_name}
+    width={48}
+    height={48}
+    className="object-cover"
+    loading="eager"
+    unoptimized
+    onError={(e) => {
+      console.error('Failed to load image:', user.profile_image_url);
+      e.currentTarget.src = 'https://placehold.co/48x48';
+    }}
+  />
+</div>
                       <div className={`
                         flex-1 text-sm font-medium
                         ${rank <= 3 ? 'text-gray-800' : 'text-gray-600'}
