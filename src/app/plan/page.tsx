@@ -140,7 +140,7 @@ function PlanComponent() {
                       <RefreshCw className={`w-4 h-4 text-[#556bc7] ${isRefreshing ? 'animate-spin' : ''}`} />
                     </Button>
                   </TooltipTrigger>
-                  <TooltipContent side="left" className="bg-white border-slate-100 text-slate-600 font-montserrat-medium">
+                  <TooltipContent className="bg-white border-slate-100 text-slate-600 font-montserrat-medium">
                     <p className="text-xs">Updates Automatically Every 24 Hours</p>
                   </TooltipContent>
                 </Tooltip>
