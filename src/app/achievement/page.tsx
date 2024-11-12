@@ -2,19 +2,14 @@
 
 import Image from "next/image"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-  TooltipProvider
-} from "@/components/ui/tooltip"
+import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip"
 import { Progress } from "@/components/ui/progress"
 import { useState } from "react"
 import { Montserrat } from 'next/font/google'
 
 const montserrat = Montserrat({
   subsets: ['latin'],
-  variable: '--font-montserrat',
+  weight: ['500', '700'],
 })
 
 interface Badge {
@@ -28,8 +23,8 @@ interface Badge {
   unlocked: boolean;
   current?: number;
   target?: number;
-  tooltipTitle?: string;
-  tooltipSubtitle?: string;
+  tooltipTitle: string;
+  tooltipSubtitle: string;
 }
 
 interface CategorySectionProps {
@@ -42,30 +37,19 @@ interface CategorySectionProps {
   showIndividualProgress?: boolean;
 }
 
-interface BadgeGridProps {
-  badge: Badge;
-  showIndividualProgress?: boolean;
-}
-
-function BadgeGrid({ badge, showIndividualProgress }: BadgeGridProps) {
+const BadgeGrid = ({ badge, showIndividualProgress }: { badge: Badge; showIndividualProgress?: boolean }) => {
   const BadgeContent = (
     <div className="space-y-1">
       <div className={`relative transition-all duration-300 hover:scale-110 ${
-          !badge.unlocked ? "opacity-50 grayscale" : ""
-        }`}
-      >
+        !badge.unlocked ? "opacity-50 grayscale" : ""
+      }`}>
         <Image
           src={badge.image}
           alt={badge.description}
-          width={56}
-          height={56}
+          width={48}
+          height={48}
           className="relative object-contain drop-shadow-md mx-auto"
-          loading="eager"
           unoptimized
-          onError={(e) => {
-            console.error('Failed to load image:', badge.image);
-            e.currentTarget.src = 'https://placehold.co/56x56';
-          }}
         />
         {!badge.unlocked && (
           <div className="absolute inset-0 flex items-center justify-center">
@@ -92,36 +76,42 @@ function BadgeGrid({ badge, showIndividualProgress }: BadgeGridProps) {
       {showIndividualProgress && badge.current !== undefined && badge.target !== undefined && (
         <Progress 
           value={(badge.current / badge.target) * 100} 
-          className="h-2 w-full bg-white/50 [&>div]:bg-[#51c1a9]" 
+          className="h-1 w-full bg-white/50 [&>div]:bg-[#51c1a9] rounded-full" 
         />
       )}
     </div>
   );
 
-  if (badge.unlocked) {
-    return BadgeContent;
-  }
-
   return (
     <TooltipProvider>
       <Tooltip>
-        <TooltipTrigger>
-          <button type="button" className="w-full">
-            {BadgeContent}
-          </button>
+        <TooltipTrigger asChild>
+          <div>{BadgeContent}</div>
         </TooltipTrigger>
-        <TooltipContent className="bg-white p-2 rounded-md shadow-md border border-gray-200">
+        <TooltipContent 
+          side="top" 
+          align="center" 
+          className="bg-white p-2 rounded-lg shadow-lg z-50"
+        >
           <p className="text-sm font-bold whitespace-nowrap">{badge.tooltipTitle}</p>
           <p className="text-xs text-slate-500 whitespace-nowrap">{badge.tooltipSubtitle}</p>
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>
-  )
-}
+  );
+};
 
-function CategorySection({ title, currentStreak, nextMilestone, progress, badges, description, showIndividualProgress }: CategorySectionProps) {
+const CategorySection = ({ 
+  title, 
+  currentStreak, 
+  nextMilestone, 
+  progress, 
+  badges, 
+  description, 
+  showIndividualProgress 
+}: CategorySectionProps) => {
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 bg-white p-4 rounded-xl shadow-sm">
       <div>
         <h3 className="text-xl font-bold text-[#556bc7] mb-2">{title}</h3>
         {description && (
@@ -136,26 +126,30 @@ function CategorySection({ title, currentStreak, nextMilestone, progress, badges
           </div>
           <Progress 
             value={progress} 
-            className="h-2 bg-white/50 [&>div]:bg-[#51c1a9]" 
+            className="h-2 bg-white/50 [&>div]:bg-[#51c1a9] rounded-full" 
           />
         </div>
       )}
       <div className="grid grid-cols-5 gap-4">
         {badges.map((badge, index) => (
-          <BadgeGrid key={index} badge={badge} showIndividualProgress={showIndividualProgress} />
+          <BadgeGrid 
+            key={index} 
+            badge={badge} 
+            showIndividualProgress={showIndividualProgress}
+          />
         ))}
       </div>
     </div>
-  )
-}
+  );
+};
 
 export default function Component() {
-  const [signInStreak, setSignInStreak] = useState(45)
-  const [completedCalls, setCompletedCalls] = useState(85)
-  const [dailyActivity, setDailyActivity] = useState(8)
-  const [weeklyActivity, setWeeklyActivity] = useState(35)
-  const [monthlyActivity, setMonthlyActivity] = useState(75)
-  const [currentLeagueRank, setCurrentLeagueRank] = useState("Silver")
+  const [signInStreak] = useState(45);
+  const [completedCalls] = useState(85);
+  const [dailyActivity] = useState(8);
+  const [weeklyActivity] = useState(35);
+  const [monthlyActivity] = useState(75);
+  const [currentLeagueRank] = useState("Silver");
 
   const signInBadges: Badge[] = [
     { 
@@ -279,7 +273,7 @@ export default function Component() {
       description: "1500 Calls", 
       unlocked: false,
       tooltipTitle: "Call Legend",
-      tooltipSubtitle: "Achieve legendary status"
+      tooltipSubtitle: "Achieve legendary status with 1500 calls"
     },
     { 
       calls: 2500, 
@@ -287,7 +281,7 @@ export default function Component() {
       description: "2500 Calls", 
       unlocked: false,
       tooltipTitle: "Ultimate Caller",
-      tooltipSubtitle: "Reach the pinnacle of calling"
+      tooltipSubtitle: "Reach the pinnacle with 2500 calls"
     }
   ];
 
@@ -322,8 +316,8 @@ export default function Component() {
       unlocked: false, 
       current: monthlyActivity, 
       target: 100,
-      tooltipTitle: "High Performer",
-      tooltipSubtitle: "Complete 100 monthly sessions"
+      tooltipTitle: "Monthly Champion",
+      tooltipSubtitle: "Complete 100 activities in a month"
     }
   ];
 
@@ -333,30 +327,30 @@ export default function Component() {
       image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/a-3d-render-of-a-large-radiant-bronze-medal-with-a-t0r6ItMuRVOEve22GfVYdw-KxQg20b_SdOR5Y3HVUaVZg-removebg-preview-FQvuwEgYxWGz6qrgC1TDFLJgNCqMTd.png", 
       description: "3rd place", 
       unlocked: true,
-      tooltipTitle: "For Steady Hands",
-      tooltipSubtitle: "3rd Place in Monthly League"
+      tooltipTitle: "Bronze League",
+      tooltipSubtitle: "Achieve 3rd place in rankings"
     },
     { 
       rank: "Silver", 
       image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/a-3d-render-of-a-large-radiant-silver-medal-with-a-SF8CEVMrSWaKtCH-SS0KPw-xITb8y53Tw-95YbTOpEHoQ-removebg-preview-U6690RSmf0Tv9j0qzPESh3bBQJKIB4.png", 
       description: "2nd place", 
       unlocked: true,
-      tooltipTitle: "For Steady Hands",
-      tooltipSubtitle: "2nd Place in Monthly League"
+      tooltipTitle: "Silver League",
+      tooltipSubtitle: "Secure 2nd place in rankings"
     },
     { 
       rank: "Gold", 
       image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/a-3d-render-of-a-large-radiant-gold-medal-with-a-b-T5VpM4deRuWtnNpknWeXKA-oVpwYeqBTOuOBOCRRskHXg-removebg-preview-o68fcm402jSQQlsuqIHnmTKovqR92D.png", 
       description: "1st place", 
       unlocked: false,
-      tooltipTitle: "For Steady Hands",
-      tooltipSubtitle: "1st Place in Monthly League"
+      tooltipTitle: "Gold League",
+      tooltipSubtitle: "Reach the top of the rankings"
     }
   ];
 
   return (
-    <div className={`${montserrat.variable} font-sans bg-white min-h-screen flex items-center justify-center p-8`}>
-      <div className="bg-[#f2f3f9] p-8 rounded-xl shadow-lg w-full max-w-4xl mx-auto">
+    <div className={`${montserrat.className} bg-white min-h-screen flex items-center justify-center p-8`}>
+      <div className="bg-[#f2f3f9] p-8 rounded-xl shadow-lg w-full max-w-4xl">
         <Card className="w-full overflow-hidden bg-white border-white/20 shadow-sm">
           <CardHeader className="border-b border-white/20 p-3">
             <CardTitle className="text-2xl font-extrabold text-[#556bc7] text-center">
@@ -395,5 +389,5 @@ export default function Component() {
         </Card>
       </div>
     </div>
-  )
+  );
 }
