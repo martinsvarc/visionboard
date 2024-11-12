@@ -41,7 +41,7 @@ const BadgeGrid = ({ badge, showIndividualProgress }: { badge: Badge; showIndivi
   return (
     <TooltipProvider>
       <Tooltip>
-        <TooltipTrigger>
+        <TooltipTrigger className="w-full">
           <div className="space-y-1">
             <div className={`relative transition-all duration-300 hover:scale-110 ${
               !badge.unlocked ? "opacity-50 grayscale" : ""
@@ -84,11 +84,7 @@ const BadgeGrid = ({ badge, showIndividualProgress }: { badge: Badge; showIndivi
             )}
           </div>
         </TooltipTrigger>
-        <TooltipContent 
-          side="top" 
-          align="center" 
-          className="bg-white p-2 rounded-lg shadow-lg z-50"
-        >
+        <TooltipContent className="bg-white p-2 rounded-lg shadow-lg z-50">
           <p className="text-sm font-bold whitespace-nowrap">{badge.tooltipTitle}</p>
           <p className="text-xs text-slate-500 whitespace-nowrap">{badge.tooltipSubtitle}</p>
         </TooltipContent>
