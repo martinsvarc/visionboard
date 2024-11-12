@@ -15,7 +15,7 @@ import { Montserrat } from 'next/font/google'
 
 const montserrat = Montserrat({ 
   subsets: ['latin'],
-  weight: ['800'], // 800 is Extra Bold
+  weight: ['800']
 })
 
 interface SessionData {
@@ -75,7 +75,6 @@ function CircularProgress({ value, max, size = 220, strokeWidth = 24, children, 
   )
 }
 
-// Separate component for data fetching
 function SessionsData() {
   const searchParams = useSearchParams()
   const memberId = searchParams.get('memberId')
@@ -85,28 +84,28 @@ function SessionsData() {
       max: 10, 
       label: "today", 
       color: "#546bc8",
-      badge: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/a-3d-render-of-a-bold-cartoon-style-circular-activ-i3oaOHQrRwKx278lk4RWoQ-h6mSgEB2Tq-Fvag7DJFT8w-xbLWYuw1DFwiPNDPTpEZ6uDJMyrpxh.png"
+      badge: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/bronze-badge-OViNeupnapYUCtB5vwzJVMdZuGuBV5.svg"
     },
     week: { 
       count: 0, 
       max: 50, 
       label: "this week", 
       color: "#50c2aa",
-      badge: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/a-3d-render-of-a-bold-cartoon-style-circular-activ-P9O01brqRQyEw_pn5wIAcw-o3h9RSCdQAaad_JdR9DQaQ-lx8FuKJv3C7YMDuffkNF8G5dRdbVz3.png"
+      badge: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/silver-badge-enVkwENGFRkFzSnZhPx1Ou3Vny1Ydi.svg"
     },
     month: { 
       count: 0, 
-      max: 100, 
+      max: 30, 
       label: "this month", 
       color: "#fb9851",
-      badge: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/a-3d-render-of-a-bold-cartoon-style-circular-activ-yvB3xJiPRneZPgoj6rEdmA-czNvVMXFQ8WtscglnQPjzg-FurUc2Eb19gjH5vWNZltOrWnvFn5tJ.png"
+      badge: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/gold-badge-riUne9cvOoQqD1jkSdP6BpoVbJI58A.svg"
     },
-    year: { 
+    total: { 
       count: 0, 
-      max: 1000, 
-      label: "this year", 
+      max: 100, 
+      label: "total", 
       color: "#fbb351",
-      badge: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/a-3d-render-of-a-bold-cartoon-style-circular-activ-d4Jo6p6JSNumNnfKQpu27A-RqgTTUF4SyeFYVWbV6zj8A-PFvtWZvIZ4NLUoErbTfoZsFDgIg9lF.png"
+      badge: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/diamond-badge-NBii8nLIX5QheqCHQgHbZvTPXiH4hu.svg"
     },
   })
 
@@ -122,7 +121,7 @@ function SessionsData() {
             today: { ...prev.today, count: data.todayCount },
             week: { ...prev.week, count: data.weeklyCount },
             month: { ...prev.month, count: data.monthlyCount },
-            year: { ...prev.year, count: data.totalCount }
+            total: { ...prev.total, count: data.totalCount }
           }))
         })
         .catch(error => console.error('Error loading sessions:', error))
@@ -134,7 +133,7 @@ function SessionsData() {
       {Object.entries(sessions).map(([key, session]) => (
         <TooltipProvider key={key}>
           <Tooltip>
-            <TooltipTrigger asChild>
+            <TooltipTrigger>
               <div className="cursor-pointer relative group flex justify-center">
                 <CircularProgress value={session.count} max={session.max} color={session.color}>
                   <div className="text-center">
@@ -147,7 +146,7 @@ function SessionsData() {
                 <div className="absolute inset-0 rounded-full opacity-0 group-hover:opacity-20 transition-opacity duration-200" style={{ backgroundColor: session.color }}></div>
               </div>
             </TooltipTrigger>
-            <TooltipContent side="bottom" className="bg-white p-2 rounded-md shadow-md border border-gray-200">
+            <TooltipContent className="bg-white p-2 rounded-md shadow-md border border-gray-200">
               <p className="text-sm font-medium text-gray-700">
                 {session.label.charAt(0).toUpperCase() + session.label.slice(1)}: {session.count} of {session.max}
               </p>
@@ -171,7 +170,7 @@ function SessionsData() {
   )
 }
 
-export default function Page() {
+function SessionsComponent() {
   return (
     <div className="min-h-screen w-full bg-transparent p-4 sm:p-6 md:p-8 flex items-center justify-center">
       <div className="bg-[#f2f3f9] p-4 sm:p-6 md:p-8 rounded-[20px] shadow-xl w-full max-w-[1400px]">
@@ -189,5 +188,13 @@ export default function Page() {
         </Card>
       </div>
     </div>
+  )
+}
+
+export default function Page() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <SessionsComponent />
+    </Suspense>
   )
 }
