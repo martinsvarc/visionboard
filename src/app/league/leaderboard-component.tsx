@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import Image from "next/image"
 import {
@@ -27,11 +27,11 @@ export default function LeaderboardComponent() {
 
   const categoryNames = {
     daily: "Weekly League",
-    weekly: "All Time Leaderboard",
-    monthly: "All Time Team Leaderboard",
+    weekly: "All Time",
+    monthly: "All Time Team",
   }
 
-  // Fetch leaderboard data
+  // Keep your existing fetch function
   const fetchLeaderboardData = async () => {
     if (!memberId) return
     setIsLoading(true)
@@ -73,27 +73,29 @@ export default function LeaderboardComponent() {
   const renderUserProfile = (user: any, index: number) => {
     const rank = index + 1
     const rankColor = getRankColor(rank)
+    const isCurrentUser = user.user_id === userStats?.user_id
 
     return (
       <div
         key={user.user_id}
         className={`
           flex items-center gap-3 p-3 rounded-[20px] bg-white
-          ${rank <= 3 ? 'border-2 border-' + (
-            rank === 1 ? '[#fbb350]' : 
-            rank === 2 ? 'gray-300' : 
-            '[#cd7f32]'
-          ) : 'border border-gray-200'}
+          ${isCurrentUser ? 'border-2 border-[#51c1a9]' :
+            rank === 1 ? 'border-2 border-[#fbb350]' : 
+            rank === 2 ? 'border-2 border-gray-300' : 
+            rank === 3 ? 'border-2 border-[#cd7f32]' : 
+            'border border-gray-200'}
           transition-all duration-300 hover:bg-gray-50
         `}
       >
         <div className="flex-none w-12 text-sm font-medium">
-          <span className={
-            rank === 1 ? "text-[#fbb350]" :
-            rank === 2 ? "text-gray-600" :
-            rank === 3 ? "text-[#cd7f32]" :
-            "text-gray-400"
-          }>#{rank}</span>
+          <span className={`${
+            isCurrentUser ? 'text-[#51c1a9]' :
+            rank === 1 ? 'text-[#fbb350]' : 
+            rank === 2 ? 'text-gray-600' : 
+            rank === 3 ? 'text-[#cd7f32]' : 
+            'text-gray-400'
+          }`}>#{rank}</span>
         </div>
         <div className={`relative w-12 h-12 rounded-full overflow-hidden ${rankColor}`}>
           <Image
@@ -110,11 +112,11 @@ export default function LeaderboardComponent() {
           ${rank <= 3 ? 'text-gray-800' : 'text-gray-600'}
         `}>
           {user.user_name}
-          {rank <= 3 && (
+          {rank === 1 && (
             <div className="relative w-8 h-8 ml-2">
               <Image
-                src={`/badges/rank-${rank}.png`}
-                alt={`Rank ${rank} Badge`}
+                src="/badges/first.png"
+                alt="First Place Badge"
                 width={32}
                 height={32}
                 className="object-contain"
@@ -125,7 +127,8 @@ export default function LeaderboardComponent() {
         </div>
         <div className={`
           text-sm font-medium
-          ${rank === 1 ? 'text-[#fbb350]' : 
+          ${isCurrentUser ? 'text-[#51c1a9]' :
+            rank === 1 ? 'text-[#fbb350]' : 
             rank === 2 ? 'text-gray-600' : 
             rank === 3 ? 'text-[#cd7f32]' : 
             'text-gray-600'}
@@ -137,102 +140,102 @@ export default function LeaderboardComponent() {
   }
 
   return (
-    <div className="min-h-screen w-full bg-white p-4 flex items-center justify-center">
-      <div className="w-full h-[850px] bg-[#f2f3f9] rounded-[20px] p-6 shadow-lg overflow-hidden flex flex-col">
-        <Card className="bg-white border-0 shadow-none font-['Montserrat'] h-full flex flex-col rounded-[20px] overflow-hidden">
-          <CardHeader className="flex flex-col gap-4 pb-0 sticky top-0 bg-white z-10 overflow-hidden">
-            <h2 className="text-3xl font-extrabold text-[#556bc7] mb-6">League</h2>
-            <Tabs value={category} onValueChange={(value) => setCategory(value as 'daily' | 'weekly' | 'monthly')} className="w-full">
-              <TabsList className="w-full grid grid-cols-3 bg-[#fbb350]/10 p-1 relative">
-                <div className="absolute inset-0 w-full h-full bg-white/95 backdrop-blur-sm rounded-[32px] shadow-[0_8px_32px_-4px_rgba(251,179,80,0.1)]" />
-                {Object.entries(categoryNames).map(([value, label]) => (
-                  <TabsTrigger 
-                    key={value}
-                    value={value}
-                    className="relative z-10 rounded-[24px] px-6 py-2.5 text-sm font-medium text-gray-600 transition-all duration-300 hover:text-gray-900 data-[state=active]:bg-[#fbb350] data-[state=active]:text-white data-[state=active]:shadow-[0_8px_16px_-4px_rgba(251,179,80,0.3),0_4px_6px_-2px_rgba(251,179,80,0.2)]"
+    <div className="min-h-screen w-full bg-gray-100 p-4 flex items-center justify-center">
+      <div className="w-full">
+        <Card className="border shadow-lg font-['Montserrat'] bg-white">
+          <CardContent className="pt-6">
+            <div className="bg-white rounded-[20px] p-6 shadow-md">
+              <div className="flex flex-col gap-6 mb-8">
+                <h2 className="text-[25px] font-bold leading-[1.3] text-[#556bc7]">League</h2>
+                <Tabs value={category} onValueChange={(value) => setCategory(value as 'daily' | 'weekly' | 'monthly')} className="w-full">
+                  <TabsList className="w-full flex justify-between bg-gray-50/50 p-1 rounded-full">
+                    {Object.entries(categoryNames).map(([value, label]) => (
+                      <TabsTrigger 
+                        key={value}
+                        value={value}
+                        className="flex-1 relative z-10 rounded-full px-8 py-3 text-base font-medium text-gray-600 transition-all duration-300 hover:text-gray-900 data-[state=active]:bg-[#fbb350] data-[state=active]:text-white data-[state=active]:shadow-[0_8px_16px_-4px_rgba(251,179,80,0.3),0_4px_6px_-2px_rgba(251,179,80,0.2)]"
+                      >
+                        {label}
+                      </TabsTrigger>
+                    ))}
+                  </TabsList>
+                </Tabs>
+              </div>
+              
+              <div className="h-[160px] sm:h-[180px] md:h-[200px] w-full bg-gray-100 rounded-[20px] p-3 mb-6">
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart
+                    data={chartData}
+                    margin={{ top: 5, right: 20, left: 10, bottom: 5 }}
                   >
-                    {label}
-                  </TabsTrigger>
-                ))}
-              </TabsList>
-            </Tabs>
-          </CardHeader>
-          <CardContent className="pt-2 flex-grow overflow-hidden flex flex-col gap-2">
-            <div className="h-[160px] sm:h-[180px] md:h-[200px] w-full bg-gray-100 rounded-[20px] p-3">
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart
-                  data={chartData}
-                  margin={{ top: 5, right: 20, left: 10, bottom: 5 }}
-                >
-                  <defs>
-                    <linearGradient id="colorPoints" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#51c1a9" stopOpacity={0.8} />
-                      <stop offset="95%" stopColor="#51c1a9" stopOpacity={0.1} />
-                    </linearGradient>
-                    <linearGradient id="goldGradient" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#fbb350" stopOpacity={0.3} />
-                      <stop offset="95%" stopColor="#fbb350" stopOpacity={0.1} />
-                    </linearGradient>
-                  </defs>
-                  <XAxis
-                    dataKey="date"
-                    axisLine={false}
-                    tickLine={false}
-                    tick={{ fill: '#333', fontSize: 11 }}
-                    dy={5}
-                  />
-                  <YAxis
-                    axisLine={false}
-                    tickLine={false}
-                    tick={{ fill: '#333', fontSize: 11 }}
-                    dx={-10}
-                  />
-                  <Tooltip
-                    content={({ active, payload }) => {
-                      if (active && payload && payload.length) {
-                        return (
-                          <div className="rounded-[12px] border border-gray-200 bg-white p-3 shadow-lg">
-                            <p className="text-sm font-medium" style={{ color: '#fbb350' }}>
-                              Top Score: {payload[1]?.value?.toLocaleString()} points
-                            </p>
-                            <p className="text-sm font-medium" style={{ color: '#51c1a9' }}>
-                              Your Score: {payload[0]?.value?.toLocaleString()} points
-                            </p>
-                          </div>
-                        )
-                      }
-                      return null
-                    }}
-                  />
-                  <Area
-                    type="monotone"
-                    dataKey="user_points"
-                    stroke="#51c1a9"
-                    strokeWidth={2}
-                    fillOpacity={1}
-                    fill="url(#colorPoints)"
-                    dot={false}
-                  />
-                  <Area
-                    type="monotone"
-                    dataKey="top_user_points"
-                    stroke="#fbb350"
-                    strokeWidth={2}
-                    fillOpacity={0.3}
-                    fill="url(#goldGradient)"
-                    dot={false}
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
-            </div>
+                    <defs>
+                      <linearGradient id="colorPoints" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#51c1a9" stopOpacity={0.8} />
+                        <stop offset="95%" stopColor="#51c1a9" stopOpacity={0.1} />
+                      </linearGradient>
+                      <linearGradient id="goldGradient" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#fbb350" stopOpacity={0.3} />
+                        <stop offset="95%" stopColor="#fbb350" stopOpacity={0.1} />
+                      </linearGradient>
+                    </defs>
+                    <XAxis
+                      dataKey="date"
+                      axisLine={false}
+                      tickLine={false}
+                      tick={{ fill: '#333', fontSize: 11 }}
+                      dy={5}
+                    />
+                    <YAxis
+                      axisLine={false}
+                      tickLine={false}
+                      tick={{ fill: '#333', fontSize: 11 }}
+                      dx={-10}
+                    />
+                    <Tooltip
+                      content={({ active, payload }) => {
+                        if (active && payload && payload.length) {
+                          return (
+                            <div className="rounded-[12px] border border-gray-200 bg-white p-3 shadow-lg">
+                              <p className="text-sm font-medium" style={{ color: '#fbb350' }}>
+                                Top Score: {payload[1]?.value?.toLocaleString()} points
+                              </p>
+                              <p className="text-sm font-medium" style={{ color: '#51c1a9' }}>
+                                Your Score: {payload[0]?.value?.toLocaleString()} points
+                              </p>
+                            </div>
+                          )
+                        }
+                        return null
+                      }}
+                    />
+                    <Area
+                      type="monotone"
+                      dataKey="user_points"
+                      stroke="#51c1a9"
+                      strokeWidth={2}
+                      fillOpacity={1}
+                      fill="url(#colorPoints)"
+                      dot={false}
+                    />
+                    <Area
+                      type="monotone"
+                      dataKey="top_user_points"
+                      stroke="#fbb350"
+                      strokeWidth={2}
+                      fillOpacity={0.3}
+                      fill="url(#goldGradient)"
+                      dot={false}
+                    />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
 
-            {isLoading ? (
-              <div className="text-gray-600 text-center">Loading...</div>
-            ) : error ? (
-              <div className="text-red-500 text-center">{error}</div>
-            ) : (
-              <div className="mt-1 flex flex-col flex-grow overflow-hidden">
-                <div className="space-y-1">
+              {isLoading ? (
+                <div className="text-gray-600 text-center">Loading...</div>
+              ) : error ? (
+                <div className="text-red-500 text-center">{error}</div>
+              ) : (
+                <div className="space-y-4">
                   {userStats && renderUserProfile({
                     user_id: userStats.user_id,
                     user_name: userStats.user_name,
@@ -241,13 +244,13 @@ export default function LeaderboardComponent() {
                             category === 'weekly' ? 'weekly_score' : 
                             'all_time_score']
                   }, userStats.rank - 1)}
-                  <h3 className="text-xl font-bold text-[#556bc7] mt-1 mb-1">Top 3 places</h3>
-                  <div className="space-y-1">
+                  <h3 className="text-xl font-bold text-[#556bc7]">Top 3 places</h3>
+                  <div className="space-y-2">
                     {leaderboardData.slice(0, 3).map((user, index) => renderUserProfile(user, index))}
                   </div>
                 </div>
-              </div>
-            )}
+              )}
+            </div>
           </CardContent>
         </Card>
       </div>
