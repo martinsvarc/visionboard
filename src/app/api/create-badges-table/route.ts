@@ -18,7 +18,7 @@ export async function GET() {
           monthly_calls INTEGER DEFAULT 0,
           current_week_points INTEGER DEFAULT 0,
           total_points INTEGER DEFAULT 0,
-          league_rank TEXT DEFAULT 'Bronze',
+          league_rank TEXT DEFAULT NULL,
           last_practice_date TIMESTAMP WITH TIME ZONE DEFAULT NULL,
           unlocked_practice_badges INTEGER[] DEFAULT ARRAY[]::INTEGER[],
           unlocked_calls_badges INTEGER[] DEFAULT ARRAY[]::INTEGER[],
