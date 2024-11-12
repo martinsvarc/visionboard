@@ -136,44 +136,44 @@ const CategorySection = ({
 };
 
 export default function Component() {
-  const [signInStreak] = useState(45);
+  const [practiceStreak] = useState(45);
   const [completedCalls] = useState(85);
   const [dailyActivity] = useState(8);
   const [weeklyActivity] = useState(35);
   const [monthlyActivity] = useState(75);
   const [currentLeagueRank] = useState("Silver");
 
-  const signInBadges: Badge[] = [
+  const practiceStreakBadges: Badge[] = [
     { 
       days: 5, 
       image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/a-3d-render-of-a-chunky-cartoon-calendar-icon-with-HWOAO1EUTGSglSzZlSFjHA-dQjZimptRd-0SpN_-6oU5w-removebg-preview-kqCdBji4NtHiKw4VNgVdM4AvaoJTeG.png", 
       description: "5 Day Streak", 
       unlocked: true,
-      tooltipTitle: "Beginner's Commitment",
-      tooltipSubtitle: "Sign in for 5 consecutive days"
+      tooltipTitle: "Practice Rookie",
+      tooltipSubtitle: "Practice for 5 consecutive days"
     },
     { 
       days: 10, 
       image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/a-3d-render-of-a-chunky-cartoon-calendar-icon-with-QHfb4ipTQUu1iR54Vmxo6g-RFBtanJsS0aS2a2tOFHHXg-removebg-preview-v7ErIfzS4KWNaGOsrDHAlKE567RPBl.png", 
       description: "10 Day Streak", 
       unlocked: true,
-      tooltipTitle: "Steady Progress",
-      tooltipSubtitle: "Maintain a 10-day streak"
+      tooltipTitle: "Practice Enthusiast",
+      tooltipSubtitle: "Keep practicing for 10 days"
     },
     { 
       days: 30, 
       image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/a-pixar-style-3d-render-of-a-cartoon-calendar-icon-CSU-cRrnTDCAuvGYTSV90w-taY5gPBoQxydiszFPNpDvQ-removebg-preview-icmW2h12SQM5AuIhCFGS6QgVtHH4bl.png", 
       description: "30 Day Streak", 
       unlocked: true,
-      tooltipTitle: "Monthly Master",
-      tooltipSubtitle: "Complete a full month of sign-ins"
+      tooltipTitle: "Practice Master",
+      tooltipSubtitle: "Complete a full month of practice"
     },
     { 
       days: 90, 
       image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/a-pixar-style-3d-render-of-a-cartoon-calendar-icon-RCaF4tpKT7aJoICZ2L508Q-UCW5RDP4Q4KfvoRnq8NlfA-removebg-preview-uTOgO6F3TcAT7mgifJaah0IMdp7aBL.png", 
       description: "90 Day Streak", 
       unlocked: false,
-      tooltipTitle: "Quarterly Champion",
+      tooltipTitle: "Practice Virtuoso",
       tooltipSubtitle: "Stay committed for 90 days"
     },
     { 
@@ -181,16 +181,16 @@ export default function Component() {
       image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/a-pixar-style-3d-render-of-a-cartoon-calendar-icon-L5aDOKYDTgKsB2lxHimuQQ-2xr3cxz6RCeNCL9HhBtylA-removebg-preview-EjyMwQ76jCkYGHpc22uRIkJ4b0c6gu.png", 
       description: "180 Day Streak", 
       unlocked: false,
-      tooltipTitle: "Half-Year Hero",
-      tooltipSubtitle: "Reach 180 days of dedication"
+      tooltipTitle: "Practice Champion",
+      tooltipSubtitle: "Maintain practice for 180 days"
     },
     { 
       days: 365, 
       image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/a-pixar-style-3d-render-of-a-cartoon-calendar-icon-9Ut5P-Z7Q-qcpgWOIlslCA-YQ3T7zHwThCVVysgv9KyEg-removebg-preview-6Gy0yI5Pl0pFnfMYafKQCjqqmtUVEL.png", 
       description: "365 Day Streak", 
       unlocked: false,
-      tooltipTitle: "Year-Long Legend",
-      tooltipSubtitle: "Complete a full year of consistency"
+      tooltipTitle: "Practice Legend",
+      tooltipSubtitle: "Complete a full year of daily practice"
     }
   ];
 
@@ -352,11 +352,11 @@ export default function Component() {
           <CardContent className="p-8">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <CategorySection
-                title="Sign-in Streaks"
-                currentStreak={signInStreak}
+                title="Practice Streak"
+                currentStreak={practiceStreak}
                 nextMilestone={90}
-                progress={(signInStreak / 90) * 100}
-                badges={signInBadges}
+                progress={(practiceStreak / 90) * 100}
+                badges={practiceStreakBadges}
               />
               <CategorySection
                 title="Completed Calls"
