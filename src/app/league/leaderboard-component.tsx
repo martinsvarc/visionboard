@@ -112,18 +112,18 @@ export default function LeaderboardComponent() {
           ${rank <= 3 ? 'text-gray-800' : 'text-gray-600'}
         `}>
           {user.user_name}
-          {rank === 1 && (
-            <div className="relative w-8 h-8 ml-2">
-              <Image
-                src="/badges/first.png"
-                alt="First Place Badge"
-                width={32}
-                height={32}
-                className="object-contain"
-                unoptimized
-              />
-            </div>
-          )}
+         {rank === 1 && (
+  <div className="relative w-8 h-8 ml-2">
+    <Image
+      src="/placeholder.jpg"  // or any white/transparent image
+      alt="First Place Badge"
+      width={32}
+      height={32}
+      className="object-contain opacity-0" // Added opacity-0 to make it invisible
+      unoptimized
+    />
+  </div>
+)}
         </div>
         <div className={`
           text-sm font-medium
