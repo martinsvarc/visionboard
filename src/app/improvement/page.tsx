@@ -79,7 +79,7 @@ function ImprovementComponent() {
                       <RefreshCw className={`h-4 w-4 text-[#556bc7] ${isRefreshing ? 'animate-spin' : ''}`} />
                     </Button>
                   </TooltipTrigger>
-                  <TooltipContent side="left" className="bg-white border-gray-200 rounded-[20px]">
+                  <TooltipContent className="bg-white border-gray-200 rounded-[20px]">
                     <p className="text-xs text-gray-600 font-medium">Updates Automatically Every 24 Hours</p>
                   </TooltipContent>
                 </Tooltip>
