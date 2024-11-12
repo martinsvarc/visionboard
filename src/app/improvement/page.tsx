@@ -67,7 +67,7 @@ function ImprovementComponent() {
               <CardTitle className="text-[25px] font-bold text-[#556bc7] leading-[1.3]">Areas of Improvement</CardTitle>
               <TooltipProvider>
                 <Tooltip>
-                  <TooltipTrigger asChild>
+                  <TooltipTrigger>
                     <Button 
                       variant="outline" 
                       size="icon" 
