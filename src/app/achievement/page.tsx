@@ -370,7 +370,7 @@ const AchievementContent = () => {
       rank: "Bronze", 
       image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/a-3d-render-of-a-large-radiant-bronze-medal-with-a-t0r6ItMuRVOEve22GfVYdw-KxQg20b_SdOR5Y3HVUaVZg-removebg-preview-FQvuwEgYxWGz6qrgC1TDFLJgNCqMTd.png", 
       description: "3rd place", 
-      unlocked: ['Bronze', 'Silver', 'Gold'].includes(badgeData?.league_rank || ''),
+      unlocked: badgeData?.league_rank === 'Bronze',
       tooltipTitle: "Bronze League",
       tooltipSubtitle: "Achieve 3rd place in rankings"
     },
@@ -378,7 +378,7 @@ const AchievementContent = () => {
       rank: "Silver", 
       image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/a-3d-render-of-a-large-radiant-silver-medal-with-a-SF8CEVMrSWaKtCH-SS0KPw-xITb8y53Tw-95YbTOpEHoQ-removebg-preview-U6690RSmf0Tv9j0qzPESh3bBQJKIB4.png", 
       description: "2nd place", 
-      unlocked: ['Silver', 'Gold'].includes(badgeData?.league_rank || ''),
+      unlocked: badgeData?.league_rank === 'Silver',
       tooltipTitle: "Silver League",
       tooltipSubtitle: "Secure 2nd place in rankings"
     },
