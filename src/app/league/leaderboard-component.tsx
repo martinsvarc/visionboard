@@ -31,7 +31,7 @@ export default function LeaderboardComponent() {
     monthly: "All Time Team Leaderboard",
   }
 
-  // Keep your existing fetchLeaderboardData function
+  // Fetch leaderboard data
   const fetchLeaderboardData = async () => {
     if (!memberId) return
     setIsLoading(true)
@@ -138,23 +138,10 @@ export default function LeaderboardComponent() {
 
   return (
     <div className="min-h-screen w-full bg-white p-4 flex items-center justify-center">
-      <style jsx global>{`
-        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@500;800&display=swap');
-      `}</style>
       <div className="w-full h-[850px] bg-[#f2f3f9] rounded-[20px] p-6 shadow-lg overflow-hidden flex flex-col">
         <Card className="bg-white border-0 shadow-none font-['Montserrat'] h-full flex flex-col rounded-[20px] overflow-hidden">
           <CardHeader className="flex flex-col gap-4 pb-0 sticky top-0 bg-white z-10 overflow-hidden">
             <h2 className="text-3xl font-extrabold text-[#556bc7] mb-6">League</h2>
-            <div className="flex flex-col items-center justify-center mb-2">
-              <CardTitle className="text-2xl font-extrabold text-[#556bc7] mb-1 text-center">
-                Your Score in {categoryNames[category]}
-              </CardTitle>
-              <div className="text-5xl font-extrabold text-[#556bc7]">
-                {userStats?.[category === 'daily' ? 'daily_score' : 
-                           category === 'weekly' ? 'weekly_score' : 
-                           'all_time_score']?.toLocaleString() || '0'}
-              </div>
-            </div>
             <Tabs value={category} onValueChange={(value) => setCategory(value as 'daily' | 'weekly' | 'monthly')} className="w-full">
               <TabsList className="w-full grid grid-cols-3 bg-[#fbb350]/10 p-1 relative">
                 <div className="absolute inset-0 w-full h-full bg-white/95 backdrop-blur-sm rounded-[32px] shadow-[0_8px_32px_-4px_rgba(251,179,80,0.1)]" />
