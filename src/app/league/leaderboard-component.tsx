@@ -1,5 +1,3 @@
-'use client'
-
 import * as React from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -31,27 +29,21 @@ export default function LeaderboardComponent() {
     monthly: "All Time Team Leaderboard",
   }
 
-  // Fetch leaderboard data
+  // Keep your existing fetchLeaderboardData function
   const fetchLeaderboardData = async () => {
     if (!memberId) return
-    
     setIsLoading(true)
     setError(null)
-    
     try {
       const params = new URLSearchParams({
         memberId: memberId,
         category: category
       }).toString()
-      
       const response = await fetch(`/api/league?${params}`)
-      
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`)
       }
-      
       const data = await response.json()
-      
       setLeaderboardData(data.leaderboard || [])
       setChartData(data.chartData || [])
       setUserStats(data.userStats || null)
@@ -67,11 +59,90 @@ export default function LeaderboardComponent() {
     fetchLeaderboardData()
   }, [category, memberId])
 
+  const getRankColor = (rank: number) => {
+    switch (rank) {
+      case 1: return 'ring-[#fbb350] shadow-[0_0_15px_rgba(255,179,82,0.3)]'
+      case 2: return 'ring-[#556bc7] shadow-[0_0_15px_rgba(85,107,199,0.3)]'
+      case 3: return 'ring-[#51c1a9] shadow-[0_0_15px_rgba(81,193,169,0.3)]'
+      default: return 'ring-white/50'
+    }
+  }
+
+  const renderUserProfile = (user: any, index: number) => {
+    const rank = index + 1
+    const rankColor = getRankColor(rank)
+
+    return (
+      <div
+        key={user.user_id}
+        className={`
+          flex items-center gap-3 p-3 rounded-[20px] bg-white
+          ${rank <= 3 ? 'border-2 border-' + (
+            rank === 1 ? '[#fbb350]' : 
+            rank === 2 ? 'gray-300' : 
+            '[#cd7f32]'
+          ) : 'border border-gray-200'}
+          transition-all duration-300 hover:bg-gray-50
+        `}
+      >
+        <div className="flex-none w-12 text-sm font-medium">
+          <span className={
+            rank === 1 ? "text-[#fbb350]" :
+            rank === 2 ? "text-gray-600" :
+            rank === 3 ? "text-[#cd7f32]" :
+            "text-gray-400"
+          }>#{rank}</span>
+        </div>
+        <div className={`relative w-12 h-12 rounded-full overflow-hidden ${rankColor}`}>
+          <Image
+            src={user.profile_image_url || "/placeholder.jpg"}
+            alt={user.user_name}
+            width={48}
+            height={48}
+            className="object-cover"
+            unoptimized
+          />
+        </div>
+        <div className={`
+          flex-1 text-sm font-medium flex items-center gap-2
+          ${rank <= 3 ? 'text-gray-800' : 'text-gray-600'}
+        `}>
+          {user.user_name}
+          {rank <= 3 && (
+            <div className="relative w-8 h-8 ml-2">
+              <Image
+                src={`/badges/rank-${rank}.png`}
+                alt={`Rank ${rank} Badge`}
+                width={32}
+                height={32}
+                className="object-contain"
+                unoptimized
+              />
+            </div>
+          )}
+        </div>
+        <div className={`
+          text-sm font-medium
+          ${rank === 1 ? 'text-[#fbb350]' : 
+            rank === 2 ? 'text-gray-600' : 
+            rank === 3 ? 'text-[#cd7f32]' : 
+            'text-gray-600'}
+        `}>
+          {user.score.toLocaleString()} pts
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-screen w-full bg-white p-4 flex items-center justify-center">
-      <div className="w-full max-w-3xl bg-[#f2f3f9] rounded-[32px] p-6 shadow-lg">
-        <Card className="bg-white border-0 shadow-none font-['Montserrat']">
-          <CardHeader className="flex flex-col gap-4 pb-0">
+      <style jsx global>{`
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@500;800&display=swap');
+      `}</style>
+      <div className="w-full h-[850px] bg-[#f2f3f9] rounded-[20px] p-6 shadow-lg overflow-hidden flex flex-col">
+        <Card className="bg-white border-0 shadow-none font-['Montserrat'] h-full flex flex-col rounded-[20px] overflow-hidden">
+          <CardHeader className="flex flex-col gap-4 pb-0 sticky top-0 bg-white z-10 overflow-hidden">
+            <h2 className="text-3xl font-extrabold text-[#556bc7] mb-6">League</h2>
             <div className="flex flex-col items-center justify-center mb-2">
               <CardTitle className="text-2xl font-extrabold text-[#556bc7] mb-1 text-center">
                 Your Score in {categoryNames[category]}
@@ -97,8 +168,8 @@ export default function LeaderboardComponent() {
               </TabsList>
             </Tabs>
           </CardHeader>
-          <CardContent className="space-y-4 pt-4">
-            <div className="h-[200px] w-full bg-gray-100 rounded-[16px] p-3">
+          <CardContent className="pt-2 flex-grow overflow-hidden flex flex-col gap-2">
+            <div className="h-[160px] sm:h-[180px] md:h-[200px] w-full bg-gray-100 rounded-[20px] p-3">
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart
                   data={chartData}
@@ -171,95 +242,21 @@ export default function LeaderboardComponent() {
             ) : error ? (
               <div className="text-red-500 text-center">{error}</div>
             ) : (
-              <div className="space-y-2">
-                {userStats && (
-                  <div className="flex items-center gap-3 p-3 rounded-[16px] bg-gray-100/50 border border-gray-200">
-                    <div className="flex-none w-12 text-sm font-medium">
-                      <span className="text-gray-600">#{userStats.rank}</span>
-                    </div>
-                    <div className="relative w-12 h-12 rounded-full overflow-hidden ring-1 ring-white/50">
-                      <Image
-                        src={userStats.profile_image_url || "/placeholder.jpg"}
-                        alt="Your profile"
-                        width={48}
-                        height={48}
-                        className="object-cover"
-                      />
-                    </div>
-                    <div className="flex-1 text-sm font-medium text-gray-600">
-                      {userStats.user_name}
-                    </div>
-                    <div className="text-sm font-medium text-gray-600">
-                      {userStats[category === 'daily' ? 'daily_score' : 
-                               category === 'weekly' ? 'weekly_score' : 
-                               'all_time_score'].toLocaleString()} pts
-                    </div>
+              <div className="mt-1 flex flex-col flex-grow overflow-hidden">
+                <div className="space-y-1">
+                  {userStats && renderUserProfile({
+                    user_id: userStats.user_id,
+                    user_name: userStats.user_name,
+                    profile_image_url: userStats.profile_image_url,
+                    score: userStats[category === 'daily' ? 'daily_score' : 
+                            category === 'weekly' ? 'weekly_score' : 
+                            'all_time_score']
+                  }, userStats.rank - 1)}
+                  <h3 className="text-xl font-bold text-[#556bc7] mt-1 mb-1">Top 3 places</h3>
+                  <div className="space-y-1">
+                    {leaderboardData.slice(0, 3).map((user, index) => renderUserProfile(user, index))}
                   </div>
-                )}
-
-                {leaderboardData.map((user, index) => {
-                  const rank = index + 1
-                  const getRankColor = (rank: number) => {
-                    switch (rank) {
-                      case 1: return 'ring-[#fbb350] shadow-[0_0_15px_rgba(255,179,82,0.3)]'
-                      case 2: return 'ring-[#556bc7] shadow-[0_0_15px_rgba(85,107,199,0.3)]'
-                      case 3: return 'ring-[#51c1a9] shadow-[0_0_15px_rgba(81,193,169,0.3)]'
-                      default: return 'ring-white/50'
-                    }
-                  }
-
-                  return (
-                    <div
-                      key={user.user_id}
-                      className={`
-                        flex items-center gap-3 p-3 rounded-[16px] 
-                        ${rank <= 3 ? 'bg-gray-100' : 'bg-white hover:bg-gray-100'}
-                        transition-all duration-300
-                      `}
-                    >
-                      <div className="flex-none w-12 text-sm font-medium">
-                        <span className={
-                          rank === 1 ? "text-[#fbb350]" :
-                          rank === 2 ? "text-[#556bc7]" :
-                          rank === 3 ? "text-[#51c1a9]" :
-                          "text-gray-600"
-                        }>
-                          #{rank}
-                        </span>
-                      </div>
-                      <div className={`
-  relative w-12 h-12 rounded-full overflow-hidden
-  ${getRankColor(rank)}
-`}>
-  <Image
-    src={user.profile_image_url || "/placeholder.jpg"}
-    alt={user.user_name}
-    width={48}
-    height={48}
-    className="object-cover"
-    loading="eager"
-    unoptimized
-    onError={(e) => {
-      console.error('Failed to load image:', user.profile_image_url);
-      e.currentTarget.src = 'https://placehold.co/48x48';
-    }}
-  />
-</div>
-                      <div className={`
-                        flex-1 text-sm font-medium
-                        ${rank <= 3 ? 'text-gray-800' : 'text-gray-600'}
-                      `}>
-                        {user.user_name}
-                      </div>
-                      <div className={`
-                        text-sm font-medium
-                        ${rank <= 3 ? 'text-gray-800' : 'text-gray-600'}
-                      `}>
-                        {user.score.toLocaleString()} pts
-                      </div>
-                    </div>
-                  )
-                })}
+                </div>
               </div>
             )}
           </CardContent>
