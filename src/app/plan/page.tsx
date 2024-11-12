@@ -128,7 +128,7 @@ function PlanComponent() {
               </div>
               <TooltipProvider>
                 <Tooltip>
-                  <TooltipTrigger asChild>
+                  <TooltipTrigger>
                     <Button 
                       variant="outline" 
                       size="icon" 
