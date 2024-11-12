@@ -2,9 +2,9 @@
 
 import * as React from "react"
 import { Suspense } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { useSearchParams } from 'next/navigation'
 import { RefreshCw, Check } from "lucide-react"
 import { Checkbox } from "@/components/ui/checkbox"
 import type { CheckedState } from "@radix-ui/react-checkbox"
@@ -21,7 +21,7 @@ interface Improvement {
   text: string;
 }
 
-const colors = ["#fbb350", "#51c1a9", "#556bc7"]
+const colors = ['#fbb350', '#51c1a9', '#556bc7']
 
 function ErrorFallback({ error, resetErrorBoundary }: FallbackProps) {
   return (
@@ -42,20 +42,20 @@ function ImprovementTask({ improvement, color }: { improvement: Improvement; col
   
   return (
     <div 
-      className="flex items-center gap-3 p-3 rounded-2xl transition-all duration-300 shadow-sm"
+      className="flex items-center gap-2 sm:gap-3 p-2 sm:p-3 rounded-[20px] transition-all duration-300 shadow-sm"
       style={{ backgroundColor: color }}
     >
       <div className="relative flex items-center justify-center">
         <Checkbox 
           checked={isChecked}
           onCheckedChange={handleCheckedChange}
-          className="h-5 w-5 rounded-lg border-2 border-white data-[state=checked]:bg-transparent data-[state=checked]:border-white"
+          className="h-4 w-4 sm:h-5 sm:w-5 rounded-lg border-2 border-white data-[state=checked]:bg-transparent data-[state=checked]:border-white"
         />
         {isChecked && (
-          <Check className="h-4 w-4 text-white absolute pointer-events-none" />
+          <Check className="h-3 w-3 sm:h-4 sm:w-4 text-white absolute pointer-events-none" />
         )}
       </div>
-      <div className="flex-1 text-sm font-medium text-white font-montserrat-medium">
+      <div className="flex-1 text-xs sm:text-sm font-medium text-white font-montserrat-medium">
         {improvement.text}
       </div>
     </div>
@@ -64,30 +64,30 @@ function ImprovementTask({ improvement, color }: { improvement: Improvement; col
 
 const MemoizedImprovementTask = React.memo(ImprovementTask)
 
-function PlanComponent() {
+function ImprovementComponent() {
   const [improvements, setImprovements] = React.useState<Improvement[]>([])
   const [loading, setLoading] = React.useState(true)
   const [error, setError] = React.useState<string | null>(null)
   const [isRefreshing, setIsRefreshing] = React.useState(false)
 
-  const searchParams = useSearchParams();
-  const memberId = searchParams.get('memberId');
+  const searchParams = useSearchParams()
+  const memberId = searchParams.get('memberId')
 
   const fetchImprovements = React.useCallback(async () => {
-    if (!memberId) return;
+    if (!memberId) return
     
     try {
       setIsRefreshing(true)
       setError(null)
 
-      const response = await fetch(`/api/daily-plans?memberId=${memberId}`);
-      const data = await response.json();
+      const response = await fetch(`/api/track-improvement?memberId=${memberId}`)
+      const data = await response.json()
 
       if (data.error) {
-        throw new Error(data.error);
+        throw new Error(data.error)
       }
 
-      setImprovements(data.improvements || []);
+      setImprovements(data.improvements || [])
     } catch (err) {
       console.error('Error fetching improvements:', err)
       setError('Failed to fetch improvements')
@@ -103,13 +103,13 @@ function PlanComponent() {
   }, [fetchImprovements])
 
   return (
-    <div className="min-h-screen w-full p-8 bg-white flex items-center justify-center">
+    <div className="w-full h-[500px] bg-white flex items-start justify-center p-0">
       <style jsx global>{`
-        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@500;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700&display=swap');
 
-        .font-montserrat-extrabold {
+        .font-montserrat-bold {
           font-family: 'Montserrat', sans-serif;
-          font-weight: 800;
+          font-weight: 700;
         }
 
         .font-montserrat-medium {
@@ -117,13 +117,13 @@ function PlanComponent() {
           font-weight: 500;
         }
       `}</style>
-      <div className="bg-[#f2f3f9] p-8 rounded-[2.5rem] shadow-lg">
+      <div className="bg-[#f2f3f9] p-2 sm:p-4 md:p-6 lg:p-8 rounded-[20px] shadow-lg w-full h-full overflow-hidden">
         <ErrorBoundary FallbackComponent={ErrorFallback}>
-          <Card className="flex-1 min-w-[350px] bg-white border-slate-100 shadow-sm rounded-3xl overflow-hidden">
-            <CardHeader className="flex flex-row items-center justify-between py-4 px-4 border-b border-slate-100">
-              <div>
-                <CardTitle className="text-base font-montserrat-extrabold text-[#556bc7]">
-                  Daily Personalized Improvement Plan
+          <Card className="bg-white border-slate-100 shadow-sm rounded-[20px] overflow-hidden h-full flex flex-col">
+            <CardHeader className="flex flex-row items-center justify-between py-3 px-3 sm:py-4 sm:px-4 border-b border-slate-100">
+              <div className="flex-grow pr-2">
+                <CardTitle className="text-[25px] font-montserrat-bold text-[#556bc7] leading-[1.3] truncate">
+                  Areas of Improvement
                 </CardTitle>
               </div>
               <TooltipProvider>
@@ -132,10 +132,10 @@ function PlanComponent() {
                     <Button 
                       variant="outline" 
                       size="icon" 
-                      className="bg-white hover:bg-slate-50 border-slate-200 w-6 h-6 p-1 -mt-1"
+                      className="bg-white hover:bg-slate-50 border-slate-200 w-6 h-6 p-1 flex-shrink-0"
                       onClick={fetchImprovements}
                       disabled={isRefreshing}
-                      aria-label="Refresh improvement plan"
+                      aria-label="Refresh"
                     >
                       <RefreshCw className={`w-4 h-4 text-[#556bc7] ${isRefreshing ? 'animate-spin' : ''}`} />
                     </Button>
@@ -146,7 +146,7 @@ function PlanComponent() {
                 </Tooltip>
               </TooltipProvider>
             </CardHeader>
-            <CardContent className="space-y-4 p-4">
+            <CardContent className="p-2 sm:p-4 flex-grow overflow-auto">
               {loading ? (
                 <p className="text-slate-600 font-montserrat-medium">Loading improvements...</p>
               ) : error ? (
@@ -157,7 +157,7 @@ function PlanComponent() {
                     size="sm" 
                     onClick={fetchImprovements}
                     disabled={isRefreshing}
-                    className="text-[#556bc7] border-[#556bc7] hover:bg-[#556bc7] hover:text-white font-montserrat-extrabold"
+                    className="text-[#556bc7] border-[#556bc7] hover:bg-[#556bc7] hover:text-white font-montserrat-bold"
                   >
                     Try Again
                   </Button>
@@ -165,7 +165,7 @@ function PlanComponent() {
               ) : improvements.length === 0 ? (
                 <p className="text-slate-600 font-montserrat-medium">No improvements found</p>
               ) : (
-                <div className="space-y-2">
+                <div className="space-y-2 sm:space-y-3">
                   {improvements.map((improvement, index) => (
                     <MemoizedImprovementTask 
                       key={improvement.id}
@@ -186,7 +186,7 @@ function PlanComponent() {
 export default function Page() {
   return (
     <Suspense fallback={<div>Loading...</div>}>
-      <PlanComponent />
+      <ImprovementComponent />
     </Suspense>
   )
 }
