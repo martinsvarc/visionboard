@@ -4,7 +4,7 @@ import Image from "next/image"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip"
 import { Progress } from "@/components/ui/progress"
-import { useEffect, useState } from "react"
+import { useEffect, useState, Suspense } from "react"
 import { useSearchParams } from 'next/navigation'
 import { Montserrat } from 'next/font/google'
 
@@ -13,7 +13,6 @@ const montserrat = Montserrat({
   weight: ['500', '700'],
 })
 
-// Existing Badge interface stays the same
 interface Badge {
   days?: number;
   calls?: number;
@@ -29,7 +28,6 @@ interface Badge {
   tooltipSubtitle: string;
 }
 
-// New interface for database data
 interface BadgeData {
   memberId: string;
   practice_streak: number;
@@ -46,7 +44,6 @@ interface BadgeData {
   };
 }
 
-// Existing CategorySectionProps interface stays the same
 interface CategorySectionProps {
   title: string;
   currentStreak?: number;
@@ -56,9 +53,8 @@ interface CategorySectionProps {
   description?: string;
   showIndividualProgress?: boolean;
 }
-// BadgeGrid and CategorySection components stay exactly the same
+
 const BadgeGrid = ({ badge, showIndividualProgress }: { badge: Badge; showIndividualProgress?: boolean }) => {
-  // Your existing BadgeGrid code stays exactly the same
   return (
     <TooltipProvider>
       <Tooltip>
@@ -123,7 +119,6 @@ const CategorySection = ({
   description, 
   showIndividualProgress 
 }: CategorySectionProps) => {
-  // Your existing CategorySection code stays exactly the same
   return (
     <div className="space-y-4 bg-white p-4 rounded-xl shadow-sm">
       <div>
@@ -157,7 +152,7 @@ const CategorySection = ({
   );
 };
 
-export default function Component() {
+const AchievementContent = () => {
   const searchParams = useSearchParams();
   const memberId = searchParams.get('memberId') || 'default';
   const [loading, setLoading] = useState(true);
@@ -199,7 +194,6 @@ export default function Component() {
       </div>
     );
   }
-// Inside the Component function, after the error check...
 
   const practiceStreakBadges: Badge[] = [
     { 
@@ -253,7 +247,6 @@ export default function Component() {
   ];
 
   const callsBadges: Badge[] = [
-    // Your existing calls badges array but with updated unlocked property
     { 
       calls: 10, 
       image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/WhatsApp_Image_2024-11-07_at_23.19.01_2cecae84-removebg-preview-HpwJXY8H5IMISoTv4km3ojTHoSZR8l.png", 
@@ -262,8 +255,78 @@ export default function Component() {
       tooltipTitle: "First Steps",
       tooltipSubtitle: "Complete your first 10 calls"
     },
-    // ... Rest of your calls badges with the same pattern
-    // Each badge's unlocked property should check badgeData?.unlocked_badges.completed_calls.includes(X)
+    { 
+      calls: 25, 
+      image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/WhatsApp_Image_2024-11-07_at_23.19.00_410bcd52-removebg-preview-dlLwx4QulGYXIPJ1SngulFRrwEzsAK.png", 
+      description: "25 Calls", 
+      unlocked: badgeData?.unlocked_badges.completed_calls.includes(25) || false,
+      tooltipTitle: "Getting Started",
+      tooltipSubtitle: "Make 25 successful calls"
+    },
+    { 
+      calls: 50, 
+      image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/WhatsApp_Image_2024-11-07_at_23.19.00_e9686083-removebg-preview-MDIRXQ0AssJavrWhCOpsWNpEU5d4Ju.png", 
+      description: "50 Calls", 
+      unlocked: badgeData?.unlocked_badges.completed_calls.includes(50) || false,
+      tooltipTitle: "Call Enthusiast",
+      tooltipSubtitle: "Reach 50 calls milestone"
+    },
+    { 
+      calls: 100, 
+      image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/WhatsApp_Image_2024-11-07_at_23.18.59_aaafd20b-removebg-preview-XjPy3hlhfslMzznTbnidnUwXshcQfA.png", 
+      description: "100 Calls", 
+      unlocked: badgeData?.unlocked_badges.completed_calls.includes(100) || false,
+      tooltipTitle: "Century Caller",
+      tooltipSubtitle: "Hit your first 100 calls"
+    },
+    { 
+      calls: 250, 
+      image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/WhatsApp_Image_2024-11-07_at_23.18.58_e34cbb5f-removebg-preview-a9uNWRXCjGbpOHLSqf3TpeOCzxTRd7.png", 
+      description: "250 Calls", 
+      unlocked: badgeData?.unlocked_badges.completed_calls.includes(250) || false,
+      tooltipTitle: "Call Expert",
+      tooltipSubtitle: "Master 250 calls"
+    },
+    { 
+     calls: 500, 
+      image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/WhatsApp_Image_2024-11-07_at_23.18.59_dac37adb-removebg-preview-hJMSixcu6MZEXimLJmrsyO2temyFDg.png", 
+      description: "500 Calls", 
+      unlocked: badgeData?.unlocked_badges.completed_calls.includes(500) || false,
+      tooltipTitle: "Call Virtuoso",
+      tooltipSubtitle: "Achieve 500 successful calls"
+    },
+    { 
+      calls: 750, 
+      image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/WhatsApp_Image_2024-11-07_at_23.18.57_f7535a53-removebg-preview-Vr88OikuiRNF7hIVXzXNPrsJFX1mpv.png", 
+      description: "750 Calls", 
+      unlocked: badgeData?.unlocked_badges.completed_calls.includes(750) || false,
+      tooltipTitle: "Elite Caller",
+      tooltipSubtitle: "Join the elite with 750 calls"
+    },
+    { 
+      calls: 1000, 
+      image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/WhatsApp_Image_2024-11-07_at_23.18.57_717b1f9c-removebg-preview-NEfGEVDhw3AK6EJSo0gtm42sq28oy2.png", 
+      description: "1000 Calls", 
+      unlocked: badgeData?.unlocked_badges.completed_calls.includes(1000) || false,
+      tooltipTitle: "Call Master",
+      tooltipSubtitle: "Reach the impressive 1000 calls"
+    },
+    { 
+      calls: 1500, 
+      image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/WhatsApp_Image_2024-11-07_at_23.18.58_44ffd513-removebg-preview-3KJg104tTgbQo53R75ZJIdE4Pv6jBi.png", 
+      description: "1500 Calls", 
+      unlocked: badgeData?.unlocked_badges.completed_calls.includes(1500) || false,
+      tooltipTitle: "Call Legend",
+      tooltipSubtitle: "Achieve legendary status with 1500 calls"
+    },
+    { 
+      calls: 2500, 
+      image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/WhatsApp_Image_2024-11-07_at_23.19.01_b4416b2f-removebg-preview-wl3Pqdmr7gt9BFVpspJ0ggm41XedWZ.png", 
+      description: "2500 Calls", 
+      unlocked: badgeData?.unlocked_badges.completed_calls.includes(2500) || false,
+      tooltipTitle: "Ultimate Caller",
+      tooltipSubtitle: "Reach the pinnacle with 2500 calls"
+    }
   ];
 
   const activityBadges: Badge[] = [
@@ -328,7 +391,8 @@ export default function Component() {
       tooltipSubtitle: "Reach the top of the rankings"
     }
   ];
-return (
+
+  return (
     <div className={`${montserrat.className} bg-white min-h-screen flex items-center justify-center p-8`}>
       <div className="bg-[#f2f3f9] p-8 rounded-xl shadow-lg w-full max-w-4xl">
         <Card className="w-full overflow-hidden bg-white border-white/20 shadow-sm">
@@ -369,5 +433,20 @@ return (
         </Card>
       </div>
     </div>
+  );
+};
+
+// Main page component
+export default function Page() {
+  return (
+    <Suspense 
+      fallback={
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-blue-500"></div>
+        </div>
+      }
+    >
+      <AchievementContent />
+    </Suspense>
   );
 }
