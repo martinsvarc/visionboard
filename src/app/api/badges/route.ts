@@ -64,7 +64,7 @@ export async function GET(request: Request) {
           0,
           0,
           0,
-          'Bronze',
+          NULL,
           NULL
         )
         RETURNING *;
