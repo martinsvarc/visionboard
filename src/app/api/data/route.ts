@@ -1,4 +1,4 @@
-import { createPool } from '@vercel/postgres';
+import { createClient } from '@vercel/postgres';
 import { NextResponse } from 'next/server';
 
 export const dynamic = 'force-dynamic'
@@ -12,11 +12,10 @@ export async function GET(request: Request) {
             return NextResponse.json({ error: 'Session ID is required' }, { status: 400 });
         }
 
-        const pool = createPool({
-            connectionString: process.env.POSTGRES_URL
-        });
+        const client = createClient();
+        await client.connect();
 
-        const { rows } = await pool.sql`
+        const { rows } = await client.sql`
             SELECT 
                 session_id,
                 team_id,
@@ -28,6 +27,8 @@ export async function GET(request: Request) {
             FROM data 
             WHERE session_id = ${sessionId};
         `;
+
+        await client.end();
 
         if (rows.length === 0) {
             return NextResponse.json({ error: 'Data not found' }, { status: 404 });
@@ -59,12 +60,11 @@ export async function POST(request: Request) {
             }, { status: 400 });
         }
 
-        const pool = createPool({
-            connectionString: process.env.POSTGRES_URL
-        });
+        const client = createClient();
+        await client.connect();
 
         // Insert or update data
-        await pool.sql`
+        await client.sql`
             INSERT INTO data (
                 session_id,
                 team_id,
@@ -92,9 +92,11 @@ export async function POST(request: Request) {
         `;
 
         // Get the updated data
-        const { rows: updatedData } = await pool.sql`
+        const { rows: updatedData } = await client.sql`
             SELECT * FROM data WHERE session_id = ${body.sessionId};
         `;
+
+        await client.end();
 
         return NextResponse.json({
             success: true,
