@@ -667,7 +667,6 @@ const currentRecords = filteredCallLogs.slice().reverse().slice(indexOfFirstReco
       </div>
     </div>
   </div>
-      
       {/* Score Detail Modal */}
       <Dialog open={activeModal.isOpen} onOpenChange={(isOpen) => setActiveModal({ ...activeModal, isOpen })}>
         <DialogContent className="bg-white">
