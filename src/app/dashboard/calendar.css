@@ -1,0 +1,21 @@
+.rdp-day_selected {
+  background-color: rgb(15 23 42) !important;  /* slate-900 */
+  color: white !important;
+}
+
+.rdp-day_selected:hover {
+  background-color: rgb(15 23 42) !important;  /* slate-900 */
+  color: white !important;
+}
+
+.rdp-day_range_start, 
+.rdp-day_range_end {
+  background-color: rgb(15 23 42) !important;  /* slate-900 */
+  color: white !important;
+}
+
+.rdp-day_range_start:hover, 
+.rdp-day_range_end:hover {
+  background-color: rgb(15 23 42) !important;  /* slate-900 */
+  color: white !important;
+}
