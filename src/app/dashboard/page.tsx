@@ -205,7 +205,7 @@ const Chart: React.FC<ChartProps> = ({ data, category, dateRange, setDateRange }
     return null;
   };
 return (
-    <Card className="relative overflow-hidden border-0 bg-white rounded-[32px] shadow-lg">
+<Card className="relative overflow-hidden border-0 bg-white rounded-[32px] shadow-lg">
       <CardContent className="p-6">
         <div className="flex justify-between items-center mb-6">
           <span className="text-slate-900 text-xl font-semibold">
@@ -247,22 +247,37 @@ return (
                     All time
                   </Button>
                   <CalendarComponent
-                    initialFocus
-                    mode="range"
-                    defaultMonth={dateRange?.from || new Date()}
-                    selected={{
-                      from: dateRange?.from ? new Date(dateRange.from) : undefined,
-                      to: dateRange?.to ? new Date(dateRange.to) : undefined
-                    }}
-                    onSelect={(range: DateRange | undefined) => {
-                      setDateRange({
-                        from: range?.from || null,
-                        to: range?.to || null
-                      });
-                    }}
-                    numberOfMonths={2}
-className="bg-white [&_.rdp]:p-0 [&_.rdp-months]:space-x-4 [&_.rdp-month]:w-full [&_.rdp-day]:h-10 [&_.rdp-day]:w-10 [&_.rdp-day]:text-sm [&_.rdp-day]:font-normal [&_.rdp-day_span]:flex [&_.rdp-day_span]:h-full [&_.rdp-day_span]:w-full [&_.rdp-day_span]:items-center [&_.rdp-day_span]:justify-center [&_.rdp-day]:hover:bg-slate-100 [&_.rdp-day_button]:font-normal [&_.rdp-day_button]:hover:bg-slate-100 [&_.rdp-button]:hover:bg-slate-100 [&_.rdp-nav_button]:h-9 [&_.rdp-nav_button]:w-9 [&_.rdp-nav_button]:bg-transparent [&_.rdp-nav_button]:hover:bg-slate-100 [&_.rdp-head_cell]:font-normal [&_.rdp-head_cell]:text-slate-500 [&_.rdp-caption_label]:font-medium [&_.rdp-caption_label]:text-slate-900 [&_.rdp-day_selected]:bg-slate-900 [&_.rdp-day_selected]:text-white [&_.rdp-day_selected]:hover:bg-slate-900 [&_.rdp-day_selected]:hover:text-white [&_.rdp-day_range_start]:bg-slate-900 [&_.rdp-day_range_start]:text-white [&_.rdp-day_range_start]:hover:bg-slate-900 [&_.rdp-day_range_start]:hover:text-white [&_.rdp-day_range_end]:bg-slate-900 [&_.rdp-day_range_end]:text-white [&_.rdp-day_range_end]:hover:bg-slate-900 [&_.rdp-day_range_end]:hover:text-white [&_.rdp-day_range_middle]:bg-slate-100 [&_.rdp-day_today]:font-bold"
-                    />
+  initialFocus
+  mode="range"
+  defaultMonth={dateRange?.from || new Date()}
+  selected={{
+    from: dateRange?.from ? new Date(dateRange.from) : undefined,
+    to: dateRange?.to ? new Date(dateRange.to) : undefined
+  }}
+  onSelect={(range: DateRange | undefined) => {
+    setDateRange({
+      from: range?.from || null,
+      to: range?.to || null
+    });
+  }}
+  numberOfMonths={2}
+  modifiers={{
+    selected: (date) => {
+      if (!dateRange?.from || !dateRange?.to) return false;
+      return (
+        date.getTime() === dateRange.from.getTime() ||
+        date.getTime() === dateRange.to.getTime()
+      );
+    }
+  }}
+  modifiersStyles={{
+    selected: {
+      backgroundColor: 'rgb(15 23 42)',
+      color: 'white'
+    }
+  }}
+  className="bg-white [&_.rdp]:p-0 [&_.rdp-months]:space-x-4 [&_.rdp-month]:w-full [&_.rdp-day]:h-10 [&_.rdp-day]:w-10 [&_.rdp-day]:text-sm [&_.rdp-day]:font-normal [&_.rdp-day_span]:flex [&_.rdp-day_span]:h-full [&_.rdp-day_span]:w-full [&_.rdp-day_span]:items-center [&_.rdp-day_span]:justify-center [&_.rdp-day]:hover:bg-slate-100 [&_.rdp-day_button]:font-normal [&_.rdp-button]:hover:bg-slate-100 [&_.rdp-nav_button]:h-9 [&_.rdp-nav_button]:w-9 [&_.rdp-nav_button]:bg-transparent [&_.rdp-nav_button]:hover:bg-slate-100 [&_.rdp-head_cell]:font-normal [&_.rdp-head_cell]:text-slate-500 [&_.rdp-caption_label]:font-medium [&_.rdp-caption_label]:text-slate-900 [&_.rdp-day_selected]:bg-slate-900 [&_.rdp-day_selected]:text-white [&_.rdp-day_selected]:hover:bg-slate-900 [&_.rdp-day_selected]:hover:text-white [&_.rdp-day_range_start]:bg-slate-900 [&_.rdp-day_range_start]:text-white [&_.rdp-day_range_start]:hover:bg-slate-900 [&_.rdp-day_range_start]:hover:text-white [&_.rdp-day_range_end]:bg-slate-900 [&_.rdp-day_range_end]:text-white [&_.rdp-day_range_end]:hover:bg-slate-900 [&_.rdp-day_range_end]:hover:text-white [&_.rdp-day_range_middle]:bg-slate-100 [&_.rdp-day_today]:font-bold"
+/>
                   <div className="grid grid-cols-2 gap-2">
                     <Button
                       variant="outline"
@@ -514,8 +529,8 @@ const currentRecords = filteredCallLogs.slice().reverse().slice(indexOfFirstReco
   const totalPages = Math.ceil(filteredCallLogs.length / recordsPerPage);
 
   return (
-    <div className="min-h-screen p-8 bg-slate-50">
-      <div className="max-w-7xl mx-auto space-y-8">
+  <div className="min-h-screen pt-12 px-8 bg-[#f2f3f8]">
+    <div className="max-w-7xl mx-auto space-y-8 bg-white rounded-[32px] p-8 shadow-lg">
         {/* Overall Performance Chart */}
         <Chart 
           data={filteredCallLogs} 
@@ -542,7 +557,7 @@ const currentRecords = filteredCallLogs.slice().reverse().slice(indexOfFirstReco
             CALL RECORDS
           </h2>
           {currentRecords.map((call) => (
-            <Card key={call.id} className="bg-white rounded-2xl shadow-lg overflow-hidden border-0">
+<Card key={call.id} className="bg-white rounded-[32px] shadow-lg overflow-hidden border-0">
               <CardContent className="p-8">
                 <div className="flex flex-col md:flex-row gap-8">
                   {/* Agent Info Section */}
