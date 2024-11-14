@@ -664,9 +664,10 @@ const currentRecords = filteredCallLogs.slice().reverse().slice(indexOfFirstReco
               <ChevronRight className="h-4 w-4" />
             </Button>
            </div>
+          </div>
+        </div>
       </div>
-    </div>
-  </div>
+
       {/* Score Detail Modal */}
       <Dialog open={activeModal.isOpen} onOpenChange={(isOpen) => setActiveModal({ ...activeModal, isOpen })}>
         <DialogContent className="bg-white">
@@ -718,9 +719,11 @@ const currentRecords = filteredCallLogs.slice().reverse().slice(indexOfFirstReco
           </div>
         </DialogContent>
       </Dialog>
-    </div>
-  );
+     </div>
+  </div>
+);
 }
+    
 // Export the wrapped version
 export default function Page() {
   return (
