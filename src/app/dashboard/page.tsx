@@ -205,7 +205,7 @@ const Chart: React.FC<ChartProps> = ({ data, category, dateRange, setDateRange }
     return null;
   };
 return (
-    <Card className="relative overflow-hidden border-0 bg-white rounded-[32px] shadow-lg">
+<Card className="relative overflow-hidden border-0 bg-white rounded-[32px] shadow-lg">
       <CardContent className="p-6">
         <div className="flex justify-between items-center mb-6">
           <span className="text-slate-900 text-xl font-semibold">
@@ -557,7 +557,7 @@ const currentRecords = filteredCallLogs.slice().reverse().slice(indexOfFirstReco
             CALL RECORDS
           </h2>
           {currentRecords.map((call) => (
-            <Card key={call.id} className="bg-white rounded-2xl shadow-lg overflow-hidden border-0">
+<Card key={call.id} className="bg-white rounded-[32px] shadow-lg overflow-hidden border-0">
               <CardContent className="p-8">
                 <div className="flex flex-col md:flex-row gap-8">
                   {/* Agent Info Section */}
