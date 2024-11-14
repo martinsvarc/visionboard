@@ -52,10 +52,10 @@ export async function POST(request: Request) {
         const body = await request.json();
         console.log('Received body:', body);
 
-        // Validate required fields
-        if (!body.sessionId || !body.teamId || !body.memberId) {
+        // Only validate sessionId
+        if (!body.sessionId) {
             return NextResponse.json({
-                error: 'Missing required fields',
+                error: 'Session ID is required',
                 receivedData: body
             }, { status: 400 });
         }
@@ -63,33 +63,42 @@ export async function POST(request: Request) {
         const client = createClient();
         await client.connect();
 
-        // Insert or update data
-        await client.sql`
-            INSERT INTO data (
-                session_id,
-                team_id,
-                member_id,
-                user_picture_url,
-                assistant_picture_url,
-                assistant_name
-            )
-            VALUES (
-                ${body.sessionId},
-                ${body.teamId},
-                ${body.memberId},
-                ${body.userPictureUrl || null},
-                ${body.assistantPictureUrl || null},
-                ${body.assistantName || null}
+        // Create dynamic query parts based on what's provided
+        const fieldsToUpdate = [];
+        const values = [body.sessionId];
+        let valueIndex = 2;
+
+        // Add optional fields if they exist
+        if (body.teamId !== undefined) fieldsToUpdate.push(`team_id = $${valueIndex++}`);
+        if (body.memberId !== undefined) fieldsToUpdate.push(`member_id = $${valueIndex++}`);
+        if (body.userPictureUrl !== undefined) fieldsToUpdate.push(`user_picture_url = $${valueIndex++}`);
+        if (body.assistantPictureUrl !== undefined) fieldsToUpdate.push(`assistant_picture_url = $${valueIndex++}`);
+        if (body.assistantName !== undefined) fieldsToUpdate.push(`assistant_name = $${valueIndex++}`);
+
+        // Add values in the same order
+        if (body.teamId !== undefined) values.push(body.teamId);
+        if (body.memberId !== undefined) values.push(body.memberId);
+        if (body.userPictureUrl !== undefined) values.push(body.userPictureUrl);
+        if (body.assistantPictureUrl !== undefined) values.push(body.assistantPictureUrl);
+        if (body.assistantName !== undefined) values.push(body.assistantName);
+
+        // Construct the query
+        const updateQuery = `
+            INSERT INTO data (session_id, team_id, member_id, user_picture_url, assistant_picture_url, assistant_name)
+            VALUES ($1, 
+                ${body.teamId !== undefined ? '$2' : 'NULL'}, 
+                ${body.memberId !== undefined ? '$3' : 'NULL'}, 
+                ${body.userPictureUrl !== undefined ? '$4' : 'NULL'}, 
+                ${body.assistantPictureUrl !== undefined ? '$5' : 'NULL'}, 
+                ${body.assistantName !== undefined ? '$6' : 'NULL'}
             )
             ON CONFLICT (session_id) 
             DO UPDATE SET
-                team_id = EXCLUDED.team_id,
-                member_id = EXCLUDED.member_id,
-                user_picture_url = EXCLUDED.user_picture_url,
-                assistant_picture_url = EXCLUDED.assistant_picture_url,
-                assistant_name = EXCLUDED.assistant_name,
+                ${fieldsToUpdate.length > 0 ? fieldsToUpdate.join(', ') + ',' : ''}
                 updated_at = CURRENT_TIMESTAMP;
         `;
+
+        await client.query(updateQuery, values);
 
         // Get the updated data
         const { rows: updatedData } = await client.sql`
