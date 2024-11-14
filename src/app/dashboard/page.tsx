@@ -530,7 +530,9 @@ const currentRecords = filteredCallLogs.slice().reverse().slice(indexOfFirstReco
 
   return (
   <div className="min-h-screen pt-12 px-8 bg-[#f2f3f8]">
-    <div className="max-w-7xl mx-auto space-y-8 bg-white rounded-[32px] p-8 shadow-lg">
+    <div className="max-w-7xl mx-auto">
+      <div className="bg-[#f2f3f8] rounded-[32px] p-8 shadow-lg mb-8">
+        <div className="bg-white rounded-[32px] p-8">
         {/* Overall Performance Chart */}
         <Chart 
           data={filteredCallLogs} 
@@ -661,9 +663,11 @@ const currentRecords = filteredCallLogs.slice().reverse().slice(indexOfFirstReco
             >
               <ChevronRight className="h-4 w-4" />
             </Button>
-          </div>
-        </div>
+           </div>
       </div>
+    </div>
+  </div>
+  );
 
       {/* Score Detail Modal */}
       <Dialog open={activeModal.isOpen} onOpenChange={(isOpen) => setActiveModal({ ...activeModal, isOpen })}>
