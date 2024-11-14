@@ -1,58 +1,48 @@
-/* Base selected styles */
+/* Super aggressive styling for selected dates */
 .rdp-day_selected,
 .rdp-day_range_start,
-.rdp-day_range_end {
+.rdp-day_range_end,
+.rdp-day_selected *,
+.rdp-day_range_start *,
+.rdp-day_range_end * {
     background-color: rgb(15 23 42) !important;
     color: white !important;
     border: none !important;
 }
 
-/* Button styles for selected days */
-.rdp-day_selected button,
-.rdp-day_range_start button,
-.rdp-day_range_end button {
-    background-color: rgb(15 23 42) !important;
-    color: white !important;
-}
-
-/* Hover states */
+/* Force hover states */
 .rdp-day_selected:hover,
 .rdp-day_range_start:hover,
 .rdp-day_range_end:hover,
-.rdp-day_selected button:hover,
-.rdp-day_range_start button:hover,
-.rdp-day_range_end button:hover {
+.rdp-day_selected:hover *,
+.rdp-day_range_start:hover *,
+.rdp-day_range_end:hover *,
+.rdp-day_selected *:hover,
+.rdp-day_range_start *:hover,
+.rdp-day_range_end *:hover {
+    background-color: rgb(15 23 42) !important;
+    color: white !important;
+    border: none !important;
+}
+
+/* Ensure buttons maintain styling */
+.rdp-button.rdp-day_selected,
+.rdp-button.rdp-day_range_start,
+.rdp-button.rdp-day_range_end {
     background-color: rgb(15 23 42) !important;
     color: white !important;
 }
 
-/* Focus states */
-.rdp-day_selected:focus,
-.rdp-day_range_start:focus,
-.rdp-day_range_end:focus,
-.rdp-day_selected button:focus,
-.rdp-day_range_start button:focus,
-.rdp-day_range_end button:focus {
+/* Override any other possible states */
+.rdp-day_selected[aria-selected="true"],
+.rdp-day_range_start[aria-selected="true"],
+.rdp-day_range_end[aria-selected="true"] {
     background-color: rgb(15 23 42) !important;
     color: white !important;
 }
 
-/* Active states */
-.rdp-day_selected:active,
-.rdp-day_range_start:active,
-.rdp-day_range_end:active,
-.rdp-day_selected button:active,
-.rdp-day_range_start button:active,
-.rdp-day_range_end button:active {
-    background-color: rgb(15 23 42) !important;
-    color: white !important;
-}
-
-/* Middle range days */
+/* Middle range styling */
 .rdp-day_range_middle {
     background-color: rgb(241 245 249) !important;
-}
-
-.rdp-day_range_middle button {
     color: rgb(15 23 42) !important;
 }
