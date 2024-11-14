@@ -1,38 +1,56 @@
+/* Base selected styles */
 .rdp-day_selected,
 .rdp-day_range_start,
-.rdp-day_range_end,
-.rdp-day_range_middle {
+.rdp-day_range_end {
     background-color: rgb(15 23 42) !important;
     color: white !important;
     border: none !important;
 }
 
-.rdp-day_selected:hover,
-.rdp-day_range_start:hover,
-.rdp-day_range_end:hover,
-.rdp-day_range_middle:hover {
-    background-color: rgb(15 23 42) !important;
-    color: white !important;
-    border: none !important;
-}
-
+/* Button styles for selected days */
 .rdp-day_selected button,
 .rdp-day_range_start button,
 .rdp-day_range_end button {
+    background-color: rgb(15 23 42) !important;
     color: white !important;
 }
 
+/* Hover states */
+.rdp-day_selected:hover,
+.rdp-day_range_start:hover,
+.rdp-day_range_end:hover,
 .rdp-day_selected button:hover,
 .rdp-day_range_start button:hover,
 .rdp-day_range_end button:hover {
-    color: white !important;
     background-color: rgb(15 23 42) !important;
+    color: white !important;
 }
 
-/* For the days between the range */
+/* Focus states */
+.rdp-day_selected:focus,
+.rdp-day_range_start:focus,
+.rdp-day_range_end:focus,
+.rdp-day_selected button:focus,
+.rdp-day_range_start button:focus,
+.rdp-day_range_end button:focus {
+    background-color: rgb(15 23 42) !important;
+    color: white !important;
+}
+
+/* Active states */
+.rdp-day_selected:active,
+.rdp-day_range_start:active,
+.rdp-day_range_end:active,
+.rdp-day_selected button:active,
+.rdp-day_range_start button:active,
+.rdp-day_range_end button:active {
+    background-color: rgb(15 23 42) !important;
+    color: white !important;
+}
+
+/* Middle range days */
 .rdp-day_range_middle {
-    background-color: rgb(241 245 249) !important; /* slate-100 */
-    color: rgb(15 23 42) !important;
+    background-color: rgb(241 245 249) !important;
 }
 
 .rdp-day_range_middle button {
