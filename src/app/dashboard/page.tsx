@@ -14,6 +14,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { useSearchParams } from 'next/navigation'
 import { TooltipProvider, TooltipContent, TooltipTrigger, Tooltip } from "@/components/ui/tooltip"
 import { DateRange } from "react-day-picker"
+import './calendar.css' 
 
 interface CallLog {
   id: number;
