@@ -774,6 +774,22 @@ const currentRecords = filteredCallLogs.slice().reverse().slice(indexOfFirstReco
       </div>
     </PopoverContent>
   </Popover>
+
+<Popover>
+    <PopoverTrigger asChild>
+      <Button variant="outline" className="w-full">
+        View Details <ChevronRight className="ml-2 h-4 w-4" />
+      </Button>
+    </PopoverTrigger>
+    <PopoverContent className="w-[300px] p-4 bg-white shadow-md rounded-md border" sideOffset={5}>
+      <div className="space-y-4">
+        <h3 className="text-lg font-semibold">Call Details</h3>
+        <div className="text-sm text-slate-600">
+          {call.call_details}
+        </div>
+      </div>
+    </PopoverContent>
+  </Popover>
 </div>
   </div>                  
                   {/* Scores Grid */}
