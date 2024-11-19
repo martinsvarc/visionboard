@@ -722,25 +722,28 @@ const currentRecords = filteredCallLogs.slice().reverse().slice(indexOfFirstReco
             <ChevronLeft className="h-5 w-5" />
           </button>
           <button 
-            className="p-2 rounded border hover:bg-gray-100"
-            onClick={(e) => {
-              const audio = (e.currentTarget.parentElement?.parentElement?.querySelector('audio')) as HTMLAudioElement;
-              if (audio) {
-                if (audio.paused) {
-                  audio.play();
-                  (e.currentTarget.querySelector('svg') as HTMLElement)?.classList.add('hidden');
-                  (e.currentTarget.querySelector('.pause') as HTMLElement)?.classList.remove('hidden');
-                } else {
-                  audio.pause();
-                  (e.currentTarget.querySelector('svg') as HTMLElement)?.classList.remove('hidden');
-                  (e.currentTarget.querySelector('.pause') as HTMLElement)?.classList.add('hidden');
-                }
-              }
-            }}
-          >
-            <Play className="h-5 w-5" />
-            <Pause className="h-5 w-5 hidden pause" />
-          </button>
+  className="p-2 rounded border hover:bg-gray-100"
+  onClick={(e) => {
+    const audio = (e.currentTarget.parentElement?.parentElement?.querySelector('audio')) as HTMLAudioElement;
+    const playIcon = (e.currentTarget.querySelector('svg') as unknown) as HTMLElement;
+    const pauseIcon = e.currentTarget.querySelector('.pause') as HTMLElement;
+    
+    if (audio) {
+      if (audio.paused) {
+        audio.play();
+        playIcon?.classList.add('hidden');
+        pauseIcon?.classList.remove('hidden');
+      } else {
+        audio.pause();
+        playIcon?.classList.remove('hidden');
+        pauseIcon?.classList.add('hidden');
+      }
+    }
+  }}
+>
+  <Play className="h-5 w-5" />
+  <Pause className="h-5 w-5 hidden pause" />
+</button>
           <button 
             className="p-2 rounded border hover:bg-gray-100"
             onClick={(e) => {
