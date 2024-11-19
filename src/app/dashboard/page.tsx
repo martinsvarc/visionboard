@@ -772,7 +772,7 @@ const currentRecords = filteredCallLogs.slice().reverse().slice(indexOfFirstReco
     </PopoverContent>
   </Popover>
 </div>
-                    
+  </div>                  
                   {/* Scores Grid */}
                   <div className="md:w-2/3">
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
