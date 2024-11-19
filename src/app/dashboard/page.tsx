@@ -45,6 +45,11 @@ interface CallLog {
   };
 }
 
+interface AudioPlayerProps {
+  audioSrc: string;
+  caller: string;
+}
+
 interface Category {
   key: string;
   label: string;
