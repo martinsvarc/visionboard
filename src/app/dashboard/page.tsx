@@ -686,9 +686,12 @@ const currentRecords = filteredCallLogs.slice().reverse().slice(indexOfFirstReco
             >
               <ChevronRight className="h-4 w-4" />
             </Button>
-          </div>
+            </div>
         </div>
       </div>
+    </div>
+  );
+}
 
 // Export the wrapped version
 export default function Page() {
