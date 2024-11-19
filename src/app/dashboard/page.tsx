@@ -32,6 +32,7 @@ interface CallLog {
     program_explanation: number;
     closing_skills: number;
     overall_effectiveness: number;
+    overall_performance: number;
     average_success: number;
   };
   feedback: {
