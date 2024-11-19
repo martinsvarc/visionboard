@@ -9,6 +9,7 @@ interface CategoryScores {
   program_explanation: number;
   closing_skills: number;
   overall_effectiveness: number;
+  overall_performance: number; 
   average_success: number;
 }
 
@@ -69,6 +70,7 @@ export const GET = async (request: Request) => {
         program_explanation: parseFloat(row.program_explanation_score),
         closing_skills: parseFloat(row.closing_skills_score),
         overall_effectiveness: parseFloat(row.overall_effectiveness_score),
+        overall_performance: parseFloat(row.overall_performance_score),
         average_success: parseFloat(row.average_success_score)
       },
       feedback: {
