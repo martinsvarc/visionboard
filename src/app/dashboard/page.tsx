@@ -574,19 +574,40 @@ const currentRecords = filteredCallLogs.slice().reverse().slice(indexOfFirstReco
 <p className="text-lg" style={{ color: getScoreColor(call.scores.overall_effectiveness) }}>Overall Effectiveness</p>
                     </div>
                     <div className="flex flex-col gap-2">
-                      <Button 
-                        className="w-full"
-                        onClick={() => handlePlayCall(call.id)}
-                      >
-                        <Play className="mr-2 h-4 w-4" /> Play Call
-                      </Button>
-                      <Button 
-                        variant="outline"
-                        className="w-full"
-                        onClick={() => handleViewDetails(call)}
-                      >
-                        View Details <ChevronRight className="ml-2 h-4 w-4" />
-                      </Button>
+                      <Popover>
+  <PopoverTrigger asChild>
+    <Button className="w-full">
+      <Play className="mr-2 h-4 w-4" /> Play Call
+    </Button>
+  </PopoverTrigger>
+  <PopoverContent className="w-[300px] p-4 bg-white shadow-md rounded-md border" sideOffset={5}>
+    <div className="flex flex-col items-center space-y-4">
+      <h3 className="text-lg font-semibold">Call Recording</h3>
+      <audio controls className="w-full">
+        <source 
+          src={call.call_recording_url} 
+          type="audio/mpeg" 
+        />
+        Your browser does not support the audio element.
+      </audio>
+    </div>
+  </PopoverContent>
+</Popover>
+                        <Popover>
+  <PopoverTrigger asChild>
+    <Button variant="outline" className="w-full">
+      View Details <ChevronRight className="ml-2 h-4 w-4" />
+    </Button>
+  </PopoverTrigger>
+  <PopoverContent className="w-[300px] p-4 bg-white shadow-md rounded-md border" sideOffset={5}>
+    <div className="space-y-4">
+      <h3 className="text-lg font-semibold">Call Details</h3>
+      <div className="text-sm text-slate-600">
+        {call.call_details}
+      </div>
+    </div>
+  </PopoverContent>
+</Popover>
                     </div>
                   </div>
 
@@ -669,40 +690,6 @@ const currentRecords = filteredCallLogs.slice().reverse().slice(indexOfFirstReco
         </div>
       </div>
 
-      {/* Play Call Modal */}
-      <Dialog open={playCallModal.isOpen} onOpenChange={(isOpen) => setPlayCallModal({ ...playCallModal, isOpen })}>
-        <DialogContent className="bg-white">
-          <DialogHeader>
-            <DialogTitle>Call Recording</DialogTitle>
-          </DialogHeader>
-          <div className="flex flex-col items-center space-y-4 p-4">
-            <audio controls className="w-full">
-              <source 
-                src={callLogs.find(call => call.id === playCallModal.callId)?.call_recording_url} 
-                type="audio/mpeg" 
-              />
-              Your browser does not support the audio element.
-            </audio>
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      {/* Call Details Modal */}
-      <Dialog open={detailsModal.isOpen} onOpenChange={(isOpen) => setDetailsModal({ ...detailsModal, isOpen })}>
-        <DialogContent className="bg-white">
-          <DialogHeader>
-            <DialogTitle>Call Details</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div className="text-sm text-slate-600">
-              {detailsModal.call?.call_details}
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
-    </div>
-  );
-}
 // Export the wrapped version
 export default function Page() {
   return (
