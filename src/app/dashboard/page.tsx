@@ -434,12 +434,7 @@ function DashboardComponent() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [dateRange, setDateRange] = useState<{ from: Date | null; to: Date | null }>({ from: null, to: null });
-  const [activeModal, setActiveModal] = useState<{
-    isOpen: boolean;
-    category: string | null;
-    value: number | null;
-    feedback: string | null;
-  }>({ isOpen: false, category: null, value: null, feedback: null });
+
   const [playCallModal, setPlayCallModal] = useState<{
     isOpen: boolean;
     callId: number | null;
@@ -599,33 +594,42 @@ const currentRecords = filteredCallLogs.slice().reverse().slice(indexOfFirstReco
                   <div className="md:w-2/3">
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                       {scoreCategories.map(({ key, label }) => (
-                      <button 
-  key={key}
-  onClick={() => setActiveModal({ 
-    isOpen: true, 
-    category: key, 
-    value: call.scores[key as keyof typeof call.scores],
-    feedback: call.feedback[key as keyof typeof call.feedback]
-  })}
-  className="bg-white p-6 rounded-3xl shadow-lg hover:shadow-xl transition-shadow w-full h-48 relative"
->
-  <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-full">
-    <div className="text-base font-medium text-slate-600 text-center">
-      {label}
-    </div>
-  </div>
-  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 w-full">
-    <div className="flex items-baseline justify-center">
-      <span 
-        className="text-5xl font-bold" 
-        style={{ color: getScoreColor(call.scores[key as keyof typeof call.scores]) }}
-      >
+                      <Popover>
+  <PopoverTrigger asChild>
+    <button 
+      className="bg-white p-6 rounded-3xl shadow-lg hover:shadow-xl transition-shadow w-full h-48 relative"
+    >
+      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-full">
+        <div className="text-base font-medium text-slate-600 text-center">
+          {label}
+        </div>
+      </div>
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 w-full">
+        <div className="flex items-baseline justify-center">
+          <span 
+            className="text-5xl font-bold" 
+            style={{ color: getScoreColor(call.scores[key as keyof typeof call.scores]) }}
+          >
+            {call.scores[key as keyof typeof call.scores]}
+          </span>
+          <span className="text-xl text-slate-600 ml-1">/100</span>
+        </div>
+      </div>
+    </button>
+  </PopoverTrigger>
+  <PopoverContent className="w-80 bg-white p-4 rounded-xl shadow-xl">
+    <div className="space-y-4">
+      <h3 className="text-xl font-bold text-slate-900">{label}</h3>
+      <div className="text-6xl font-bold text-center text-[#556bc7] my-4">
         {call.scores[key as keyof typeof call.scores]}
-      </span>
-      <span className="text-xl text-slate-600 ml-1">/100</span>
+        <span className="text-2xl text-slate-600">/100</span>
+      </div>
+      <p className="text-slate-600 whitespace-pre-line">
+        {call.feedback[key as keyof typeof call.feedback]}
+      </p>
     </div>
-  </div>
-</button>
+  </PopoverContent>
+</Popover>
                       ))}
                     </div>
                   </div>
@@ -664,26 +668,6 @@ const currentRecords = filteredCallLogs.slice().reverse().slice(indexOfFirstReco
           </div>
         </div>
       </div>
-
-      {/* Score Detail Modal */}
-      <Dialog open={activeModal.isOpen} onOpenChange={(isOpen) => setActiveModal({ ...activeModal, isOpen })}>
-        <DialogContent className="bg-white">
-          <DialogHeader>
-            <DialogTitle>
-              {scoreCategories.find(c => c.key === activeModal.category)?.label}
-            </DialogTitle>
-            <DialogDescription>
-              <div className="text-6xl font-bold text-center text-[#556bc7] my-4">
-                {activeModal.value}
-                <span className="text-2xl text-slate-600">/100</span>
-              </div>
-              <p className="text-slate-600 whitespace-pre-line">
-                {activeModal.feedback}
-              </p>
-            </DialogDescription>
-          </DialogHeader>
-        </DialogContent>
-      </Dialog>
 
       {/* Play Call Modal */}
       <Dialog open={playCallModal.isOpen} onOpenChange={(isOpen) => setPlayCallModal({ ...playCallModal, isOpen })}>
