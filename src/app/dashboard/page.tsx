@@ -4,7 +4,6 @@ import React, { useEffect, useState, useCallback, Suspense } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Play, ChevronRight, Calendar, ChevronLeft, RefreshCw } from "lucide-react"
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer, AreaChart, Area, ReferenceLine } from 'recharts'
 import { Tooltip as RechartsTooltip } from 'recharts'
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
@@ -15,9 +14,8 @@ import { useSearchParams } from 'next/navigation'
 import { TooltipProvider, TooltipContent, TooltipTrigger, Tooltip } from "@/components/ui/tooltip"
 import { DateRange } from "react-day-picker"
 import './calendar.css' 
-import { PlayCircle, Pause, SkipBack, SkipForward } from 'lucide-react'
 import { Slider } from "@/components/ui/slider"
-import { Play, Pause, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Play, Pause, ChevronRight, Calendar, ChevronLeft, RefreshCw } from "lucide-react"
 
 interface CallLog {
   id: number;
