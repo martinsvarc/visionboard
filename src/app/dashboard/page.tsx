@@ -15,6 +15,8 @@ import { useSearchParams } from 'next/navigation'
 import { TooltipProvider, TooltipContent, TooltipTrigger, Tooltip } from "@/components/ui/tooltip"
 import { DateRange } from "react-day-picker"
 import './calendar.css' 
+import { PlayCircle, Pause, SkipBack, SkipForward } from 'lucide-react'
+import { Slider } from "@/components/ui/slider"
 
 interface CallLog {
   id: number;
@@ -79,6 +81,101 @@ const scoreCategories = [
   { key: 'closing_skills', label: 'Closing Skills', color: '#556bc7' },
   { key: 'overall_effectiveness', label: 'Overall Effectiveness', color: '#556bc7' }
 ] as const;
+
+const AudioPlayer: React.FC<AudioPlayerProps> = ({ audioSrc, caller }) => {
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const audioRef = React.useRef<HTMLAudioElement>(null);
+
+  const togglePlayPause = () => {
+    if (audioRef.current) {
+      if (isPlaying) {
+        audioRef.current.pause();
+      } else {
+        audioRef.current.play();
+      }
+      setIsPlaying(!isPlaying);
+    }
+  };
+
+  const handleTimeUpdate = () => {
+    if (audioRef.current) {
+      setCurrentTime(audioRef.current.currentTime);
+    }
+  };
+
+  const handleLoadedMetadata = () => {
+    if (audioRef.current) {
+      setDuration(audioRef.current.duration);
+    }
+  };
+
+  const handleSliderChange = (value: number[]) => {
+    if (audioRef.current) {
+      audioRef.current.currentTime = value[0];
+      setCurrentTime(value[0]);
+    }
+  };
+
+  const formatTime = (time: number) => {
+    const minutes = Math.floor(time / 60);
+    const seconds = Math.floor(time % 60);
+    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+  };
+
+  return (
+    <div className="flex flex-col space-y-4 p-4">
+      <audio
+        ref={audioRef}
+        src={audioSrc}
+        onTimeUpdate={handleTimeUpdate}
+        onLoadedMetadata={handleLoadedMetadata}
+      />
+      <h3 className="text-xl font-semibold text-center">Call with {caller}</h3>
+      <div className="w-full">
+        <div className="flex justify-between mb-1 text-sm text-gray-500">
+          <span>{formatTime(currentTime)}</span>
+          <span>{formatTime(duration)}</span>
+        </div>
+        <Slider
+          value={[currentTime]}
+          max={duration}
+          step={0.1}
+          onValueChange={handleSliderChange}
+          className="w-full"
+        />
+      </div>
+      <div className="flex justify-center items-center gap-2">
+        <Button 
+          variant="outline" 
+          size="sm" 
+          className="rounded-full h-8 w-8 p-0"
+          onClick={() => audioRef.current && (audioRef.current.currentTime -= 10)}
+        >
+          <SkipBack className="h-4 w-4" />
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          className="rounded-full h-8 w-8 p-0"
+          onClick={togglePlayPause}
+        >
+          {isPlaying ? <Pause className="h-4 w-4" /> : <PlayCircle className="h-4 w-4" />}
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          className="rounded-full h-8 w-8 p-0"
+          onClick={() => audioRef.current && (audioRef.current.currentTime += 10)}
+        >
+          <SkipForward className="h-4 w-4" />
+        </Button>
+      </div>
+    </div>
+  );
+};
+
 const Chart: React.FC<ChartProps> = ({ data, category, dateRange, setDateRange }) => {
   const [selectedPoints, setSelectedPoints] = useState<ChartDataPoint[]>([]);
   const [percentageChange, setPercentageChange] = useState<string | null>(null);
