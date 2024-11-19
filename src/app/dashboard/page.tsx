@@ -675,11 +675,11 @@ const currentRecords = filteredCallLogs.slice().reverse().slice(indexOfFirstReco
                       <p className="text-sm text-slate-600">
                         {format(new Date(call.call_date), 'PPpp')}
                       </p>
-                      <div className="text-6xl font-bold mt-4" style={{ color: getScoreColor(call.scores.overall_effectiveness) }}>
-  {call.scores.overall_effectiveness}
+                      <div className="text-6xl font-bold mt-4" style={{ color: getScoreColor(call.scores.overall_performance) }}>
+  {call.scores.overall_performance}
   <span className="text-2xl text-slate-600">/100</span>
 </div>
-<p className="text-lg" style={{ color: getScoreColor(call.scores.overall_effectiveness) }}>Overall Effectiveness</p>
+<p className="text-lg" style={{ color: getScoreColor(call.scores.overall_performance) }}>Overall Performance</p>
                     </div>
                     <div className="flex flex-col gap-2">
   <Popover>
