@@ -682,91 +682,97 @@ const currentRecords = filteredCallLogs.slice().reverse().slice(indexOfFirstReco
 <p className="text-lg" style={{ color: getScoreColor(call.scores.overall_effectiveness) }}>Overall Effectiveness</p>
                     </div>
                     <div className="flex flex-col gap-2">
-                      <PopoverContent className="w-[300px] p-4 bg-white shadow-md rounded-md border" sideOffset={5}>
-  <div className="space-y-4">
-    <h2 className="text-xl font-semibold text-center">Call with {call.agent_name}</h2>
-    <audio
-      src={call.call_recording_url}
-      ref={(audio) => {
-        if (audio) {
-          audio.addEventListener('timeupdate', () => {
-            const progress = (audio.currentTime / audio.duration) * 100;
-            const progressBar = audio.parentElement?.querySelector('.progress-bar');
-            const progressThumb = audio.parentElement?.querySelector('.progress-thumb');
-            const currentTime = audio.parentElement?.querySelector('.current-time');
-            const duration = audio.parentElement?.querySelector('.duration');
-            
-            if (progressBar) progressBar.style.width = `${progress}%`;
-            if (progressThumb) progressThumb.style.left = `${progress}%`;
-            if (currentTime) currentTime.textContent = formatTime(audio.currentTime);
-            if (duration) duration.textContent = formatTime(audio.duration);
-          });
-        }
-      }}
-      className="hidden"
-    />
-    <div className="flex justify-center gap-4">
-      <button 
-        className="p-2 rounded border hover:bg-gray-100"
-        onClick={(e) => {
-          const audio = e.currentTarget.parentElement?.parentElement?.querySelector('audio');
-          if (audio) audio.currentTime -= 10;
-        }}
-      >
-        <ChevronLeft className="h-5 w-5" />
-      </button>
-      <button 
-        className="p-2 rounded border hover:bg-gray-100"
-        onClick={(e) => {
-          const audio = e.currentTarget.parentElement?.parentElement?.querySelector('audio');
-          if (audio) {
-            if (audio.paused) {
-              audio.play();
-              e.currentTarget.querySelector('svg')?.classList.add('hidden');
-              e.currentTarget.querySelector('.pause')?.classList.remove('hidden');
-            } else {
-              audio.pause();
-              e.currentTarget.querySelector('svg')?.classList.remove('hidden');
-              e.currentTarget.querySelector('.pause')?.classList.add('hidden');
+  <Popover>
+    <PopoverTrigger asChild>
+      <Button className="w-full">
+        <Play className="mr-2 h-4 w-4" /> Play Call
+      </Button>
+    </PopoverTrigger>
+    <PopoverContent className="w-[300px] p-4 bg-white shadow-md rounded-md border" sideOffset={5}>
+      <div className="space-y-4">
+        <h2 className="text-xl font-semibold text-center">Call with {call.agent_name}</h2>
+        <audio
+          src={call.call_recording_url}
+          ref={(audio) => {
+            if (audio) {
+              audio.addEventListener('timeupdate', () => {
+                const progress = (audio.currentTime / audio.duration) * 100;
+                const progressBar = audio.parentElement?.querySelector('.progress-bar') as HTMLElement;
+                const progressThumb = audio.parentElement?.querySelector('.progress-thumb') as HTMLElement;
+                const currentTimeEl = audio.parentElement?.querySelector('.current-time') as HTMLElement;
+                const durationEl = audio.parentElement?.querySelector('.duration') as HTMLElement;
+                
+                if (progressBar) progressBar.style.width = `${progress}%`;
+                if (progressThumb) progressThumb.style.left = `${progress}%`;
+                if (currentTimeEl) currentTimeEl.textContent = formatTime(audio.currentTime);
+                if (durationEl) durationEl.textContent = formatTime(audio.duration);
+              });
             }
-          }
-        }}
-      >
-        <Play className="h-5 w-5" />
-        <Pause className="h-5 w-5 hidden pause" />
-      </button>
-      <button 
-        className="p-2 rounded border hover:bg-gray-100"
-        onClick={(e) => {
-          const audio = e.currentTarget.parentElement?.parentElement?.querySelector('audio');
-          if (audio) audio.currentTime += 10;
-        }}
-      >
-        <ChevronRight className="h-5 w-5" />
-      </button>
-    </div>
-    <div 
-      className="w-full bg-gray-100 h-1 rounded-full relative cursor-pointer"
-      onClick={(e) => {
-        const audio = e.currentTarget.parentElement?.querySelector('audio');
-        const rect = e.currentTarget.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const progress = (x / rect.width) * 100;
-        if (audio) audio.currentTime = (progress / 100) * audio.duration;
-      }}
-    >
-      <div className="progress-bar absolute left-0 h-1 bg-blue-500 rounded-full" />
-      <div className="progress-thumb absolute -left-1.5 h-3 w-3 bg-blue-500 rounded-full top-1/2 -translate-y-1/2" />
-    </div>
-    <div className="flex justify-between text-sm text-gray-500">
-      <span className="current-time">0:00</span>
-      <span className="duration">0:00</span>
-    </div>
-  </div>
-</PopoverContent>
-                    </div>
-                  </div>
-
+          }}
+          className="hidden"
+        />
+        <div className="flex justify-center gap-4">
+          <button 
+            className="p-2 rounded border hover:bg-gray-100"
+            onClick={(e) => {
+              const audio = (e.currentTarget.parentElement?.parentElement?.querySelector('audio')) as HTMLAudioElement;
+              if (audio) audio.currentTime -= 10;
+            }}
+          >
+            <ChevronLeft className="h-5 w-5" />
+          </button>
+          <button 
+            className="p-2 rounded border hover:bg-gray-100"
+            onClick={(e) => {
+              const audio = (e.currentTarget.parentElement?.parentElement?.querySelector('audio')) as HTMLAudioElement;
+              if (audio) {
+                if (audio.paused) {
+                  audio.play();
+                  (e.currentTarget.querySelector('svg') as HTMLElement)?.classList.add('hidden');
+                  (e.currentTarget.querySelector('.pause') as HTMLElement)?.classList.remove('hidden');
+                } else {
+                  audio.pause();
+                  (e.currentTarget.querySelector('svg') as HTMLElement)?.classList.remove('hidden');
+                  (e.currentTarget.querySelector('.pause') as HTMLElement)?.classList.add('hidden');
+                }
+              }
+            }}
+          >
+            <Play className="h-5 w-5" />
+            <Pause className="h-5 w-5 hidden pause" />
+          </button>
+          <button 
+            className="p-2 rounded border hover:bg-gray-100"
+            onClick={(e) => {
+              const audio = (e.currentTarget.parentElement?.parentElement?.querySelector('audio')) as HTMLAudioElement;
+              if (audio) audio.currentTime += 10;
+            }}
+          >
+            <ChevronRight className="h-5 w-5" />
+          </button>
+        </div>
+        <div 
+          className="w-full bg-gray-100 h-1 rounded-full relative cursor-pointer"
+          onClick={(e) => {
+            const audio = (e.currentTarget.parentElement?.querySelector('audio')) as HTMLAudioElement;
+            const rect = e.currentTarget.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const progress = (x / rect.width) * 100;
+            if (audio) audio.currentTime = (progress / 100) * audio.duration;
+          }}
+        >
+          <div className="progress-bar absolute left-0 h-1 bg-blue-500 rounded-full" />
+          <div className="progress-thumb absolute -left-1.5 h-3 w-3 bg-blue-500 rounded-full top-1/2 -translate-y-1/2" />
+        </div>
+        <div className="flex justify-between text-sm text-gray-500">
+          <span className="current-time">0:00</span>
+          <span className="duration">0:00</span>
+        </div>
+      </div>
+    </PopoverContent>
+  </Popover>
+</div>
+                    
                   {/* Scores Grid */}
                   <div className="md:w-2/3">
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
