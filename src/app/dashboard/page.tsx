@@ -15,7 +15,7 @@ import { TooltipProvider, TooltipContent, TooltipTrigger, Tooltip } from "@/comp
 import { DateRange } from "react-day-picker"
 import './calendar.css' 
 import { Slider } from "@/components/ui/slider"
-import { Play, Pause, ChevronRight, Calendar, ChevronLeft, RefreshCw } from "lucide-react"
+import { Play, Pause, ChevronRight, Calendar, ChevronLeft, RefreshCw, SkipBack, SkipForward, PlayCircle } from "lucide-react"
 
 interface CallLog {
   id: number;
