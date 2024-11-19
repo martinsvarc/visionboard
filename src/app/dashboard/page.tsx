@@ -435,6 +435,14 @@ function DashboardComponent() {
   const [error, setError] = useState<string | null>(null);
   const [dateRange, setDateRange] = useState<{ from: Date | null; to: Date | null }>({ from: null, to: null });
 
+  const [playCallModal, setPlayCallModal] = useState<{
+    isOpen: boolean;
+    callId: number | null;
+  }>({ isOpen: false, callId: null });
+  const [detailsModal, setDetailsModal] = useState<{
+    isOpen: boolean;
+    call: CallLog | null;
+  }>({ isOpen: false, call: null });
   const [currentPage, setCurrentPage] = useState(1);
   const recordsPerPage = 10;
 
@@ -479,6 +487,14 @@ function DashboardComponent() {
       setFilteredCallLogs(callLogs);
     }
   }, [callLogs, dateRange]);
+
+  const handlePlayCall = (callId: number) => {
+    setPlayCallModal({ isOpen: true, callId });
+  };
+
+  const handleViewDetails = (call: CallLog) => {
+    setDetailsModal({ isOpen: true, call });
+  };
 
   if (isLoading) {
     return (
@@ -559,41 +575,28 @@ const currentRecords = filteredCallLogs.slice().reverse().slice(indexOfFirstReco
                     </div>
                     <div className="flex flex-col gap-2">
                       <Button 
-                     <Popover>
-  <PopoverTrigger asChild>
-    <Button className="w-full">
-      <Play className="mr-2 h-4 w-4" /> Play Call
-    </Button>
-  </PopoverTrigger>
-  <PopoverContent className="w-80 bg-white p-4 rounded-xl shadow-xl">
-    <div className="space-y-4">
-      <h3 className="text-xl font-bold text-slate-900">Call Recording</h3>
-      <audio controls className="w-full">
-        <source 
-          src={call.call_recording_url} 
-          type="audio/mpeg" 
-        />
-        Your browser does not support the audio element.
-      </audio>
-    </div>
-  </PopoverContent>
-</Popover>
+                        className="w-full"
+                        onClick={() => handlePlayCall(call.id)}
+                      >
+                        <Play className="mr-2 h-4 w-4" /> Play Call
+                      </Button>
+                      <Button 
+                        variant="outline"
+                        className="w-full"
+                        onClick={() => handleViewDetails(call)}
+                      >
+                        View Details <ChevronRight className="ml-2 h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
 
-<Popover>
+                  {/* Scores Grid */}
+                  <div className="md:w-2/3">
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                      {scoreCategories.map(({ key, label }) => (
+                      <Popover>
   <PopoverTrigger asChild>
-    <Button variant="outline" className="w-full">
-      View Details <ChevronRight className="ml-2 h-4 w-4" />
-    </Button>
-  </PopoverTrigger>
-  <PopoverContent className="w-80 bg-white p-4 rounded-xl shadow-xl">
-    <div className="space-y-4">
-      <h3 className="text-xl font-bold text-slate-900">Call Details</h3>
-      <div className="text-sm text-slate-600">
-        {call.call_details}
-      </div>
-    </div>
-  </PopoverContent>
-</Popover>
+    <button 
       className="bg-white p-6 rounded-3xl shadow-lg hover:shadow-xl transition-shadow w-full h-48 relative"
     >
       <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-full">
@@ -666,6 +669,40 @@ const currentRecords = filteredCallLogs.slice().reverse().slice(indexOfFirstReco
         </div>
       </div>
 
+      {/* Play Call Modal */}
+      <Dialog open={playCallModal.isOpen} onOpenChange={(isOpen) => setPlayCallModal({ ...playCallModal, isOpen })}>
+        <DialogContent className="bg-white">
+          <DialogHeader>
+            <DialogTitle>Call Recording</DialogTitle>
+          </DialogHeader>
+          <div className="flex flex-col items-center space-y-4 p-4">
+            <audio controls className="w-full">
+              <source 
+                src={callLogs.find(call => call.id === playCallModal.callId)?.call_recording_url} 
+                type="audio/mpeg" 
+              />
+              Your browser does not support the audio element.
+            </audio>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Call Details Modal */}
+      <Dialog open={detailsModal.isOpen} onOpenChange={(isOpen) => setDetailsModal({ ...detailsModal, isOpen })}>
+        <DialogContent className="bg-white">
+          <DialogHeader>
+            <DialogTitle>Call Details</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="text-sm text-slate-600">
+              {detailsModal.call?.call_details}
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}
 // Export the wrapped version
 export default function Page() {
   return (
