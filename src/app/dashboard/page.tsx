@@ -17,6 +17,7 @@ import { DateRange } from "react-day-picker"
 import './calendar.css' 
 import { PlayCircle, Pause, SkipBack, SkipForward } from 'lucide-react'
 import { Slider } from "@/components/ui/slider"
+import { Play, Pause, ChevronLeft, ChevronRight } from 'lucide-react'
 
 interface CallLog {
   id: number;
@@ -76,6 +77,13 @@ const getScoreColor = (score: number) => {
   if (score >= 70) return "#22c55e"; // Green
   if (score >= 40) return "#f97316"; // Orange
   return "#ef4444"; // Red
+};
+
+const formatTime = (time: number) => {
+  if (!time) return "0:00";
+  const minutes = Math.floor(time / 60);
+  const seconds = Math.floor(time % 60);
+  return `${minutes}:${seconds.toString().padStart(2, '0')}`;
 };
 
 const scoreCategories = [
@@ -676,40 +684,88 @@ const currentRecords = filteredCallLogs.slice().reverse().slice(indexOfFirstReco
 <p className="text-lg" style={{ color: getScoreColor(call.scores.overall_effectiveness) }}>Overall Effectiveness</p>
                     </div>
                     <div className="flex flex-col gap-2">
-                      <Popover>
-  <PopoverTrigger asChild>
-    <Button className="w-full">
-      <Play className="mr-2 h-4 w-4" /> Play Call
-    </Button>
-  </PopoverTrigger>
-  <PopoverContent className="w-[300px] p-4 bg-white shadow-md rounded-md border" sideOffset={5}>
-    <div className="flex flex-col items-center space-y-4">
-      <h3 className="text-lg font-semibold">Call Recording</h3>
-      <audio controls className="w-full">
-        <source 
-          src={call.call_recording_url} 
-          type="audio/mpeg" 
-        />
-        Your browser does not support the audio element.
-      </audio>
+                      <PopoverContent className="w-[300px] p-4 bg-white shadow-md rounded-md border" sideOffset={5}>
+  <div className="space-y-4">
+    <h2 className="text-xl font-semibold text-center">Call with {call.agent_name}</h2>
+    <audio
+      src={call.call_recording_url}
+      ref={(audio) => {
+        if (audio) {
+          audio.addEventListener('timeupdate', () => {
+            const progress = (audio.currentTime / audio.duration) * 100;
+            const progressBar = audio.parentElement?.querySelector('.progress-bar');
+            const progressThumb = audio.parentElement?.querySelector('.progress-thumb');
+            const currentTime = audio.parentElement?.querySelector('.current-time');
+            const duration = audio.parentElement?.querySelector('.duration');
+            
+            if (progressBar) progressBar.style.width = `${progress}%`;
+            if (progressThumb) progressThumb.style.left = `${progress}%`;
+            if (currentTime) currentTime.textContent = formatTime(audio.currentTime);
+            if (duration) duration.textContent = formatTime(audio.duration);
+          });
+        }
+      }}
+      className="hidden"
+    />
+    <div className="flex justify-center gap-4">
+      <button 
+        className="p-2 rounded border hover:bg-gray-100"
+        onClick={(e) => {
+          const audio = e.currentTarget.parentElement?.parentElement?.querySelector('audio');
+          if (audio) audio.currentTime -= 10;
+        }}
+      >
+        <ChevronLeft className="h-5 w-5" />
+      </button>
+      <button 
+        className="p-2 rounded border hover:bg-gray-100"
+        onClick={(e) => {
+          const audio = e.currentTarget.parentElement?.parentElement?.querySelector('audio');
+          if (audio) {
+            if (audio.paused) {
+              audio.play();
+              e.currentTarget.querySelector('svg')?.classList.add('hidden');
+              e.currentTarget.querySelector('.pause')?.classList.remove('hidden');
+            } else {
+              audio.pause();
+              e.currentTarget.querySelector('svg')?.classList.remove('hidden');
+              e.currentTarget.querySelector('.pause')?.classList.add('hidden');
+            }
+          }
+        }}
+      >
+        <Play className="h-5 w-5" />
+        <Pause className="h-5 w-5 hidden pause" />
+      </button>
+      <button 
+        className="p-2 rounded border hover:bg-gray-100"
+        onClick={(e) => {
+          const audio = e.currentTarget.parentElement?.parentElement?.querySelector('audio');
+          if (audio) audio.currentTime += 10;
+        }}
+      >
+        <ChevronRight className="h-5 w-5" />
+      </button>
     </div>
-  </PopoverContent>
-</Popover>
-                        <Popover>
-  <PopoverTrigger asChild>
-    <Button variant="outline" className="w-full">
-      View Details <ChevronRight className="ml-2 h-4 w-4" />
-    </Button>
-  </PopoverTrigger>
-  <PopoverContent className="w-[300px] p-4 bg-white shadow-md rounded-md border" sideOffset={5}>
-    <div className="space-y-4">
-      <h3 className="text-lg font-semibold">Call Details</h3>
-      <div className="text-sm text-slate-600">
-        {call.call_details}
-      </div>
+    <div 
+      className="w-full bg-gray-100 h-1 rounded-full relative cursor-pointer"
+      onClick={(e) => {
+        const audio = e.currentTarget.parentElement?.querySelector('audio');
+        const rect = e.currentTarget.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const progress = (x / rect.width) * 100;
+        if (audio) audio.currentTime = (progress / 100) * audio.duration;
+      }}
+    >
+      <div className="progress-bar absolute left-0 h-1 bg-blue-500 rounded-full" />
+      <div className="progress-thumb absolute -left-1.5 h-3 w-3 bg-blue-500 rounded-full top-1/2 -translate-y-1/2" />
     </div>
-  </PopoverContent>
-</Popover>
+    <div className="flex justify-between text-sm text-gray-500">
+      <span className="current-time">0:00</span>
+      <span className="duration">0:00</span>
+    </div>
+  </div>
+</PopoverContent>
                     </div>
                   </div>
 
