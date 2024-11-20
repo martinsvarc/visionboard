@@ -356,10 +356,6 @@ const getOverallDescription = () => {
   };
 };
 
-const getOverallDescription = () => {
-  return "This comprehensive score represents the agent's overall performance across all measured metrics. It takes into account engagement, objection handling, information gathering, program explanation, closing skills, and overall effectiveness. Click and drag on the chart to compare performance between different points.";
-};
-
 return (
   <Popover>
     <PopoverTrigger asChild>
