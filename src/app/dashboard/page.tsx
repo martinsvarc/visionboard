@@ -334,6 +334,10 @@ const Chart: React.FC<ChartProps> = ({ data, category, dateRange, setDateRange }
   };
 
 const Chart: React.FC<ChartProps> = ({ data, category, dateRange, setDateRange, filteredCallLogs }) => {
+  const [selectedPoints, setSelectedPoints] = useState<ChartDataPoint[]>([]);
+  const [percentageChange, setPercentageChange] = useState<string | null>(null);
+
+  // Add these 3 functions here
   const staticDescriptions = {
     engagement: "This metric evaluates the agent's ability to connect with customers and maintain meaningful interactions throughout the call. It measures rapport building, active listening, and customer engagement levels.",
     objection_handling: "This score reflects how well the agent addresses customer concerns and manages challenging situations. It evaluates the ability to turn objections into opportunities and maintain professional composure.",
