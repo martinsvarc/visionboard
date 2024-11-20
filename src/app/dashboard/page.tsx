@@ -444,26 +444,6 @@ return (
           </div>
         </CardContent>
       </Card>
-    </PopoverTrigger>
-      <PopoverContent className="w-[600px] bg-white p-6 rounded-xl shadow-xl">
-        <div className="space-y-2">
-          <h3 className="text-xl font-bold text-slate-900">
-            {category ? `${category.label} Analysis` : 'Overall Performance Analysis'}
-          </h3>
-          <p className="text-slate-600 text-sm italic">
-            {category ? getCategoryDescription(category.key).static : getOverallDescription().static}
-          </p>
-          <div className="text-6xl font-bold text-center" style={{ color: getScoreColor(latestValue ?? 0) }}>
-            {Math.round(latestValue ?? 0)}<span className="text-2xl text-slate-600">/100</span>
-          </div>
-          <p className="text-slate-600">
-            {category ? getCategoryDescription(category.key).dynamic : getOverallDescription().dynamic}
-          </p>
-        </div>
-      </PopoverContent>
-    </Popover>
-  );
-};
             
     </PopoverTrigger>
    <PopoverContent className="w-[600px] bg-white p-6 rounded-xl shadow-xl">
