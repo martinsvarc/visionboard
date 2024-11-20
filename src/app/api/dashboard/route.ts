@@ -81,7 +81,7 @@ export const GET = async (request: Request) => {
     program_explanation: parseFloat(row.program_explanation_score),
     closing_skills: parseFloat(row.closing_skills_score),
     overall_effectiveness: parseFloat(row.overall_effectiveness_score),
-    overall_performance: parseFloat(row.overall_performance_score),
+    overall_performance: parseFloat(row.overall_performance),
     average_success: parseFloat(row.average_success_score)
   },
   feedback: {
