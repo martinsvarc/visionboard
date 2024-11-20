@@ -664,18 +664,6 @@ const currentRecords = filteredCallLogs.slice().reverse().slice(indexOfFirstReco
 <Card key={call.id} className="bg-white rounded-[32px] shadow-lg overflow-hidden border-0">
               <CardContent className="p-8">
                 <div className="flex flex-col md:flex-row gap-8">
-                  {/* Agent Info Section */}
-                  <div className="md:w-1/3 space-y-4">
-                    <div className="flex flex-col items-center">
-                      <Avatar className="h-24 w-24 mb-4">
-                        <AvatarImage src={call.agent_picture_url} alt={call.agent_name} />
-                        <AvatarFallback>{call.agent_name.slice(0, 2).toUpperCase()}</AvatarFallback>
-                      </Avatar>
-                      <h3 className="text-2xl font-bold text-slate-900">{call.agent_name}</h3>
-                      <p className="text-lg text-slate-600">CALL NUMBER {call.call_number}</p>
-                      <p className="text-sm text-slate-600">
-                        {format(new Date(call.call_date), 'PPpp')}
-                      </p>
 {/* Agent Info Section */}
 <div className="md:w-1/3 space-y-4">
   <div className="flex flex-col items-center">
@@ -696,7 +684,6 @@ const currentRecords = filteredCallLogs.slice().reverse().slice(indexOfFirstReco
           className="relative w-full text-center cursor-pointer hover:opacity-90 transition-opacity"
         >
           <div className="text-6xl font-bold mt-4" style={{ color: getScoreColor(call.scores.overall_performance) }}>
-            {call.scores.overall_performance}
             <span className="text-2xl text-slate-600">/100</span>
           </div>
           <p className="text-lg" style={{ color: getScoreColor(call.scores.overall_performance) }}>Overall Performance</p>
