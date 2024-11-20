@@ -298,38 +298,6 @@ const Chart: React.FC<ChartProps> = ({ data, category, dateRange, setDateRange }
     );
   };
 
-// Add this right before your return statement in the Chart component
-const CustomizedLabel = ({ value, viewBox }: { value: string; viewBox: { x: number; y: number; width: number; } }) => {
-  const { x, y, width } = viewBox;
-  const centerX = x + width / 2;
-  const centerY = y;
-  const numericValue = parseFloat(value);
-
-  return (
-    <g>
-      <rect 
-        x={centerX - 30} 
-        y={centerY - 12} 
-        width="60" 
-        height="24" 
-        fill="rgba(0, 0, 0, 0.7)" 
-        rx="4" 
-        ry="4" 
-      />
-      <text 
-        x={centerX} 
-        y={centerY + 4} 
-        textAnchor="middle" 
-        fill="#ffffff" 
-        fontSize="12"
-        fontWeight="500"
-      >
-        {numericValue > 0 ? `+${value}%` : `${value}%`}
-      </text>
-    </g>
-  );
-};
-
   return (
     <Card className="relative overflow-hidden border-0 bg-white rounded-[32px] shadow-lg">
       <CardContent className="p-6">
