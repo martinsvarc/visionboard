@@ -358,154 +358,94 @@ const handleClick = (point: ChartDataPoint | null) => {
   };
 
 return (
-  <Popover>
-    <PopoverTrigger asChild>
-      <Card className="relative overflow-hidden border-0 bg-white rounded-[32px] shadow-lg hover:shadow-xl transition-all cursor-pointer">
-        <CardContent className="p-6">
-          <div className="flex justify-between items-center mb-6">
-            <span className="text-slate-900 text-xl font-semibold">
-              {category ? category.label : 'Overall Performance'}
-            </span>
-            {!category && (
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button 
-                    variant="outline" 
-                    className="bg-white border-slate-200 text-slate-900 hover:bg-slate-50"
-                  >
-                    <Calendar className="mr-2 h-4 w-4" />
-                    {dateRange?.from ? (
-                      dateRange.to ? (
-                        <>
-                          {format(dateRange.from, "LLL dd, y")} - {format(dateRange.to, "LLL dd, y")}
-                        </>
-                      ) : (
-                        format(dateRange.from, "LLL dd, y")
-                      )
-                    ) : (
-                      <span>Pick a date range</span>
-                    )}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent 
-                  className="bg-white border border-slate-200 p-0 shadow-lg rounded-xl w-auto" 
-                  align="end"
-                  sideOffset={8}
-                  style={{ zIndex: 9999 }}
-                >
-                  <div className="flex flex-col space-y-4 p-4">
-                    <Button
-                      variant="outline"
-                      className="w-full justify-center text-center font-normal col-span-2"
-                      onClick={() => setDateRange({ from: null, to: null })}
+    <Popover>
+      <PopoverTrigger asChild>
+        <Card className="relative overflow-hidden border-0 bg-white rounded-[32px] shadow-lg hover:shadow-xl transition-all cursor-pointer">
+          <CardContent className="p-6">
+            <div className="flex justify-between items-center mb-6">
+              <span className="text-slate-900 text-xl font-semibold">
+                {category ? category.label : 'Overall Performance'}
+              </span>
+              {!category && (
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button 
+                      variant="outline" 
+                      className="bg-white border-slate-200 text-slate-900 hover:bg-slate-50"
                     >
-                      All time
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {dateRange?.from ? (
+                        dateRange.to ? (
+                          <>
+                            {format(dateRange.from, "LLL dd, y")} - {format(dateRange.to, "LLL dd, y")}
+                          </>
+                        ) : (
+                          format(dateRange.from, "LLL dd, y")
+                        )
+                      ) : (
+                        <span>Pick a date range</span>
+                      )}
                     </Button>
-                    <CalendarComponent
-                      initialFocus
-                      mode="range"
-                      defaultMonth={dateRange?.from || new Date()}
-                      selected={{
-                        from: dateRange?.from ? new Date(dateRange.from) : undefined,
-                        to: dateRange?.to ? new Date(dateRange.to) : undefined
-                      }}
-                      onSelect={(range: DateRange | undefined) => {
-                        setDateRange({
-                          from: range?.from || null,
-                          to: range?.to || null
-                        });
-                      }}
-                      numberOfMonths={2}
-                      modifiers={{
-                        selected: (date) => {
-                          if (!dateRange?.from || !dateRange?.to) return false;
-                          return (
-                            date.getTime() === dateRange.from.getTime() ||
-                            date.getTime() === dateRange.to.getTime()
-                          );
-                        }
-                      }}
-                      modifiersStyles={{
-                        selected: {
-                          backgroundColor: 'rgb(15 23 42)',
-                          color: 'white'
-                        }
-                      }}
-                      className="bg-white [&_.rdp]:p-0 [&_.rdp-months]:space-x-4 [&_.rdp-month]:w-full [&_.rdp-day]:h-10 [&_.rdp-day]:w-10 [&_.rdp-day]:text-sm [&_.rdp-day]:font-normal [&_.rdp-day_span]:flex [&_.rdp-day_span]:h-full [&_.rdp-day_span]:w-full [&_.rdp-day_span]:items-center [&_.rdp-day_span]:justify-center [&_.rdp-day]:hover:bg-slate-100 [&_.rdp-day_button]:font-normal [&_.rdp-button]:hover:bg-slate-100 [&_.rdp-nav_button]:h-9 [&_.rdp-nav_button]:w-9 [&_.rdp-nav_button]:bg-transparent [&_.rdp-nav_button]:hover:bg-slate-100 [&_.rdp-head_cell]:font-normal [&_.rdp-head_cell]:text-slate-500 [&_.rdp-caption_label]:font-medium [&_.rdp-caption_label]:text-slate-900 [&_.rdp-day_selected]:bg-slate-900 [&_.rdp-day_selected]:text-white [&_.rdp-day_selected]:hover:bg-slate-900 [&_.rdp-day_selected]:hover:text-white [&_.rdp-day_range_start]:bg-slate-900 [&_.rdp-day_range_start]:text-white [&_.rdp-day_range_start]:hover:bg-slate-900 [&_.rdp-day_range_start]:hover:text-white [&_.rdp-day_range_end]:bg-slate-900 [&_.rdp-day_range_end]:text-white [&_.rdp-day_range_end]:hover:bg-slate-900 [&_.rdp-day_range_end]:hover:text-white [&_.rdp-day_range_middle]:bg-slate-100 [&_.rdp-day_today]:font-bold"
-                    />
-                    <div className="grid grid-cols-2 gap-2">
-                      <Button
-                        variant="outline"
-                        className="w-full justify-center text-center font-normal rounded-xl h-11 hover:bg-slate-100"
-                        onClick={() => {
-                          const end = new Date();
-                          const start = startOfWeek(end);
-                          setDateRange({ from: start, to: end });
-                        }}
-                      >
-                        This Week
-                      </Button>
-                      <Button
-                        variant="outline"
-                        className="w-full justify-center text-center font-normal rounded-xl h-11 hover:bg-slate-100"
-                        onClick={() => {
-                          const end = subDays(startOfWeek(new Date()), 1);
-                          const start = startOfWeek(end);
-                          setDateRange({ from: start, to: end });
-                        }}
-                      >
-                        Last Week
-                      </Button>
-                      <Button
-                        variant="outline"
-                        className="w-full justify-center text-center font-normal rounded-xl h-11 hover:bg-slate-100"
-                        onClick={() => {
-                          const end = new Date();
-                          const start = subDays(end, 7);
-                          setDateRange({ from: start, to: end });
-                        }}
-                      >
-                        Last 7 Days
-                      </Button>
-                      <Button
-                        variant="outline"
-                        className="w-full justify-center text-center font-normal rounded-xl h-11 hover:bg-slate-100"
-                        onClick={() => {
-                          const end = endOfMonth(new Date());
-                          const start = startOfMonth(new Date());
-                          setDateRange({ from: start, to: end });
-                        }}
-                      >
-                        This Month
-                      </Button>
-                      <Button
-                        variant="outline"
-                        className="w-full justify-center text-center font-normal rounded-xl h-11 hover:bg-slate-100"
-                        onClick={() => {
-                          const end = new Date();
-                          const start = subDays(end, 14);
-                          setDateRange({ from: start, to: end });
-                        }}
-                      >
-                        Last 14 Days
-                      </Button>
-                      <Button
-                        variant="outline"
-                        className="w-full justify-center text-center font-normal rounded-xl h-11 hover:bg-slate-100"
-                        onClick={() => {
-                          const end = new Date();
-                          const start = subDays(end, 30);
-                          setDateRange({ from: start, to: end });
-                        }}
-                      >
-                        Last 30 Days
-                      </Button>
+                  </PopoverTrigger>
+                  <PopoverContent 
+                    className="w-auto p-0" 
+                    align="start"
+                  >
+                    <div className="flex flex-col space-y-4 p-4">
+                      <div className="grid gap-2">
+                        <Calendar
+                          initialFocus
+                          mode="range"
+                          defaultMonth={dateRange?.from}
+                          selected={{
+                            from: dateRange?.from || undefined,
+                            to: dateRange?.to || undefined
+                          }}
+                          onSelect={(selectedRange) => {
+                            setDateRange({
+                              from: selectedRange?.from || null,
+                              to: selectedRange?.to || null
+                            });
+                          }}
+                          numberOfMonths={2}
+                          className="rounded-md border"
+                        />
+                      </div>
+                      <div className="grid grid-cols-2 gap-2">
+                        <Button
+                          variant="outline"
+                          onClick={() => {
+                            const end = new Date();
+                            const start = subDays(end, 6);
+                            setDateRange({ from: start, to: end });
+                          }}
+                        >
+                          Last 7 days
+                        </Button>
+                        <Button
+                          variant="outline"
+                          onClick={() => {
+                            const end = new Date();
+                            const start = subDays(end, 29);
+                            setDateRange({ from: start, to: end });
+                          }}
+                        >
+                          Last 30 days
+                        </Button>
+                        <Button
+                          variant="outline"
+                          onClick={() => {
+                            setDateRange({ from: null, to: null });
+                          }}
+                        >
+                          All time
+                        </Button>
+                      </div>
                     </div>
-                  </div>
-                </PopoverContent>
-              </Popover>
-            )}
-          </div>
+                  </PopoverContent>
+                </Popover>
+              )}
+            </div>
           <div className="h-[240px] relative">
             {chartData.length === 0 && (
               <div className="flex flex-col items-center justify-center h-full space-y-4">
