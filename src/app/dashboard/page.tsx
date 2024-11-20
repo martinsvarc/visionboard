@@ -440,6 +440,7 @@ const Chart = ({ data, category, dateRange, setDateRange }: ChartProps): JSX.Ele
     </Card>
   );
 };
+
 function DashboardComponent() {
   const [callLogs, setCallLogs] = useState<CallLog[]>([]);
   const [filteredCallLogs, setFilteredCallLogs] = useState<CallLog[]>([]);
