@@ -76,6 +76,7 @@ interface ChartProps {
     to: Date | null;
   };
   setDateRange: (range: { from: Date | null; to: Date | null }) => void;
+  filteredCallLogs: CallLog[];
 }
 
 interface ChartDataPoint {
@@ -332,21 +333,22 @@ const Chart: React.FC<ChartProps> = ({ data, category, dateRange, setDateRange }
     );
   };
 
-const staticDescriptions = {
-  engagement: "This metric evaluates the agent's ability to connect with customers and maintain meaningful interactions throughout the call. It measures rapport building, active listening, and customer engagement levels.",
-  objection_handling: "This score reflects how well the agent addresses customer concerns and manages challenging situations. It evaluates the ability to turn objections into opportunities and maintain professional composure.",
-  information_gathering: "This metric assesses the agent's proficiency in collecting relevant information and asking appropriate questions. It measures the thoroughness and efficiency of the discovery process.",
-  program_explanation: "This score evaluates how effectively the agent communicates program details and complex information. It measures clarity, completeness, and the ability to adjust explanations based on customer understanding.",
-  closing_skills: "This metric measures the agent's ability to guide conversations toward positive outcomes. It evaluates the use of appropriate closing techniques and the success rate in achieving call objectives.",
-  overall_effectiveness: "This comprehensive metric evaluates the agent's overall impact and success in handling calls. It considers all aspects of call management and customer interaction."
-};
+const Chart: React.FC<ChartProps> = ({ data, category, dateRange, setDateRange, filteredCallLogs }) => {
+  const staticDescriptions = {
+    engagement: "This metric evaluates the agent's ability to connect with customers and maintain meaningful interactions throughout the call. It measures rapport building, active listening, and customer engagement levels.",
+    objection_handling: "This score reflects how well the agent addresses customer concerns and manages challenging situations. It evaluates the ability to turn objections into opportunities and maintain professional composure.",
+    information_gathering: "This metric assesses the agent's proficiency in collecting relevant information and asking appropriate questions. It measures the thoroughness and efficiency of the discovery process.",
+    program_explanation: "This score evaluates how effectively the agent communicates program details and complex information. It measures clarity, completeness, and the ability to adjust explanations based on customer understanding.",
+    closing_skills: "This metric measures the agent's ability to guide conversations toward positive outcomes. It evaluates the use of appropriate closing techniques and the success rate in achieving call objectives.",
+    overall_effectiveness: "This comprehensive metric evaluates the agent's overall impact and success in handling calls. It considers all aspects of call management and customer interaction."
+  };
 
 const getCategoryDescription = (key: string) => {
-  return {
-    static: staticDescriptions[key as keyof typeof staticDescriptions] || "",
-    dynamic: filteredCallLogs[0]?.descriptions[key as keyof CategoryDescriptions] || ""
+    return {
+      static: staticDescriptions[key as keyof typeof staticDescriptions] || "",
+      dynamic: filteredCallLogs[0]?.descriptions[key as keyof CategoryDescriptions] || ""
+    };
   };
-};
 
 const getOverallDescription = () => {
   return {
@@ -708,23 +710,25 @@ const currentRecords = filteredCallLogs.slice().reverse().slice(indexOfFirstReco
     <div className="max-w-7xl mx-auto space-y-8 bg-white rounded-[32px] p-8 shadow-lg">
         {/* Overall Performance Chart */}
         <Chart 
-          data={filteredCallLogs} 
-          dateRange={dateRange} 
-          setDateRange={setDateRange} 
-        />
+  data={filteredCallLogs} 
+  dateRange={dateRange} 
+  setDateRange={setDateRange}
+  filteredCallLogs={filteredCallLogs}
+/>
 
         {/* Category Charts Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {scoreCategories.map((category) => (
-            <Chart 
-              key={category.key}
-              data={filteredCallLogs} 
-              category={category}
-              dateRange={dateRange} 
-              setDateRange={setDateRange}
-            />
-          ))}
-        </div>
+  {scoreCategories.map((category) => (
+    <Chart 
+      key={category.key}
+      data={filteredCallLogs} 
+      category={category}
+      dateRange={dateRange} 
+      setDateRange={setDateRange}
+      filteredCallLogs={filteredCallLogs}
+    />
+  ))}
+</div>
 
         {/* Call Records */}
         <div className="space-y-6">
