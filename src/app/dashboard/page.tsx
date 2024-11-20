@@ -3,6 +3,7 @@
 import React, { useEffect, useState, useCallback, Suspense } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import { Tooltip as RechartsTooltip } from 'recharts';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer, AreaChart, Area, ReferenceLine } from 'recharts'
 import { Tooltip as RechartsTooltip } from 'recharts'
@@ -513,7 +514,7 @@ return (
                     tick={{ fill: 'rgba(0,0,0,0.6)', fontSize: 10 }} 
                     domain={[0, 100]} 
                   />
-                  <RechartsTooltip content={<CustomTooltip />} />
+  <RechartsTooltip content={CustomTooltip} />
                 <Area 
   type="monotone" 
   dataKey="value" 
