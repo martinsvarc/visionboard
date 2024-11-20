@@ -332,43 +332,25 @@ const Chart: React.FC<ChartProps> = ({ data, category, dateRange, setDateRange }
     );
   };
 
+const staticDescriptions = {
+  engagement: "This metric evaluates the agent's ability to connect with customers and maintain meaningful interactions throughout the call. It measures rapport building, active listening, and customer engagement levels.",
+  objection_handling: "This score reflects how well the agent addresses customer concerns and manages challenging situations. It evaluates the ability to turn objections into opportunities and maintain professional composure.",
+  information_gathering: "This metric assesses the agent's proficiency in collecting relevant information and asking appropriate questions. It measures the thoroughness and efficiency of the discovery process.",
+  program_explanation: "This score evaluates how effectively the agent communicates program details and complex information. It measures clarity, completeness, and the ability to adjust explanations based on customer understanding.",
+  closing_skills: "This metric measures the agent's ability to guide conversations toward positive outcomes. It evaluates the use of appropriate closing techniques and the success rate in achieving call objectives.",
+  overall_effectiveness: "This comprehensive metric evaluates the agent's overall impact and success in handling calls. It considers all aspects of call management and customer interaction."
+};
+
 const getCategoryDescription = (key: string) => {
   return {
     static: staticDescriptions[key as keyof typeof staticDescriptions] || "",
-    // Now getting dynamic descriptions from the database
     dynamic: filteredCallLogs[0]?.descriptions[key as keyof CategoryDescriptions] || ""
-  };
-};
-  // Static descriptions that don't change
-  const staticDescriptions = {
-    engagement: "This metric evaluates the agent's ability to connect with customers and maintain meaningful interactions throughout the call. It measures rapport building, active listening, and customer engagement levels.",
-    objection_handling: "This score reflects how well the agent addresses customer concerns and manages challenging situations. It evaluates the ability to turn objections into opportunities and maintain professional composure.",
-    information_gathering: "This metric assesses the agent's proficiency in collecting relevant information and asking appropriate questions. It measures the thoroughness and efficiency of the discovery process.",
-    program_explanation: "This score evaluates how effectively the agent communicates program details and complex information. It measures clarity, completeness, and the ability to adjust explanations based on customer understanding.",
-    closing_skills: "This metric measures the agent's ability to guide conversations toward positive outcomes. It evaluates the use of appropriate closing techniques and the success rate in achieving call objectives.",
-    overall_effectiveness: "This comprehensive metric evaluates the agent's overall impact and success in handling calls. It considers all aspects of call management and customer interaction."
-  };
-
-  // TODO: Replace with your database fetch for dynamic descriptions
-  const dynamicDescriptions = {
-    engagement: "Dynamic description for engagement from database",
-    objection_handling: "Dynamic description for objection handling from database",
-    information_gathering: "Dynamic description for information gathering from database",
-    program_explanation: "Dynamic description for program explanation from database",
-    closing_skills: "Dynamic description for closing skills from database",
-    overall_effectiveness: "Dynamic description for overall effectiveness from database"
-  };
-
-  return {
-    static: staticDescriptions[key as keyof typeof staticDescriptions] || "",
-    dynamic: dynamicDescriptions[key as keyof typeof dynamicDescriptions] || ""
   };
 };
 
 const getOverallDescription = () => {
   return {
     static: "This comprehensive score represents the agent's overall performance across all measured metrics. It takes into account engagement, objection handling, information gathering, program explanation, closing skills, and overall effectiveness. Click and drag on the chart to compare performance between different points.",
-    // Now getting dynamic description from the database
     dynamic: filteredCallLogs[0]?.descriptions.overall_performance || ""
   };
 };
