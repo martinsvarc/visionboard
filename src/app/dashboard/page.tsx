@@ -72,6 +72,14 @@ interface ChartDataPoint {
   value: number;
 }
 
+  const data = payload[0];
+  return (
+    <div className="bg-black/80 text-white p-2 rounded-lg text-sm">
+      <p>{`Call ${data.payload.name}: ${data.value.toFixed(1)}%`}</p>
+    </div>
+  );
+};
+
 type CustomTooltipProps = {
   active?: boolean;
   payload?: Array<{
@@ -80,10 +88,9 @@ type CustomTooltipProps = {
       name: string;
     };
   }>;
-  label?: string;
 };
 
-const CustomTooltip = ({ active, payload }: CustomTooltipProps) => {
+const CustomTooltip: React.FC<CustomTooltipProps> = ({ active, payload }) => {
   if (!active || !payload || !payload.length) {
     return null;
   }
@@ -95,21 +102,6 @@ const CustomTooltip = ({ active, payload }: CustomTooltipProps) => {
     </div>
   );
 };
-
-type CustomTooltipProps = RechartsTooltipProps<number, string> & {
-  active?: boolean;
-  payload?: Array<{
-    payload: {
-      name: string;
-      value: number;
-    };
-  }>;
-};
-
-const CustomTooltip = ({ active, payload }: CustomTooltipProps) => {
-  if (!active || !payload || !payload.length || !payload[0]) {
-    return null;
-  }
 
   const data = payload[0];
   if (!data.payload || !data.payload.value) {
