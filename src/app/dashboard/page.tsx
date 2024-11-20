@@ -72,14 +72,6 @@ interface ChartDataPoint {
   value: number;
 }
 
-  const data = payload[0];
-  return (
-    <div className="bg-black/80 text-white p-2 rounded-lg text-sm">
-      <p>{`Call ${data.payload.name}: ${data.value.toFixed(1)}%`}</p>
-    </div>
-  );
-};
-
 type CustomTooltipProps = {
   active?: boolean;
   payload?: Array<{
@@ -99,18 +91,6 @@ const CustomTooltip: React.FC<CustomTooltipProps> = ({ active, payload }) => {
   return (
     <div className="bg-black/80 text-white p-2 rounded-lg text-sm">
       <p>{`Call ${data.payload.name}: ${data.value.toFixed(1)}%`}</p>
-    </div>
-  );
-};
-
-  const data = payload[0];
-  if (!data.payload || !data.payload.value) {
-    return null;
-  }
-
-  return (
-    <div className="bg-black/80 text-white p-2 rounded-lg text-sm">
-      <p>{`Call ${data.payload.name}: ${data.payload.value.toFixed(1)}%`}</p>
     </div>
   );
 };
