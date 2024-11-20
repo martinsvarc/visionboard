@@ -314,19 +314,45 @@ const Chart: React.FC<ChartProps> = ({ data, category, dateRange, setDateRange }
     return null;
   };
 return (
-<Card className="relative overflow-hidden border-0 bg-white rounded-[32px] shadow-lg">
-      <CardContent className="p-6">
-        <div className="flex justify-between items-center mb-6">
-          <span className="text-slate-900 text-xl font-semibold">
-            {category ? category.label : 'Overall Performance'}
-          </span>
-          {!category && (
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button 
-                  variant="outline" 
-                  className="bg-white border-slate-200 text-slate-900 hover:bg-slate-50"
-                >
+  <Card className="relative overflow-hidden border-0 bg-white rounded-[32px] shadow-lg">
+    <CardContent className="p-6">
+      <div className="flex justify-between items-center mb-6">
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button 
+              variant="ghost" 
+              className="p-0 hover:bg-transparent"
+            >
+              <span className="text-slate-900 text-xl font-semibold">
+                {category ? category.label : 'Overall Performance'}
+              </span>
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-80 bg-white p-4 rounded-xl shadow-xl">
+            <div className="space-y-4">
+              <h3 className="text-xl font-bold text-slate-900">
+                {category ? category.label : 'Overall Performance'}
+              </h3>
+              <div className="text-6xl font-bold text-center" style={{ color: getScoreColor(latestValue ?? 0) }}>
+                {latestValue ? Math.round(latestValue) : 0}
+                <span className="text-2xl text-slate-600">/100</span>
+              </div>
+              {category && data.length > 0 && (
+                <p className="text-slate-600 whitespace-pre-line">
+                  {data[data.length - 1].feedback[category.key as keyof typeof data[data.length - 1].feedback]}
+                </p>
+              )}
+            </div>
+          </PopoverContent>
+        </Popover>
+        
+        {!category && (
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button 
+                variant="outline" 
+                className="bg-white border-slate-200 text-slate-900 hover:bg-slate-50"
+              >
                   <Calendar className="mr-2 h-4 w-4" />
                   {dateRange?.from ? (
                     dateRange.to ? (
