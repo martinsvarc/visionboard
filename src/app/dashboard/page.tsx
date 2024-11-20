@@ -3,6 +3,7 @@
 import React, { useEffect, useState, useCallback, Suspense } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import { TooltipProps as RechartsTooltipProps } from 'recharts';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer, AreaChart, Area, ReferenceLine } from 'recharts'
 import { Tooltip as RechartsTooltip } from 'recharts'
@@ -81,6 +82,33 @@ interface ChartDataPoint {
   name: string;
   value: number;
 }
+
+type CustomTooltipProps = RechartsTooltipProps<number, string> & {
+  active?: boolean;
+  payload?: Array<{
+    payload: {
+      name: string;
+      value: number;
+    };
+  }>;
+};
+
+const CustomTooltip = ({ active, payload }: CustomTooltipProps) => {
+  if (!active || !payload || !payload.length || !payload[0]) {
+    return null;
+  }
+
+  const data = payload[0];
+  if (!data.payload || !data.payload.value) {
+    return null;
+  }
+
+  return (
+    <div className="bg-black/80 text-white p-2 rounded-lg text-sm">
+      <p>{`Call ${data.payload.name}: ${data.payload.value.toFixed(1)}%`}</p>
+    </div>
+  );
+};
 
 const getScoreColor = (score: number) => {
   if (score >= 95) return "#556bc7"; // Blue
