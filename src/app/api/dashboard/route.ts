@@ -13,6 +13,16 @@ interface CategoryScores {
   average_success: number;
 }
 
+interface CategoryDescriptions {
+  engagement: string;
+  objection_handling: string;
+  information_gathering: string;
+  program_explanation: string;
+  closing_skills: string;
+  overall_effectiveness: string;
+  overall_performance: string;
+}
+
 interface CategoryFeedback {
   engagement: string;
   objection_handling: string;
@@ -24,13 +34,14 @@ interface CategoryFeedback {
 
 interface CallData {
   user_name: string;
-  user_picture_url: string;  // Added this line
+  user_picture_url: string;
   agent_name: string;
   agent_picture_url: string;
   call_recording_url: string;
   call_details: string;
   scores: CategoryScores;
   feedback: CategoryFeedback;
+  descriptions: CategoryDescriptions;
 }
 
 // GET endpoint
