@@ -321,6 +321,29 @@ const Chart: React.FC<ChartProps> = ({ data, category, dateRange, setDateRange }
     );
   };
 
+const getCategoryDescription = (key: string) => {
+  switch (key) {
+    case 'engagement':
+      return "This metric evaluates how well the agent builds rapport and maintains customer interest throughout the call. High engagement scores indicate strong connection with customers and active participation in conversations.";
+    case 'objection_handling':
+      return "Measures the agent's ability to address customer concerns and overcome resistance professionally. High scores reflect skillful navigation of challenging situations and effective problem resolution.";
+    case 'information_gathering':
+      return "Assesses how effectively the agent collects relevant customer information and asks appropriate discovery questions. High scores indicate thorough understanding of customer needs and systematic information collection.";
+    case 'program_explanation':
+      return "Evaluates the clarity and completeness of program/service explanations. High scores show the agent's ability to communicate complex information in an understandable way.";
+    case 'closing_skills':
+      return "Measures the agent's ability to guide conversations toward positive outcomes. High scores indicate effective use of closing techniques and successful conversion of opportunities.";
+    case 'overall_effectiveness':
+      return "Combines various performance metrics to evaluate the agent's overall impact. High scores reflect consistent excellence across all aspects of call handling.";
+    default:
+      return "Performance analysis across multiple evaluation criteria.";
+  }
+};
+
+const getOverallDescription = () => {
+  return "This comprehensive score represents the agent's overall performance across all measured metrics. It takes into account engagement, objection handling, information gathering, program explanation, closing skills, and overall effectiveness. Click and drag on the chart to compare performance between different points.";
+};
+
 return (
   <Popover>
     <PopoverTrigger asChild>
@@ -550,13 +573,14 @@ return (
     </PopoverTrigger>
     <PopoverContent className="w-[600px] bg-white p-6 rounded-xl shadow-xl">
   <div className="space-y-6">
-    <h3 className="text-xl font-bold text-slate-900">Performance Analysis</h3>
+    <h3 className="text-xl font-bold text-slate-900">
+      {category ? `${category.label} Analysis` : 'Overall Performance Analysis'}
+    </h3>
     <div className="text-6xl font-bold text-center" style={{ color: getScoreColor(latestValue ?? 0) }}>
       {Math.round(latestValue ?? 0)}<span className="text-2xl text-slate-600">/100</span>
     </div>
     <p className="text-slate-600">
-      This score represents the overall performance across all measured metrics. 
-      Click and drag on the chart to compare performance between different points.
+      {category ? getCategoryDescription(category.key) : getOverallDescription()}
     </p>
   </div>
 </PopoverContent>
