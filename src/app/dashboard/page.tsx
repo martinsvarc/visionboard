@@ -218,68 +218,6 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ audioSrc, caller }) => {
   );
 };
 
-  const latestValue = chartData.length > 0 ? chartData[chartData.length - 1].value : null;
-
-  const handleClick = (point: ChartDataPoint | null) => {
-    if (!point) {
-      setSelectedPoints([]);
-      setPercentageChange(null);
-      return;
-    }
-
-    if (selectedPoints.length === 2) {
-      setSelectedPoints([]);
-      setPercentageChange(null);
-    } else if (selectedPoints.length === 1) {
-      if (Number(point.name) > Number(selectedPoints[0].name)) {
-        const newSelectedPoints = [...selectedPoints, point].sort((a, b) => 
-          Number(a.name) - Number(b.name)
-        );
-        setSelectedPoints(newSelectedPoints);
-        const change = ((newSelectedPoints[1].value - newSelectedPoints[0].value) / 
-          newSelectedPoints[0].value) * 100;
-        setPercentageChange(change.toFixed(2));
-      } else {
-        setSelectedPoints([]);
-        setPercentageChange(null);
-      }
-    } else {
-      setSelectedPoints([point]);
-    }
-  };
-
-  interface CustomDotProps {
-    cx: number;
-    cy: number;
-    payload: ChartDataPoint;
-  }
-
-  const CustomizedDot = (props: CustomDotProps) => {
-    const { cx, cy, payload } = props;
-    const isSelected = selectedPoints.some(point => point.name === payload.name);
-    
-    if (isSelected) {
-      return (
-        <circle 
-          cx={cx} 
-          cy={cy} 
-          r={6} 
-          fill={category ? category.color : "#10B981"} 
-          stroke="#FFFFFF" 
-          strokeWidth={2} 
-        />
-      );
-    }
-    return (
-      <circle 
-        cx={cx} 
-        cy={cy} 
-        r={0} 
-        fill="none" 
-      />
-    );
-  };
-
   interface CustomizedLabelProps {
     value: string;
     viewBox: {
@@ -356,6 +294,68 @@ const chartData = data.filter((item) => {
     name: String(index + 1),
     value: category ? item.scores[category.key as keyof typeof item.scores] : item.scores.overall_effectiveness
   }));
+
+ const latestValue = chartData.length > 0 ? chartData[chartData.length - 1].value : null;
+
+const handleClick = (point: ChartDataPoint | null) => {
+    if (!point) {
+      setSelectedPoints([]);
+      setPercentageChange(null);
+      return;
+    }
+
+    if (selectedPoints.length === 2) {
+      setSelectedPoints([]);
+      setPercentageChange(null);
+    } else if (selectedPoints.length === 1) {
+      if (Number(point.name) > Number(selectedPoints[0].name)) {
+        const newSelectedPoints = [...selectedPoints, point].sort((a, b) => 
+          Number(a.name) - Number(b.name)
+        );
+        setSelectedPoints(newSelectedPoints);
+        const change = ((newSelectedPoints[1].value - newSelectedPoints[0].value) / 
+          newSelectedPoints[0].value) * 100;
+        setPercentageChange(change.toFixed(2));
+      } else {
+        setSelectedPoints([]);
+        setPercentageChange(null);
+      }
+    } else {
+      setSelectedPoints([point]);
+    }
+  };
+
+  interface CustomDotProps {
+    cx: number;
+    cy: number;
+    payload: ChartDataPoint;
+  }
+
+  const CustomizedDot = (props: CustomDotProps) => {
+    const { cx, cy, payload } = props;
+    const isSelected = selectedPoints.some(point => point.name === payload.name);
+    
+    if (isSelected) {
+      return (
+        <circle 
+          cx={cx} 
+          cy={cy} 
+          r={6} 
+          fill={category ? category.color : "#10B981"} 
+          stroke="#FFFFFF" 
+          strokeWidth={2} 
+        />
+      );
+    }
+    return (
+      <circle 
+        cx={cx} 
+        cy={cy} 
+        r={0} 
+        fill="none" 
+      />
+    );
+  };
 
 return (
   <Popover>
