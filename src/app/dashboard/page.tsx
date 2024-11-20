@@ -585,14 +585,14 @@ return (
       </Card>
     </PopoverTrigger>
     <PopoverContent className="w-[600px] bg-white p-6 rounded-xl shadow-xl">
-  <div className="space-y-6">
+  <div className="space-y-3"> {/* Changed from space-y-6 to space-y-3 */}
     {/* 1. Title */}
     <h3 className="text-xl font-bold text-slate-900">
       {category ? `${category.label} Analysis` : 'Overall Performance Analysis'}
     </h3>
 
-    {/* 2. Static Description - Added text-sm and italic classes */}
-    <p className="text-slate-600 text-sm italic">
+    {/* 2. Static Description */}
+    <p className="text-slate-600">
       {category ? getCategoryDescription(category.key).static : getOverallDescription().static}
     </p>
 
@@ -601,7 +601,7 @@ return (
       {Math.round(latestValue ?? 0)}<span className="text-2xl text-slate-600">/100</span>
     </div>
 
-    {/* 4. Dynamic Description - Also added text-sm and italic classes */}
+    {/* 4. Dynamic Description */}
     <p className="text-slate-600 text-sm italic">
       {category ? getCategoryDescription(category.key).dynamic : getOverallDescription().dynamic}
     </p>
