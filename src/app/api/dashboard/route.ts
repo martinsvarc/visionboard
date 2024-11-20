@@ -55,33 +55,43 @@ export const GET = async (request: Request) => {
     `;
 
     const transformedRows = rows.map(row => ({
-      id: row.id,
-      call_number: row.call_number,
-      user_name: row.user_name,
-      agent_name: row.agent_name,
-      agent_picture_url: row.agent_picture_url,
-      call_date: row.call_date,
-      call_recording_url: row.call_recording_url,
-      call_details: row.call_details,
-      scores: {
-        engagement: parseFloat(row.engagement_score),
-        objection_handling: parseFloat(row.objection_handling_score),
-        information_gathering: parseFloat(row.information_gathering_score),
-        program_explanation: parseFloat(row.program_explanation_score),
-        closing_skills: parseFloat(row.closing_skills_score),
-        overall_effectiveness: parseFloat(row.overall_effectiveness_score),
-        overall_performance: parseFloat(row.overall_performance_score),
-        average_success: parseFloat(row.average_success_score)
-      },
-      feedback: {
-        engagement: row.engagement_feedback,
-        objection_handling: row.objection_handling_feedback,
-        information_gathering: row.information_gathering_feedback,
-        program_explanation: row.program_explanation_feedback,
-        closing_skills: row.closing_skills_feedback,
-        overall_effectiveness: row.overall_effectiveness_feedback
-      }
-    }));
+  id: row.id,
+  call_number: row.call_number,
+  user_name: row.user_name,
+  agent_name: row.agent_name,
+  agent_picture_url: row.agent_picture_url,
+  call_date: row.call_date,
+  call_recording_url: row.call_recording_url,
+  call_details: row.call_details,
+  scores: {
+    engagement: parseFloat(row.engagement_score),
+    objection_handling: parseFloat(row.objection_handling_score),
+    information_gathering: parseFloat(row.information_gathering_score),
+    program_explanation: parseFloat(row.program_explanation_score),
+    closing_skills: parseFloat(row.closing_skills_score),
+    overall_effectiveness: parseFloat(row.overall_effectiveness_score),
+    overall_performance: parseFloat(row.overall_performance_score),
+    average_success: parseFloat(row.average_success_score)
+  },
+  feedback: {
+    engagement: row.engagement_feedback,
+    objection_handling: row.objection_handling_feedback,
+    information_gathering: row.information_gathering_feedback,
+    program_explanation: row.program_explanation_feedback,
+    closing_skills: row.closing_skills_feedback,
+    overall_effectiveness: row.overall_effectiveness_feedback
+  },
+  // Add this new section for descriptions
+  descriptions: {
+    engagement: row.engagement_description,
+    objection_handling: row.objection_handling_description,
+    information_gathering: row.information_gathering_description,
+    program_explanation: row.program_explanation_description,
+    closing_skills: row.closing_skills_description,
+    overall_effectiveness: row.overall_effectiveness_description,
+    overall_performance: row.overall_performance_description
+  }
+}));
 
     return NextResponse.json(transformedRows);
   } catch (error) {
