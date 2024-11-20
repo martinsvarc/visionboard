@@ -218,7 +218,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ audioSrc, caller }) => {
   );
 };
 
-const Chart: React.FC<ChartProps> = ({ data, category, dateRange, setDateRange }) => {
+const Chart: React.FC<ChartProps> = ({ data, category, dateRange, setDateRange, filteredCallLogs }) => {
   const [selectedPoints, setSelectedPoints] = useState<ChartDataPoint[]>([]);
   const [percentageChange, setPercentageChange] = useState<string | null>(null);
 
