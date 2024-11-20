@@ -534,12 +534,48 @@ return (
               </ResponsiveContainer>
              <Popover>
   <PopoverTrigger asChild>
+    <Popover>
+  <PopoverTrigger asChild>
     <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex flex-col items-center cursor-pointer hover:opacity-90 transition-opacity" style={{ zIndex: 0 }}>
       <div className="text-lg text-slate-600 mb-2">Average Score</div>
       <div className="text-6xl font-bold tracking-tight" style={{ color: getScoreColor(latestValue ?? 0) }}>
         {Math.round(latestValue ?? 0)}<span className="text-4xl">/100</span>
       </div>
     </div>
+  </PopoverTrigger>
+  <PopoverContent className="w-[600px] bg-white p-6 rounded-xl shadow-xl">
+    <div className="space-y-6">
+      <h3 className="text-xl font-bold text-slate-900">Performance Analysis</h3>
+      
+      {/* Score Display */}
+      <div className="text-6xl font-bold text-center" style={{ color: getScoreColor(latestValue ?? 0) }}>
+        {Math.round(latestValue ?? 0)}<span className="text-2xl text-slate-600">/100</span>
+      </div>
+
+      {/* Chart Stats */}
+      <div className="grid grid-cols-2 gap-4">
+        <div className="bg-slate-50 p-4 rounded-lg">
+          <p className="text-sm text-slate-600">Current Performance</p>
+          <p className="text-2xl font-bold" style={{ color: getScoreColor(latestValue ?? 0) }}>
+            {Math.round(latestValue ?? 0)}%
+          </p>
+        </div>
+        <div className="bg-slate-50 p-4 rounded-lg">
+          <p className="text-sm text-slate-600">Average Performance</p>
+          <p className="text-2xl font-bold" style={{ color: getScoreColor(latestValue ?? 0) }}>
+            {Math.round(chartData.reduce((acc, curr) => acc + curr.value, 0) / chartData.length)}%
+          </p>
+        </div>
+      </div>
+
+      {/* Description */}
+      <p className="text-slate-600">
+        This score represents the overall performance across all measured metrics. 
+        Click and drag on the chart to compare performance between different points.
+      </p>
+    </div>
+  </PopoverContent>
+</Popover>
   </PopoverTrigger>
   <PopoverContent className="w-[600px] bg-white p-6 rounded-xl shadow-xl">
     <div className="space-y-6">
