@@ -218,15 +218,6 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ audioSrc, caller }) => {
   );
 };
 
-  const chartData = data.filter((item) => {
-    if (!dateRange || !dateRange.from || !dateRange.to) return true;
-    const itemDate = new Date(item.call_date);
-    return itemDate >= dateRange.from && itemDate <= dateRange.to;
-  }).map((item, index) => ({
-    name: String(index + 1),
-    value: category ? item.scores[category.key as keyof typeof item.scores] : item.scores.overall_effectiveness
-  }));
-
   const latestValue = chartData.length > 0 ? chartData[chartData.length - 1].value : null;
 
   const handleClick = (point: ChartDataPoint | null) => {
@@ -356,6 +347,15 @@ const getOverallDescription = () => {
     dynamic: filteredCallLogs[0]?.descriptions.overall_performance || ""
   };
 };
+
+const chartData = data.filter((item) => {
+    if (!dateRange || !dateRange.from || !dateRange.to) return true;
+    const itemDate = new Date(item.call_date);
+    return itemDate >= dateRange.from && itemDate <= dateRange.to;
+  }).map((item, index) => ({
+    name: String(index + 1),
+    value: category ? item.scores[category.key as keyof typeof item.scores] : item.scores.overall_effectiveness
+  }));
 
 return (
   <Popover>
