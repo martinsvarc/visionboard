@@ -794,45 +794,89 @@ const currentRecords = filteredCallLogs.slice().reverse().slice(indexOfFirstReco
 </div>
   </div>                  
                   {/* Scores Grid */}
-                  <div className="md:w-2/3">
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                      {scoreCategories.map(({ key, label }) => (
-                      <Popover>
-  <PopoverTrigger asChild>
-    <button 
-      className="bg-white p-6 rounded-3xl shadow-lg hover:shadow-xl transition-shadow w-full h-48 relative"
-    >
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-full">
-        <div className="text-base font-medium text-slate-600 text-center">
-          {label}
-        </div>
-      </div>
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 w-full">
-        <div className="flex items-baseline justify-center">
-          <span 
-            className="text-5xl font-bold" 
-            style={{ color: getScoreColor(call.scores[key as keyof typeof call.scores]) }}
+               // Find this section in your DashboardComponent:
+{/* Scores Grid */}
+<div className="md:w-2/3">
+  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+    {scoreCategories.map(({ key, label }) => (
+      <Popover key={key}>
+        <PopoverTrigger asChild>
+          <button 
+            className="bg-white p-6 rounded-3xl shadow-lg hover:shadow-xl transition-shadow w-full h-48 relative"
           >
-            {call.scores[key as keyof typeof call.scores]}
-          </span>
-          <span className="text-xl text-slate-600 ml-1">/100</span>
-        </div>
-      </div>
-    </button>
-  </PopoverTrigger>
-  <PopoverContent className="w-80 bg-white p-4 rounded-xl shadow-xl">
-    <div className="space-y-4">
-      <h3 className="text-xl font-bold text-slate-900">{label}</h3>
-      <div className="text-6xl font-bold text-center text-[#556bc7] my-4">
-        {call.scores[key as keyof typeof call.scores]}
-        <span className="text-2xl text-slate-600">/100</span>
-      </div>
-      <p className="text-slate-600 whitespace-pre-line">
-        {call.feedback[key as keyof typeof call.feedback]}
-      </p>
-    </div>
-  </PopoverContent>
-</Popover>
+            <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-full">
+              <div className="text-base font-medium text-slate-600 text-center">
+                {label}
+              </div>
+            </div>
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 w-full">
+              <div className="flex items-baseline justify-center">
+                <span 
+                  className="text-5xl font-bold" 
+                  style={{ color: getScoreColor(call.scores[key as keyof typeof call.scores]) }}
+                >
+                  {call.scores[key as keyof typeof call.scores]}
+                </span>
+                <span className="text-xl text-slate-600 ml-1">/100</span>
+              </div>
+            </div>
+          </button>
+        </PopoverTrigger>
+        <PopoverContent className="w-[600px] bg-white p-6 rounded-xl shadow-xl">
+          <div className="space-y-6">
+            <h3 className="text-xl font-bold text-slate-900">{label}</h3>
+            
+            {/* Score Display */}
+            <div className="text-6xl font-bold text-center" style={{ color: getScoreColor(call.scores[key as keyof typeof call.scores]) }}>
+              {call.scores[key as keyof typeof call.scores]}
+              <span className="text-2xl text-slate-600">/100</span>
+            </div>
+
+            {/* Chart Section */}
+            <div className="h-[200px] w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart 
+                  data={[{ name: '1', value: call.scores[key as keyof typeof call.scores] }]}
+                  margin={{ top: 20, right: 20, bottom: 20, left: 20 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.1)" />
+                  <XAxis 
+                    dataKey="name" 
+                    axisLine={false} 
+                    tickLine={false}
+                  />
+                  <YAxis 
+                    axisLine={false} 
+                    tickLine={false} 
+                    domain={[0, 100]} 
+                  />
+                  <Area
+                    type="monotone"
+                    dataKey="value"
+                    stroke={getScoreColor(call.scores[key as keyof typeof call.scores])}
+                    fill={`url(#colorGradient-${key})`}
+                    strokeWidth={3}
+                  />
+                  <defs>
+                    <linearGradient id={`colorGradient-${key}`} x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor={getScoreColor(call.scores[key as keyof typeof call.scores])} stopOpacity={0.3}/>
+                      <stop offset="95%" stopColor={getScoreColor(call.scores[key as keyof typeof call.scores])} stopOpacity={0.1}/>
+                    </linearGradient>
+                  </defs>
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+
+            {/* Feedback Text */}
+            <p className="text-slate-600 whitespace-pre-line">
+              {call.feedback[key as keyof typeof call.feedback]}
+            </p>
+          </div>
+        </PopoverContent>
+      </Popover>
+    ))}
+  </div>
+</div>
                       ))}
                     </div>
                   </div>
