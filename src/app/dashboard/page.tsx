@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useEffect, useState, useCallback, Suspense } from 'react'
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer, AreaChart, Area, ReferenceLine } from 'recharts'
@@ -188,7 +188,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ audioSrc, caller }) => {
   );
 };
 
-function Chart({ data, category, dateRange, setDateRange }: ChartProps) {
+const Chart: React.FC<ChartProps> = ({ data, category, dateRange, setDateRange }) => {
   const [selectedPoints, setSelectedPoints] = useState<ChartDataPoint[]>([]);
   const [percentageChange, setPercentageChange] = useState<string | null>(null);
 
@@ -231,34 +231,39 @@ function Chart({ data, category, dateRange, setDateRange }: ChartProps) {
     }
   };
 
-  const CustomizedDot = ({ cx, cy, payload }: { cx: number; cy: number; payload: ChartDataPoint }) => {
+  interface CustomDotProps {
+    cx: number;
+    cy: number;
+    payload: ChartDataPoint;
+  }
+
+  const CustomizedDot = (props: CustomDotProps) => {
+    const { cx, cy, payload } = props;
     const isSelected = selectedPoints.some(point => point.name === payload.name);
-    return isSelected ? (
+    
+    if (isSelected) {
+      return (
+        <circle 
+          cx={cx} 
+          cy={cy} 
+          r={6} 
+          fill={category ? category.color : "#10B981"} 
+          stroke="#FFFFFF" 
+          strokeWidth={2} 
+        />
+      );
+    }
+    return (
       <circle 
         cx={cx} 
         cy={cy} 
-        r={6} 
-        fill={category ? category.color : "#10B981"} 
-        stroke="#FFFFFF" 
-        strokeWidth={2} 
+        r={0} 
+        fill="none" 
       />
-    ) : (
-      <circle cx={cx} cy={cy} r={0} fill="none" />
     );
   };
 
-  const CustomTooltip = ({ active, payload, label }: any) => {
-    if (active && payload && payload.length) {
-      return (
-        <div className="bg-black/80 text-white p-2 rounded-lg text-sm">
-          <p>{`Call ${label}: ${payload[0].value.toFixed(1)}%`}</p>
-        </div>
-      );
-    }
-    return null;
-  };
-
- interface CustomizedLabelProps {
+  interface CustomizedLabelProps {
     value: string;
     viewBox: {
       x: number;
@@ -298,51 +303,23 @@ function Chart({ data, category, dateRange, setDateRange }: ChartProps) {
     );
   };
 
-  return (
-    <Card className="relative overflow-hidden border-0 bg-white rounded-[32px] shadow-lg">
+  const CustomTooltip = ({ active, payload, label }: any) => {
+    if (active && payload && payload.length) {
+      return (
+        <div className="bg-black/80 text-white p-2 rounded-lg text-sm">
+          <p>{`Call ${label}: ${payload[0].value.toFixed(1)}%`}</p>
+        </div>
+      );
+    }
+    return null;
+  };
+return (
+<Card className="relative overflow-hidden border-0 bg-white rounded-[32px] shadow-lg">
       <CardContent className="p-6">
         <div className="flex justify-between items-center mb-6">
-          <Popover>
-  <PopoverTrigger asChild>
-    <button 
-      className="bg-white p-6 rounded-3xl shadow-lg hover:shadow-xl transition-shadow relative"
-    >
-      <div className="w-full">
-        <div className="text-base font-medium text-slate-600 text-center">
-          {category ? category.label : 'Overall Performance'}
-        </div>
-      </div>
-      <div className="w-full">
-        <div className="flex items-baseline justify-center">
-          <span 
-            className="text-5xl font-bold" 
-            style={{ color: getScoreColor(latestValue ?? 0) }}
-          >
-            {latestValue ? Math.round(latestValue) : 0}
+          <span className="text-slate-900 text-xl font-semibold">
+            {category ? category.label : 'Overall Performance'}
           </span>
-          <span className="text-xl text-slate-600 ml-1">/100</span>
-        </div>
-      </div>
-    </button>
-  </PopoverTrigger>
-  <PopoverContent className="w-80 bg-white p-4 rounded-xl shadow-xl">
-    <div className="space-y-4">
-      <h3 className="text-xl font-bold text-slate-900">
-        {category ? category.label : 'Overall Performance'}
-      </h3>
-      <div className="text-6xl font-bold text-center text-[#556bc7] my-4">
-        {latestValue ? Math.round(latestValue) : 0}
-        <span className="text-2xl text-slate-600">/100</span>
-      </div>
-      {category && data.length > 0 && (
-        <p className="text-slate-600 whitespace-pre-line">
-          {data[data.length - 1].feedback[category.key as keyof typeof data[data.length - 1].feedback]}
-        </p>
-      )}
-    </div>
-  </PopoverContent>
-</Popover>
-
           {!category && (
             <Popover>
               <PopoverTrigger asChild>
@@ -365,15 +342,124 @@ function Chart({ data, category, dateRange, setDateRange }: ChartProps) {
                 </Button>
               </PopoverTrigger>
               <PopoverContent 
-                className="w-auto p-0" 
+                className="bg-white border border-slate-200 p-0 shadow-lg rounded-xl w-auto" 
                 align="end"
+                sideOffset={8}
+                style={{ zIndex: 9999 }}
               >
-
+                <div className="flex flex-col space-y-4 p-4">
+                  <Button
+                    variant="outline"
+                    className="w-full justify-center text-center font-normal col-span-2"
+                    onClick={() => setDateRange({ from: null, to: null })}
+                  >
+                    All time
+                  </Button>
+                  <CalendarComponent
+  initialFocus
+  mode="range"
+  defaultMonth={dateRange?.from || new Date()}
+  selected={{
+    from: dateRange?.from ? new Date(dateRange.from) : undefined,
+    to: dateRange?.to ? new Date(dateRange.to) : undefined
+  }}
+  onSelect={(range: DateRange | undefined) => {
+    setDateRange({
+      from: range?.from || null,
+      to: range?.to || null
+    });
+  }}
+  numberOfMonths={2}
+  modifiers={{
+    selected: (date) => {
+      if (!dateRange?.from || !dateRange?.to) return false;
+      return (
+        date.getTime() === dateRange.from.getTime() ||
+        date.getTime() === dateRange.to.getTime()
+      );
+    }
+  }}
+  modifiersStyles={{
+    selected: {
+      backgroundColor: 'rgb(15 23 42)',
+      color: 'white'
+    }
+  }}
+  className="bg-white [&_.rdp]:p-0 [&_.rdp-months]:space-x-4 [&_.rdp-month]:w-full [&_.rdp-day]:h-10 [&_.rdp-day]:w-10 [&_.rdp-day]:text-sm [&_.rdp-day]:font-normal [&_.rdp-day_span]:flex [&_.rdp-day_span]:h-full [&_.rdp-day_span]:w-full [&_.rdp-day_span]:items-center [&_.rdp-day_span]:justify-center [&_.rdp-day]:hover:bg-slate-100 [&_.rdp-day_button]:font-normal [&_.rdp-button]:hover:bg-slate-100 [&_.rdp-nav_button]:h-9 [&_.rdp-nav_button]:w-9 [&_.rdp-nav_button]:bg-transparent [&_.rdp-nav_button]:hover:bg-slate-100 [&_.rdp-head_cell]:font-normal [&_.rdp-head_cell]:text-slate-500 [&_.rdp-caption_label]:font-medium [&_.rdp-caption_label]:text-slate-900 [&_.rdp-day_selected]:bg-slate-900 [&_.rdp-day_selected]:text-white [&_.rdp-day_selected]:hover:bg-slate-900 [&_.rdp-day_selected]:hover:text-white [&_.rdp-day_range_start]:bg-slate-900 [&_.rdp-day_range_start]:text-white [&_.rdp-day_range_start]:hover:bg-slate-900 [&_.rdp-day_range_start]:hover:text-white [&_.rdp-day_range_end]:bg-slate-900 [&_.rdp-day_range_end]:text-white [&_.rdp-day_range_end]:hover:bg-slate-900 [&_.rdp-day_range_end]:hover:text-white [&_.rdp-day_range_middle]:bg-slate-100 [&_.rdp-day_today]:font-bold"
+/>
+                  <div className="grid grid-cols-2 gap-2">
+                    <Button
+                      variant="outline"
+                      className="w-full justify-center text-center font-normal rounded-xl h-11 hover:bg-slate-100"
+                      onClick={() => {
+                        const end = new Date();
+                        const start = startOfWeek(end);
+                        setDateRange({ from: start, to: end });
+                      }}
+                    >
+                      This Week
+                    </Button>
+                    <Button
+                      variant="outline"
+                      className="w-full justify-center text-center font-normal rounded-xl h-11 hover:bg-slate-100"
+                      onClick={() => {
+                        const end = subDays(startOfWeek(new Date()), 1);
+                        const start = startOfWeek(end);
+                        setDateRange({ from: start, to: end });
+                      }}
+                    >
+                      Last Week
+                    </Button>
+                    <Button
+                      variant="outline"
+                      className="w-full justify-center text-center font-normal rounded-xl h-11 hover:bg-slate-100"
+                      onClick={() => {
+                        const end = new Date();
+                        const start = subDays(end, 7);
+                        setDateRange({ from: start, to: end });
+                      }}
+                    >
+                      Last 7 Days
+                    </Button>
+                    <Button
+                      variant="outline"
+                      className="w-full justify-center text-center font-normal rounded-xl h-11 hover:bg-slate-100"
+                      onClick={() => {
+                        const end = endOfMonth(new Date());
+                        const start = startOfMonth(new Date());
+                        setDateRange({ from: start, to: end });
+                      }}
+                    >
+                      This Month
+                    </Button>
+                    <Button
+                      variant="outline"
+                      className="w-full justify-center text-center font-normal rounded-xl h-11 hover:bg-slate-100"
+                      onClick={() => {
+                        const end = new Date();
+                        const start = subDays(end, 14);
+                        setDateRange({ from: start, to: end });
+                      }}
+                    >
+                      Last 14 Days
+                    </Button>
+                    <Button
+                      variant="outline"
+                      className="w-full justify-center text-center font-normal rounded-xl h-11 hover:bg-slate-100"
+                      onClick={() => {
+                        const end = new Date();
+                        const start = subDays(end, 30);
+                        setDateRange({ from: start, to: end });
+                      }}
+                    >
+                      Last 30 Days
+                    </Button>
+                  </div>
+                </div>
               </PopoverContent>
             </Popover>
           )}
         </div>
-
         <div className="h-[240px] relative">
           {chartData.length === 0 && (
             <div className="flex flex-col items-center justify-center h-full space-y-4">
@@ -451,9 +537,7 @@ function Chart({ data, category, dateRange, setDateRange }: ChartProps) {
     </Card>
   );
 };
-
-
-const DashboardComponent = () => {
+function DashboardComponent() {
   const [callLogs, setCallLogs] = useState<CallLog[]>([]);
   const [filteredCallLogs, setFilteredCallLogs] = useState<CallLog[]>([]);
   const [isLoading, setIsLoading] = useState(true);
