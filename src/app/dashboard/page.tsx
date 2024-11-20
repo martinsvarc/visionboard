@@ -708,7 +708,9 @@ const currentRecords = filteredCallLogs.slice().reverse().slice(indexOfFirstReco
               </div>
             </PopoverContent>
           </Popover>
-        </div>
+         </div>
+    </div>
+  );
 
         {/* Overall Performance Chart */}
         <Chart 
