@@ -44,6 +44,17 @@ interface CallLog {
     closing_skills: string;
     overall_effectiveness: string;
   };
+  descriptions: CategoryDescriptions;
+}
+
+interface CategoryDescriptions {
+  engagement: string;
+  objection_handling: string;
+  information_gathering: string;
+  program_explanation: string;
+  closing_skills: string;
+  overall_effectiveness: string;
+  overall_performance: string;
 }
 
 interface AudioPlayerProps {
@@ -322,6 +333,12 @@ const Chart: React.FC<ChartProps> = ({ data, category, dateRange, setDateRange }
   };
 
 const getCategoryDescription = (key: string) => {
+  return {
+    static: staticDescriptions[key as keyof typeof staticDescriptions] || "",
+    // Now getting dynamic descriptions from the database
+    dynamic: filteredCallLogs[0]?.descriptions[key as keyof CategoryDescriptions] || ""
+  };
+};
   // Static descriptions that don't change
   const staticDescriptions = {
     engagement: "This metric evaluates the agent's ability to connect with customers and maintain meaningful interactions throughout the call. It measures rapport building, active listening, and customer engagement levels.",
@@ -351,8 +368,8 @@ const getCategoryDescription = (key: string) => {
 const getOverallDescription = () => {
   return {
     static: "This comprehensive score represents the agent's overall performance across all measured metrics. It takes into account engagement, objection handling, information gathering, program explanation, closing skills, and overall effectiveness. Click and drag on the chart to compare performance between different points.",
-    // TODO: Replace with your database fetch
-    dynamic: "Dynamic overall description from database"
+    // Now getting dynamic description from the database
+    dynamic: filteredCallLogs[0]?.descriptions.overall_performance || ""
   };
 };
 
