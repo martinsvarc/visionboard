@@ -592,8 +592,7 @@ return (
 
     {/* 2. Static Description */}
     <p className="text-slate-600">
-      {category ? getCategoryStaticDescription(category.key) : 
-        "This comprehensive score represents the agent's overall performance across all measured metrics. It takes into account engagement, objection handling, information gathering, program explanation, closing skills, and overall effectiveness. Click and drag on the chart to compare performance between different points."}
+      {category ? getCategoryDescription(category.key).static : getOverallDescription().static}
     </p>
 
     {/* 3. Score */}
@@ -603,7 +602,7 @@ return (
 
     {/* 4. Dynamic Description from Database */}
     <p className="text-slate-600">
-      {category ? getCategoryDynamicDescription(category.key) : getDynamicOverallDescription()}
+      {category ? getCategoryDescription(category.key).dynamic : getOverallDescription().dynamic}
     </p>
   </div>
 </PopoverContent>
