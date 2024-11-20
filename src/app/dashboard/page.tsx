@@ -3,8 +3,6 @@
 import React, { useEffect, useState, useCallback, Suspense } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Calendar } from "@/components/ui/calendar";
-import { Calendar as CalendarIcon } from "lucide-react";
 import { TooltipProps as RechartsTooltipProps } from 'recharts';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer, AreaChart, Area, ReferenceLine } from 'recharts'
@@ -360,40 +358,41 @@ const handleClick = (point: ChartDataPoint | null) => {
   };
 
 return (
-  <Card className="relative overflow-hidden border-0 bg-white rounded-[32px] shadow-lg hover:shadow-xl transition-all cursor-pointer">
-    <CardContent className="p-6">
-      <div className="flex justify-between items-center mb-6">
-        <span className="text-slate-900 text-xl font-semibold">
-          {category ? category.label : 'Overall Performance'}
-        </span>
-        {!category && (
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button 
-                variant="outline" 
-                className="bg-white border-slate-200 text-slate-900 hover:bg-slate-50"
-              >
-                <Calendar className="mr-2 h-4 w-4" />
-                {dateRange?.from ? (
-                  dateRange.to ? (
-                    <>
-                      {format(dateRange.from, "LLL dd, y")} - {format(dateRange.to, "LLL dd, y")}
-                    </>
-                  ) : (
-                    format(dateRange.from, "LLL dd, y")
-                  )
-                ) : (
-                  <span>Pick a date range</span>
-                )}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent 
-              className="bg-white border border-slate-200 p-0 shadow-lg rounded-xl w-auto" 
-              align="start"
-              sideOffset={-220}
-              alignOffset={-50}
-              style={{ zIndex: 9999 }}
-            >
+  <Popover>
+    <PopoverTrigger asChild>
+      <Card className="relative overflow-hidden border-0 bg-white rounded-[32px] shadow-lg hover:shadow-xl transition-all cursor-pointer">
+        <CardContent className="p-6">
+          <div className="flex justify-between items-center mb-6">
+            <span className="text-slate-900 text-xl font-semibold">
+              {category ? category.label : 'Overall Performance'}
+            </span>
+            {!category && (
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button 
+                    variant="outline" 
+                    className="bg-white border-slate-200 text-slate-900 hover:bg-slate-50"
+                  >
+                    <Calendar className="mr-2 h-4 w-4" />
+                    {dateRange?.from ? (
+                      dateRange.to ? (
+                        <>
+                          {format(dateRange.from, "LLL dd, y")} - {format(dateRange.to, "LLL dd, y")}
+                        </>
+                      ) : (
+                        format(dateRange.from, "LLL dd, y")
+                      )
+                    ) : (
+                      <span>Pick a date range</span>
+                    )}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent 
+                  className="bg-white border border-slate-200 p-0 shadow-lg rounded-xl w-auto" 
+                  align="end"
+                  sideOffset={8}
+                  style={{ zIndex: 9999 }}
+                >
                   <div className="flex flex-col space-y-4 p-4">
                     <Button
                       variant="outline"
