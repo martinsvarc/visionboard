@@ -322,12 +322,6 @@ const Chart: React.FC<ChartProps> = ({ data, category, dateRange, setDateRange }
   };
 
 return (
-  <Card 
-    className="relative overflow-hidden border-0 bg-white rounded-[32px] shadow-lg hover:shadow-xl transition-all cursor-pointer" 
-    onClick={() => {
-      console.log("Card clicked!");
-    }}
-  >
   <Popover>
     <PopoverTrigger asChild>
       <Card className="relative overflow-hidden border-0 bg-white rounded-[32px] shadow-lg hover:shadow-xl transition-all cursor-pointer">
