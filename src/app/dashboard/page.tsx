@@ -218,10 +218,6 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ audioSrc, caller }) => {
   );
 };
 
-const Chart: React.FC<ChartProps> = ({ data, category, dateRange, setDateRange, filteredCallLogs }) => {
-  const [selectedPoints, setSelectedPoints] = useState<ChartDataPoint[]>([]);
-  const [percentageChange, setPercentageChange] = useState<string | null>(null);
-
   const chartData = data.filter((item) => {
     if (!dateRange || !dateRange.from || !dateRange.to) return true;
     const itemDate = new Date(item.call_date);
