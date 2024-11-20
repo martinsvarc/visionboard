@@ -591,8 +591,8 @@ return (
       {category ? `${category.label} Analysis` : 'Overall Performance Analysis'}
     </h3>
 
-    {/* 2. Static Description */}
-    <p className="text-slate-600">
+    {/* 2. Static Description - Added text-sm and italic classes */}
+    <p className="text-slate-600 text-sm italic">
       {category ? getCategoryDescription(category.key).static : getOverallDescription().static}
     </p>
 
@@ -601,8 +601,8 @@ return (
       {Math.round(latestValue ?? 0)}<span className="text-2xl text-slate-600">/100</span>
     </div>
 
-    {/* 4. Dynamic Description from Database */}
-    <p className="text-slate-600">
+    {/* 4. Dynamic Description - Also added text-sm and italic classes */}
+    <p className="text-slate-600 text-sm italic">
       {category ? getCategoryDescription(category.key).dynamic : getOverallDescription().dynamic}
     </p>
   </div>
