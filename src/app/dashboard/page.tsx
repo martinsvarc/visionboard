@@ -367,26 +367,6 @@ return (
               {category ? category.label : 'Overall Performance'}
             </span>
             {!category && (
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button 
-                    variant="outline" 
-                    className="bg-white border-slate-200 text-slate-900 hover:bg-slate-50"
-                  >
-                    <Calendar className="mr-2 h-4 w-4" />
-                    {dateRange?.from ? (
-                      dateRange.to ? (
-                        <>
-                          {format(dateRange.from, "LLL dd, y")} - {format(dateRange.to, "LLL dd, y")}
-                        </>
-                      ) : (
-                        format(dateRange.from, "LLL dd, y")
-                      )
-                    ) : (
-                      <span>Pick a date range</span>
-                    )}
-                  </Button>
-                </PopoverTrigger>
                 <PopoverContent 
                   className="bg-white border border-slate-200 p-0 shadow-lg rounded-xl w-auto" 
                   align="end"
@@ -708,6 +688,25 @@ const currentRecords = filteredCallLogs.slice().reverse().slice(indexOfFirstReco
   return (
   <div className="min-h-screen pt-12 px-8 bg-[#f2f3f8]">
     <div className="max-w-7xl mx-auto space-y-8 bg-white rounded-[32px] p-8 shadow-lg">
+<div className="flex justify-end">
+  <Button 
+    variant="outline" 
+    className="bg-white border-slate-200 text-slate-900 hover:bg-slate-50"
+  >
+    <Calendar className="mr-2 h-4 w-4" />
+    {dateRange?.from ? (
+      dateRange.to ? (
+        <>
+          {format(dateRange.from, "LLL dd, y")} - {format(dateRange.to, "LLL dd, y")}
+        </>
+      ) : (
+        format(dateRange.from, "LLL dd, y")
+      )
+    ) : (
+      <span>Pick a date range</span>
+    )}
+  </Button>
+</div>
         {/* Overall Performance Chart */}
         <Chart 
   data={filteredCallLogs} 
