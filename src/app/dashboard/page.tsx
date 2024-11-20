@@ -793,8 +793,7 @@ const currentRecords = filteredCallLogs.slice().reverse().slice(indexOfFirstReco
   </Popover>
 </div>
   </div>                  
-                  {/* Scores Grid */}
-               // Find this section in your DashboardComponent:
+
 {/* Scores Grid */}
 <div className="md:w-2/3">
   <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
@@ -877,9 +876,6 @@ const currentRecords = filteredCallLogs.slice().reverse().slice(indexOfFirstReco
     ))}
   </div>
 </div>
-                      ))}
-                    </div>
-                  </div>
                 </div>
               </CardContent>
             </Card>
