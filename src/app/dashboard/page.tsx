@@ -1,8 +1,7 @@
 'use client'
 
 import React, { useEffect, useState, useCallback, Suspense } from 'react'
-import { Card } from "@/components/ui/card";
-import { CardContent } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer, AreaChart, Area, ReferenceLine } from 'recharts'
@@ -441,7 +440,7 @@ const Chart = ({ data, category, dateRange, setDateRange }: ChartProps): JSX.Ele
   );
 };
 
-function DashboardComponent() {
+const DashboardComponent = () => {
   const [callLogs, setCallLogs] = useState<CallLog[]>([]);
   const [filteredCallLogs, setFilteredCallLogs] = useState<CallLog[]>([]);
   const [isLoading, setIsLoading] = useState(true);
