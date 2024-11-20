@@ -303,34 +303,46 @@ function Chart({ data, category, dateRange, setDateRange }: ChartProps) {
       <CardContent className="p-6">
         <div className="flex justify-between items-center mb-6">
           <Popover>
-            <PopoverTrigger asChild>
-              <Button 
-                variant="ghost" 
-                className="p-0 hover:bg-transparent"
-              >
-                <span className="text-slate-900 text-xl font-semibold">
-                  {category ? category.label : 'Overall Performance'}
-                </span>
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-80 bg-white p-4 rounded-xl shadow-xl">
-              <div className="space-y-4">
-                <h3 className="text-xl font-bold text-slate-900">
-                  {category ? category.label : 'Overall Performance'}
-                </h3>
-                <div className="text-6xl font-bold text-center" style={{ color: getScoreColor(latestValue ?? 0) }}>
-                  {latestValue ? Math.round(latestValue) : 0}
-                  <span className="text-2xl text-slate-600">/100</span>
-                </div>
-                {category && data.length > 0 && (
-                  <p className="text-slate-600 whitespace-pre-line">
-                    {data[data.length - 1].feedback[category.key as keyof typeof data[data.length - 1].feedback]}
-                  </p>
-                )}
-              </div>
-            </PopoverContent>
-          </Popover>
-          
+  <PopoverTrigger asChild>
+    <button 
+      className="bg-white p-6 rounded-3xl shadow-lg hover:shadow-xl transition-shadow relative"
+    >
+      <div className="w-full">
+        <div className="text-base font-medium text-slate-600 text-center">
+          {category ? category.label : 'Overall Performance'}
+        </div>
+      </div>
+      <div className="w-full">
+        <div className="flex items-baseline justify-center">
+          <span 
+            className="text-5xl font-bold" 
+            style={{ color: getScoreColor(latestValue ?? 0) }}
+          >
+            {latestValue ? Math.round(latestValue) : 0}
+          </span>
+          <span className="text-xl text-slate-600 ml-1">/100</span>
+        </div>
+      </div>
+    </button>
+  </PopoverTrigger>
+  <PopoverContent className="w-80 bg-white p-4 rounded-xl shadow-xl">
+    <div className="space-y-4">
+      <h3 className="text-xl font-bold text-slate-900">
+        {category ? category.label : 'Overall Performance'}
+      </h3>
+      <div className="text-6xl font-bold text-center text-[#556bc7] my-4">
+        {latestValue ? Math.round(latestValue) : 0}
+        <span className="text-2xl text-slate-600">/100</span>
+      </div>
+      {category && data.length > 0 && (
+        <p className="text-slate-600 whitespace-pre-line">
+          {data[data.length - 1].feedback[category.key as keyof typeof data[data.length - 1].feedback]}
+        </p>
+      )}
+    </div>
+  </PopoverContent>
+</Popover>
+
           {!category && (
             <Popover>
               <PopoverTrigger asChild>
