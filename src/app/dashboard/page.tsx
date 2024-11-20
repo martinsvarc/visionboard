@@ -50,6 +50,17 @@ interface AudioPlayerProps {
   caller: string;
 }
 
+interface TooltipProps {
+  active?: boolean;
+  payload?: Array<{
+    payload: {
+      name: string;
+    };
+    value: number;
+  }>;
+  label?: string;
+}
+
 interface Category {
   key: string;
   label: string;
@@ -303,16 +314,22 @@ const Chart: React.FC<ChartProps> = ({ data, category, dateRange, setDateRange }
     );
   };
 
-  const CustomTooltip = ({ active, payload, label }: any) => {
-    if (active && payload && payload.length) {
-      return (
-        <div className="bg-black/80 text-white p-2 rounded-lg text-sm">
-          <p>{`Call ${label}: ${payload[0].value.toFixed(1)}%`}</p>
-        </div>
-      );
-    }
+  const CustomTooltip = ({ active, payload }: TooltipProps) => {
+  if (!active || !payload || !payload.length || !payload[0]) {
     return null;
-  };
+  }
+
+  const data = payload[0];
+  if (!data.value || typeof data.value !== 'number') {
+    return null;
+  }
+
+  return (
+    <div className="bg-black/80 text-white p-2 rounded-lg text-sm">
+      <p>{`Call ${data.payload.name}: ${data.value.toFixed(1)}%`}</p>
+    </div>
+  );
+};
 return (
 <Card className="relative overflow-hidden border-0 bg-white rounded-[32px] shadow-lg">
       <CardContent className="p-6">
@@ -734,16 +751,7 @@ const currentRecords = filteredCallLogs.slice().reverse().slice(indexOfFirstReco
               </linearGradient>
             </defs>
             <RechartsTooltip
-              content={({ active, payload }) => {
-                if (active && payload && payload.length) {
-                  return (
-                    <div className="bg-black/80 text-white p-2 rounded-lg text-sm">
-                      <p>{`Call ${payload[0].payload.name}: ${payload[0].value.toFixed(1)}%`}</p>
-                    </div>
-                  );
-                }
-                return null;
-              }}
+              content={CustomTooltip}
             />
           </AreaChart>
         </ResponsiveContainer>
