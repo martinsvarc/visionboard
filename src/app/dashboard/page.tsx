@@ -322,22 +322,38 @@ const Chart: React.FC<ChartProps> = ({ data, category, dateRange, setDateRange }
   };
 
 const getCategoryDescription = (key: string) => {
-  switch (key) {
-    case 'engagement':
-      return "This metric evaluates how well the agent builds rapport and maintains customer interest throughout the call. High engagement scores indicate strong connection with customers and active participation in conversations.";
-    case 'objection_handling':
-      return "Measures the agent's ability to address customer concerns and overcome resistance professionally. High scores reflect skillful navigation of challenging situations and effective problem resolution.";
-    case 'information_gathering':
-      return "Assesses how effectively the agent collects relevant customer information and asks appropriate discovery questions. High scores indicate thorough understanding of customer needs and systematic information collection.";
-    case 'program_explanation':
-      return "Evaluates the clarity and completeness of program/service explanations. High scores show the agent's ability to communicate complex information in an understandable way.";
-    case 'closing_skills':
-      return "Measures the agent's ability to guide conversations toward positive outcomes. High scores indicate effective use of closing techniques and successful conversion of opportunities.";
-    case 'overall_effectiveness':
-      return "Combines various performance metrics to evaluate the agent's overall impact. High scores reflect consistent excellence across all aspects of call handling.";
-    default:
-      return "Performance analysis across multiple evaluation criteria.";
-  }
+  // Static descriptions that don't change
+  const staticDescriptions = {
+    engagement: "This metric evaluates the agent's ability to connect with customers and maintain meaningful interactions throughout the call. It measures rapport building, active listening, and customer engagement levels.",
+    objection_handling: "This score reflects how well the agent addresses customer concerns and manages challenging situations. It evaluates the ability to turn objections into opportunities and maintain professional composure.",
+    information_gathering: "This metric assesses the agent's proficiency in collecting relevant information and asking appropriate questions. It measures the thoroughness and efficiency of the discovery process.",
+    program_explanation: "This score evaluates how effectively the agent communicates program details and complex information. It measures clarity, completeness, and the ability to adjust explanations based on customer understanding.",
+    closing_skills: "This metric measures the agent's ability to guide conversations toward positive outcomes. It evaluates the use of appropriate closing techniques and the success rate in achieving call objectives.",
+    overall_effectiveness: "This comprehensive metric evaluates the agent's overall impact and success in handling calls. It considers all aspects of call management and customer interaction."
+  };
+
+  // TODO: Replace with your database fetch for dynamic descriptions
+  const dynamicDescriptions = {
+    engagement: "Dynamic description for engagement from database",
+    objection_handling: "Dynamic description for objection handling from database",
+    information_gathering: "Dynamic description for information gathering from database",
+    program_explanation: "Dynamic description for program explanation from database",
+    closing_skills: "Dynamic description for closing skills from database",
+    overall_effectiveness: "Dynamic description for overall effectiveness from database"
+  };
+
+  return {
+    static: staticDescriptions[key as keyof typeof staticDescriptions] || "",
+    dynamic: dynamicDescriptions[key as keyof typeof dynamicDescriptions] || ""
+  };
+};
+
+const getOverallDescription = () => {
+  return {
+    static: "This comprehensive score represents the agent's overall performance across all measured metrics. It takes into account engagement, objection handling, information gathering, program explanation, closing skills, and overall effectiveness. Click and drag on the chart to compare performance between different points.",
+    // TODO: Replace with your database fetch
+    dynamic: "Dynamic overall description from database"
+  };
 };
 
 const getOverallDescription = () => {
@@ -573,14 +589,25 @@ return (
     </PopoverTrigger>
     <PopoverContent className="w-[600px] bg-white p-6 rounded-xl shadow-xl">
   <div className="space-y-6">
+    {/* 1. Title */}
     <h3 className="text-xl font-bold text-slate-900">
       {category ? `${category.label} Analysis` : 'Overall Performance Analysis'}
     </h3>
+
+    {/* 2. Static Description */}
+    <p className="text-slate-600">
+      {category ? getCategoryStaticDescription(category.key) : 
+        "This comprehensive score represents the agent's overall performance across all measured metrics. It takes into account engagement, objection handling, information gathering, program explanation, closing skills, and overall effectiveness. Click and drag on the chart to compare performance between different points."}
+    </p>
+
+    {/* 3. Score */}
     <div className="text-6xl font-bold text-center" style={{ color: getScoreColor(latestValue ?? 0) }}>
       {Math.round(latestValue ?? 0)}<span className="text-2xl text-slate-600">/100</span>
     </div>
+
+    {/* 4. Dynamic Description from Database */}
     <p className="text-slate-600">
-      {category ? getCategoryDescription(category.key) : getOverallDescription()}
+      {category ? getCategoryDynamicDescription(category.key) : getDynamicOverallDescription()}
     </p>
   </div>
 </PopoverContent>
