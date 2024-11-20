@@ -322,7 +322,12 @@ const Chart: React.FC<ChartProps> = ({ data, category, dateRange, setDateRange }
   };
 
 return (
-<Card className="relative overflow-hidden border-0 bg-white rounded-[32px] shadow-lg">
+  <Card 
+    className="relative overflow-hidden border-0 bg-white rounded-[32px] shadow-lg hover:shadow-xl transition-all cursor-pointer" 
+    onClick={() => {
+      console.log("Card clicked!");
+    }}
+  >
       <CardContent className="p-6">
         <div className="flex justify-between items-center mb-6">
           <span className="text-slate-900 text-xl font-semibold">
