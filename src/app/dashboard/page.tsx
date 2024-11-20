@@ -774,7 +774,6 @@ const currentRecords = filteredCallLogs.slice().reverse().slice(indexOfFirstReco
           <li>Overall Effectiveness: {call.scores.overall_effectiveness}%</li>
         </ul>
         <p className="mt-4">
-          The score trend shows performance across all recorded calls, helping identify patterns and areas for improvement over time.
         </p>
       </div>
     </div>
