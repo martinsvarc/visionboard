@@ -51,17 +51,6 @@ interface AudioPlayerProps {
   caller: string;
 }
 
-interface TooltipProps {
-  active?: boolean;
-  payload?: Array<{
-    payload: {
-      name: string;
-    };
-    value: number;
-  }>;
-  label?: string;
-}
-
 interface Category {
   key: string;
   label: string;
@@ -82,6 +71,30 @@ interface ChartDataPoint {
   name: string;
   value: number;
 }
+
+type CustomTooltipProps = {
+  active?: boolean;
+  payload?: Array<{
+    value: number;
+    payload: {
+      name: string;
+    };
+  }>;
+  label?: string;
+};
+
+const CustomTooltip = ({ active, payload }: CustomTooltipProps) => {
+  if (!active || !payload || !payload.length) {
+    return null;
+  }
+
+  const data = payload[0];
+  return (
+    <div className="bg-black/80 text-white p-2 rounded-lg text-sm">
+      <p>{`Call ${data.payload.name}: ${data.value.toFixed(1)}%`}</p>
+    </div>
+  );
+};
 
 type CustomTooltipProps = RechartsTooltipProps<number, string> & {
   active?: boolean;
@@ -342,22 +355,6 @@ const Chart: React.FC<ChartProps> = ({ data, category, dateRange, setDateRange }
     );
   };
 
-  const CustomTooltip = ({ active, payload }: TooltipProps) => {
-  if (!active || !payload || !payload.length || !payload[0]) {
-    return null;
-  }
-
-  const data = payload[0];
-  if (!data.value || typeof data.value !== 'number') {
-    return null;
-  }
-
-  return (
-    <div className="bg-black/80 text-white p-2 rounded-lg text-sm">
-      <p>{`Call ${data.payload.name}: ${data.value.toFixed(1)}%`}</p>
-    </div>
-  );
-};
 return (
 <Card className="relative overflow-hidden border-0 bg-white rounded-[32px] shadow-lg">
       <CardContent className="p-6">
