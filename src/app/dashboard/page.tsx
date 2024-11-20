@@ -366,6 +366,145 @@ return (
             <span className="text-slate-900 text-xl font-semibold">
               {category ? category.label : 'Overall Performance'}
             </span>
+            {!category && (
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button 
+                    variant="outline" 
+                    className="bg-white border-slate-200 text-slate-900 hover:bg-slate-50"
+                  >
+                    <Calendar className="mr-2 h-4 w-4" />
+                    {dateRange?.from ? (
+                      dateRange.to ? (
+                        <>
+                          {format(dateRange.from, "LLL dd, y")} - {format(dateRange.to, "LLL dd, y")}
+                        </>
+                      ) : (
+                        format(dateRange.from, "LLL dd, y")
+                      )
+                    ) : (
+                      <span>Pick a date range</span>
+                    )}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent 
+                  className="bg-white border border-slate-200 p-0 shadow-lg rounded-xl w-auto" 
+                  align="end"
+                  sideOffset={8}
+                  style={{ zIndex: 9999 }}
+                >
+                  <div className="flex flex-col space-y-4 p-4">
+                    <Button
+                      variant="outline"
+                      className="w-full justify-center text-center font-normal col-span-2"
+                      onClick={() => setDateRange({ from: null, to: null })}
+                    >
+                      All time
+                    </Button>
+                    <CalendarComponent
+                      initialFocus
+                      mode="range"
+                      defaultMonth={dateRange?.from || new Date()}
+                      selected={{
+                        from: dateRange?.from ? new Date(dateRange.from) : undefined,
+                        to: dateRange?.to ? new Date(dateRange.to) : undefined
+                      }}
+                      onSelect={(range: DateRange | undefined) => {
+                        setDateRange({
+                          from: range?.from || null,
+                          to: range?.to || null
+                        });
+                      }}
+                      numberOfMonths={2}
+                      modifiers={{
+                        selected: (date) => {
+                          if (!dateRange?.from || !dateRange?.to) return false;
+                          return (
+                            date.getTime() === dateRange.from.getTime() ||
+                            date.getTime() === dateRange.to.getTime()
+                          );
+                        }
+                      }}
+                      modifiersStyles={{
+                        selected: {
+                          backgroundColor: 'rgb(15 23 42)',
+                          color: 'white'
+                        }
+                      }}
+                      className="bg-white [&_.rdp]:p-0 [&_.rdp-months]:space-x-4 [&_.rdp-month]:w-full [&_.rdp-day]:h-10 [&_.rdp-day]:w-10 [&_.rdp-day]:text-sm [&_.rdp-day]:font-normal [&_.rdp-day_span]:flex [&_.rdp-day_span]:h-full [&_.rdp-day_span]:w-full [&_.rdp-day_span]:items-center [&_.rdp-day_span]:justify-center [&_.rdp-day]:hover:bg-slate-100 [&_.rdp-day_button]:font-normal [&_.rdp-button]:hover:bg-slate-100 [&_.rdp-nav_button]:h-9 [&_.rdp-nav_button]:w-9 [&_.rdp-nav_button]:bg-transparent [&_.rdp-nav_button]:hover:bg-slate-100 [&_.rdp-head_cell]:font-normal [&_.rdp-head_cell]:text-slate-500 [&_.rdp-caption_label]:font-medium [&_.rdp-caption_label]:text-slate-900 [&_.rdp-day_selected]:bg-slate-900 [&_.rdp-day_selected]:text-white [&_.rdp-day_selected]:hover:bg-slate-900 [&_.rdp-day_selected]:hover:text-white [&_.rdp-day_range_start]:bg-slate-900 [&_.rdp-day_range_start]:text-white [&_.rdp-day_range_start]:hover:bg-slate-900 [&_.rdp-day_range_start]:hover:text-white [&_.rdp-day_range_end]:bg-slate-900 [&_.rdp-day_range_end]:text-white [&_.rdp-day_range_end]:hover:bg-slate-900 [&_.rdp-day_range_end]:hover:text-white [&_.rdp-day_range_middle]:bg-slate-100 [&_.rdp-day_today]:font-bold"
+                    />
+                    <div className="grid grid-cols-2 gap-2">
+                      <Button
+                        variant="outline"
+                        className="w-full justify-center text-center font-normal rounded-xl h-11 hover:bg-slate-100"
+                        onClick={() => {
+                          const end = new Date();
+                          const start = startOfWeek(end);
+                          setDateRange({ from: start, to: end });
+                        }}
+                      >
+                        This Week
+                      </Button>
+                      <Button
+                        variant="outline"
+                        className="w-full justify-center text-center font-normal rounded-xl h-11 hover:bg-slate-100"
+                        onClick={() => {
+                          const end = subDays(startOfWeek(new Date()), 1);
+                          const start = startOfWeek(end);
+                          setDateRange({ from: start, to: end });
+                        }}
+                      >
+                        Last Week
+                      </Button>
+                      <Button
+                        variant="outline"
+                        className="w-full justify-center text-center font-normal rounded-xl h-11 hover:bg-slate-100"
+                        onClick={() => {
+                          const end = new Date();
+                          const start = subDays(end, 7);
+                          setDateRange({ from: start, to: end });
+                        }}
+                      >
+                        Last 7 Days
+                      </Button>
+                      <Button
+                        variant="outline"
+                        className="w-full justify-center text-center font-normal rounded-xl h-11 hover:bg-slate-100"
+                        onClick={() => {
+                          const end = endOfMonth(new Date());
+                          const start = startOfMonth(new Date());
+                          setDateRange({ from: start, to: end });
+                        }}
+                      >
+                        This Month
+                      </Button>
+                      <Button
+                        variant="outline"
+                        className="w-full justify-center text-center font-normal rounded-xl h-11 hover:bg-slate-100"
+                        onClick={() => {
+                          const end = new Date();
+                          const start = subDays(end, 14);
+                          setDateRange({ from: start, to: end });
+                        }}
+                      >
+                        Last 14 Days
+                      </Button>
+                      <Button
+                        variant="outline"
+                        className="w-full justify-center text-center font-normal rounded-xl h-11 hover:bg-slate-100"
+                        onClick={() => {
+                          const end = new Date();
+                          const start = subDays(end, 30);
+                          setDateRange({ from: start, to: end });
+                        }}
+                      >
+                        Last 30 Days
+                      </Button>
+                    </div>
+                  </div>
+                </PopoverContent>
+              </Popover>
+            )}
           </div>
           <div className="h-[240px] relative">
             {chartData.length === 0 && (
@@ -444,7 +583,6 @@ return (
           </div>
         </CardContent>
       </Card>
-            
     </PopoverTrigger>
    <PopoverContent className="w-[600px] bg-white p-6 rounded-xl shadow-xl">
   <div className="space-y-2">
@@ -569,167 +707,90 @@ const currentRecords = filteredCallLogs.slice().reverse().slice(indexOfFirstReco
 
   return (
   <div className="min-h-screen pt-12 px-8 bg-[#f2f3f8]">
-      <div className="max-w-7xl mx-auto space-y-8 bg-white rounded-[32px] p-8 shadow-lg">
-        {/* Date Range Picker */}
-        <div className="flex justify-end">
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button 
-                variant="outline" 
-                className="bg-white border-slate-200 text-slate-900 hover:bg-slate-50"
-              >
-                <Calendar className="mr-2 h-4 w-4" />
-                {dateRange?.from ? (
-                  dateRange.to ? (
-                    <>
-                      {format(dateRange.from, "LLL dd, y")} - {format(dateRange.to, "LLL dd, y")}
-                    </>
-                  ) : (
-                    format(dateRange.from, "LLL dd, y")
-                  )
-                ) : (
-                  <span>Pick a date range</span>
-                )}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent 
-              className="bg-white border border-slate-200 p-0 shadow-lg rounded-xl w-auto" 
-              align="end"
-              sideOffset={8}
-            >
-              <div className="flex flex-col space-y-4 p-4">
-                <Button
-                  variant="outline"
-                  className="w-full justify-center text-center font-normal col-span-2"
-                  onClick={() => setDateRange({ from: null, to: null })}
-                >
-                  All time
-                </Button>
-                <CalendarComponent
-                  initialFocus
-                  mode="range"
-                  defaultMonth={dateRange?.from || new Date()}
-                  selected={{
-                    from: dateRange?.from ? new Date(dateRange.from) : undefined,
-                    to: dateRange?.to ? new Date(dateRange.to) : undefined
-                  }}
-                  onSelect={(range: DateRange | undefined) => {
-                    setDateRange({
-                      from: range?.from || null,
-                      to: range?.to || null
-                    });
-                  }}
-                  numberOfMonths={2}
-                  modifiers={{
-                    selected: (date) => {
-                      if (!dateRange?.from || !dateRange?.to) return false;
-                      return (
-                        date.getTime() === dateRange.from.getTime() ||
-                        date.getTime() === dateRange.to.getTime()
-                      );
-                    }
-                  }}
-                  modifiersStyles={{
-                    selected: {
-                      backgroundColor: 'rgb(15 23 42)',
-                      color: 'white'
-                    }
-                  }}
-                  className="bg-white [&_.rdp]:p-0 [&_.rdp-months]:space-x-4 [&_.rdp-month]:w-full [&_.rdp-day]:h-10 [&_.rdp-day]:w-10 [&_.rdp-day]:text-sm [&_.rdp-day]:font-normal [&_.rdp-day_span]:flex [&_.rdp-day_span]:h-full [&_.rdp-day_span]:w-full [&_.rdp-day_span]:items-center [&_.rdp-day_span]:justify-center [&_.rdp-day]:hover:bg-slate-100 [&_.rdp-day_button]:font-normal [&_.rdp-button]:hover:bg-slate-100 [&_.rdp-nav_button]:h-9 [&_.rdp-nav_button]:w-9 [&_.rdp-nav_button]:bg-transparent [&_.rdp-nav_button]:hover:bg-slate-100 [&_.rdp-head_cell]:font-normal [&_.rdp-head_cell]:text-slate-500 [&_.rdp-caption_label]:font-medium [&_.rdp-caption_label]:text-slate-900 [&_.rdp-day_selected]:bg-slate-900 [&_.rdp-day_selected]:text-white [&_.rdp-day_selected]:hover:bg-slate-900 [&_.rdp-day_selected]:hover:text-white [&_.rdp-day_range_start]:bg-slate-900 [&_.rdp-day_range_start]:text-white [&_.rdp-day_range_start]:hover:bg-slate-900 [&_.rdp-day_range_start]:hover:text-white [&_.rdp-day_range_end]:bg-slate-900 [&_.rdp-day_range_end]:text-white [&_.rdp-day_range_end]:hover:bg-slate-900 [&_.rdp-day_range_end]:hover:text-white [&_.rdp-day_range_middle]:bg-slate-100 [&_.rdp-day_today]:font-bold"
-                />
-                <div className="grid grid-cols-2 gap-2">
-                  <Button
-                    variant="outline"
-                    className="w-full justify-center text-center font-normal rounded-xl h-11 hover:bg-slate-100"
-                    onClick={() => {
-                      const end = new Date();
-                      const start = startOfWeek(end);
-                      setDateRange({ from: start, to: end });
-                    }}
-                  >
-                    This Week
-                  </Button>
-                  <Button
-                    variant="outline"
-                    className="w-full justify-center text-center font-normal rounded-xl h-11 hover:bg-slate-100"
-                    onClick={() => {
-                      const end = subDays(startOfWeek(new Date()), 1);
-                      const start = startOfWeek(end);
-                      setDateRange({ from: start, to: end });
-                    }}
-                  >
-                    Last Week
-                  </Button>
-                  <Button
-                    variant="outline"
-                    className="w-full justify-center text-center font-normal rounded-xl h-11 hover:bg-slate-100"
-                    onClick={() => {
-                      const end = new Date();
-                      const start = subDays(end, 7);
-                      setDateRange({ from: start, to: end });
-                    }}
-                  >
-                    Last 7 Days
-                  </Button>
-                  <Button
-                    variant="outline"
-                    className="w-full justify-center text-center font-normal rounded-xl h-11 hover:bg-slate-100"
-                    onClick={() => {
-                      const end = endOfMonth(new Date());
-                      const start = startOfMonth(new Date());
-                      setDateRange({ from: start, to: end });
-                    }}
-                  >
-                    This Month
-                  </Button>
-                  <Button
-                    variant="outline"
-                    className="w-full justify-center text-center font-normal rounded-xl h-11 hover:bg-slate-100"
-                    onClick={() => {
-                      const end = new Date();
-                      const start = subDays(end, 14);
-                      setDateRange({ from: start, to: end });
-                    }}
-                  >
-                    Last 14 Days
-                  </Button>
-                  <Button
-                    variant="outline"
-                    className="w-full justify-center text-center font-normal rounded-xl h-11 hover:bg-slate-100"
-                    onClick={() => {
-                      const end = new Date();
-                      const start = subDays(end, 30);
-                      setDateRange({ from: start, to: end });
-                    }}
-                  >
-                    Last 30 Days
-                  </Button>
-                </div>
-              </div>
-            </PopoverContent>
-          </Popover>
-
+    <div className="max-w-7xl mx-auto space-y-8 bg-white rounded-[32px] p-8 shadow-lg">
         {/* Overall Performance Chart */}
         <Chart 
-          data={filteredCallLogs} 
-          dateRange={dateRange}
-          setDateRange={setDateRange}
-          filteredCallLogs={filteredCallLogs}
-        />
+  data={filteredCallLogs} 
+  dateRange={dateRange} 
+  setDateRange={setDateRange}
+  filteredCallLogs={filteredCallLogs}
+/>
 
         {/* Category Charts Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {scoreCategories.map((category) => (
-            <Chart 
-              key={category.key}
-              data={filteredCallLogs} 
-              category={category}
-              dateRange={dateRange} 
-              setDateRange={setDateRange}
-              filteredCallLogs={filteredCallLogs}
-            />
-          ))}
-        </div>
+  {scoreCategories.map((category) => (
+    <Chart 
+      key={category.key}
+      data={filteredCallLogs} 
+      category={category}
+      dateRange={dateRange} 
+      setDateRange={setDateRange}
+      filteredCallLogs={filteredCallLogs}
+    />
+  ))}
+</div>
+
+        {/* Call Records */}
+        <div className="space-y-6">
+          <h2 className="text-3xl font-bold text-center text-slate-900">
+            CALL RECORDS
+          </h2>
+          {currentRecords.map((call) => (
+<Card key={call.id} className="bg-white rounded-[32px] shadow-lg overflow-hidden border-0">
+              <CardContent className="p-8">
+                <div className="flex flex-col md:flex-row gap-8">
+                  {/* Agent Info Section */}
+                  <div className="md:w-1/3 space-y-4">
+                    <div className="flex flex-col items-center">
+                      <Avatar className="h-24 w-24 mb-4">
+                        <AvatarImage src={call.agent_picture_url} alt={call.agent_name} />
+                        <AvatarFallback>{call.agent_name.slice(0, 2).toUpperCase()}</AvatarFallback>
+                      </Avatar>
+                      <h3 className="text-2xl font-bold text-slate-900">{call.agent_name}</h3>
+                      <p className="text-lg text-slate-600">CALL NUMBER {call.call_number}</p>
+                      <p className="text-sm text-slate-600">
+                        {format(new Date(call.call_date), 'PPpp')}
+                      </p>
+<Popover>
+  <PopoverTrigger asChild>
+    <button 
+      className="relative w-full text-center cursor-pointer hover:opacity-90 transition-opacity"
+    >
+      <div className="text-6xl font-bold" style={{ color: getScoreColor(call.scores.overall_performance) }}>
+        {call.scores.overall_performance}
+        <span className="text-2xl text-slate-600">/100</span>
+      </div>
+      <p className="text-lg" style={{ color: getScoreColor(call.scores.overall_performance) }}>Overall Performance</p>
+    </button>
+  </PopoverTrigger>
+  <PopoverContent className="w-[600px] bg-white p-6 rounded-xl shadow-xl">
+    <div className="space-y-6">
+      <h3 className="text-xl font-bold text-slate-900">Overall Performance Analysis</h3>
+      
+      {/* Score Display */}
+      <div className="text-6xl font-bold text-center" style={{ color: getScoreColor(call.scores.overall_performance) }}>
+        {call.scores.overall_performance}
+        <span className="text-2xl text-slate-600">/100</span>
+      </div>
+
+      {/* Performance Analysis Text */}
+      <div className="text-slate-600 space-y-4">
+        <p>This overall performance score is calculated based on a comprehensive evaluation of all key performance indicators:</p>
+        <ul className="list-disc pl-6 space-y-2">
+          <li>Engagement: {call.scores.engagement}%</li>
+          <li>Objection Handling: {call.scores.objection_handling}%</li>
+          <li>Information Gathering: {call.scores.information_gathering}%</li>
+          <li>Program Explanation: {call.scores.program_explanation}%</li>
+          <li>Closing Skills: {call.scores.closing_skills}%</li>
+          <li>Overall Effectiveness: {call.scores.overall_effectiveness}%</li>
+        </ul>
+        <p className="mt-4">
+        </p>
+      </div>
+    </div>
+  </PopoverContent>
+</Popover>
+                    </div>
                     <div className="flex flex-col gap-2">
   <Popover>
     <PopoverTrigger asChild>
