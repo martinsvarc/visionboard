@@ -358,8 +358,6 @@ const handleClick = (point: ChartDataPoint | null) => {
   };
 
 return (
-  <Popover>
-    <PopoverTrigger asChild>
       <Card className="relative overflow-hidden border-0 bg-white rounded-[32px] shadow-lg hover:shadow-xl transition-all cursor-pointer">
         <CardContent className="p-6">
           <div className="flex justify-between items-center mb-6">
