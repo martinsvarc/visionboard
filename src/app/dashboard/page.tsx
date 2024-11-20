@@ -445,24 +445,25 @@ return (
         </CardContent>
       </Card>
     </PopoverTrigger>
-    <PopoverContent className="w-[600px] bg-white p-6 rounded-xl shadow-xl">
-      <div className="space-y-2">
-        <h3 className="text-xl font-bold text-slate-900">
-          {category ? `${category.label} Analysis` : 'Overall Performance Analysis'}
-        </h3>
-        <p className="text-slate-600 text-sm italic">
-          {category ? getCategoryDescription(category.key).static : getOverallDescription().static}
-        </p>
-        <div className="text-6xl font-bold text-center" style={{ color: getScoreColor(latestValue ?? 0) }}>
-          {Math.round(latestValue ?? 0)}<span className="text-2xl text-slate-600">/100</span>
+      <PopoverContent className="w-[600px] bg-white p-6 rounded-xl shadow-xl">
+        <div className="space-y-2">
+          <h3 className="text-xl font-bold text-slate-900">
+            {category ? `${category.label} Analysis` : 'Overall Performance Analysis'}
+          </h3>
+          <p className="text-slate-600 text-sm italic">
+            {category ? getCategoryDescription(category.key).static : getOverallDescription().static}
+          </p>
+          <div className="text-6xl font-bold text-center" style={{ color: getScoreColor(latestValue ?? 0) }}>
+            {Math.round(latestValue ?? 0)}<span className="text-2xl text-slate-600">/100</span>
+          </div>
+          <p className="text-slate-600">
+            {category ? getCategoryDescription(category.key).dynamic : getOverallDescription().dynamic}
+          </p>
         </div>
-        <p className="text-slate-600">
-          {category ? getCategoryDescription(category.key).dynamic : getOverallDescription().dynamic}
-        </p>
-      </div>
-    </PopoverContent>
-  </Popover>
-);
+      </PopoverContent>
+    </Popover>
+  );
+};
             
           </div>
           <div className="h-[240px] relative">
@@ -666,34 +667,33 @@ const currentRecords = filteredCallLogs.slice().reverse().slice(indexOfFirstReco
 
   return (
   <div className="min-h-screen pt-12 px-8 bg-[#f2f3f8]">
-    <div className="max-w-7xl mx-auto space-y-8 bg-white rounded-[32px] p-8 shadow-lg">
-{/* Date Range Picker */}
+      <div className="max-w-7xl mx-auto space-y-8 bg-white rounded-[32px] p-8 shadow-lg">
+        {/* Date Range Picker */}
         <div className="flex justify-end">
-  <Popover>
-    <PopoverTrigger asChild>
-      <Button 
-        variant="outline" 
-        className="bg-white border-slate-200 text-slate-900 hover:bg-slate-50"
-      >
-        <Calendar className="mr-2 h-4 w-4" />
-        {dateRange?.from ? (
-          dateRange.to ? (
-            <>
-              {format(dateRange.from, "LLL dd, y")} - {format(dateRange.to, "LLL dd, y")}
-            </>
-          ) : (
-            format(dateRange.from, "LLL dd, y")
-          )
-        ) : (
-          <span>Pick a date range</span>
-        )}
-      </Button>
-    </PopoverTrigger>
-    <PopoverContent>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button 
+                variant="outline" 
+                className="bg-white border-slate-200 text-slate-900 hover:bg-slate-50"
+              >
+                <Calendar className="mr-2 h-4 w-4" />
+                {dateRange?.from ? (
+                  dateRange.to ? (
+                    <>
+                      {format(dateRange.from, "LLL dd, y")} - {format(dateRange.to, "LLL dd, y")}
+                    </>
+                  ) : (
+                    format(dateRange.from, "LLL dd, y")
+                  )
+                ) : (
+                  <span>Pick a date range</span>
+                )}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent 
               className="bg-white border border-slate-200 p-0 shadow-lg rounded-xl w-auto" 
               align="end"
               sideOffset={8}
-              style={{ zIndex: 9999 }}
             >
               <div className="flex flex-col space-y-4 p-4">
                 <Button
