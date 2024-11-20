@@ -664,100 +664,109 @@ const currentRecords = filteredCallLogs.slice().reverse().slice(indexOfFirstReco
 <Card key={call.id} className="bg-white rounded-[32px] shadow-lg overflow-hidden border-0">
               <CardContent className="p-8">
                 <div className="flex flex-col md:flex-row gap-8">
-    
-    {/* New Overall Performance Popover */}
-    <Popover>
-      <PopoverTrigger asChild>
-        <button 
-          className="relative w-full text-center cursor-pointer hover:opacity-90 transition-opacity"
-        >
-          <div className="text-6xl font-bold mt-4" style={{ color: getScoreColor(call.scores.overall_performance) }}>
-            <span className="text-2xl text-slate-600">/100</span>
-          </div>
-          <p className="text-lg" style={{ color: getScoreColor(call.scores.overall_performance) }}>Overall Performance</p>
-        </button>
-      </PopoverTrigger>
-      <PopoverContent className="w-[600px] bg-white p-6 rounded-xl shadow-xl">
-        <div className="space-y-6">
-          <h3 className="text-xl font-bold text-slate-900">Overall Performance Analysis</h3>
-          
-          {/* Score Display */}
-          <div className="text-6xl font-bold text-center" style={{ color: getScoreColor(call.scores.overall_performance) }}>
-            {call.scores.overall_performance}
-            <span className="text-2xl text-slate-600">/100</span>
-          </div>
+                  {/* Agent Info Section */}
+                  <div className="md:w-1/3 space-y-4">
+                    <div className="flex flex-col items-center">
+                      <Avatar className="h-24 w-24 mb-4">
+                        <AvatarImage src={call.agent_picture_url} alt={call.agent_name} />
+                        <AvatarFallback>{call.agent_name.slice(0, 2).toUpperCase()}</AvatarFallback>
+                      </Avatar>
+                      <h3 className="text-2xl font-bold text-slate-900">{call.agent_name}</h3>
+                      <p className="text-lg text-slate-600">CALL NUMBER {call.call_number}</p>
+                      <p className="text-sm text-slate-600">
+                        {format(new Date(call.call_date), 'PPpp')}
+                      </p>
+                     // Add this code right before the main performance score display in the agent info section
+<Popover>
+  <PopoverTrigger asChild>
+    <button 
+      className="relative w-full text-center cursor-pointer hover:opacity-90 transition-opacity"
+    >
+      <div className="text-6xl font-bold" style={{ color: getScoreColor(call.scores.overall_performance) }}>
+        {call.scores.overall_performance}
+        <span className="text-2xl text-slate-600">/100</span>
+      </div>
+      <p className="text-lg" style={{ color: getScoreColor(call.scores.overall_performance) }}>Overall Performance</p>
+    </button>
+  </PopoverTrigger>
+  <PopoverContent className="w-[600px] bg-white p-6 rounded-xl shadow-xl">
+    <div className="space-y-6">
+      <h3 className="text-xl font-bold text-slate-900">Overall Performance Analysis</h3>
+      
+      {/* Score Display */}
+      <div className="text-6xl font-bold text-center" style={{ color: getScoreColor(call.scores.overall_performance) }}>
+        {call.scores.overall_performance}
+        <span className="text-2xl text-slate-600">/100</span>
+      </div>
 
-          {/* Chart Section */}
-          <div className="h-[200px] w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart 
-                data={callLogs.map((log, index) => ({
-                  name: String(index + 1),
-                  value: log.scores.overall_performance
-                }))}
-                margin={{ top: 20, right: 20, bottom: 20, left: 20 }}
-              >
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.1)" />
-                <XAxis 
-                  dataKey="name" 
-                  axisLine={false} 
-                  tickLine={false}
-                />
-                <YAxis 
-                  axisLine={false} 
-                  tickLine={false} 
-                  domain={[0, 100]} 
-                />
-                <Area
-                  type="monotone"
-                  dataKey="value"
-                  stroke={getScoreColor(call.scores.overall_performance)}
-                  fill={`url(#colorGradient-overall)`}
-                  strokeWidth={3}
-                />
-                <defs>
-                  <linearGradient id="colorGradient-overall" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor={getScoreColor(call.scores.overall_performance)} stopOpacity={0.3}/>
-                    <stop offset="95%" stopColor={getScoreColor(call.scores.overall_performance)} stopOpacity={0.1}/>
-                  </linearGradient>
-                </defs>
-                <RechartsTooltip
-                  content={({ active, payload }) => {
-                    if (active && payload && payload.length) {
-                      return (
-                        <div className="bg-black/80 text-white p-2 rounded-lg text-sm">
-                          <p>{`Call ${payload[0].payload.name}: ${payload[0].value.toFixed(1)}%`}</p>
-                        </div>
-                      );
-                    }
-                    return null;
-                  }}
-                />
-              </AreaChart>
-            </ResponsiveContainer>
-          </div>
+      {/* Chart Section */}
+      <div className="h-[200px] w-full">
+        <ResponsiveContainer width="100%" height="100%">
+          <AreaChart 
+            data={callLogs.map((log, index) => ({
+              name: String(index + 1),
+              value: log.scores.overall_performance
+            }))}
+            margin={{ top: 20, right: 20, bottom: 20, left: 20 }}
+          >
+            <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.1)" />
+            <XAxis 
+              dataKey="name" 
+              axisLine={false} 
+              tickLine={false}
+            />
+            <YAxis 
+              axisLine={false} 
+              tickLine={false} 
+              domain={[0, 100]} 
+            />
+            <Area
+              type="monotone"
+              dataKey="value"
+              stroke={getScoreColor(call.scores.overall_performance)}
+              fill={`url(#colorGradient-overall)`}
+              strokeWidth={3}
+            />
+            <defs>
+              <linearGradient id="colorGradient-overall" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor={getScoreColor(call.scores.overall_performance)} stopOpacity={0.3}/>
+                <stop offset="95%" stopColor={getScoreColor(call.scores.overall_performance)} stopOpacity={0.1}/>
+              </linearGradient>
+            </defs>
+            <RechartsTooltip
+              content={({ active, payload }) => {
+                if (active && payload && payload.length) {
+                  return (
+                    <div className="bg-black/80 text-white p-2 rounded-lg text-sm">
+                      <p>{`Call ${payload[0].payload.name}: ${payload[0].value.toFixed(1)}%`}</p>
+                    </div>
+                  );
+                }
+                return null;
+              }}
+            />
+          </AreaChart>
+        </ResponsiveContainer>
+      </div>
 
-          {/* Performance Analysis Text */}
-          <div className="text-slate-600 space-y-4">
-            <p>This overall performance score is calculated based on a comprehensive evaluation of all key performance indicators:</p>
-            <ul className="list-disc pl-6 space-y-2">
-              <li>Engagement: {call.scores.engagement}%</li>
-              <li>Objection Handling: {call.scores.objection_handling}%</li>
-              <li>Information Gathering: {call.scores.information_gathering}%</li>
-              <li>Program Explanation: {call.scores.program_explanation}%</li>
-              <li>Closing Skills: {call.scores.closing_skills}%</li>
-              <li>Overall Effectiveness: {call.scores.overall_effectiveness}%</li>
-            </ul>
-            <p className="mt-4">
-              The score trend shows performance across all recorded calls, helping identify patterns and areas for improvement over time.
-            </p>
-          </div>
-        </div>
-      </PopoverContent>
-    </Popover>
-
-  </div>
-  {call.scores.overall_performance}
+      {/* Performance Analysis Text */}
+      <div className="text-slate-600 space-y-4">
+        <p>This overall performance score is calculated based on a comprehensive evaluation of all key performance indicators:</p>
+        <ul className="list-disc pl-6 space-y-2">
+          <li>Engagement: {call.scores.engagement}%</li>
+          <li>Objection Handling: {call.scores.objection_handling}%</li>
+          <li>Information Gathering: {call.scores.information_gathering}%</li>
+          <li>Program Explanation: {call.scores.program_explanation}%</li>
+          <li>Closing Skills: {call.scores.closing_skills}%</li>
+          <li>Overall Effectiveness: {call.scores.overall_effectiveness}%</li>
+        </ul>
+        <p className="mt-4">
+          The score trend shows performance across all recorded calls, helping identify patterns and areas for improvement over time.
+        </p>
+      </div>
+    </div>
+  </PopoverContent>
+</Popover>
                     </div>
                     <div className="flex flex-col gap-2">
   <Popover>
