@@ -532,12 +532,27 @@ return (
                   )}
                 </AreaChart>
               </ResponsiveContainer>
-              <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex flex-col items-center" style={{ zIndex: 0 }}>
-  <div className="text-lg text-slate-600 mb-2">Average Score</div>
-  <div className="text-6xl font-bold tracking-tight" style={{ color: getScoreColor(latestValue ?? 0) }}>
-    {Math.round(latestValue ?? 0)}<span className="text-4xl">/100</span>
-  </div>
-</div>
+             <Popover>
+  <PopoverTrigger asChild>
+    <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex flex-col items-center cursor-pointer hover:opacity-90 transition-opacity" style={{ zIndex: 0 }}>
+      <div className="text-lg text-slate-600 mb-2">Average Score</div>
+      <div className="text-6xl font-bold tracking-tight" style={{ color: getScoreColor(latestValue ?? 0) }}>
+        {Math.round(latestValue ?? 0)}<span className="text-4xl">/100</span>
+      </div>
+    </div>
+  </PopoverTrigger>
+  <PopoverContent className="w-[600px] bg-white p-6 rounded-xl shadow-xl">
+    <div className="space-y-6">
+      <h3 className="text-xl font-bold text-slate-900">Overall Performance Analysis</h3>
+      <div className="text-6xl font-bold text-center" style={{ color: getScoreColor(latestValue ?? 0) }}>
+        {Math.round(latestValue ?? 0)}<span className="text-2xl text-slate-600">/100</span>
+      </div>
+      <p className="text-slate-600">
+        This overall performance score represents the average effectiveness across all measured metrics.
+      </p>
+    </div>
+  </PopoverContent>
+</Popover>
             </>
           )}
         </div>
@@ -684,7 +699,6 @@ const currentRecords = filteredCallLogs.slice().reverse().slice(indexOfFirstReco
                       <p className="text-sm text-slate-600">
                         {format(new Date(call.call_date), 'PPpp')}
                       </p>
-                     // Add this code right before the main performance score display in the agent info section
 <Popover>
   <PopoverTrigger asChild>
     <button 
