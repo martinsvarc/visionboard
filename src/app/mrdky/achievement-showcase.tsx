@@ -91,11 +91,23 @@ export const AchievementContent = () => {
     'calls'
   );
 
-  const activityBadges = ACTIVITY_BADGES.map(badge => ({
+  const activityBadges = ACTIVITY_BADGES.map(badge => {
+  let current = 0;
+  
+  if (badge.period === 'day') {
+    current = badgeData?.daily_calls || 0;
+  } else if (badge.period === 'week') {
+    current = badgeData?.weekly_calls || 0;
+  } else if (badge.period === 'month') {
+    current = badgeData?.monthly_calls || 0;
+  }
+
+  return {
     ...badge,
     unlocked: badgeData?.unlocked_badges.activity_goals.includes(`${badge.period}_${badge.count}`),
-    current: badgeData?.[`${badge.period}_calls` as keyof BadgeData] || 0
-  }));
+    current
+  };
+});
 
   const leagueBadges = LEAGUE_BADGES.map(badge => ({
     ...badge,
