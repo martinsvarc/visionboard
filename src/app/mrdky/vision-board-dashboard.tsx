@@ -198,14 +198,14 @@ function League({ activeCategory, leagueData, setActiveLeagueCategory }: { activ
           <Tooltip>
             <TooltipTrigger asChild>
               <path
-                d={`M0,${100 - (leagueData[activeCategory][0].points / 100) * 100} 
-                    C150,${80 - (leagueData[activeCategory][0].points / 100) * 20} 
-                    350,${90 - (leagueData[activeCategory][0].points / 100) * 30} 
-                    500,${85 - (leagueData[activeCategory][0].points / 100) * 25}`}
-                fill="none"
-                stroke="#51c1a9"
-                strokeWidth="2"
-              />
+  d={`M0,${Math.round(100 - (leagueData[activeCategory][0].points / 100) * 100)} 
+      C150,${Math.round(80 - (leagueData[activeCategory][0].points / 100) * 20)} 
+      350,${Math.round(90 - (leagueData[activeCategory][0].points / 100) * 30)} 
+      500,${Math.round(85 - (leagueData[activeCategory][0].points / 100) * 25)}`}
+  fill="none"
+  stroke="#51c1a9"
+  strokeWidth="2"
+/>
             </TooltipTrigger>
             <TooltipContent>
               <p>Your progress</p>
@@ -214,14 +214,14 @@ function League({ activeCategory, leagueData, setActiveLeagueCategory }: { activ
           <Tooltip>
             <TooltipTrigger asChild>
               <path
-                d={`M0,${110 - (leagueData[activeCategory][0].points / 100) * 100} 
-                    C100,${95 - (leagueData[activeCategory][0].points / 100) * 20} 
-                    300,${105 - (leagueData[activeCategory][0].points / 100) * 30} 
-                    500,${100 - (leagueData[activeCategory][0].points / 100) * 25}`}
-                fill="none"
-                stroke="#fbb350"
-                strokeWidth="2"
-              />
+  d={`M0,${Math.round(110 - (leagueData[activeCategory][0].points / 100) * 100)} 
+      C100,${Math.round(95 - (leagueData[activeCategory][0].points / 100) * 20)} 
+      300,${Math.round(105 - (leagueData[activeCategory][0].points / 100) * 30)} 
+      500,${Math.round(100 - (leagueData[activeCategory][0].points / 100) * 25)}`}
+  fill="none"
+  stroke="#fbb350"
+  strokeWidth="2"
+/>
             </TooltipTrigger>
             <TooltipContent>
               <p>League average</p>
