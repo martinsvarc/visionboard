@@ -916,14 +916,7 @@ function League({ activeCategory, leagueData, setActiveLeagueCategory }: { activ
         {leagueData[activeCategory].slice(1).map((player, index) => (
           <div 
             key={player.rank} 
-            className={cn(
-  "p-2 rounded-[20px] flex items-center gap-2 text-sm border",
-  {
-    "border-[#fbb350] text-[#fbb350]": index === 0,  // 1st place
-    "border-[#556bc7] text-[#556bc7]": index === 1,  // 2nd place
-    "border-[#f97316] text-[#f97316]": index === 2   // 3rd place
-  }
-)}
+          
           >
             <span className="font-medium">#{player.rank}</span>
             <img src={player.avatar} alt="" className="w-8 h-8 rounded-full" />
