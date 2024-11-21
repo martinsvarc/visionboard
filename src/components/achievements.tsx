@@ -19,7 +19,7 @@ const AchievementGrid = ({ achievements, showIndividualProgress = false }: { ach
     <div className="grid grid-cols-5 gap-4">
       {achievements.map((achievement, index) => (
         <TooltipProvider key={index}>
-          <Tooltip>
+          <Tooltip delayDuration={300}>
             <TooltipTrigger>
               <button className="w-full text-left">
                 <div className="space-y-1">
@@ -66,9 +66,11 @@ const AchievementGrid = ({ achievements, showIndividualProgress = false }: { ach
                 </div>
               </button>
             </TooltipTrigger>
-            <TooltipContent side="top" className="bg-white p-2 rounded-lg shadow-lg z-50">
-              <p className="text-sm font-bold whitespace-nowrap">{achievement.tooltipTitle}</p>
-              <p className="text-xs text-slate-500 whitespace-nowrap">{achievement.tooltipSubtitle}</p>
+            <TooltipContent className="bg-white p-2 rounded-lg shadow-lg">
+              <div className="text-center">
+                <p className="text-sm font-bold whitespace-nowrap">{achievement.tooltipTitle}</p>
+                <p className="text-xs text-slate-500 whitespace-nowrap">{achievement.tooltipSubtitle}</p>
+              </div>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
