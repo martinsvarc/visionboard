@@ -7,6 +7,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { ArrowLeft, ArrowRight, RefreshCcw, TrendingUp, Palette, Calendar, Clock, Upload, X, Lock } from 'lucide-react'
 import { cn } from "@/lib/utils"
+import { CustomCalendar } from "@/components/custom-calendar"
 
 interface LeaguePlayer {
   rank: number
@@ -714,54 +715,7 @@ export default function VisionBoardDashboardClient() {
           </Card>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {/* Calendar & Streak */}
-            <Card className="p-3 bg-white rounded-[20px] shadow-lg flex flex-col h-full">
-              <h2 className="text-2xl font-semibold text-[#556bc7] mb-6">Calendar & Streak</h2>
-              <div className="flex gap-3 mb-6">
-                <div className="bg-[#556bc7] text-white px-3 py-2 rounded-[20px] flex-1">
-                  <div className="text-xs font-medium text-center">Current</div>
-                  <div className="text-2xl font-bold text-center">{streakData.current}</div>
-                </div>
-                <div className="bg-[#51c1a9] text-white px-3 py-2 rounded-[20px] flex-1">
-                  <div className="text-xs font-medium text-center">Consistency</div>
-                  <div className="text-2xl font-bold text-center">{streakData.consistency}</div>
-                </div>
-                <div className="bg-[#fbb350] text-white px-3 py-2 rounded-[20px] flex-1">
-                  <div className="text-xs font-medium text-center">Longest</div>
-                  <div className="text-2xl font-bold text-center">{streakData.longest}</div>
-                </div>
-              </div>
-
-              <div className="flex items-center justify-between mb-4">
-                <Button variant="ghost" size="icon" className="hover:bg-transparent">
-                  <ArrowLeft className="w-4 h-4 text-gray-400" />
-                </Button>
-                <div className="text-base font-semibold">November 2024</div>
-                <Button variant="ghost" size="icon" className="hover:bg-transparent">
-                  <ArrowRight className="w-4 h-4 text-gray-400" />
-                </Button>
-              </div>
-
-              <div className="grid grid-cols-7 gap-2 flex-1">
-                {weekDays.map(day => (
-                  <div key={day} className="text-center text-sm text-gray-400 font-medium mb-2">{day}</div>
-                ))}
-                {calendar.map(day => (
-                  <div
-                    key={day}
-                    className={cn(
-                      "text-center py-2.5 text-sm rounded-[16px] font-medium",
-                      day >= 11 && day <= 16 ? "bg-[#51c1a9] text-white" : "",
-                      day === 17 ? "border-2 border-[#556bc7] text-[#556bc7]" : "",
-                      day === 18 ? "border-2 border-[#556bc7] text-[#556bc7]" : "",
-                      "cursor-pointer"
-                    )}
-                  >
-                    {day}
-                  </div>
-                ))}
-              </div>
-            </Card>
+            <CustomCalendar streakData={streakData} />
 
             {/* League */}
             <League
