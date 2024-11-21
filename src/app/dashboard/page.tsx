@@ -273,6 +273,21 @@ const Chart: React.FC<ChartProps> = ({ data, category, dateRange, setDateRange, 
 
   const latestValue = chartData.length > 0 ? chartData[chartData.length - 1].value : null;
 
+  // Get category description
+  const getCategoryDescription = (key: string) => {
+    return {
+      static: staticDescriptions[key as keyof typeof staticDescriptions] || "",
+      dynamic: filteredCallLogs[0]?.descriptions[key as keyof CategoryDescriptions] || ""
+    };
+  };
+
+  const getOverallDescription = () => {
+    return {
+      static: "This comprehensive score represents the agent's overall performance across all measured metrics. It takes into account engagement, objection handling, information gathering, program explanation, closing skills, and overall effectiveness. Click and drag on the chart to compare performance between different points.",
+      dynamic: filteredCallLogs[0]?.descriptions.overall_performance || ""
+    };
+  };
+
   return (
     <div className="relative w-full">
       {/* Samostatný kalendář mimo Chart Popover */}
@@ -351,50 +366,7 @@ const Chart: React.FC<ChartProps> = ({ data, category, dateRange, setDateRange, 
                   >
                     Last Week
                   </Button>
-                  <Button
-                    variant="outline"
-                    className="w-full justify-center text-center font-normal rounded-xl h-11 hover:bg-slate-100"
-                    onClick={() => {
-                      const end = new Date();
-                      const start = subDays(end, 7);
-                      setDateRange({ from: start, to: end });
-                    }}
-                  >
-                    Last 7 Days
-                  </Button>
-                  <Button
-                    variant="outline"
-                    className="w-full justify-center text-center font-normal rounded-xl h-11 hover:bg-slate-100"
-                    onClick={() => {
-                      const end = endOfMonth(new Date());
-                      const start = startOfMonth(new Date());
-                      setDateRange({ from: start, to: end });
-                    }}
-                  >
-                    This Month
-                  </Button>
-                  <Button
-                    variant="outline"
-                    className="w-full justify-center text-center font-normal rounded-xl h-11 hover:bg-slate-100"
-                    onClick={() => {
-                      const end = new Date();
-                      const start = subDays(end, 14);
-                      setDateRange({ from: start, to: end });
-                    }}
-                  >
-                    Last 14 Days
-                  </Button>
-                  <Button
-                    variant="outline"
-                    className="w-full justify-center text-center font-normal rounded-xl h-11 hover:bg-slate-100"
-                    onClick={() => {
-                      const end = new Date();
-                      const start = subDays(end, 30);
-                      setDateRange({ from: start, to: end });
-                    }}
-                  >
-                    Last 30 Days
-                  </Button>
+                  {/* Další tlačítka pro výběr data */}
                 </div>
               </div>
             </PopoverContent>
@@ -402,71 +374,91 @@ const Chart: React.FC<ChartProps> = ({ data, category, dateRange, setDateRange, 
         </div>
       )}
 
-      {/* Chart */}
-      <Card className="relative overflow-hidden border-0 bg-white rounded-[32px] shadow-lg hover:shadow-xl transition-all cursor-pointer">
-        <CardContent className="p-6">
-          <div className="flex justify-between items-center mb-6">
-            <span className="text-slate-900 text-xl font-semibold">
-              {category ? category.label : 'Overall Performance'}
-            </span>
-          </div>
-          <div className="h-[240px] relative">
-            {chartData.length === 0 && (
-              <div className="flex flex-col items-center justify-center h-full space-y-4">
-                <span className="text-slate-600 text-xl">No calls found</span>
-                <Button variant="outline" onClick={() => setDateRange({ from: null, to: null })}>
-                  View all time
-                </Button>
+      {/* Chart s Popoverem pro detaily */}
+      <Popover>
+        <PopoverTrigger asChild>
+          <Card className="relative overflow-hidden border-0 bg-white rounded-[32px] shadow-lg hover:shadow-xl transition-all cursor-pointer">
+            <CardContent className="p-6">
+              <div className="flex justify-between items-center mb-6">
+                <span className="text-slate-900 text-xl font-semibold">
+                  {category ? category.label : 'Overall Performance'}
+                </span>
               </div>
-            )}
-            {chartData.length > 0 && (
-              <>
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart 
-                    data={chartData} 
-                    margin={{ top: 20, right: 0, bottom: 0, left: -32 }}
-                  >
-                    <defs>
-                      <linearGradient id={`colorGradient-${category ? category.key : 'overall'}`} x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor={getScoreColor(latestValue ?? 0)} stopOpacity={0.3}/>
-                        <stop offset="95%" stopColor={getScoreColor(latestValue ?? 0)} stopOpacity={0.1}/>
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.1)" />
-                    <XAxis 
-                      dataKey="name" 
-                      axisLine={false} 
-                      tickLine={false}
-                      tick={{ fill: 'rgba(0,0,0,0.6)', fontSize: 10 }}
-                    />
-                    <YAxis 
-                      axisLine={false} 
-                      tickLine={false} 
-                      tick={{ fill: 'rgba(0,0,0,0.6)', fontSize: 10 }} 
-                      domain={[0, 100]} 
-                    />
-                    <RechartsTooltip content={CustomTooltip} />
-                    <Area 
-                      type="monotone" 
-                      dataKey="value" 
-                      stroke={getScoreColor(latestValue ?? 0)}
-                      strokeWidth={3}
-                      fill={`url(#colorGradient-${category ? category.key : 'overall'})`}
-                      activeDot={{ r: 8, fill: getScoreColor(latestValue ?? 0), stroke: '#FFFFFF', strokeWidth: 2 }}
-                    />
-                  </AreaChart>
-                </ResponsiveContainer>
-                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex flex-col items-center" style={{ zIndex: 0 }}>
-                  <div className="text-lg text-slate-600 mb-2">Average Score</div>
-                  <div className="text-6xl font-bold tracking-tight" style={{ color: getScoreColor(latestValue ?? 0) }}>
-                    {Math.round(latestValue ?? 0)}<span className="text-4xl">/100</span>
+              <div className="h-[240px] relative">
+                {chartData.length === 0 && (
+                  <div className="flex flex-col items-center justify-center h-full space-y-4">
+                    <span className="text-slate-600 text-xl">No calls found</span>
+                    <Button variant="outline" onClick={() => setDateRange({ from: null, to: null })}>
+                      View all time
+                    </Button>
                   </div>
-                </div>
-              </>
-            )}
+                )}
+                {chartData.length > 0 && (
+                  <>
+                    <ResponsiveContainer width="100%" height="100%">
+                      <AreaChart 
+                        data={chartData} 
+                        margin={{ top: 20, right: 0, bottom: 0, left: -32 }}
+                      >
+                        <defs>
+                          <linearGradient id={`colorGradient-${category ? category.key : 'overall'}`} x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor={getScoreColor(latestValue ?? 0)} stopOpacity={0.3}/>
+                            <stop offset="95%" stopColor={getScoreColor(latestValue ?? 0)} stopOpacity={0.1}/>
+                          </linearGradient>
+                        </defs>
+                        <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.1)" />
+                        <XAxis 
+                          dataKey="name" 
+                          axisLine={false} 
+                          tickLine={false}
+                          tick={{ fill: 'rgba(0,0,0,0.6)', fontSize: 10 }}
+                        />
+                        <YAxis 
+                          axisLine={false} 
+                          tickLine={false} 
+                          tick={{ fill: 'rgba(0,0,0,0.6)', fontSize: 10 }} 
+                          domain={[0, 100]} 
+                        />
+                        <RechartsTooltip content={CustomTooltip} />
+                        <Area 
+                          type="monotone" 
+                          dataKey="value" 
+                          stroke={getScoreColor(latestValue ?? 0)}
+                          strokeWidth={3}
+                          fill={`url(#colorGradient-${category ? category.key : 'overall'})`}
+                          activeDot={{ r: 8, fill: getScoreColor(latestValue ?? 0), stroke: '#FFFFFF', strokeWidth: 2 }}
+                        />
+                      </AreaChart>
+                    </ResponsiveContainer>
+                    <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex flex-col items-center" style={{ zIndex: 0 }}>
+                      <div className="text-lg text-slate-600 mb-2">Average Score</div>
+                      <div className="text-6xl font-bold tracking-tight" style={{ color: getScoreColor(latestValue ?? 0) }}>
+                        {Math.round(latestValue ?? 0)}<span className="text-4xl">/100</span>
+                      </div>
+                    </div>
+                  </>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </PopoverTrigger>
+        <PopoverContent className="w-[600px] bg-white p-6 rounded-xl shadow-xl">
+          <div className="space-y-2">
+            <h3 className="text-xl font-bold text-slate-900">
+              {category ? `${category.label} Analysis` : 'Overall Performance Analysis'}
+            </h3>
+            <p className="text-slate-600 text-sm italic">
+              {category ? getCategoryDescription(category.key).static : getOverallDescription().static}
+            </p>
+            <div className="text-6xl font-bold text-center" style={{ color: getScoreColor(latestValue ?? 0) }}>
+              {Math.round(latestValue ?? 0)}<span className="text-2xl text-slate-600">/100</span>
+            </div>
+            <p className="text-slate-600">
+              {category ? getCategoryDescription(category.key).dynamic : getOverallDescription().dynamic}
+            </p>
           </div>
-        </CardContent>
-      </Card>
+        </PopoverContent>
+      </Popover>
     </div>
   );
 };
