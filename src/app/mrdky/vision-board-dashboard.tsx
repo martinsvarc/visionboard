@@ -625,12 +625,12 @@ export default function VisionBoardDashboardClient() {
               
               <div className="flex gap-2">
                 <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="bg-[#fbb350] hover:bg-[#f9a238] text-white border-[#fbb350] gap-2 rounded-xl"
-                    >
+  <div>
+    <Button
+      variant="outline"
+      size="sm"
+      className="bg-[#fbb350] hover:bg-[#f9a238] text-white border-[#fbb350] gap-2 rounded-xl"
+    >
                       <PaletteIcon />
                       Color
                     </Button>
@@ -841,7 +841,7 @@ export default function VisionBoardDashboardClient() {
                 <div className="h-[160px] overflow-y-auto pr-2">
                   {achievements[activeAchievementCategory].map((achievement, index) => (
                     <Tooltip key={index}>
-                      <TooltipTrigger asChild>
+                      <div>
                         <div className="mb-6 flex gap-4">
                           <div className="relative w-[56px] h-[56px]">
                             {achievement.badge ? (
