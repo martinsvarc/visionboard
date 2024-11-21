@@ -195,38 +195,40 @@ function League({ activeCategory, leagueData, setActiveLeagueCategory }: { activ
       <div className="relative h-48 bg-gradient-to-t from-[#51c1a9]/20 via-[#51c1a9]/10 to-transparent rounded-[20px] mb-6 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-[#51c1a9]/20 to-transparent" />
         <svg className="w-full h-full relative" preserveAspectRatio="none">
+  <g>
+    <Tooltip>
+      <div>
+        <path
+          d={`M0,${100 - (leagueData[activeCategory][0].points / 100) * 100} 
+              C150,${80 - (leagueData[activeCategory][0].points / 100) * 20} 
+              350,${90 - (leagueData[activeCategory][0].points / 100) * 30} 
+              500,${85 - (leagueData[activeCategory][0].points / 100) * 25}`}
+          fill="none"
+          stroke="#51c1a9"
+          strokeWidth="2"
+        />
+      </div>
+      <TooltipContent>
+        <p>Your progress</p>
+      </TooltipContent>
+    </Tooltip>
+  </g>
           <Tooltip>
-            <TooltipTrigger asChild>
-              <path
-                d={`M0,${100 - (leagueData[activeCategory][0].points / 100) * 100} 
-                    C150,${80 - (leagueData[activeCategory][0].points / 100) * 20} 
-                    350,${90 - (leagueData[activeCategory][0].points / 100) * 30} 
-                    500,${85 - (leagueData[activeCategory][0].points / 100) * 25}`}
-                fill="none"
-                stroke="#51c1a9"
-                strokeWidth="2"
-              />
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Your progress</p>
-            </TooltipContent>
-          </Tooltip>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <path
-                d={`M0,${110 - (leagueData[activeCategory][0].points / 100) * 100} 
-                    C100,${95 - (leagueData[activeCategory][0].points / 100) * 20} 
-                    300,${105 - (leagueData[activeCategory][0].points / 100) * 30} 
-                    500,${100 - (leagueData[activeCategory][0].points / 100) * 25}`}
-                fill="none"
-                stroke="#fbb350"
-                strokeWidth="2"
-              />
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>League average</p>
-            </TooltipContent>
-          </Tooltip>
+  <div>
+    <path
+      d={`M0,${110 - (leagueData[activeCategory][0].points / 100) * 100} 
+          C100,${95 - (leagueData[activeCategory][0].points / 100) * 20} 
+          300,${105 - (leagueData[activeCategory][0].points / 100) * 30} 
+          500,${100 - (leagueData[activeCategory][0].points / 100) * 25}`}
+      fill="none"
+      stroke="#fbb350"
+      strokeWidth="2"
+    />
+  </div>
+  <TooltipContent>
+    <p>League average</p>
+  </TooltipContent>
+</Tooltip>
         </svg>
       </div>
 
