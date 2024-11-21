@@ -634,6 +634,11 @@ export default function VisionBoardDashboardClient() {
                       <PaletteIcon />
                       Color
                     </Button>
+</div>
+  <PopoverContent className="w-auto p-0" align="end">
+    <ColorPicker color={glowColor} onChange={setGlowColor} />
+  </PopoverContent>
+</Popover>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0" align="end">
                     <ColorPicker color={glowColor} onChange={setGlowColor} />
@@ -877,6 +882,8 @@ export default function VisionBoardDashboardClient() {
                           </div>
                         </div>
                       </TooltipTrigger>
+</div>
+    </div>
                       <TooltipContent>
                         <p>{achievement.name} - {achievement.progress}% Complete ({Math.floor(achievement.progress / 10)} days)</p>
                       </TooltipContent>
