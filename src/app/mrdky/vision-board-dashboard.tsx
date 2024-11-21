@@ -518,15 +518,6 @@ export default function VisionBoardDashboard() {
     }))
   }, [])
 
-  const updateItemSize = useCallback((id: string, deltaWidth: number, deltaHeight: number, direction: string) => {
-    setVisionItems(prev => prev.map(item => {
-      if (item.id === id && boardRef.current) {
-        const board = boardRef.current.getBoundingClientRect()
-        let newWidth = item.width
-        let newHeight = item.height
-        let newX = item.x
-        let newY = item.y
-
 Here's the full implementation of the VisionBoard dashboard:
 
 ```tsx project="VisionBoard" file="vision-board-dashboard.tsx" type="react"
