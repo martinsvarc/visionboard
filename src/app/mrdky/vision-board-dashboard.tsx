@@ -615,7 +615,6 @@ export default function VisionBoardDashboardClient() {
   }, [])
 
   return (
-    <TooltipProvider>
       <div className="min-h-screen bg-gray-100 p-2">
         <div className="max-w-7xl mx-auto space-y-4">
           {/* Interactive Vision Board */}
@@ -845,9 +844,10 @@ export default function VisionBoardDashboardClient() {
               <div className="space-y-6">
                 <div className="h-[160px] overflow-y-auto pr-2">
                   {achievements[activeAchievementCategory].map((achievement, index) => (
-                    <Tooltip key={index}>
-                      <div>
-                        <div className="mb-6 flex gap-4">
+  <TooltipProvider key={index}>
+    <Tooltip>
+      <TooltipTrigger>
+        <div className="mb-6 flex gap-4">
                           <div className="relative w-[56px] h-[56px]">
                             {achievement.badge ? (
                               <img 
@@ -878,21 +878,17 @@ export default function VisionBoardDashboardClient() {
                                   style={{ width: `${achievement.progress}%` }}
                                 />
                               </div>
-                            </div>
-                          </div>
                         </div>
                       </TooltipTrigger>
-</div>
-    </div>
                       <TooltipContent>
                         <p>{achievement.name} - {achievement.progress}% Complete ({Math.floor(achievement.progress / 10)} days)</p>
                       </TooltipContent>
                     </Tooltip>
-                  ))}
-                </div>
+                  </TooltipProvider>
+                ))}
               </div>
-            </Card>
-
+            </div>
+          </Card>
             {/* Activity Circles */}
             <Card className="p-2 bg-white rounded-[20px] shadow-lg h-[280px]">
               <h2 className="text-lg font-semibold text-[#556bc7] mb-6">Activity Circles</h2>
@@ -963,6 +959,5 @@ export default function VisionBoardDashboardClient() {
           `}</style>
         </div>
       </div>
-    </TooltipProvider>
   )
 }
