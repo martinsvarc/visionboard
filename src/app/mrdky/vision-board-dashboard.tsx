@@ -841,41 +841,43 @@ export default function VisionBoardDashboardClient() {
                 <TooltipProvider>
                   {achievements[activeAchievementCategory].map((achievement, index) => (
                     <Tooltip key={index}>
-                      <TooltipTrigger asChild>
-                        <div className="mb-6 flex gap-4">
-                          <div className="relative w-[56px] h-[56px]">
-                            {achievement.badge ? (
-                              <img 
-                                src={achievement.badge} 
-                                alt="Achievement Badge" 
-                                className="w-full h-full object-cover"
-                              />
-                            ) : (
-                              <div className="w-full h-full rounded-lg bg-gray-100 flex items-center justify-center">
-                                <div className="w-8 h-8 rounded-full bg-gray-200" />
-                              </div>
-                            )}
-                            {achievement.locked && (
-                              <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center rounded-lg">
-                                <Lock className="text-white" size={24}/>
-                              </div>
-                            )}
-                          </div>
-                          <div className="flex-1 flex flex-col justify-between">
-                            <div className="flex items-center justify-between h-[24px]">
-                              <span className="text-lg font-medium">{achievement.name}</span>
-                              <span className="text-lg text-gray-500">{achievement.progress}%</span>
-                            </div>
-                            <div className="h-[28px] flex items-center">
-                              <div className="h-3 w-full bg-gray-100 rounded-full overflow-hidden">
-                                <div
-                                  className={`h-full transition-all duration-300 ease-in-out ${getProgressBarColor(achievement.progress)}`}
-                                  style={{ width: `${achievement.progress}%` }}
+                      <TooltipTrigger>
+                        <Button variant="ghost" className="w-full p-0 h-auto hover:bg-transparent">
+                          <div className="mb-6 flex gap-4">
+                            <div className="relative w-[56px] h-[56px]">
+                              {achievement.badge ? (
+                                <img 
+                                  src={achievement.badge} 
+                                  alt="Achievement Badge" 
+                                  className="w-full h-full object-cover"
                                 />
+                              ) : (
+                                <div className="w-full h-full rounded-lg bg-gray-100 flex items-center justify-center">
+                                  <div className="w-8 h-8 rounded-full bg-gray-200" />
+                                </div>
+                              )}
+                              {achievement.locked && (
+                                <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center rounded-lg">
+                                  <Lock className="text-white" size={24}/>
+                                </div>
+                              )}
+                            </div>
+                            <div className="flex-1 flex flex-col justify-between">
+                              <div className="flex items-center justify-between h-[24px]">
+                                <span className="text-lg font-medium">{achievement.name}</span>
+                                <span className="text-lg text-gray-500">{achievement.progress}%</span>
+                              </div>
+                              <div className="h-[28px] flex items-center">
+                                <div className="h-3 w-full bg-gray-100 rounded-full overflow-hidden">
+                                  <div
+                                    className={`h-full transition-all duration-300 ease-in-out ${getProgressBarColor(achievement.progress)}`}
+                                    style={{ width: `${achievement.progress}%` }}
+                                  />
+                                </div>
                               </div>
                             </div>
                           </div>
-                        </div>
+                        </Button>
                       </TooltipTrigger>
                       <TooltipContent>
                         <p>{achievement.name} - {achievement.progress}% Complete ({Math.floor(achievement.progress / 10)} days)</p>
