@@ -1,4 +1,3 @@
-// src/components/custom-calendar.tsx
 import React, { useState } from "react";
 import { Calendar } from "@/components/ui/calendar";
 import { Card } from "@/components/ui/card";
@@ -28,7 +27,7 @@ export const CustomCalendar: React.FC<CustomCalendarProps> = ({ streakData }) =>
   };
 
   return (
-    <Card className="p-3 bg-white rounded-[20px] shadow-lg flex flex-col h-full">
+    <Card className="p-3 bg-white rounded-[20px] shadow-lg h-full flex flex-col">
       <h2 className="text-2xl font-semibold text-[#556bc7] mb-4">Calendar & Streak</h2>
       
       <div className="flex gap-3 mb-4">
@@ -46,18 +45,18 @@ export const CustomCalendar: React.FC<CustomCalendarProps> = ({ streakData }) =>
         </div>
       </div>
 
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 min-h-0">
         <Calendar
           mode="single"
           selected={date}
           onSelect={(newDate) => newDate && setDate(newDate)}
-          className="flex-1"
+          className="h-full flex flex-col"
           modifiers={modifiers}
           modifiersClassNames={modifiersClassNames}
           classNames={{
             months: "flex-1 flex flex-col",
-            month: "flex-1 space-y-4",
-            caption: "flex justify-center pt-1 relative items-center",
+            month: "flex-1 flex flex-col",
+            caption: "flex justify-center pt-1 relative items-center mb-4",
             caption_label: "text-base font-semibold",
             nav: "space-x-1 flex items-center",
             nav_button: cn(
@@ -65,12 +64,12 @@ export const CustomCalendar: React.FC<CustomCalendarProps> = ({ streakData }) =>
             ),
             nav_button_previous: "absolute left-1",
             nav_button_next: "absolute right-1",
-            table: "w-full h-full",
+            table: "flex-1 flex flex-col h-full",
             head_row: "flex w-full",
             head_cell: "text-sm text-gray-400 font-medium flex-1 text-center",
             row: "flex w-full flex-1",
-            cell: "text-center relative flex-1 p-0 first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20",
-            day: "h-full w-full p-0 font-medium rounded-[16px] hover:bg-gray-100 mx-auto flex items-center justify-center",
+            cell: "relative flex-1 p-0 flex items-stretch",
+            day: "h-full w-full p-0 font-medium rounded-[16px] hover:bg-gray-100 flex items-center justify-center",
             day_today: "text-[#556bc7] font-bold",
             day_selected: "bg-[#556bc7] text-white hover:bg-[#556bc7] hover:text-white",
           }}
