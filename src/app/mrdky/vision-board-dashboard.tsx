@@ -624,25 +624,20 @@ export default function VisionBoardDashboardClient() {
               
               <div className="flex gap-2">
                 <Popover>
-  <div>
+  <PopoverTrigger>
     <Button
       variant="outline"
       size="sm"
       className="bg-[#fbb350] hover:bg-[#f9a238] text-white border-[#fbb350] gap-2 rounded-xl"
     >
-                      <PaletteIcon />
-                      Color
-                    </Button>
-</div>
+      <PaletteIcon />
+      Color
+    </Button>
+  </PopoverTrigger>
   <PopoverContent className="w-auto p-0" align="end">
     <ColorPicker color={glowColor} onChange={setGlowColor} />
   </PopoverContent>
 </Popover>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="end">
-                    <ColorPicker color={glowColor} onChange={setGlowColor} />
-                  </PopoverContent>
-                </Popover>
                 <Button
                   variant="outline"
                   size="sm"
@@ -872,14 +867,16 @@ export default function VisionBoardDashboardClient() {
                               <span className="text-lg text-gray-500">{achievement.progress}%</span>
                             </div>
                             <div className="h-[28px] flex items-center">
-                              <div className="h-3 w-full bg-gray-100 rounded-full overflow-hidden">
-                                <div
-                                  className={`h-full transition-all duration-300 ease-in-out ${getProgressBarColor(achievement.progress)}`}
-                                  style={{ width: `${achievement.progress}%` }}
-                                />
-                              </div>
-                        </div>
-                      </TooltipTrigger>
+  <div className="h-3 w-full bg-gray-100 rounded-full overflow-hidden">
+    <div
+      className={`h-full transition-all duration-300 ease-in-out ${getProgressBarColor(achievement.progress)}`}
+      style={{ width: `${achievement.progress}%` }}
+    />
+  </div>
+</div>
+          </div>
+        </div>
+      </TooltipTrigger>
                       <TooltipContent>
                         <p>{achievement.name} - {achievement.progress}% Complete ({Math.floor(achievement.progress / 10)} days)</p>
                       </TooltipContent>
