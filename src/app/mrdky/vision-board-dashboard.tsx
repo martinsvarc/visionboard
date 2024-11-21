@@ -294,6 +294,131 @@ export default function VisionBoardDashboard() {
   const boardRef = useRef<HTMLDivElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
+const handleInteractionStart = useCallback((
+  e: React.MouseEvent,
+  itemId: string,
+  type: 'move' | 'resize',
+  direction?: string
+) => {
+  if (e.button !== 0) return // Only handle left mouse button
+  e.stopPropagation()
+  e.preventDefault()
+  
+  setActiveItem(itemId)
+  setInteractionType(type)
+  setInteractionStart({ x: e.clientX, y: e.clientY })
+  
+  if (type === 'resize' && direction) {
+    setResizeDirection(direction)
+  }
+
+ const newZIndex = maxZIndex + 1
+  setMaxZIndex(newZIndex)
+  setVisionItems(prev => prev.map(item => 
+    item.id === itemId ? { ...item, zIndex: newZIndex } : item
+  ))
+}, [maxZIndex])
+
+const handleInteractionMove = useCallback((e: React.MouseEvent) => {
+  if (!activeItem || !interactionStart || !boardRef.current) return
+
+  const deltaX = e.clientX - interactionStart.x
+  const deltaY = e.clientY - interactionStart.y
+  const board = boardRef.current.getBoundingClientRect()
+
+  setVisionItems(prev => {
+    return prev.map(item => {
+      if (item.id !== activeItem) return item
+
+      if (interactionType === 'move') {
+        // Handle movement
+        const newX = Math.min(Math.max(0, item.x + deltaX), board.width - item.width)
+        const newY = Math.min(Math.max(0, item.y + deltaY), board.height - item.height)
+        return { ...item, x: newX, y: newY }
+      }
+
+      if (interactionType === 'resize' && resizeDirection) {
+        // Handle resize
+        let newWidth = item.width
+        let newHeight = item.height
+        let newX = item.x
+        let newY = item.y
+
+        switch (resizeDirection) {
+          case 'bottom-right':
+            newWidth = Math.max(100, item.width + deltaX)
+            newHeight = newWidth / item.aspectRatio
+            break
+          case 'bottom-left':
+            newWidth = Math.max(100, item.width - deltaX)
+            newHeight = newWidth / item.aspectRatio
+            newX = item.x + item.width - newWidth
+            break
+          case 'top-right':
+            newWidth = Math.max(100, item.width + deltaX)
+            newHeight = newWidth / item.aspectRatio
+            newY = item.y + item.height - newHeight
+            break
+          case 'top-left':
+            newWidth = Math.max(100, item.width - deltaX)
+            newHeight = newWidth / item.aspectRatio
+            newX = item.x + item.width - newWidth
+            newY = item.y + item.height - newHeight
+            break
+        }
+
+        // Keep within bounds
+        if (newX < 0) {
+          newX = 0
+          newWidth = item.x + item.width
+          newHeight = newWidth / item.aspectRatio
+        }
+        if (newX + newWidth > board.width) {
+          newWidth = board.width - newX
+          newHeight = newWidth / item.aspectRatio
+        }
+        if (newY < 0) {
+          newY = 0
+          newHeight = item.y + item.height
+          newWidth = newHeight * item.aspectRatio
+        }
+        if (newY + newHeight > board.height) {
+          newHeight = board.height - newY
+          newWidth = newHeight * item.aspectRatio
+        }
+
+        return { ...item, x: newX, y: newY, width: newWidth, height: newHeight }
+      }
+
+      return item
+    })
+  })
+
+  setInteractionStart({ x: e.clientX, y: e.clientY })
+}, [activeItem, interactionStart, interactionType, resizeDirection])
+
+const handleInteractionEnd = useCallback(() => {
+  setActiveItem(null)
+  setInteractionType(null)
+  setInteractionStart(null)
+  setResizeDirection(null)
+}, [])
+
+const deleteItem = useCallback((id: string) => {
+  setVisionItems(prev => prev.filter(item => item.id !== id))
+}, [])
+
+useEffect(() => {
+  const handleGlobalMouseUp = () => {
+    handleInteractionEnd()
+  }
+
+  window.addEventListener('mouseup', handleGlobalMouseUp)
+  return () => {
+    window.removeEventListener('mouseup', handleGlobalMouseUp)
+  }
+}, [handleInteractionEnd])
+
   const calendar = Array.from({ length: 30 }, (_, i) => i + 1)
   const weekDays = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa']
 
