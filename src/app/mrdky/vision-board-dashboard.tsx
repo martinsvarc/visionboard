@@ -527,11 +527,13 @@ export default function VisionBoardDashboard() {
         let newX = item.x
         let newY = item.y
 
-        if (direction.includes('right')) {
-          newWidth = Math.min(Math.max(100, item.width + deltaWidth), board.width - item.x)
-        } else if (direction.includes('left')) {
-          const potentialWidth = Math.min(Math.max(100I'll provide you with the full dashboard implementation. 
-
+        if (direction.includes('right')) { 
+    newWidth = Math.min(Math.max(100, item.width + deltaWidth), board.width - item.x) 
+} else if (direction.includes('left')) { 
+    const potentialWidth = Math.min(Math.max(100, item.width - deltaWidth), item.x + item.width)
+    newX = item.x + (item.width - potentialWidth)
+    newWidth = potentialWidth
+}
 
 
 Here's the full implementation of the VisionBoard dashboard:
