@@ -918,11 +918,11 @@ function League({ activeCategory, leagueData, setActiveLeagueCategory }: { activ
             key={player.rank} 
             className={cn(
   "p-2 rounded-[20px] flex items-center gap-2 text-sm border",
-  index === 0 
-    ? "border-[#fbb350] text-[#fbb350]"      // 1st place
-    : index === 1 
-    ? "border-[#556bc7] text-[#556bc7]"      // 2nd place
-    : "border-[#f97316] text-[#f97316]"      // 3rd place
+  {
+    "border-[#fbb350] text-[#fbb350]": index === 0,  // 1st place
+    "border-[#556bc7] text-[#556bc7]": index === 1,  // 2nd place
+    "border-[#f97316] text-[#f97316]": index === 2   // 3rd place
+  }
 )}
           >
             <span className="font-medium">#{player.rank}</span>
