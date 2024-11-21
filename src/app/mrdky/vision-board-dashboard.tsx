@@ -8,6 +8,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { ArrowLeft, ArrowRight, RefreshCcw, TrendingUp, Palette, Calendar, Clock, Upload, X, Lock } from 'lucide-react'
 import { cn } from "@/lib/utils"
 import { CustomCalendar } from "@/components/custom-calendar"
+import { LeagueChart } from '@/components/LeagueChart'
 
 interface LeaguePlayer {
   rank: number
