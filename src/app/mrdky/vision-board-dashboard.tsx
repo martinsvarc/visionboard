@@ -660,7 +660,7 @@ export default function VisionBoardDashboardClient() {
 
             <div 
               ref={boardRef} 
-              className="relative w-full h-[400px] rounded-3xl bg-[#f0f1f7] shadow-lg border transition-all duration-300"
+              className="relative w-full h-[750px] rounded-3xl bg-[#f0f1f7] shadow-lg border transition-all duration-300"
               style={{
                 borderColor: glowColor,
                 boxShadow: `0 0 10px ${glowColor}, 0 0 20px ${glowColor.replace('0.3', '0.2')}`
