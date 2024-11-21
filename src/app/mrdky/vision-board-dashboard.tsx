@@ -506,18 +506,6 @@ export default function VisionBoardDashboard() {
     }
   }, [maxZIndex])
 
-  const updateItemPosition = useCallback((id: string, deltaX: number, deltaY: number) => {
-    setVisionItems(prev => prev.map(item => {
-      if (item.id === id && boardRef.current) {
-        const board = boardRef.current.getBoundingClientRect()
-        const newX = Math.min(Math.max(0, item.x + deltaX), board.width - item.width)
-        const newY = Math.min(Math.max(0, item.y + deltaY), board.height - item.height)
-        return { ...item, x: newX, y: newY }
-      }
-      return item
-    }))
-  }, [])
-
 Here's the full implementation of the VisionBoard dashboard:
 
 ```tsx project="VisionBoard" file="vision-board-dashboard.tsx" type="react"
