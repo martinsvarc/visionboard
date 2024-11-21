@@ -273,11 +273,35 @@ const Chart: React.FC<ChartProps> = ({ data, category, dateRange, setDateRange, 
 
   const latestValue = chartData.length > 0 ? chartData[chartData.length - 1].value : null;
 
+  // Static descriptions
+  const staticDescriptions = {
+    engagement: "This metric evaluates the agent's ability to connect with customers and maintain meaningful interactions throughout the call.",
+    objection_handling: "This score reflects how well the agent addresses customer concerns and manages challenging situations.",
+    information_gathering: "This metric assesses the agent's proficiency in collecting relevant information and asking appropriate questions.",
+    program_explanation: "This score evaluates how effectively the agent communicates program details and complex information.",
+    closing_skills: "This metric measures the agent's ability to guide conversations toward positive outcomes.",
+    overall_effectiveness: "This comprehensive metric evaluates the agent's overall impact and success in handling calls."
+  };
+
+  const getCategoryDescription = (key: string) => {
+    return {
+      static: staticDescriptions[key as keyof typeof staticDescriptions] || "",
+      dynamic: filteredCallLogs[0]?.descriptions[key as keyof CategoryDescriptions] || ""
+    };
+  };
+
+  const getOverallDescription = () => {
+    return {
+      static: "This comprehensive score represents the agent's overall performance across all measured metrics.",
+      dynamic: filteredCallLogs[0]?.descriptions.overall_performance || ""
+    };
+  };
+
   return (
     <div className="relative w-full">
-      {/* Samostatný kalendář */}
+      {/* Calendar Popover */}
       {!category && (
-        <div className="absolute right-4 top-4" style={{ zIndex: 100 }}>
+        <div className="absolute right-4 top-4" style={{ zIndex: 50 }}>
           <Popover>
             <PopoverTrigger asChild>
               <Button 
@@ -303,16 +327,12 @@ const Chart: React.FC<ChartProps> = ({ data, category, dateRange, setDateRange, 
               className="bg-white border border-slate-200 p-0 shadow-lg rounded-xl w-auto" 
               align="end"
               sideOffset={8}
-              onClick={(e) => e.stopPropagation()}
             >
-              <div className="flex flex-col space-y-4 p-4">
+              <div className="flex flex-col space-y-4 p-4" onClick={(e) => e.stopPropagation()}>
                 <Button
                   variant="outline"
                   className="w-full justify-center text-center font-normal col-span-2"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setDateRange({ from: null, to: null });
-                  }}
+                  onClick={() => setDateRange({ from: null, to: null })}
                 >
                   All time
                 </Button>
@@ -334,31 +354,7 @@ const Chart: React.FC<ChartProps> = ({ data, category, dateRange, setDateRange, 
                   className="bg-white [&_.rdp]:p-0 [&_.rdp-months]:space-x-4 [&_.rdp-month]:w-full [&_.rdp-day]:h-10 [&_.rdp-day]:w-10 [&_.rdp-day]:text-sm [&_.rdp-day]:font-normal [&_.rdp-day_span]:flex [&_.rdp-day_span]:h-full [&_.rdp-day_span]:w-full [&_.rdp-day_span]:items-center [&_.rdp-day_span]:justify-center [&_.rdp-day]:hover:bg-slate-100 [&_.rdp-day_button]:font-normal [&_.rdp-button]:hover:bg-slate-100 [&_.rdp-nav_button]:h-9 [&_.rdp-nav_button]:w-9 [&_.rdp-nav_button]:bg-transparent [&_.rdp-nav_button]:hover:bg-slate-100 [&_.rdp-head_cell]:font-normal [&_.rdp-head_cell]:text-slate-500 [&_.rdp-caption_label]:font-medium [&_.rdp-caption_label]:text-slate-900 [&_.rdp-day_selected]:bg-slate-900 [&_.rdp-day_selected]:text-white [&_.rdp-day_selected]:hover:bg-slate-900 [&_.rdp-day_selected]:hover:text-white [&_.rdp-day_range_start]:bg-slate-900 [&_.rdp-day_range_start]:text-white [&_.rdp-day_range_start]:hover:bg-slate-900 [&_.rdp-day_range_start]:hover:text-white [&_.rdp-day_range_end]:bg-slate-900 [&_.rdp-day_range_end]:text-white [&_.rdp-day_range_end]:hover:bg-slate-900 [&_.rdp-day_range_end]:hover:text-white [&_.rdp-day_range_middle]:bg-slate-100 [&_.rdp-day_today]:font-bold"
                 />
                 <div className="grid grid-cols-2 gap-2">
-                  <Button
-                    variant="outline"
-                    className="w-full justify-center text-center font-normal rounded-xl h-11 hover:bg-slate-100"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      const end = new Date();
-                      const start = startOfWeek(end);
-                      setDateRange({ from: start, to: end });
-                    }}
-                  >
-                    This Week
-                  </Button>
-                  <Button
-                    variant="outline"
-                    className="w-full justify-center text-center font-normal rounded-xl h-11 hover:bg-slate-100"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      const end = subDays(startOfWeek(new Date()), 1);
-                      const start = startOfWeek(end);
-                      setDateRange({ from: start, to: end });
-                    }}
-                  >
-                    Last Week
-                  </Button>
-                  {/* Add other date selection buttons */}
+                  {/* Date buttons */}
                 </div>
               </div>
             </PopoverContent>
@@ -366,9 +362,9 @@ const Chart: React.FC<ChartProps> = ({ data, category, dateRange, setDateRange, 
         </div>
       )}
 
-      {/* Chart dialog */}
-      <Dialog>
-        <DialogTrigger asChild>
+      {/* Chart Popover */}
+      <Popover>
+        <PopoverTrigger asChild>
           <Card className="relative overflow-hidden border-0 bg-white rounded-[32px] shadow-lg hover:shadow-xl transition-all cursor-pointer">
             <CardContent className="p-6">
               <div className="flex justify-between items-center mb-6">
@@ -377,6 +373,7 @@ const Chart: React.FC<ChartProps> = ({ data, category, dateRange, setDateRange, 
                 </span>
               </div>
               <div className="h-[240px] relative">
+                {/* Chart content */}
                 {chartData.length === 0 && (
                   <div className="flex flex-col items-center justify-center h-full space-y-4">
                     <span className="text-slate-600 text-xl">No calls found</span>
@@ -433,15 +430,13 @@ const Chart: React.FC<ChartProps> = ({ data, category, dateRange, setDateRange, 
               </div>
             </CardContent>
           </Card>
-        </DialogTrigger>
-        <DialogContent className="bg-white p-6 rounded-xl max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>
+        </PopoverTrigger>
+        <PopoverContent className="w-[600px] bg-white p-6 rounded-xl shadow-xl">
+          <div className="space-y-2">
+            <h3 className="text-xl font-bold text-slate-900">
               {category ? `${category.label} Analysis` : 'Overall Performance Analysis'}
-            </DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <p className="text-slate-600">
+            </h3>
+            <p className="text-slate-600 text-sm italic">
               {category ? getCategoryDescription(category.key).static : getOverallDescription().static}
             </p>
             <div className="text-6xl font-bold text-center" style={{ color: getScoreColor(latestValue ?? 0) }}>
@@ -451,101 +446,11 @@ const Chart: React.FC<ChartProps> = ({ data, category, dateRange, setDateRange, 
               {category ? getCategoryDescription(category.key).dynamic : getOverallDescription().dynamic}
             </p>
           </div>
-        </DialogContent>
-      </Dialog>
+        </PopoverContent>
+      </Popover>
     </div>
   );
 };
-function DashboardComponent() {
-  const [callLogs, setCallLogs] = useState<CallLog[]>([]);
-  const [filteredCallLogs, setFilteredCallLogs] = useState<CallLog[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [dateRange, setDateRange] = useState<{ from: Date | null; to: Date | null }>({ from: null, to: null });
-
-  const [playCallModal, setPlayCallModal] = useState<{
-    isOpen: boolean;
-    callId: number | null;
-  }>({ isOpen: false, callId: null });
-  const [detailsModal, setDetailsModal] = useState<{
-    isOpen: boolean;
-    call: CallLog | null;
-  }>({ isOpen: false, call: null });
-  const [currentPage, setCurrentPage] = useState(1);
-  const recordsPerPage = 10;
-
-  const searchParams = useSearchParams();
-  const memberId = searchParams.get('memberId');
-
-  const fetchCallLogs = useCallback(async () => {
-    if (!memberId) return;
-    
-    setIsLoading(true);
-    setError(null);
-    try {
-      const response = await fetch(`/api/dashboard?memberId=${memberId}`);
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to fetch call logs');
-      }
-
-      setCallLogs(data);
-      setFilteredCallLogs(data);
-    } catch (err) {
-      console.error('Error fetching call logs:', err);
-      setError('Failed to fetch call logs. Please try again later.');
-    } finally {
-      setIsLoading(false);
-    }
-  }, [memberId]);
-
-  useEffect(() => {
-    fetchCallLogs();
-  }, [fetchCallLogs]);
-
-  useEffect(() => {
-    if (dateRange?.from && dateRange?.to) {
-      const filtered = callLogs.filter(call => {
-        const callDate = new Date(call.call_date);
-        return callDate >= dateRange.from! && callDate <= dateRange.to!;
-      });
-      setFilteredCallLogs(filtered);
-    } else {
-      setFilteredCallLogs(callLogs);
-    }
-  }, [callLogs, dateRange]);
-
-  const handlePlayCall = (callId: number) => {
-    setPlayCallModal({ isOpen: true, callId });
-  };
-
-  const handleViewDetails = (call: CallLog) => {
-    setDetailsModal({ isOpen: true, call });
-  };
-
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-slate-50">
-        <RefreshCw className="w-6 h-6 text-slate-600 animate-spin" />
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-slate-50">
-        <Card className="w-96">
-          <CardContent className="pt-6">
-            <div className="text-center space-y-4">
-              <p className="text-red-500">{error}</p>
-              <Button onClick={fetchCallLogs}>Try Again</Button>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
 const indexOfLastRecord = currentPage * recordsPerPage;
   const indexOfFirstRecord = indexOfLastRecord - recordsPerPage;
 const currentRecords = filteredCallLogs.slice().reverse().slice(indexOfFirstRecord, indexOfLastRecord);
