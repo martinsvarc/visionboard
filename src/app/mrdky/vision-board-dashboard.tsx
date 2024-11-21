@@ -153,6 +153,10 @@ function ColorPicker({ color, onChange }: { color: string, onChange: (color: str
 }
 
 function League({ activeCategory, leagueData, setActiveLeagueCategory }: { activeCategory: string, leagueData: Record<string, LeaguePlayer[]>, setActiveLeagueCategory: (category: 'weekly' | 'allTime' | 'allTimeTeam') => void }) {
+  // Get current user and top player data
+  const currentUser = leagueData[activeCategory][0];
+  const topPlayer = leagueData[activeCategory][1];
+
   return (
     <Card className="p-3 bg-white rounded-[20px] shadow-lg h-full">
       <h2 className="text-2xl font-semibold text-[#556bc7] mb-4">League</h2>
@@ -193,44 +197,11 @@ function League({ activeCategory, leagueData, setActiveLeagueCategory }: { activ
         </Button>
       </div>
       
-      <div className="relative h-48 bg-gradient-to-t from-[#51c1a9]/20 via-[#51c1a9]/10 to-transparent rounded-[20px] mb-6 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-[#51c1a9]/20 to-transparent" />
-        <svg className="w-full h-full relative" preserveAspectRatio="none">
-  <g>
-    <Tooltip>
-      <div>
-        <path
-          d={`M0,${100 - (leagueData[activeCategory][0].points / 100) * 100} 
-              C150,${80 - (leagueData[activeCategory][0].points / 100) * 20} 
-              350,${90 - (leagueData[activeCategory][0].points / 100) * 30} 
-              500,${85 - (leagueData[activeCategory][0].points / 100) * 25}`}
-          fill="none"
-          stroke="#51c1a9"
-          strokeWidth="2"
+      <div className="mb-6">
+        <LeagueChart 
+          currentUserScore={currentUser.points}
+          topPlayerScore={topPlayer.points}
         />
-      </div>
-      <TooltipContent>
-        <p>Your progress</p>
-      </TooltipContent>
-    </Tooltip>
-  </g>
-          <Tooltip>
-  <div>
-    <path
-      d={`M0,${110 - (leagueData[activeCategory][0].points / 100) * 100} 
-          C100,${95 - (leagueData[activeCategory][0].points / 100) * 20} 
-          300,${105 - (leagueData[activeCategory][0].points / 100) * 30} 
-          500,${100 - (leagueData[activeCategory][0].points / 100) * 25}`}
-      fill="none"
-      stroke="#fbb350"
-      strokeWidth="2"
-    />
-  </div>
-  <TooltipContent>
-    <p>League average</p>
-  </TooltipContent>
-</Tooltip>
-        </svg>
       </div>
 
       <div className="space-y-2">
@@ -279,7 +250,7 @@ function League({ activeCategory, leagueData, setActiveLeagueCategory }: { activ
         ))}
       </div>
     </Card>
-  )
+  );
 }
 
 export default function VisionBoardDashboardClient() {
