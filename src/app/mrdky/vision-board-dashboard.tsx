@@ -279,7 +279,7 @@ function League({ activeCategory, leagueData, setActiveLeagueCategory }: { activ
   )
 }
 
-export function VisionBoardDashboardClient() {
+export default function VisionBoardDashboardClient() {
   const [currentDate] = useState(new Date(2024, 10, 17))
   const [currentActivityIndex, setCurrentActivityIndex] = useState(0)
   const [activeAchievementCategory, setActiveAchievementCategory] = useState('practice-streak')
