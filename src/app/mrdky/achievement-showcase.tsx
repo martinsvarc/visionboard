@@ -2,7 +2,7 @@
 
 import { useEffect, useState, Suspense } from "react"
 import { useSearchParams } from 'next/navigation'
-import { Card, CardContent } from "@/components/ui/card"
+import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { Lock } from 'lucide-react'
@@ -12,7 +12,8 @@ import {
   CALLS_BADGES, 
   ACTIVITY_BADGES, 
   LEAGUE_BADGES,
-  mapBadgesWithUnlockStatus 
+  mapBadgesWithUnlockStatus,
+  type Badge 
 } from '@/lib/achievement-data'
 
 interface BadgeData {
@@ -80,25 +81,47 @@ const AchievementContentInner = () => {
     );
   }
 
-  const categories = {
-    'practice-streak': mapBadgesWithUnlockStatus(
-      PRACTICE_STREAK_BADGES,
-      badgeData?.unlocked_badges.practice_streak || [],
-      'days'
-    ),
-    'completed-calls': mapBadgesWithUnlockStatus(
-      CALLS_BADGES,
-      badgeData?.unlocked_badges.completed_calls || [],
-      'calls'
-    ),
+  const calculateBadgeProgress = (badge: Badge): Badge => {
+    if (badge.unlocked) return { ...badge, progress: 100 };
+
+    let progress = 0;
+    if (badge.days && badgeData?.practice_streak) {
+      progress = Math.min(100, (badgeData.practice_streak / badge.days) * 100);
+    } else if (badge.calls && badgeData?.total_calls) {
+      progress = Math.min(100, (badgeData.total_calls / badge.calls) * 100);
+    } else if (badge.count && badge.period && badgeData) {
+      const current = badge.period === 'day' ? badgeData.daily_calls :
+                     badge.period === 'week' ? badgeData.weekly_calls :
+                     badge.period === 'month' ? badgeData.monthly_calls : 0;
+      progress = Math.min(100, (current / badge.count) * 100);
+    }
+
+    return { ...badge, progress: Math.round(progress) };
+  };
+
+  const categories: Record<string, Badge[]> = {
+    'practice-streak': PRACTICE_STREAK_BADGES.map(badge => ({
+      ...badge,
+      unlocked: badgeData?.unlocked_badges.practice_streak.includes(badge.days || 0)
+    })).map(calculateBadgeProgress),
+    
+    'completed-calls': CALLS_BADGES.map(badge => ({
+      ...badge,
+      unlocked: badgeData?.unlocked_badges.completed_calls.includes(badge.calls || 0)
+    })).map(calculateBadgeProgress),
+    
     'activity-goals': ACTIVITY_BADGES.map(badge => ({
       ...badge,
       unlocked: badgeData?.unlocked_badges.activity_goals.includes(`${badge.period}_${badge.count}`),
-      current: badgeData?.[`${badge.period}_calls` as keyof BadgeData] || 0
-    })),
+      current: badge.period === 'day' ? badgeData?.daily_calls :
+              badge.period === 'week' ? badgeData?.weekly_calls :
+              badge.period === 'month' ? badgeData?.monthly_calls : 0
+    })).map(calculateBadgeProgress),
+    
     'league-places': LEAGUE_BADGES.map(badge => ({
       ...badge,
-      unlocked: badgeData?.league_rank === badge.rank
+      unlocked: badgeData?.league_rank === badge.rank,
+      progress: badgeData?.league_rank === badge.rank ? 100 : 0
     }))
   };
 
@@ -124,7 +147,7 @@ const AchievementContentInner = () => {
       </div>
       <div className="space-y-6">
         <div className="h-[160px] overflow-y-auto pr-2">
-          {categories[activeCategory as keyof typeof categories].map((achievement, index) => (
+          {categories[activeCategory].map((achievement, index) => (
             <TooltipProvider key={index}>
               <Tooltip>
                 <TooltipTrigger className="w-full">
@@ -152,16 +175,16 @@ const AchievementContentInner = () => {
                         <div className="flex items-center justify-between h-[24px]">
                           <span className="text-lg font-medium">{achievement.description}</span>
                           <span className="text-lg text-gray-500">
-                            {achievement.unlocked ? '100' : achievement.progress}%
+                            {achievement.progress}%
                           </span>
                         </div>
                         <div className="h-[28px] flex items-center">
                           <div className="h-3 w-full bg-gray-100 rounded-full overflow-hidden">
                             <div
                               className={`h-full transition-all duration-300 ease-in-out ${
-                                getProgressBarColor(achievement.unlocked ? 100 : achievement.progress || 0)
+                                getProgressBarColor(achievement.progress || 0)
                               }`}
-                              style={{ width: `${achievement.unlocked ? 100 : achievement.progress}%` }}
+                              style={{ width: `${achievement.progress || 0}%` }}
                             />
                           </div>
                         </div>
