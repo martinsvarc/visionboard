@@ -1,3 +1,4 @@
+// src/components/custom-calendar.tsx
 import React, { useState } from "react";
 import { Calendar } from "@/components/ui/calendar";
 import { Card } from "@/components/ui/card";
@@ -45,18 +46,18 @@ export const CustomCalendar: React.FC<CustomCalendarProps> = ({ streakData }) =>
         </div>
       </div>
 
-      <div className="flex-1 min-h-0">
+      <div className="flex-1 flex">
         <Calendar
           mode="single"
           selected={date}
           onSelect={(newDate) => newDate && setDate(newDate)}
-          className="h-full flex flex-col"
+          className="flex-1 flex flex-col"
           modifiers={modifiers}
           modifiersClassNames={modifiersClassNames}
           classNames={{
             months: "flex-1 flex flex-col",
-            month: "flex-1 flex flex-col",
-            caption: "flex justify-center pt-1 relative items-center mb-4",
+            month: "flex-1 flex flex-col justify-between",
+            caption: "flex justify-center relative items-center h-8",
             caption_label: "text-base font-semibold",
             nav: "space-x-1 flex items-center",
             nav_button: cn(
@@ -64,14 +65,15 @@ export const CustomCalendar: React.FC<CustomCalendarProps> = ({ streakData }) =>
             ),
             nav_button_previous: "absolute left-1",
             nav_button_next: "absolute right-1",
-            table: "flex-1 flex flex-col h-full",
-            head_row: "flex w-full",
+            table: "flex-1 flex flex-col",
+            head_row: "flex w-full mb-2",
             head_cell: "text-sm text-gray-400 font-medium flex-1 text-center",
             row: "flex w-full flex-1",
-            cell: "relative flex-1 p-0 flex items-stretch",
-            day: "h-full w-full p-0 font-medium rounded-[16px] hover:bg-gray-100 flex items-center justify-center",
+            cell: "relative flex-1 aspect-square p-0",
+            day: "h-full w-full p-0 font-medium hover:bg-gray-100 flex items-center justify-center rounded-[16px]",
             day_today: "text-[#556bc7] font-bold",
             day_selected: "bg-[#556bc7] text-white hover:bg-[#556bc7] hover:text-white",
+            day_outside: "text-gray-300",
           }}
         />
       </div>
