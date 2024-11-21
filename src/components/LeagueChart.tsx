@@ -24,11 +24,11 @@ export function LeagueChart({ currentUserScore, topPlayerScore, historicalData }
   const chartData = historicalData || generateChartData(currentUserScore, topPlayerScore)
 
   return (
-    <div className="relative h-48 bg-gradient-to-t from-[#51c1a9]/20 via-[#51c1a9]/10 to-transparent rounded-[20px] overflow-hidden">
+    <div className="relative h-48 bg-gradient-to-t from-[#51c1a9]/20 via-[#51c1a9]/10 to-transparent rounded-[20px] overflow-hidden px-4">
       <ResponsiveContainer width="100%" height="100%">
         <AreaChart
           data={chartData}
-          margin={{ top: 5, right: 25, left: -15, bottom: 5 }}
+          margin={{ top: 10, right: 10, left: 10, bottom: 0 }}
         >
           <defs>
             <linearGradient id="colorUserPoints" x1="0" y1="0" x2="0" y2="1">
@@ -47,8 +47,9 @@ export function LeagueChart({ currentUserScore, topPlayerScore, historicalData }
             fontSize={12}
             tickLine={false}
             axisLine={false}
-            dy={5}
-            tick={{ dx: 15 }}
+            interval={0}
+            tick={{ fill: '#888888' }}
+            padding={{ left: 10, right: 10 }}
           />
           
           <YAxis 
@@ -57,9 +58,9 @@ export function LeagueChart({ currentUserScore, topPlayerScore, historicalData }
             tickLine={false}
             axisLine={false}
             tickFormatter={(value) => `${value}`}
-            dx={10}
-            tickCount={5}
             domain={[0, 100]}
+            ticks={[0, 25, 50, 75, 100]}
+            width={30}
           />
           
           <Tooltip
@@ -86,6 +87,7 @@ export function LeagueChart({ currentUserScore, topPlayerScore, historicalData }
             stroke="#51c1a9"
             strokeWidth={2}
             fill="url(#colorUserPoints)"
+            isAnimationActive={false}
           />
           <Area
             type="monotone"
@@ -93,6 +95,7 @@ export function LeagueChart({ currentUserScore, topPlayerScore, historicalData }
             stroke="#fbb350"
             strokeWidth={2}
             fill="url(#colorTopUserPoints)"
+            isAnimationActive={false}
           />
         </AreaChart>
       </ResponsiveContainer>
