@@ -273,31 +273,17 @@ const Chart: React.FC<ChartProps> = ({ data, category, dateRange, setDateRange, 
 
   const latestValue = chartData.length > 0 ? chartData[chartData.length - 1].value : null;
 
-  // Get category description
-  const getCategoryDescription = (key: string) => {
-    return {
-      static: staticDescriptions[key as keyof typeof staticDescriptions] || "",
-      dynamic: filteredCallLogs[0]?.descriptions[key as keyof CategoryDescriptions] || ""
-    };
-  };
-
-  const getOverallDescription = () => {
-    return {
-      static: "This comprehensive score represents the agent's overall performance across all measured metrics. It takes into account engagement, objection handling, information gathering, program explanation, closing skills, and overall effectiveness. Click and drag on the chart to compare performance between different points.",
-      dynamic: filteredCallLogs[0]?.descriptions.overall_performance || ""
-    };
-  };
-
   return (
     <div className="relative w-full">
-      {/* Samostatný kalendář mimo Chart Popover */}
+      {/* Samostatný kalendář */}
       {!category && (
-        <div className="absolute top-4 right-4 z-50">
+        <div className="absolute right-4 top-4" style={{ zIndex: 100 }}>
           <Popover>
             <PopoverTrigger asChild>
               <Button 
                 variant="outline" 
                 className="bg-white border-slate-200 text-slate-900 hover:bg-slate-50"
+                onClick={(e) => e.stopPropagation()}
               >
                 <Calendar className="mr-2 h-4 w-4" />
                 {dateRange?.from ? (
@@ -317,12 +303,16 @@ const Chart: React.FC<ChartProps> = ({ data, category, dateRange, setDateRange, 
               className="bg-white border border-slate-200 p-0 shadow-lg rounded-xl w-auto" 
               align="end"
               sideOffset={8}
+              onClick={(e) => e.stopPropagation()}
             >
               <div className="flex flex-col space-y-4 p-4">
                 <Button
                   variant="outline"
                   className="w-full justify-center text-center font-normal col-span-2"
-                  onClick={() => setDateRange({ from: null, to: null })}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setDateRange({ from: null, to: null });
+                  }}
                 >
                   All time
                 </Button>
@@ -347,7 +337,8 @@ const Chart: React.FC<ChartProps> = ({ data, category, dateRange, setDateRange, 
                   <Button
                     variant="outline"
                     className="w-full justify-center text-center font-normal rounded-xl h-11 hover:bg-slate-100"
-                    onClick={() => {
+                    onClick={(e) => {
+                      e.stopPropagation();
                       const end = new Date();
                       const start = startOfWeek(end);
                       setDateRange({ from: start, to: end });
@@ -358,7 +349,8 @@ const Chart: React.FC<ChartProps> = ({ data, category, dateRange, setDateRange, 
                   <Button
                     variant="outline"
                     className="w-full justify-center text-center font-normal rounded-xl h-11 hover:bg-slate-100"
-                    onClick={() => {
+                    onClick={(e) => {
+                      e.stopPropagation();
                       const end = subDays(startOfWeek(new Date()), 1);
                       const start = startOfWeek(end);
                       setDateRange({ from: start, to: end });
@@ -366,7 +358,7 @@ const Chart: React.FC<ChartProps> = ({ data, category, dateRange, setDateRange, 
                   >
                     Last Week
                   </Button>
-                  {/* Další tlačítka pro výběr data */}
+                  {/* Add other date selection buttons */}
                 </div>
               </div>
             </PopoverContent>
@@ -374,9 +366,9 @@ const Chart: React.FC<ChartProps> = ({ data, category, dateRange, setDateRange, 
         </div>
       )}
 
-      {/* Chart s Popoverem pro detaily */}
-      <Popover>
-        <PopoverTrigger asChild>
+      {/* Chart dialog */}
+      <Dialog>
+        <DialogTrigger asChild>
           <Card className="relative overflow-hidden border-0 bg-white rounded-[32px] shadow-lg hover:shadow-xl transition-all cursor-pointer">
             <CardContent className="p-6">
               <div className="flex justify-between items-center mb-6">
@@ -441,13 +433,15 @@ const Chart: React.FC<ChartProps> = ({ data, category, dateRange, setDateRange, 
               </div>
             </CardContent>
           </Card>
-        </PopoverTrigger>
-        <PopoverContent className="w-[600px] bg-white p-6 rounded-xl shadow-xl">
-          <div className="space-y-2">
-            <h3 className="text-xl font-bold text-slate-900">
+        </DialogTrigger>
+        <DialogContent className="bg-white p-6 rounded-xl max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>
               {category ? `${category.label} Analysis` : 'Overall Performance Analysis'}
-            </h3>
-            <p className="text-slate-600 text-sm italic">
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <p className="text-slate-600">
               {category ? getCategoryDescription(category.key).static : getOverallDescription().static}
             </p>
             <div className="text-6xl font-bold text-center" style={{ color: getScoreColor(latestValue ?? 0) }}>
@@ -457,8 +451,8 @@ const Chart: React.FC<ChartProps> = ({ data, category, dateRange, setDateRange, 
               {category ? getCategoryDescription(category.key).dynamic : getOverallDescription().dynamic}
             </p>
           </div>
-        </PopoverContent>
-      </Popover>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
