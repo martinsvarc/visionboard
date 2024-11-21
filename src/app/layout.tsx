@@ -1,3 +1,4 @@
+import '@/styles/globals.css'  // Add this line back
 import { Providers } from './providers'
 
 export default function RootLayout({
