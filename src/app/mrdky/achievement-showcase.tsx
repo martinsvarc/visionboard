@@ -34,7 +34,7 @@ interface BadgeData {
   };
 }
 
-const AchievementContent = () => {
+export const AchievementContent = () => {
   const searchParams = useSearchParams();
   const memberId = searchParams.get('memberId') || 'default';
   const [loading, setLoading] = useState(true);
