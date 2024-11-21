@@ -11,7 +11,7 @@ import {
   ACTIVITY_BADGES, 
   LEAGUE_BADGES,
   mapBadgesWithUnlockStatus 
-} from './achievement-data'
+} from '@/lib/achievement-data'
 
 const montserrat = Montserrat({
   subsets: ['latin'],
