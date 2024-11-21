@@ -34,7 +34,7 @@ interface BadgeData {
   };
 }
 
-export const AchievementContent = () => {
+const AchievementContentInner = () => {
   const searchParams = useSearchParams();
   const memberId = searchParams.get('memberId') || 'default';
   const [loading, setLoading] = useState(true);
@@ -45,7 +45,6 @@ export const AchievementContent = () => {
     const fetchBadges = async () => {
       try {
         setLoading(true);
-        // This is where you'll integrate your database call
         const response = await fetch(`/api/badges?memberId=${memberId}`);
         if (!response.ok) throw new Error('Failed to fetch badges');
         const data = await response.json();
@@ -60,7 +59,6 @@ export const AchievementContent = () => {
     fetchBadges();
   }, [memberId]);
 
-  // Loading state
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -69,7 +67,6 @@ export const AchievementContent = () => {
     );
   }
 
-  // Error state
   if (error) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -78,7 +75,6 @@ export const AchievementContent = () => {
     );
   }
 
-  // Map badges with their unlock status from database data
   const practiceStreakBadges = mapBadgesWithUnlockStatus(
     PRACTICE_STREAK_BADGES,
     badgeData?.unlocked_badges.practice_streak || [],
@@ -92,22 +88,22 @@ export const AchievementContent = () => {
   );
 
   const activityBadges = ACTIVITY_BADGES.map(badge => {
-  let current = 0;
-  
-  if (badge.period === 'day') {
-    current = badgeData?.daily_calls || 0;
-  } else if (badge.period === 'week') {
-    current = badgeData?.weekly_calls || 0;
-  } else if (badge.period === 'month') {
-    current = badgeData?.monthly_calls || 0;
-  }
+    let current = 0;
+    
+    if (badge.period === 'day') {
+      current = badgeData?.daily_calls || 0;
+    } else if (badge.period === 'week') {
+      current = badgeData?.weekly_calls || 0;
+    } else if (badge.period === 'month') {
+      current = badgeData?.monthly_calls || 0;
+    }
 
-  return {
-    ...badge,
-    unlocked: badgeData?.unlocked_badges.activity_goals.includes(`${badge.period}_${badge.count}`),
-    current
-  };
-});
+    return {
+      ...badge,
+      unlocked: badgeData?.unlocked_badges.activity_goals.includes(`${badge.period}_${badge.count}`),
+      current
+    };
+  });
 
   const leagueBadges = LEAGUE_BADGES.map(badge => ({
     ...badge,
@@ -158,8 +154,8 @@ export const AchievementContent = () => {
   );
 };
 
-// Main page component
-export default function Page() {
+// Main component with Suspense boundary
+export const AchievementContent = () => {
   return (
     <Suspense 
       fallback={
@@ -168,7 +164,9 @@ export default function Page() {
         </div>
       }
     >
-      <AchievementContent />
+      <AchievementContentInner />
     </Suspense>
   );
-}
+};
+
+export default AchievementContent;
