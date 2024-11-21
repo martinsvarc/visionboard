@@ -465,6 +465,75 @@ export default function VisionBoardDashboard() {
     )
   }
 
+  const handleFileUpload = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files
+    if (files && boardRef.current) {
+      Array.from(files).forEach((file) => {
+        const reader = new FileReader()
+        reader.onload = (e) => {
+          const img = new Image()
+          img.onload = () => {
+            const aspectRatio = img.width / img.height
+            const height = 300 // base height
+            const width = height * aspectRatio
+            const board = boardRef.current!.getBoundingClientRect()
+            
+            const maxX = board.width - width
+            const maxY = board.height - height
+            const x = Math.min(Math.max(0, Math.random() * maxX), maxX)
+            const y = Math.min(Math.max(0, Math.random() * maxY), maxY)
+            
+            const newItem: VisionItem = {
+              id: `vision-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+              src: e.target?.result as string,
+              x,
+              y,
+              width,
+              height,
+              zIndex: maxZIndex + 1,
+              aspectRatio
+            }
+            setVisionItems(prev => [...prev, newItem])
+            setMaxZIndex(prev => prev + 1)
+          }
+          img.src = e.target?.result as string
+        }
+        reader.readAsDataURL(file)
+      })
+    }
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ''
+    }
+  }, [maxZIndex])
+
+  const updateItemPosition = useCallback((id: string, deltaX: number, deltaY: number) => {
+    setVisionItems(prev => prev.map(item => {
+      if (item.id === id && boardRef.current) {
+        const board = boardRef.current.getBoundingClientRect()
+        const newX = Math.min(Math.max(0, item.x + deltaX), board.width - item.width)
+        const newY = Math.min(Math.max(0, item.y + deltaY), board.height - item.height)
+        return { ...item, x: newX, y: newY }
+      }
+      return item
+    }))
+  }, [])
+
+  const updateItemSize = useCallback((id: string, deltaWidth: number, deltaHeight: number, direction: string) => {
+    setVisionItems(prev => prev.map(item => {
+      if (item.id === id && boardRef.current) {
+        const board = boardRef.current.getBoundingClientRect()
+        let newWidth = item.width
+        let newHeight = item.height
+        let newX = item.x
+        let newY = item.y
+
+        if (direction.includes('right')) {
+          newWidth = Math.min(Math.max(100, item.width + deltaWidth), board.width - item.x)
+        } else if (direction.includes('left')) {
+          const potentialWidth = Math.min(Math.max(100I'll provide you with the full dashboard implementation. 
+
+
+
 Here's the full implementation of the VisionBoard dashboard:
 
 ```tsx project="VisionBoard" file="vision-board-dashboard.tsx" type="react"
@@ -975,6 +1044,112 @@ export default function VisionBoardDashboard() {
       fileInputRef.current.value = ''
     }
   }, [maxZIndex])
+
+  const updateItemPosition = useCallback((id: string, deltaX: number, deltaY: number) => {
+    setVisionItems(prev => prev.map(item => {
+      if (item.id === id && boardRef.current) {
+        const board = boardRef.current.getBoundingClientRect()
+        const newX = Math.min(Math.max(0, item.x + deltaX), board.width - item.width)
+        const newY = Math.min(Math.max(0, item.y + deltaY), board.height - item.height)
+        return { ...item, x: newX, y: newY }
+      }
+      return item
+    }))
+  }, [])
+
+  const updateItemSize = useCallback((id: string, deltaWidth: number, deltaHeight: number, direction: string) => {
+    setVisionItems(prev => prev.map(item => {
+      if (item.id === id && boardRef.current) {
+        const board = boardRef.current.getBoundingClientRect()
+        let newWidth = item.width
+        let newHeight = item.height
+        let newX = item.x
+        let newY = item.y
+
+        if (direction.includes('right')) {
+          newWidth = Math.min(Math.max(100, item.width + deltaWidth), board.width - item.x)
+        } else if (direction.includes('left')) {
+          const potentialWidth = Math.min(Math.max(100, item.width - deltaWidth), item.x + item.width)
+          newX = item.x + (item.width - potentialWidth)
+          newWidth = potentialWidth
+        }
+
+        if (direction.includes('bottom')) {
+          newHeight = Math.min(Math.max(100, item.height + deltaHeight), board.height - item.y)
+        } else if (direction.includes('top')) {
+          const potentialHeight = Math.min(Math.max(100, item.height - deltaHeight), item.y + item.height)
+          newY = item.y + (item.height - potentialHeight)
+          newHeight = potentialHeight
+        }
+
+        // Maintain aspect ratio
+        const aspectRatio = item.aspectRatio
+        if (newWidth / newHeight > aspectRatio) {
+          newWidth = newHeight * aspectRatio
+        } else {
+          newHeight = newWidth / aspectRatio
+        }
+
+        return { ...item, width: newWidth, height: newHeight, x: newX, y: newY }
+      }
+      return item
+    }))
+  }, [])
+
+  const bringToFront = useCallback((id: string) => {
+    setMaxZIndex(prev => prev + 1)
+    setVisionItems(prev => prev.map(item => item.id === id ? { ...item, zIndex: maxZIndex + 1 } : item))
+  }, [maxZIndex])
+
+  const deleteItem = useCallback((id: string) => {
+    setVisionItems(prev => prev.filter(item => item.id !== id))
+  }, [])
+
+  const handleInteractionStart = (event: React.MouseEvent, id: string, type: 'move' | 'resize', direction?: string) => {
+    if (event.button !== 0) return // Only handle left mouse button
+    event.stopPropagation()
+    event.preventDefault()
+    setActiveItem(id)
+    setInteractionType(type)
+    setInteractionStart({ x: event.clientX, y: event.clientY })
+    if (type === 'resize' && direction) {
+      setResizeDirection(direction)
+    }
+    bringToFront(id)
+  }
+
+  const handleInteractionMove = (event: React.MouseEvent) => {
+    if (!activeItem || !interactionStart) return
+
+    const deltaX = event.clientX - interactionStart.x
+    const deltaY = event.clientY - interactionStart.y
+
+    if (interactionType === 'move') {
+      updateItemPosition(activeItem, deltaX, deltaY)
+    } else if (interactionType === 'resize' && resizeDirection) {
+      updateItemSize(activeItem, deltaX, deltaY, resizeDirection)
+    }
+
+    setInteractionStart({ x: event.clientX, y: event.clientY })
+  }
+
+  const handleInteractionEnd = () => {
+    setActiveItem(null)
+    setInteractionType(null)
+    setInteractionStart(null)
+    setResizeDirection(null)
+  }
+
+  useEffect(() => {
+    const handleGlobalMouseUp = () => {
+      handleInteractionEnd()
+    }
+
+    window.addEventListener('mouseup', handleGlobalMouseUp)
+    return () => {
+      window.removeEventListener('mouseup', handleGlobalMouseUp)
+    }
+  }, [])
 
   return (
     <TooltipProvider>
