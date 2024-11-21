@@ -1197,30 +1197,30 @@ export default function VisionBoardDashboard() {
             </div>
 
             <div 
-              ref={boardRef} 
-              className="relative w-full h-[400px] rounded-3xl bg-[#f0f1f7] shadow-lg border transition-all duration-300"
-              style={{
-                borderColor: glowColor,
-                boxShadow: `0 0 10px ${glowColor}, 0 0 20px ${glowColor.replace('0.3', '0.2')}`
-              }}
-              onMouseMove={handleInteractionMove}
-              onMouseUp={handleInteractionEnd}
-              onMouseLeave={handleInteractionEnd}
-            >
+  ref={boardRef} 
+  className="relative w-full h-[400px] rounded-3xl bg-[#f0f1f7] shadow-lg border transition-all duration-300"
+  style={{
+    borderColor: glowColor,
+    boxShadow: `0 0 10px ${glowColor}, 0 0 20px ${glowColor.replace('0.3', '0.2')}`
+  }}
+  onMouseMove={handleInteractionMove}
+  onMouseUp={handleInteractionEnd}
+  onMouseLeave={handleInteractionEnd}
+>
               <div className="absolute inset-0 overflow-hidden">
                 {visionItems.map((item) => (
                   <div
-                    key={item.id}
-                    className={`absolute cursor-move group select-none`}
-                    style={{
-                      left: `${item.x}px`,
-                      top: `${item.y}px`,
-                      width: `${item.width}px`,
-                      height: `${item.height}px`,
-                      zIndex: item.zIndex,
-                    }}
-                    onMouseDown={(e) => handleInteractionStart(e, item.id, 'move')}
-                  >
+  key={item.id}
+  className={`absolute cursor-move group select-none`}
+  style={{
+    left: `${item.x}px`,
+    top: `${item.y}px`,
+    width: `${item.width}px`,
+    height: `${item.height}px`,
+    zIndex: item.zIndex,
+  }}
+  onMouseDown={(e) => handleInteractionStart(e, item.id, 'move')}
+>
                     <div className="relative w-full h-full rounded-2xl overflow-hidden border shadow-lg transition-all duration-300"
                       style={{
                         borderColor: glowColor,
