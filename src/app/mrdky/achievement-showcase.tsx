@@ -146,7 +146,60 @@ const AchievementContentInner = () => {
         ))}
       </div>
       <div className="space-y-6">
-        <div className="h-[160px] overflow-y-auto pr-2">
+<div className="h-[160px] overflow-y-auto pr-2">
+  <div className="grid grid-cols-3 gap-6">
+    {categories[activeCategory].map((achievement, index) => (
+      <TooltipProvider key={index}>
+        <Tooltip>
+          <TooltipTrigger className="w-full">
+            <Button variant="ghost" className="w-full p-0 h-auto hover:bg-transparent">
+              <div className="flex flex-col items-center gap-2">
+                <div className="relative w-[64px] h-[64px]">
+                  {achievement.image ? (
+                    <img 
+                      src={achievement.image} 
+                      alt={achievement.description} 
+                      className="w-full h-full object-contain"
+                    />
+                  ) : (
+                    <div className="w-full h-full rounded-lg bg-gray-100 flex items-center justify-center">
+                      <div className="w-12 h-12 rounded-full bg-gray-200" />
+                    </div>
+                  )}
+                  {!achievement.unlocked && (
+                    <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center rounded-lg">
+                      <Lock className="text-white" size={24}/>
+                    </div>
+                  )}
+                </div>
+                <div className="w-full text-center">
+                  <div className="text-sm font-medium mb-1 line-clamp-1">
+                    {achievement.description}
+                  </div>
+                  <div className="text-xs text-gray-500 mb-2">
+                    {achievement.progress}%
+                  </div>
+                  <div className="h-2 w-full bg-gray-100 rounded-full overflow-hidden">
+                    <div
+                      className={`h-full transition-all duration-300 ease-in-out ${
+                        getProgressBarColor(achievement.progress || 0)
+                      }`}
+                      style={{ width: `${achievement.progress || 0}%` }}
+                    />
+                  </div>
+                </div>
+              </div>
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>{achievement.tooltipTitle}</p>
+            <p className="text-sm text-gray-500">{achievement.tooltipSubtitle}</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+    ))}
+  </div>
+</div>
           {categories[activeCategory].map((achievement, index) => (
             <TooltipProvider key={index}>
               <Tooltip>
