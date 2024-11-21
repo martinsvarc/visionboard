@@ -17,11 +17,10 @@ interface ChartDataPoint {
 interface LeagueChartProps {
   currentUserScore: number
   topPlayerScore: number
-  historicalData?: ChartDataPoint[] // For when we have real database data
+  historicalData?: ChartDataPoint[]
 }
 
 export function LeagueChart({ currentUserScore, topPlayerScore, historicalData }: LeagueChartProps) {
-  // If no historical data is provided, generate sample data
   const chartData = historicalData || generateChartData(currentUserScore, topPlayerScore)
 
   return (
@@ -29,7 +28,7 @@ export function LeagueChart({ currentUserScore, topPlayerScore, historicalData }
       <ResponsiveContainer width="100%" height="100%">
         <AreaChart
           data={chartData}
-          margin={{ top: 5, right: 5, left: 5, bottom: 5 }}
+          margin={{ top: 5, right: 25, left: -15, bottom: 5 }}
         >
           <defs>
             <linearGradient id="colorUserPoints" x1="0" y1="0" x2="0" y2="1">
@@ -48,6 +47,8 @@ export function LeagueChart({ currentUserScore, topPlayerScore, historicalData }
             fontSize={12}
             tickLine={false}
             axisLine={false}
+            dy={5}
+            tick={{ dx: 15 }}
           />
           
           <YAxis 
@@ -56,6 +57,9 @@ export function LeagueChart({ currentUserScore, topPlayerScore, historicalData }
             tickLine={false}
             axisLine={false}
             tickFormatter={(value) => `${value}`}
+            dx={10}
+            tickCount={5}
+            domain={[0, 100]}
           />
           
           <Tooltip
@@ -96,13 +100,11 @@ export function LeagueChart({ currentUserScore, topPlayerScore, historicalData }
   )
 }
 
-// Helper function to generate sample chart data
 function generateChartData(userScore: number, topScore: number): ChartDataPoint[] {
   return Array.from({ length: 7 }, (_, i) => {
     const day = new Date();
     day.setDate(day.getDate() - (6 - i));
     
-    // Create a progression of points leading up to the final scores
     const progressPercentage = i / 6;
     const userPoints = Math.round(userScore * (0.7 + (0.3 * progressPercentage)));
     const topUserPoints = Math.round(topScore * (0.7 + (0.3 * progressPercentage)));
