@@ -818,31 +818,31 @@ export default function VisionBoardDashboardClient() {
 
             {/* Achievement Showcase */}
             <Card className="p-4 bg-white rounded-[20px] shadow-lg md:col-span-2 h-[280px]">
-              <h2 className="text-2xl font-semibold text-[#556bc7] mb-4">Achievement Showcase</h2>
-              <div className="flex gap-2 mb-6 overflow-x-auto">
-                {Object.keys(achievements).map((category) => (
-                  <Button
-                    key={category}
-                    variant={activeAchievementCategory === category ? 'default' : 'ghost'}
-                    className={cn(
-                      "px-6 py-3 rounded-full whitespace-nowrap",
-                      activeAchievementCategory === category 
-                        ? 'bg-[#fbb350] text-white hover:bg-[#fbb350]/90' 
-                        : 'text-gray-500 hover:text-gray-700'
-                    )}
-                    onClick={() => setActiveAchievementCategory(category)}
-                  >
-                    {category.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
-                  </Button>
-                ))}
-              </div>
-              <div className="space-y-6">
-                <div className="h-[160px] overflow-y-auto pr-2">
+            <h2 className="text-2xl font-semibold text-[#556bc7] mb-4">Achievement Showcase</h2>
+            <div className="flex gap-2 mb-6 overflow-x-auto">
+              {Object.keys(achievements).map((category) => (
+                <Button
+                  key={category}
+                  variant={activeAchievementCategory === category ? 'default' : 'ghost'}
+                  className={cn(
+                    "px-6 py-3 rounded-full whitespace-nowrap",
+                    activeAchievementCategory === category 
+                      ? 'bg-[#fbb350] text-white hover:bg-[#fbb350]/90' 
+                      : 'text-gray-500 hover:text-gray-700'
+                  )}
+                  onClick={() => setActiveAchievementCategory(category)}
+                >
+                  {category.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
+                </Button>
+              ))}
+            </div>
+            <div className="space-y-6">
+              <div className="h-[160px] overflow-y-auto pr-2">
+                <TooltipProvider>
                   {achievements[activeAchievementCategory].map((achievement, index) => (
-  <TooltipProvider key={index}>
-    <Tooltip>
-      <TooltipTrigger>
-        <div className="mb-6 flex gap-4">
+                    <Tooltip key={index}>
+                      <TooltipTrigger asChild>
+                        <div className="mb-6 flex gap-4">
                           <div className="relative w-[56px] h-[56px]">
                             {achievement.badge ? (
                               <img 
@@ -867,25 +867,26 @@ export default function VisionBoardDashboardClient() {
                               <span className="text-lg text-gray-500">{achievement.progress}%</span>
                             </div>
                             <div className="h-[28px] flex items-center">
-  <div className="h-3 w-full bg-gray-100 rounded-full overflow-hidden">
-    <div
-      className={`h-full transition-all duration-300 ease-in-out ${getProgressBarColor(achievement.progress)}`}
-      style={{ width: `${achievement.progress}%` }}
-    />
-  </div>
-</div>
-          </div>
-        </div>
-      </TooltipTrigger>
+                              <div className="h-3 w-full bg-gray-100 rounded-full overflow-hidden">
+                                <div
+                                  className={`h-full transition-all duration-300 ease-in-out ${getProgressBarColor(achievement.progress)}`}
+                                  style={{ width: `${achievement.progress}%` }}
+                                />
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </TooltipTrigger>
                       <TooltipContent>
                         <p>{achievement.name} - {achievement.progress}% Complete ({Math.floor(achievement.progress / 10)} days)</p>
                       </TooltipContent>
                     </Tooltip>
-                  </TooltipProvider>
-                ))}
+                  ))}
+                </TooltipProvider>
               </div>
             </div>
           </Card>
+
             {/* Activity Circles */}
             <Card className="p-2 bg-white rounded-[20px] shadow-lg h-[280px]">
               <h2 className="text-lg font-semibold text-[#556bc7] mb-6">Activity Circles</h2>
