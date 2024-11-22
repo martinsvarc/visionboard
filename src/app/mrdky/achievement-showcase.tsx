@@ -150,8 +150,8 @@ const AchievementContentInner = () => {
       <div className="h-[180px] overflow-y-auto pr-2 -mr-2 custom-scrollbar">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 p-1 pb-4">
           {categories[activeCategory].map((achievement, index) => (
-            <TooltipProvider key={index} delayDuration={0}>
-              <Tooltip>
+         <TooltipProvider key={index}>
+  <Tooltip delayDuration={0}>
                 <TooltipTrigger asChild>
                   <div className="relative w-full">
                     <div className="flex flex-col items-center p-2 rounded-lg hover:bg-gray-50 transition-colors">
