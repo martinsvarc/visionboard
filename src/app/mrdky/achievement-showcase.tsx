@@ -126,7 +126,7 @@ const AchievementContentInner = () => {
   };
 
   return (
-    <Card className="p-4 bg-white rounded-[20px] shadow-lg md:col-span-2 h-[280px]">
+    <Card className="p-4 bg-white rounded-[20px] shadow-lg md:col-span-2 h-[280px] overflow-hidden">
       <h2 className="text-xl md:text-2xl font-semibold text-[#556bc7] mb-4">Achievement Showcase</h2>
       
       {/* Category Buttons - Scrollable on mobile */}
@@ -149,7 +149,7 @@ const AchievementContentInner = () => {
 </div>
 
       {/* Achievements Grid */}
-      <div className="h-[180px] overflow-y-auto pr-2 -mr-2">
+ <div className="h-[180px] overflow-y-auto overflow-x-hidden pr-2 -mr-2">
   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 p-1">
     {categories[activeCategory].map((achievement, index) => (
       <TooltipProvider key={index}>
