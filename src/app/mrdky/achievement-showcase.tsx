@@ -125,7 +125,7 @@ const AchievementContentInner = () => {
     }))
   };
 
-  return (
+return (
     <Card className="p-4 bg-white rounded-[20px] shadow-lg md:col-span-2 h-[280px] overflow-hidden">
       <h2 className="text-xl md:text-2xl font-semibold text-[#556bc7] mb-4">Achievement Showcase</h2>
       
@@ -148,12 +148,30 @@ const AchievementContentInner = () => {
         ))}
       </div>
 
+      <div className="flex gap-2 mb-4 overflow-x-auto pb-2 -mx-2 px-2 custom-scrollbar">
+        {Object.keys(categories).map((category) => (
+          <Button
+            key={category}
+            variant={activeCategory === category ? 'default' : 'ghost'}
+            className={cn(
+              "px-3 sm:px-4 py-2 rounded-full whitespace-nowrap text-xs sm:text-sm",
+              activeCategory === category 
+                ? 'bg-[#fbb350] text-white hover:bg-[#fbb350]/90' 
+                : 'text-gray-500 hover:text-gray-700'
+            )}
+            onClick={() => setActiveCategory(category)}
+          >
+            {category.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
+          </Button>
+        ))}
+      </div>
+
       {/* Achievements Grid */}
       <div className="h-[180px] overflow-y-auto overflow-x-hidden pr-2 -mr-2 custom-scrollbar">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 p-1">
           {categories[activeCategory].map((achievement, index) => (
-            <TooltipProvider key={index} delayDuration={200}>
-              <Tooltip>
+            <TooltipProvider key={index}>
+              <Tooltip delayDuration={200}>
                 <TooltipTrigger className="w-full relative">
                   <div className="flex flex-col items-center p-2 rounded-lg hover:bg-gray-50 transition-colors">
                     {/* Adjust badge size */}
@@ -196,8 +214,8 @@ const AchievementContentInner = () => {
                 <TooltipContent 
                   side="top" 
                   align="center"
-                  className="z-50 absolute" 
-                  sideOffset={0}
+                  className="z-50" 
+                  sideOffset={5}
                 >
                   <p className="font-medium text-xs sm:text-sm">{achievement.tooltipTitle}</p>
                   <p className="text-xs text-gray-500">{achievement.tooltipSubtitle}</p>
