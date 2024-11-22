@@ -67,7 +67,7 @@ const AchievementContentInner = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-[280px]">
+      <div className="flex items-center justify-center h-[280px] md:h-[320px] lg:h-[360px]">
         <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
       </div>
     );
@@ -75,7 +75,7 @@ const AchievementContentInner = () => {
 
   if (error) {
     return (
-      <div className="flex items-center justify-center h-[280px]">
+      <div className="flex items-center justify-center h-[280px] md:h-[320px] lg:h-[360px]">
         <div className="text-red-500">Error: {error}</div>
       </div>
     );
@@ -126,15 +126,17 @@ const AchievementContentInner = () => {
   };
 
   return (
-    <Card className="p-4 bg-white rounded-[20px] shadow-lg md:col-span-2 h-[280px]">
-      <h2 className="text-2xl font-semibold text-[#556bc7] mb-4">Achievement Showcase</h2>
-      <div className="flex gap-2 mb-6 overflow-x-auto">
+    <Card className="p-4 bg-white rounded-[20px] shadow-lg md:col-span-2 h-[280px] md:h-[320px] lg:h-[360px]">
+      <h2 className="text-xl md:text-2xl font-semibold text-[#556bc7] mb-4">Achievement Showcase</h2>
+      
+      {/* Category Buttons - Scrollable on mobile */}
+      <div className="flex gap-2 mb-4 md:mb-6 overflow-x-auto pb-2 md:pb-0 -mx-2 px-2 md:mx-0 md:px-0 no-scrollbar">
         {Object.keys(categories).map((category) => (
           <Button
             key={category}
             variant={activeCategory === category ? 'default' : 'ghost'}
             className={cn(
-              "px-6 py-3 rounded-full whitespace-nowrap",
+              "px-4 md:px-6 py-2 md:py-3 rounded-full whitespace-nowrap text-sm md:text-base",
               activeCategory === category 
                 ? 'bg-[#fbb350] text-white hover:bg-[#fbb350]/90' 
                 : 'text-gray-500 hover:text-gray-700'
@@ -145,109 +147,54 @@ const AchievementContentInner = () => {
           </Button>
         ))}
       </div>
-      <div className="space-y-6">
-<div className="h-[160px] overflow-y-auto pr-2">
-  <div className="grid grid-cols-3 gap-6">
-    {categories[activeCategory].map((achievement, index) => (
-      <TooltipProvider key={index}>
-        <Tooltip>
-          <TooltipTrigger className="w-full">
-            <Button variant="ghost" className="w-full p-0 h-auto hover:bg-transparent">
-              <div className="flex flex-col items-center gap-2">
-                <div className="relative w-[64px] h-[64px]">
-                  {achievement.image ? (
-                    <img 
-                      src={achievement.image} 
-                      alt={achievement.description} 
-                      className="w-full h-full object-contain"
-                    />
-                  ) : (
-                    <div className="w-full h-full rounded-lg bg-gray-100 flex items-center justify-center">
-                      <div className="w-12 h-12 rounded-full bg-gray-200" />
-                    </div>
-                  )}
-                  {!achievement.unlocked && (
-                    <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center rounded-lg">
-                      <Lock className="text-white" size={24}/>
-                    </div>
-                  )}
-                </div>
-                <div className="w-full text-center">
-                  <div className="text-sm font-medium mb-1 line-clamp-1">
-                    {achievement.description}
-                  </div>
-                  <div className="text-xs text-gray-500 mb-2">
-                    {achievement.progress}%
-                  </div>
-                  <div className="h-2 w-full bg-gray-100 rounded-full overflow-hidden">
-                    <div
-                      className={`h-full transition-all duration-300 ease-in-out ${
-                        getProgressBarColor(achievement.progress || 0)
-                      }`}
-                      style={{ width: `${achievement.progress || 0}%` }}
-                    />
-                  </div>
-                </div>
-              </div>
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>{achievement.tooltipTitle}</p>
-            <p className="text-sm text-gray-500">{achievement.tooltipSubtitle}</p>
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
-    ))}
-  </div>
-</div>
+
+      {/* Achievements Grid */}
+      <div className="h-[180px] md:h-[200px] lg:h-[240px] overflow-y-auto pr-2 -mr-2">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
           {categories[activeCategory].map((achievement, index) => (
             <TooltipProvider key={index}>
               <Tooltip>
                 <TooltipTrigger className="w-full">
-                  <Button variant="ghost" className="w-full p-0 h-auto hover:bg-transparent">
-                    <div className="mb-6 flex gap-4">
-                      <div className="relative w-[56px] h-[56px]">
-                        {achievement.image ? (
-                          <img 
-                            src={achievement.image} 
-                            alt={achievement.description} 
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <div className="w-full h-full rounded-lg bg-gray-100 flex items-center justify-center">
-                            <div className="w-8 h-8 rounded-full bg-gray-200" />
-                          </div>
-                        )}
-                        {!achievement.unlocked && (
-                          <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center rounded-lg">
-                            <Lock className="text-white" size={24}/>
-                          </div>
-                        )}
+                  <div className="flex flex-col items-center p-2 rounded-lg hover:bg-gray-50 transition-colors">
+                    <div className="relative w-[48px] h-[48px] md:w-[64px] md:h-[64px]">
+                      {achievement.image ? (
+                        <img 
+                          src={achievement.image} 
+                          alt={achievement.description} 
+                          className="w-full h-full object-contain"
+                        />
+                      ) : (
+                        <div className="w-full h-full rounded-lg bg-gray-100 flex items-center justify-center">
+                          <div className="w-8 h-8 md:w-12 md:h-12 rounded-full bg-gray-200" />
+                        </div>
+                      )}
+                      {!achievement.unlocked && (
+                        <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center rounded-lg">
+                          <Lock className="text-white w-4 h-4 md:w-6 md:h-6"/>
+                        </div>
+                      )}
+                    </div>
+                    <div className="w-full text-center mt-2">
+                      <div className="text-xs md:text-sm font-medium mb-1 line-clamp-1">
+                        {achievement.description}
                       </div>
-                      <div className="flex-1 flex flex-col justify-between">
-                        <div className="flex items-center justify-between h-[24px]">
-                          <span className="text-lg font-medium">{achievement.description}</span>
-                          <span className="text-lg text-gray-500">
-                            {achievement.progress}%
-                          </span>
-                        </div>
-                        <div className="h-[28px] flex items-center">
-                          <div className="h-3 w-full bg-gray-100 rounded-full overflow-hidden">
-                            <div
-                              className={`h-full transition-all duration-300 ease-in-out ${
-                                getProgressBarColor(achievement.progress || 0)
-                              }`}
-                              style={{ width: `${achievement.progress || 0}%` }}
-                            />
-                          </div>
-                        </div>
+                      <div className="text-xs text-gray-500 mb-1">
+                        {achievement.progress}%
+                      </div>
+                      <div className="h-1.5 md:h-2 w-full bg-gray-100 rounded-full overflow-hidden">
+                        <div
+                          className={`h-full transition-all duration-300 ease-in-out ${
+                            getProgressBarColor(achievement.progress || 0)
+                          }`}
+                          style={{ width: `${achievement.progress || 0}%` }}
+                        />
                       </div>
                     </div>
-                  </Button>
+                  </div>
                 </TooltipTrigger>
                 <TooltipContent>
-                  <p>{achievement.tooltipTitle}</p>
-                  <p className="text-sm text-gray-500">{achievement.tooltipSubtitle}</p>
+                  <p className="font-medium">{achievement.tooltipTitle}</p>
+                  <p className="text-xs text-gray-500">{achievement.tooltipSubtitle}</p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
@@ -262,7 +209,7 @@ export const AchievementContent = () => {
   return (
     <Suspense 
       fallback={
-        <div className="flex items-center justify-center h-[280px]">
+        <div className="flex items-center justify-center h-[280px] md:h-[320px] lg:h-[360px]">
           <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
         </div>
       }
