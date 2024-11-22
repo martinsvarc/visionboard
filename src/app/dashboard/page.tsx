@@ -299,7 +299,6 @@ const Chart: React.FC<ChartProps> = ({ data, category, dateRange, setDateRange, 
 
   return (
     <div className="relative w-full">
-      {/* Calendar Popover */}
       {!category && (
         <div className="absolute right-4 top-4" style={{ zIndex: 50 }}>
           <Popover>
@@ -354,7 +353,28 @@ const Chart: React.FC<ChartProps> = ({ data, category, dateRange, setDateRange, 
                   className="bg-white [&_.rdp]:p-0 [&_.rdp-months]:space-x-4 [&_.rdp-month]:w-full [&_.rdp-day]:h-10 [&_.rdp-day]:w-10 [&_.rdp-day]:text-sm [&_.rdp-day]:font-normal [&_.rdp-day_span]:flex [&_.rdp-day_span]:h-full [&_.rdp-day_span]:w-full [&_.rdp-day_span]:items-center [&_.rdp-day_span]:justify-center [&_.rdp-day]:hover:bg-slate-100 [&_.rdp-day_button]:font-normal [&_.rdp-button]:hover:bg-slate-100 [&_.rdp-nav_button]:h-9 [&_.rdp-nav_button]:w-9 [&_.rdp-nav_button]:bg-transparent [&_.rdp-nav_button]:hover:bg-slate-100 [&_.rdp-head_cell]:font-normal [&_.rdp-head_cell]:text-slate-500 [&_.rdp-caption_label]:font-medium [&_.rdp-caption_label]:text-slate-900 [&_.rdp-day_selected]:bg-slate-900 [&_.rdp-day_selected]:text-white [&_.rdp-day_selected]:hover:bg-slate-900 [&_.rdp-day_selected]:hover:text-white [&_.rdp-day_range_start]:bg-slate-900 [&_.rdp-day_range_start]:text-white [&_.rdp-day_range_start]:hover:bg-slate-900 [&_.rdp-day_range_start]:hover:text-white [&_.rdp-day_range_end]:bg-slate-900 [&_.rdp-day_range_end]:text-white [&_.rdp-day_range_end]:hover:bg-slate-900 [&_.rdp-day_range_end]:hover:text-white [&_.rdp-day_range_middle]:bg-slate-100 [&_.rdp-day_today]:font-bold"
                 />
                 <div className="grid grid-cols-2 gap-2">
-                  {/* Date buttons */}
+                  <Button
+                    variant="outline"
+                    className="w-full justify-center text-center font-normal rounded-xl h-11 hover:bg-slate-100"
+                    onClick={() => {
+                      const end = new Date();
+                      const start = startOfWeek(end);
+                      setDateRange({ from: start, to: end });
+                    }}
+                  >
+                    This Week
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="w-full justify-center text-center font-normal rounded-xl h-11 hover:bg-slate-100"
+                    onClick={() => {
+                      const end = subDays(startOfWeek(new Date()), 1);
+                      const start = startOfWeek(end);
+                      setDateRange({ from: start, to: end });
+                    }}
+                  >
+                    Last Week
+                  </Button>
                 </div>
               </div>
             </PopoverContent>
@@ -362,7 +382,6 @@ const Chart: React.FC<ChartProps> = ({ data, category, dateRange, setDateRange, 
         </div>
       )}
 
-      {/* Chart Popover */}
       <Popover>
         <PopoverTrigger asChild>
           <Card className="relative overflow-hidden border-0 bg-white rounded-[32px] shadow-lg hover:shadow-xl transition-all cursor-pointer">
@@ -373,7 +392,6 @@ const Chart: React.FC<ChartProps> = ({ data, category, dateRange, setDateRange, 
                 </span>
               </div>
               <div className="h-[240px] relative">
-                {/* Chart content */}
                 {chartData.length === 0 && (
                   <div className="flex flex-col items-center justify-center h-full space-y-4">
                     <span className="text-slate-600 text-xl">No calls found</span>
