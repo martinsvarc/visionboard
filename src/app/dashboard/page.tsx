@@ -273,40 +273,16 @@ const Chart: React.FC<ChartProps> = ({ data, category, dateRange, setDateRange, 
 
   const latestValue = chartData.length > 0 ? chartData[chartData.length - 1].value : null;
 
-  // Static descriptions
-  const staticDescriptions = {
-    engagement: "This metric evaluates the agent's ability to connect with customers and maintain meaningful interactions throughout the call.",
-    objection_handling: "This score reflects how well the agent addresses customer concerns and manages challenging situations.",
-    information_gathering: "This metric assesses the agent's proficiency in collecting relevant information and asking appropriate questions.",
-    program_explanation: "This score evaluates how effectively the agent communicates program details and complex information.",
-    closing_skills: "This metric measures the agent's ability to guide conversations toward positive outcomes.",
-    overall_effectiveness: "This comprehensive metric evaluates the agent's overall impact and success in handling calls."
-  };
-
-  const getCategoryDescription = (key: string) => {
-    return {
-      static: staticDescriptions[key as keyof typeof staticDescriptions] || "",
-      dynamic: filteredCallLogs[0]?.descriptions[key as keyof CategoryDescriptions] || ""
-    };
-  };
-
-  const getOverallDescription = () => {
-    return {
-      static: "This comprehensive score represents the agent's overall performance across all measured metrics.",
-      dynamic: filteredCallLogs[0]?.descriptions.overall_performance || ""
-    };
-  };
-
   return (
     <div className="relative w-full">
+      {/* Samostatný kalendář mimo Chart Popover */}
       {!category && (
-        <div className="absolute right-4 top-4" style={{ zIndex: 50 }}>
+        <div className="absolute top-4 right-4 z-50">
           <Popover>
             <PopoverTrigger asChild>
               <Button 
                 variant="outline" 
                 className="bg-white border-slate-200 text-slate-900 hover:bg-slate-50"
-                onClick={(e) => e.stopPropagation()}
               >
                 <Calendar className="mr-2 h-4 w-4" />
                 {dateRange?.from ? (
@@ -327,7 +303,7 @@ const Chart: React.FC<ChartProps> = ({ data, category, dateRange, setDateRange, 
               align="end"
               sideOffset={8}
             >
-              <div className="flex flex-col space-y-4 p-4" onClick={(e) => e.stopPropagation()}>
+              <div className="flex flex-col space-y-4 p-4">
                 <Button
                   variant="outline"
                   className="w-full justify-center text-center font-normal col-span-2"
@@ -375,6 +351,50 @@ const Chart: React.FC<ChartProps> = ({ data, category, dateRange, setDateRange, 
                   >
                     Last Week
                   </Button>
+                  <Button
+                    variant="outline"
+                    className="w-full justify-center text-center font-normal rounded-xl h-11 hover:bg-slate-100"
+                    onClick={() => {
+                      const end = new Date();
+                      const start = subDays(end, 7);
+                      setDateRange({ from: start, to: end });
+                    }}
+                  >
+                    Last 7 Days
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="w-full justify-center text-center font-normal rounded-xl h-11 hover:bg-slate-100"
+                    onClick={() => {
+                      const end = endOfMonth(new Date());
+                      const start = startOfMonth(new Date());
+                      setDateRange({ from: start, to: end });
+                    }}
+                  >
+                    This Month
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="w-full justify-center text-center font-normal rounded-xl h-11 hover:bg-slate-100"
+                    onClick={() => {
+                      const end = new Date();
+                      const start = subDays(end, 14);
+                      setDateRange({ from: start, to: end });
+                    }}
+                  >
+                    Last 14 Days
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="w-full justify-center text-center font-normal rounded-xl h-11 hover:bg-slate-100"
+                    onClick={() => {
+                      const end = new Date();
+                      const start = subDays(end, 30);
+                      setDateRange({ from: start, to: end });
+                    }}
+                  >
+                    Last 30 Days
+                  </Button>
                 </div>
               </div>
             </PopoverContent>
@@ -382,93 +402,164 @@ const Chart: React.FC<ChartProps> = ({ data, category, dateRange, setDateRange, 
         </div>
       )}
 
-      <Popover>
-        <PopoverTrigger asChild>
-          <Card className="relative overflow-hidden border-0 bg-white rounded-[32px] shadow-lg hover:shadow-xl transition-all cursor-pointer">
-            <CardContent className="p-6">
-              <div className="flex justify-between items-center mb-6">
-                <span className="text-slate-900 text-xl font-semibold">
-                  {category ? category.label : 'Overall Performance'}
-                </span>
-              </div>
-              <div className="h-[240px] relative">
-                {chartData.length === 0 && (
-                  <div className="flex flex-col items-center justify-center h-full space-y-4">
-                    <span className="text-slate-600 text-xl">No calls found</span>
-                    <Button variant="outline" onClick={() => setDateRange({ from: null, to: null })}>
-                      View all time
-                    </Button>
-                  </div>
-                )}
-                {chartData.length > 0 && (
-                  <>
-                    <ResponsiveContainer width="100%" height="100%">
-                      <AreaChart 
-                        data={chartData} 
-                        margin={{ top: 20, right: 0, bottom: 0, left: -32 }}
-                      >
-                        <defs>
-                          <linearGradient id={`colorGradient-${category ? category.key : 'overall'}`} x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="5%" stopColor={getScoreColor(latestValue ?? 0)} stopOpacity={0.3}/>
-                            <stop offset="95%" stopColor={getScoreColor(latestValue ?? 0)} stopOpacity={0.1}/>
-                          </linearGradient>
-                        </defs>
-                        <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.1)" />
-                        <XAxis 
-                          dataKey="name" 
-                          axisLine={false} 
-                          tickLine={false}
-                          tick={{ fill: 'rgba(0,0,0,0.6)', fontSize: 10 }}
-                        />
-                        <YAxis 
-                          axisLine={false} 
-                          tickLine={false} 
-                          tick={{ fill: 'rgba(0,0,0,0.6)', fontSize: 10 }} 
-                          domain={[0, 100]} 
-                        />
-                        <RechartsTooltip content={CustomTooltip} />
-                        <Area 
-                          type="monotone" 
-                          dataKey="value" 
-                          stroke={getScoreColor(latestValue ?? 0)}
-                          strokeWidth={3}
-                          fill={`url(#colorGradient-${category ? category.key : 'overall'})`}
-                          activeDot={{ r: 8, fill: getScoreColor(latestValue ?? 0), stroke: '#FFFFFF', strokeWidth: 2 }}
-                        />
-                      </AreaChart>
-                    </ResponsiveContainer>
-                    <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex flex-col items-center" style={{ zIndex: 0 }}>
-                      <div className="text-lg text-slate-600 mb-2">Average Score</div>
-                      <div className="text-6xl font-bold tracking-tight" style={{ color: getScoreColor(latestValue ?? 0) }}>
-                        {Math.round(latestValue ?? 0)}<span className="text-4xl">/100</span>
-                      </div>
-                    </div>
-                  </>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        </PopoverTrigger>
-        <PopoverContent className="w-[600px] bg-white p-6 rounded-xl shadow-xl">
-          <div className="space-y-2">
-            <h3 className="text-xl font-bold text-slate-900">
-              {category ? `${category.label} Analysis` : 'Overall Performance Analysis'}
-            </h3>
-            <p className="text-slate-600 text-sm italic">
-              {category ? getCategoryDescription(category.key).static : getOverallDescription().static}
-            </p>
-            <div className="text-6xl font-bold text-center" style={{ color: getScoreColor(latestValue ?? 0) }}>
-              {Math.round(latestValue ?? 0)}<span className="text-2xl text-slate-600">/100</span>
-            </div>
-            <p className="text-slate-600">
-              {category ? getCategoryDescription(category.key).dynamic : getOverallDescription().dynamic}
-            </p>
+      {/* Chart */}
+      <Card className="relative overflow-hidden border-0 bg-white rounded-[32px] shadow-lg hover:shadow-xl transition-all cursor-pointer">
+        <CardContent className="p-6">
+          <div className="flex justify-between items-center mb-6">
+            <span className="text-slate-900 text-xl font-semibold">
+              {category ? category.label : 'Overall Performance'}
+            </span>
           </div>
-        </PopoverContent>
-      </Popover>
+          <div className="h-[240px] relative">
+            {chartData.length === 0 && (
+              <div className="flex flex-col items-center justify-center h-full space-y-4">
+                <span className="text-slate-600 text-xl">No calls found</span>
+                <Button variant="outline" onClick={() => setDateRange({ from: null, to: null })}>
+                  View all time
+                </Button>
+              </div>
+            )}
+            {chartData.length > 0 && (
+              <>
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart 
+                    data={chartData} 
+                    margin={{ top: 20, right: 0, bottom: 0, left: -32 }}
+                  >
+                    <defs>
+                      <linearGradient id={`colorGradient-${category ? category.key : 'overall'}`} x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor={getScoreColor(latestValue ?? 0)} stopOpacity={0.3}/>
+                        <stop offset="95%" stopColor={getScoreColor(latestValue ?? 0)} stopOpacity={0.1}/>
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.1)" />
+                    <XAxis 
+                      dataKey="name" 
+                      axisLine={false} 
+                      tickLine={false}
+                      tick={{ fill: 'rgba(0,0,0,0.6)', fontSize: 10 }}
+                    />
+                    <YAxis 
+                      axisLine={false} 
+                      tickLine={false} 
+                      tick={{ fill: 'rgba(0,0,0,0.6)', fontSize: 10 }} 
+                      domain={[0, 100]} 
+                    />
+                    <RechartsTooltip content={CustomTooltip} />
+                    <Area 
+                      type="monotone" 
+                      dataKey="value" 
+                      stroke={getScoreColor(latestValue ?? 0)}
+                      strokeWidth={3}
+                      fill={`url(#colorGradient-${category ? category.key : 'overall'})`}
+                      activeDot={{ r: 8, fill: getScoreColor(latestValue ?? 0), stroke: '#FFFFFF', strokeWidth: 2 }}
+                    />
+                  </AreaChart>
+                </ResponsiveContainer>
+                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex flex-col items-center" style={{ zIndex: 0 }}>
+                  <div className="text-lg text-slate-600 mb-2">Average Score</div>
+                  <div className="text-6xl font-bold tracking-tight" style={{ color: getScoreColor(latestValue ?? 0) }}>
+                    {Math.round(latestValue ?? 0)}<span className="text-4xl">/100</span>
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };
+function DashboardComponent() {
+  const [callLogs, setCallLogs] = useState<CallLog[]>([]);
+  const [filteredCallLogs, setFilteredCallLogs] = useState<CallLog[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [dateRange, setDateRange] = useState<{ from: Date | null; to: Date | null }>({ from: null, to: null });
+
+  const [playCallModal, setPlayCallModal] = useState<{
+    isOpen: boolean;
+    callId: number | null;
+  }>({ isOpen: false, callId: null });
+  const [detailsModal, setDetailsModal] = useState<{
+    isOpen: boolean;
+    call: CallLog | null;
+  }>({ isOpen: false, call: null });
+  const [currentPage, setCurrentPage] = useState(1);
+  const recordsPerPage = 10;
+
+  const searchParams = useSearchParams();
+  const memberId = searchParams.get('memberId');
+
+  const fetchCallLogs = useCallback(async () => {
+    if (!memberId) return;
+    
+    setIsLoading(true);
+    setError(null);
+    try {
+      const response = await fetch(`/api/dashboard?memberId=${memberId}`);
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to fetch call logs');
+      }
+
+      setCallLogs(data);
+      setFilteredCallLogs(data);
+    } catch (err) {
+      console.error('Error fetching call logs:', err);
+      setError('Failed to fetch call logs. Please try again later.');
+    } finally {
+      setIsLoading(false);
+    }
+  }, [memberId]);
+
+  useEffect(() => {
+    fetchCallLogs();
+  }, [fetchCallLogs]);
+
+  useEffect(() => {
+    if (dateRange?.from && dateRange?.to) {
+      const filtered = callLogs.filter(call => {
+        const callDate = new Date(call.call_date);
+        return callDate >= dateRange.from! && callDate <= dateRange.to!;
+      });
+      setFilteredCallLogs(filtered);
+    } else {
+      setFilteredCallLogs(callLogs);
+    }
+  }, [callLogs, dateRange]);
+
+  const handlePlayCall = (callId: number) => {
+    setPlayCallModal({ isOpen: true, callId });
+  };
+
+  const handleViewDetails = (call: CallLog) => {
+    setDetailsModal({ isOpen: true, call });
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-slate-50">
+        <RefreshCw className="w-6 h-6 text-slate-600 animate-spin" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-slate-50">
+        <Card className="w-96">
+          <CardContent className="pt-6">
+            <div className="text-center space-y-4">
+              <p className="text-red-500">{error}</p>
+              <Button onClick={fetchCallLogs}>Try Again</Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 const indexOfLastRecord = currentPage * recordsPerPage;
   const indexOfFirstRecord = indexOfLastRecord - recordsPerPage;
 const currentRecords = filteredCallLogs.slice().reverse().slice(indexOfFirstRecord, indexOfLastRecord);
