@@ -153,7 +153,7 @@ const AchievementContentInner = () => {
          <TooltipProvider key={index}>
   <Tooltip delayDuration={0}>
                 <TooltipTrigger asChild>
-                  <div className="relative w-full">
+                   <div className="relative w-full hover:z-10">
                     <div className="flex flex-col items-center p-2 rounded-lg hover:bg-gray-50 transition-colors">
                       <div className="relative w-[40px] h-[40px] sm:w-[48px] sm:h-[48px] md:w-[56px] md:h-[56px]">
                         {achievement.image ? (
