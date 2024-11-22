@@ -149,13 +149,14 @@ const AchievementContentInner = () => {
 </div>
 
       {/* Achievements Grid */}
- <div className="h-[180px] overflow-y-auto overflow-x-hidden pr-2 -mr-2">
-  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 p-1">
+<div className="h-[180px] overflow-y-auto pr-2 -mr-2 custom-scrollbar">
+  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 p-1 pb-4"> {/* Added pb-4 for bottom spacing */}
     {categories[activeCategory].map((achievement, index) => (
-      <TooltipProvider key={index}>
+      <TooltipProvider key={index} delayDuration={0}>
         <Tooltip>
-          <TooltipTrigger className="w-full">
-            <div className="flex flex-col items-center p-2 rounded-lg hover:bg-gray-50 transition-colors">
+          <TooltipTrigger asChild>
+            <div className="relative w-full">
+              <div className="flex flex-col items-center p-2 rounded-lg hover:bg-gray-50 transition-colors">
               {/* Adjust badge size */}
               <div className="relative w-[40px] h-[40px] sm:w-[48px] sm:h-[48px] md:w-[56px] md:h-[56px]">
                 {achievement.image ? (
