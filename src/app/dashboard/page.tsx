@@ -273,19 +273,39 @@ const Chart: React.FC<ChartProps> = ({ data, category, dateRange, setDateRange, 
   };
 
 const getCategoryDescription = (key: string) => {
+    // First try to find the latest non-empty description
+    const latestWithDescription = filteredCallLogs.length > 0 
+      ? filteredCallLogs
+          .sort((a, b) => new Date(b.call_date).getTime() - new Date(a.call_date).getTime())
+          .find(call => {
+            const description = call.descriptions[key as keyof CategoryDescriptions];
+            return description && description.trim() !== '';
+          })
+      : null;
+
     return {
       static: staticDescriptions[key as keyof typeof staticDescriptions] || "",
-      dynamic: filteredCallLogs[0]?.descriptions[key as keyof CategoryDescriptions] || ""
+      dynamic: latestWithDescription?.descriptions[key as keyof CategoryDescriptions] || ""
     };
   };
 
 const getOverallDescription = () => {
-  return {
-    static: "This comprehensive score represents the agent's overall performance across all measured metrics. It takes into account engagement, objection handling, information gathering, program explanation, closing skills, and overall effectiveness. Click and drag on the chart to compare performance between different points.",
-    dynamic: filteredCallLogs[0]?.descriptions.overall_performance || ""
-  };
-};
+    // Find the latest non-empty overall performance description
+    const latestWithDescription = filteredCallLogs.length > 0 
+      ? filteredCallLogs
+          .sort((a, b) => new Date(b.call_date).getTime() - new Date(a.call_date).getTime())
+          .find(call => {
+            const description = call.descriptions.overall_performance;
+            return description && description.trim() !== '';
+          })
+      : null;
 
+    return {
+      static: "This comprehensive score represents the agent's overall performance across all measured metrics. It takes into account engagement, objection handling, information gathering, program explanation, closing skills, and overall effectiveness. Click and drag on the chart to compare performance between different points.",
+      dynamic: latestWithDescription?.descriptions.overall_performance || ""
+    };
+  };
+  
 const chartData = data.filter((item) => {
     if (!dateRange || !dateRange.from || !dateRange.to) return true;
     const itemDate = new Date(item.call_date);
@@ -586,25 +606,29 @@ return (
     </PopoverTrigger>
    <PopoverContent className="w-[600px] bg-white p-6 rounded-xl shadow-xl">
   <div className="space-y-2">
-    {/* 1. Title */}
     <h3 className="text-xl font-bold text-slate-900">
       {category ? `${category.label} Analysis` : 'Overall Performance Analysis'}
     </h3>
 
-    {/* 2. Static Description - Now small and italic */}
     <p className="text-slate-600 text-sm italic">
       {category ? getCategoryDescription(category.key).static : getOverallDescription().static}
     </p>
 
-    {/* 3. Score */}
     <div className="text-6xl font-bold text-center" style={{ color: getScoreColor(latestValue ?? 0) }}>
       {Math.round(latestValue ?? 0)}<span className="text-2xl text-slate-600">/100</span>
     </div>
 
-    {/* 4. Dynamic Description - Now normal size and not italic */}
-    <p className="text-slate-600">
-      {category ? getCategoryDescription(category.key).dynamic : getOverallDescription().dynamic}
-    </p>
+    {(() => {
+      const dynamicDescription = category 
+        ? getCategoryDescription(category.key).dynamic 
+        : getOverallDescription().dynamic;
+      
+      return dynamicDescription && dynamicDescription.trim() !== '' ? (
+        <p className="text-slate-600">
+          {dynamicDescription}
+        </p>
+      ) : null;
+    })()}
   </div>
 </PopoverContent>
   </Popover>
