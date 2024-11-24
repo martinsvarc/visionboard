@@ -322,13 +322,9 @@ const chartData = data
   }));
 
 // Calculate true average
-const latestValue = chartData.length > 0 
-  ? chartData[chartData.length - 1].value 
-  : null;
-
-const average = chartData.length > 0 
-  ? chartData.reduce((sum, item) => sum + item.value, 0) / chartData.length 
-  : null;
+const currentAverage = chartData.length > 0 
+  ? Math.round(chartData.reduce((sum, item) => sum + item.value, 0) / chartData.length)
+  : 0;
 
  const latestValue = chartData.length > 0 ? chartData[chartData.length - 1].value : null;
 
@@ -609,7 +605,7 @@ return (
                 </ResponsiveContainer>
                 <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex flex-col items-center" style={{ zIndex: 0 }}>
                   <div className="text-lg text-slate-600 mb-2">Average Score</div>
-                  <div className="text-6xl font-bold tracking-tight" style={{ color: getScoreColor(latestValue ?? 0) }}>
+                  <div className="text-6xl font-bold tracking-tight" style={{ color: getScoreColor(currentAverage) }}>
                     {Math.round(latestValue ?? 0)}<span className="text-4xl">/100</span>
                   </div>
                 </div>
