@@ -133,16 +133,17 @@ export const POST = async (request: Request) => {
 
     const nextCallNumber = parseInt(existingCalls[0].max_call_number) + 1;
 
+    // Match exact column names from your database table
     const { rows } = await pool.sql`
       INSERT INTO call_logs (
         member_id,
         call_number,
         user_name,
+        user_picture_url,
         agent_name,
         agent_picture_url,
         call_recording_url,
         call_details,
-        user_picture_url,
         engagement_score,
         objection_handling_score,
         information_gathering_score,
@@ -156,8 +157,8 @@ export const POST = async (request: Request) => {
         information_gathering_feedback,
         program_explanation_feedback,
         closing_skills_feedback,
-        overall_effectiveness_feedback
-        engagement_description,           
+        overall_effectiveness_feedback,
+        engagement_description,
         objection_handling_description,
         information_gathering_description,
         program_explanation_description,
@@ -168,11 +169,11 @@ export const POST = async (request: Request) => {
         ${memberId},
         ${nextCallNumber},
         ${callData.user_name},
+        ${callData.user_picture_url},
         ${callData.agent_name},
         ${callData.agent_picture_url},
         ${callData.call_recording_url},
         ${callData.call_details},
-        ${callData.user_picture_url},
         ${callData.scores.engagement},
         ${callData.scores.objection_handling},
         ${callData.scores.information_gathering},
@@ -186,8 +187,8 @@ export const POST = async (request: Request) => {
         ${callData.feedback.information_gathering},
         ${callData.feedback.program_explanation},
         ${callData.feedback.closing_skills},
-        ${callData.feedback.overall_effectiveness}
-        ${callData.descriptions.engagement},        
+        ${callData.feedback.overall_effectiveness},
+        ${callData.descriptions.engagement},
         ${callData.descriptions.objection_handling},
         ${callData.descriptions.information_gathering},
         ${callData.descriptions.program_explanation},
@@ -201,6 +202,10 @@ export const POST = async (request: Request) => {
     return NextResponse.json(rows[0]);
   } catch (error) {
     console.error('Error adding call log:', error);
+    // Add more detailed error logging
+    if (error instanceof Error) {
+      console.error('Error details:', error.message);
+    }
     return NextResponse.json({ error: 'Failed to add call log' }, { status: 500 });
   }
 }
