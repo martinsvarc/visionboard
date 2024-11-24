@@ -306,14 +306,29 @@ const getOverallDescription = () => {
     };
   };
   
-const chartData = data.filter((item) => {
+const chartData = data
+  .filter((item) => {
     if (!dateRange || !dateRange.from || !dateRange.to) return true;
     const itemDate = new Date(item.call_date);
     return itemDate >= dateRange.from && itemDate <= dateRange.to;
-  }).map((item, index) => ({
+  })
+  // Sort by date in ascending order
+  .sort((a, b) => new Date(a.call_date).getTime() - new Date(b.call_date).getTime())
+  .map((item, index) => ({
     name: String(index + 1),
-    value: category ? item.scores[category.key as keyof typeof item.scores] : item.scores.overall_effectiveness
+    value: category 
+      ? item.scores[category.key as keyof typeof item.scores] 
+      : item.scores.overall_performance // Changed from overall_effectiveness to overall_performance
   }));
+
+// Calculate true average
+const latestValue = chartData.length > 0 
+  ? chartData[chartData.length - 1].value 
+  : null;
+
+const average = chartData.length > 0 
+  ? chartData.reduce((sum, item) => sum + item.value, 0) / chartData.length 
+  : null;
 
  const latestValue = chartData.length > 0 ? chartData[chartData.length - 1].value : null;
 
