@@ -157,6 +157,13 @@ export const POST = async (request: Request) => {
         program_explanation_feedback,
         closing_skills_feedback,
         overall_effectiveness_feedback
+        engagement_description,           
+        objection_handling_description,
+        information_gathering_description,
+        program_explanation_description,
+        closing_skills_description,
+        overall_effectiveness_description,
+        overall_performance_description
       ) VALUES (
         ${memberId},
         ${nextCallNumber},
@@ -180,6 +187,13 @@ export const POST = async (request: Request) => {
         ${callData.feedback.program_explanation},
         ${callData.feedback.closing_skills},
         ${callData.feedback.overall_effectiveness}
+        ${callData.descriptions.engagement},        
+        ${callData.descriptions.objection_handling},
+        ${callData.descriptions.information_gathering},
+        ${callData.descriptions.program_explanation},
+        ${callData.descriptions.closing_skills},
+        ${callData.descriptions.overall_effectiveness},
+        ${callData.descriptions.overall_performance}
       )
       RETURNING *;
     `;
