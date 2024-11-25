@@ -398,13 +398,12 @@ return (
               {category ? category.label : 'Overall Performance'}
             </span>
             {!category && (
-  <div className="z-50 relative">
-    <Popover>
-      <PopoverTrigger asChild>
-        <Button 
-          variant="outline" 
-          className="bg-white border-slate-200 text-slate-900 hover:bg-slate-50"
-        >
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button 
+                    variant="outline" 
+                    className="bg-white border-slate-200 text-slate-900 hover:bg-slate-50 z-10 relative"
+                  >
                     <Calendar className="mr-2 h-4 w-4" />
                     {dateRange?.from ? (
                       dateRange.to ? (
