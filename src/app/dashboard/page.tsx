@@ -819,7 +819,12 @@ const currentRecords = filteredCallLogs
       <p className="text-lg" style={{ color: getScoreColor(call.scores.overall_performance) }}>Overall Performance</p>
     </button>
   </PopoverTrigger>
-  <PopoverContent className="w-[600px] bg-white p-6 rounded-xl shadow-xl">
+  <PopoverContent 
+    className="w-[600px] bg-white p-6 rounded-xl shadow-xl"
+    style={{ zIndex: 9999, position: 'relative' }}
+    sideOffset={5}
+    align="center"
+  >
     <div className="space-y-6">
       <h3 className="text-xl font-bold text-slate-900">Overall Performance Analysis</h3>
       
