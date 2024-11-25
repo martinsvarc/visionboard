@@ -557,11 +557,11 @@ return (
                       : handleClick(null)}
                   >
                     <defs>
-                      <linearGradient id={`colorGradient-${category ? category.key : 'overall'}`} x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor={getScoreColor(latestValue ?? 0)} stopOpacity={0.3}/>
-                        <stop offset="95%" stopColor={getScoreColor(latestValue ?? 0)} stopOpacity={0.1}/>
-                      </linearGradient>
-                    </defs>
+  <linearGradient id={`colorGradient-${category ? category.key : 'overall'}`} x1="0" y1="0" x2="0" y2="1">
+    <stop offset="5%" stopColor={getScoreColor(currentAverage)} stopOpacity={0.3}/>
+    <stop offset="95%" stopColor={getScoreColor(currentAverage)} stopOpacity={0.1}/>
+  </linearGradient>
+</defs>
                     <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.1)" />
                     <XAxis 
                       dataKey="name" 
@@ -579,11 +579,11 @@ return (
                     <Area 
                       type="monotone" 
                       dataKey="value" 
-                      stroke={getScoreColor(latestValue ?? 0)}
+                      stroke={getScoreColor(currentAverage)}
                       strokeWidth={3}
                       fill={`url(#colorGradient-${category ? category.key : 'overall'})`}
                       dot={CustomizedDot}
-                      activeDot={{ r: 8, fill: getScoreColor(latestValue ?? 0), stroke: '#FFFFFF', strokeWidth: 2 }}
+                      activeDot={{ r: 8, fill: getScoreColor(currentAverage), stroke: '#FFFFFF', strokeWidth: 2 }}
                     />
                     {selectedPoints.length > 1 && percentageChange !== null && (
                       <ReferenceLine
