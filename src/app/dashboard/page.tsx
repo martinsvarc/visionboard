@@ -625,8 +625,8 @@ return (
       {category ? getCategoryDescription(category.key).static : getOverallDescription().static}
     </p>
 
-    <div className="text-6xl font-bold text-center" style={{ color: getScoreColor(currentAverage) }}>
-      {currentAverage}<span className="text-2xl text-slate-600">/100</span>
+    <div className="text-6xl font-bold text-center" style={{ color: getScoreColor(latestValue ?? 0) }}>
+      {Math.round(latestValue ?? 0)}<span className="text-2xl text-slate-600">/100</span>
     </div>
 
     {(() => {
@@ -641,7 +641,6 @@ return (
       ) : null;
     })()}
   </div>
-</PopoverContent>
 </PopoverContent>
   </Popover>
 );
