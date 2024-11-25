@@ -102,7 +102,7 @@ const CustomTooltip: React.FC<RechartsTooltipProps<number, string>> = ({ active,
 };
 
 const getScoreColor = (score: number) => {
-  if (score >= 95) return "#22c55e"; 
+  if (score >= 95) return "#51c1a9"; 
   if (score >= 70) return "#556bc7"; 
   if (score >= 40) return "#f97316"; 
   return "#ef4444"; // Red
