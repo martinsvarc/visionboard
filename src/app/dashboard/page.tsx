@@ -5,8 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { TooltipProps as RechartsTooltipProps } from 'recharts';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer, AreaChart, Area, ReferenceLine, Tooltip } from 'recharts'
-import { Tooltip as RechartsTooltip } from 'recharts'
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer, AreaChart, Area, ReferenceLine, Tooltip as RechartsTooltip } from 'recharts'
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Calendar as CalendarComponent } from "@/components/ui/calendar"
 import { format, startOfWeek, endOfWeek, startOfMonth, endOfMonth, subDays } from "date-fns"
@@ -436,7 +435,7 @@ return (
                       tick={{ fill: 'rgba(0,0,0,0.6)', fontSize: 10 }} 
                       domain={[0, 100]} 
                     />
-                   <Tooltip 
+                   <RechartsTooltip 
   content={CustomTooltip} 
   cursor={false}
   wrapperStyle={{ zIndex: 99999, position: 'relative' }}
