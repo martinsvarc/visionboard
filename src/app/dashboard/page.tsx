@@ -17,6 +17,7 @@ import { DateRange } from "react-day-picker"
 import './calendar.css' 
 import { Slider } from "@/components/ui/slider"
 import { Play, Pause, ChevronRight, Calendar, ChevronLeft, RefreshCw, SkipBack, SkipForward, PlayCircle } from "lucide-react"
+import { PopoverProvider } from '@/components/ui/popover'
 
 interface CallLog {
   id: number;
@@ -399,6 +400,7 @@ return (
             </span>
             {!category && (
               <div className="z-50 relative">
+              <PopoverProvider>
               <Popover>
                 <PopoverTrigger asChild>
                   <Button 
