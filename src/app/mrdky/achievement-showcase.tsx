@@ -152,7 +152,7 @@ const AchievementContentInner = () => {
           {categories[activeCategory].map((achievement, index) => (
             <TooltipProvider key={index}>
               <Tooltip>
-                <TooltipTrigger asChild>
+                <TooltipTrigger className="w-full">
                   <div className="relative flex flex-col items-center p-2 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer">
                     <div className="relative w-[40px] h-[40px] sm:w-[48px] sm:h-[48px] md:w-[56px] md:h-[56px]">
                       {achievement.image ? (
@@ -191,9 +191,9 @@ const AchievementContentInner = () => {
                   </div>
                 </TooltipTrigger>
                 <TooltipContent 
-                  side="top" 
-                  sideOffset={5}
-                  className="z-50 bg-white shadow-lg p-2 rounded-lg border max-w-[200px]"
+                  side="top"
+                  align="center"
+                  className="z-50 bg-white shadow-lg p-2 rounded-lg border"
                 >
                   <p className="font-medium text-xs sm:text-sm">{achievement.tooltipTitle}</p>
                   <p className="text-xs text-gray-500">{achievement.tooltipSubtitle}</p>
