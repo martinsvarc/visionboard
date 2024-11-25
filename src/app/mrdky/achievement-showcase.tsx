@@ -151,55 +151,57 @@ const AchievementContentInner = () => {
         <div className="absolute inset-0 overflow-y-auto overflow-x-hidden pr-2 -mr-2">
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 p-1">
             {categories[activeCategory].map((achievement, index) => (
-              <div key={index} className="relative group">
-                <div 
-                  className="flex flex-col items-center p-2 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
-                  onMouseEnter={() => setActiveTooltipId(index)}
-                  onMouseLeave={() => setActiveTooltipId(null)}
-                >
-                  <div className="relative w-[40px] h-[40px] sm:w-[48px] sm:h-[48px] md:w-[56px] md:h-[56px]">
-                    {achievement.image ? (
-                      <img 
-                        src={achievement.image} 
-                        alt={achievement.description} 
-                        className="w-full h-full object-contain"
-                      />
-                    ) : (
-                      <div className="w-full h-full rounded-lg bg-gray-100 flex items-center justify-center">
-                        <div className="w-8 h-8 rounded-full bg-gray-200" />
-                      </div>
-                    )}
-                    {!achievement.unlocked && (
-                      <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center rounded-lg">
-                        <Lock className="text-white w-4 h-4" />
-                      </div>
-                    )}
-                  </div>
-                  <div className="w-full text-center mt-2">
-                    <div className="text-xs sm:text-sm font-medium mb-1 line-clamp-1 px-1">
-                      {achievement.description}
-                    </div>
-                    <div className="text-xs text-gray-500 mb-1">
-                      {achievement.progress}%
-                    </div>
-                    <div className="h-1.5 w-full max-w-[120px] mx-auto bg-gray-100 rounded-full overflow-hidden">
-                      <div
-                        className={`h-full transition-all duration-300 ease-in-out ${
-                          getProgressBarColor(achievement.progress || 0)
-                        }`}
-                        style={{ width: `${achievement.progress || 0}%` }}
-                      />
-                    </div>
-                  </div>
-                </div>
+  <div key={index} className="relative group">
+    <div 
+      className="relative flex flex-col items-center p-2 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
+      onMouseEnter={() => setActiveTooltipId(index)}
+    >
+      <div className="relative w-[40px] h-[40px] sm:w-[48px] sm:h-[48px] md:w-[56px] md:h-[56px]">
+        {achievement.image ? (
+          <img 
+            src={achievement.image} 
+            alt={achievement.description} 
+            className="w-full h-full object-contain"
+          />
+        ) : (
+          <div className="w-full h-full rounded-lg bg-gray-100 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-full bg-gray-200" />
+          </div>
+        )}
+        {!achievement.unlocked && (
+          <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center rounded-lg">
+            <Lock className="text-white w-4 h-4" />
+          </div>
+        )}
+      </div>
+      <div className="w-full text-center mt-2">
+        <div className="text-xs sm:text-sm font-medium mb-1 line-clamp-1 px-1">
+          {achievement.description}
+        </div>
+        <div className="text-xs text-gray-500 mb-1">
+          {achievement.progress}%
+        </div>
+        <div className="h-1.5 w-full max-w-[120px] mx-auto bg-gray-100 rounded-full overflow-hidden">
+          <div
+            className={`h-full transition-all duration-300 ease-in-out ${
+              getProgressBarColor(achievement.progress || 0)
+            }`}
+            style={{ width: `${achievement.progress || 0}%` }}
+          />
+        </div>
+      </div>
+    </div>
                 
                 {/* Custom Tooltip */}
-                {activeTooltipId === index && (
-                  <div className="absolute inset-0 z-[100] bg-white/95 backdrop-blur-sm shadow-lg p-2 rounded-lg border">
-                    <p className="font-medium text-xs sm:text-sm">{achievement.tooltipTitle}</p>
-                    <p className="text-xs text-gray-500">{achievement.tooltipSubtitle}</p>
-                  </div>
-                )}
+                <div 
+  className={cn(
+    "absolute inset-0 z-[100] bg-white/95 backdrop-blur-sm shadow-lg p-2 rounded-lg border pointer-events-none",
+    activeTooltipId === index ? "opacity-100" : "opacity-0"
+  )}
+>
+  <p className="font-medium text-xs sm:text-sm">{achievement.tooltipTitle}</p>
+  <p className="text-xs text-gray-500">{achievement.tooltipSubtitle}</p>
+</div>
               </div>
             ))}
           </div>
