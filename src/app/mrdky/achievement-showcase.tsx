@@ -191,10 +191,13 @@ const AchievementContentInner = () => {
                       </div>
                     </div>
                   </TooltipTrigger>
-                  <TooltipContent className="z-[100]">
-                    <p className="font-medium text-xs sm:text-sm">{achievement.tooltipTitle}</p>
-                    <p className="text-xs text-gray-500">{achievement.tooltipSubtitle}</p>
-                  </TooltipContent>
+                  <TooltipContent 
+  sideOffset={-45} // This moves it down to overlay the badge
+  className="z-[100] bg-white/95 backdrop-blur-sm shadow-lg p-2 rounded-lg border absolute"
+>
+  <p className="font-medium text-xs sm:text-sm">{achievement.tooltipTitle}</p>
+  <p className="text-xs text-gray-500">{achievement.tooltipSubtitle}</p>
+</TooltipContent>
                 </Tooltip>
               </TooltipProvider>
             ))}
