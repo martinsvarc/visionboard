@@ -193,14 +193,14 @@ const AchievementContentInner = () => {
     </div>
                 
                 {/* Custom Tooltip */}
-                <div 
+               <div 
   className={cn(
-    "absolute inset-0 z-[100] bg-white/95 backdrop-blur-sm shadow-lg p-2 rounded-lg border pointer-events-none",
+    "absolute inset-0 z-[100] bg-black/90 backdrop-blur-sm shadow-lg p-2 rounded-lg border border-gray-800 pointer-events-none",
     activeTooltipId === index ? "opacity-100" : "opacity-0"
   )}
 >
-  <p className="font-medium text-xs sm:text-sm">{achievement.tooltipTitle}</p>
-  <p className="text-xs text-gray-500">{achievement.tooltipSubtitle}</p>
+  <p className="font-medium text-xs sm:text-sm text-white">{achievement.tooltipTitle}</p>
+  <p className="text-xs text-gray-400">{achievement.tooltipSubtitle}</p>
 </div>
               </div>
             ))}
