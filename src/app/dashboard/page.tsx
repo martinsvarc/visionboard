@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { TooltipProps as RechartsTooltipProps } from 'recharts';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer, AreaChart, Area, ReferenceLine } from 'recharts'
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer, AreaChart, Area, ReferenceLine, Tooltip } from 'recharts'
 import { Tooltip as RechartsTooltip } from 'recharts'
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Calendar as CalendarComponent } from "@/components/ui/calendar"
@@ -95,7 +95,7 @@ const CustomTooltip: React.FC<RechartsTooltipProps<number, string>> = ({ active,
   }
 
   return (
-    <div className="bg-black/80 text-white p-2 rounded-lg text-sm">
+    <div className="bg-black/80 text-white p-2 rounded-lg text-sm" style={{ zIndex: 99999, position: 'relative' }}>
       <p>{`Call ${data.name}: ${data.value.toFixed(1)}%`}</p>
     </div>
   );
@@ -436,7 +436,11 @@ return (
                       tick={{ fill: 'rgba(0,0,0,0.6)', fontSize: 10 }} 
                       domain={[0, 100]} 
                     />
-                    <RechartsTooltip content={CustomTooltip} />
+                   <Tooltip 
+  content={CustomTooltip} 
+  cursor={false}
+  wrapperStyle={{ zIndex: 99999, position: 'relative' }}
+/>
                     <Area 
                       type="monotone" 
                       dataKey="value" 
