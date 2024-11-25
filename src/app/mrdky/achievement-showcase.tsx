@@ -151,10 +151,14 @@ const AchievementContentInner = () => {
         <div className="absolute inset-0 overflow-y-auto overflow-x-hidden pr-2 -mr-2">
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 p-1">
             {categories[activeCategory].map((achievement, index) => (
-  <div key={index} className="relative group">
+  <div 
+  key={index} 
+  className="relative group"
+  onMouseLeave={() => setActiveTooltipId(null)}
+>
     <div 
       className="relative flex flex-col items-center p-2 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
-      onMouseEnter={() => setActiveTooltipId(index)}
+      onMouseEnter={() => !achievement.unlocked ? setActiveTooltipId(index) : setActiveTooltipId(null)}
     >
       <div className="relative w-[40px] h-[40px] sm:w-[48px] sm:h-[48px] md:w-[56px] md:h-[56px]">
         {achievement.image ? (
