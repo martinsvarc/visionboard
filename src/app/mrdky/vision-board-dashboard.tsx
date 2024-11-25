@@ -748,16 +748,16 @@ export default function VisionBoardDashboardClient() {
 
             {/* Activity Circles */}
             <Card className="p-2 bg-white rounded-[20px] shadow-lg h-[280px]">
-              <h2 className="text-lg font-semibold text-[#556bc7] mb-6">Activity Circles</h2>
-              <div className="relative flex justify-center items-center mb-2">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="absolute -left-2 top-1/2 -translate-y-1/2 hover:bg-transparent"
-                  onClick={prevActivitySlide}
-                >
-                  <ArrowLeft className="w-4 h-4 text-gray-400" />
-                </Button>
+  <h2 className="text-2xl font-semibold text-[#556bc7] mb-6">Activity Circles</h2>
+  <div className="relative flex justify-center items-center mb-2">
+    <Button
+      variant="ghost"
+      size="icon"
+      className="absolute -left-2 top-1/2 -translate-y-1/2 hover:bg-transparent"
+      onClick={prevActivitySlide}
+    >
+      <ArrowLeft className="w-4 h-4 text-gray-400" />
+    </Button>
 
                 <div className="relative">
                   <div className="rounded-full">
