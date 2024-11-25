@@ -737,7 +737,10 @@ function DashboardComponent() {
   }
 const indexOfLastRecord = currentPage * recordsPerPage;
   const indexOfFirstRecord = indexOfLastRecord - recordsPerPage;
-const currentRecords = filteredCallLogs.slice().reverse().slice(indexOfFirstRecord, indexOfLastRecord);
+const currentRecords = filteredCallLogs
+  .slice()
+  .sort((a, b) => b.call_number - a.call_number)
+  .slice(indexOfFirstRecord, indexOfLastRecord);
   const totalPages = Math.ceil(filteredCallLogs.length / recordsPerPage);
 
   return (
