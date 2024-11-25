@@ -398,6 +398,7 @@ return (
               {category ? category.label : 'Overall Performance'}
             </span>
             {!category && (
+              <div className="z-50 relative">
               <Popover>
                 <PopoverTrigger asChild>
                   <Button 
