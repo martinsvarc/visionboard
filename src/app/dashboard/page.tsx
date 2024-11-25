@@ -401,22 +401,26 @@ return (
               <Popover>
                 <PopoverTrigger asChild>
                   <Button 
-                    variant="outline" 
-                    className="bg-white border-slate-200 text-slate-900 hover:bg-slate-50 z-10 relative"
-                  >
-                    <Calendar className="mr-2 h-4 w-4" />
-                    {dateRange?.from ? (
-                      dateRange.to ? (
-                        <>
-                          {format(dateRange.from, "LLL dd, y")} - {format(dateRange.to, "LLL dd, y")}
-                        </>
-                      ) : (
-                        format(dateRange.from, "LLL dd, y")
-                      )
-                    ) : (
-                      <span>Pick a date range</span>
-                    )}
-                  </Button>
+  variant="outline" 
+  className="bg-white border-slate-200 text-slate-900 hover:bg-slate-50 z-10 relative w-full flex items-center justify-between"
+>
+  <div className="flex items-center w-full">
+    <Calendar className="mr-2 h-4 w-4" />
+    <span className="flex-1">
+      {dateRange?.from ? (
+        dateRange.to ? (
+          <>
+            {format(dateRange.from, "LLL dd, y")} - {format(dateRange.to, "LLL dd, y")}
+          </>
+        ) : (
+          format(dateRange.from, "LLL dd, y")
+        )
+      ) : (
+        <span>Pick a date range</span>
+      )}
+    </span>
+  </div>
+</Button>
                 </PopoverTrigger>
                 <PopoverContent 
                   className="bg-white border border-slate-200 p-0 shadow-lg rounded-xl w-auto" 
