@@ -689,6 +689,22 @@ function DashboardComponent() {
     }
   }, [memberId]);
 
+useEffect(() => {
+  const sendHeightToParent = () => {
+    const height = document.documentElement.scrollHeight;
+    window.parent.postMessage({ type: 'setHeight', height }, '*');
+  };
+
+  sendHeightToParent();
+  
+  const observer = new ResizeObserver(() => {
+    sendHeightToParent();
+  });
+
+  observer.observe(document.body);
+  return () => observer.disconnect();
+}, []);
+
   useEffect(() => {
     fetchCallLogs();
   }, [fetchCallLogs]);
@@ -744,7 +760,7 @@ const currentRecords = filteredCallLogs
   const totalPages = Math.ceil(filteredCallLogs.length / recordsPerPage);
 
   return (
-<div className="h-fit pt-12 px-8 bg-[#f2f3f8]">
+<div className="min-h-screen bg-[#f2f3f8]">
   <div className="max-w-7xl mx-auto space-y-8 bg-white rounded-[32px] p-8 shadow-lg">
         {/* Overall Performance Chart */}
         <Chart 
