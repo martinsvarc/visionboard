@@ -604,11 +604,11 @@ return (
                   </AreaChart>
                 </ResponsiveContainer>
                 <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex flex-col items-center" style={{ zIndex: 0 }}>
-                  <div className="text-lg text-slate-600 mb-2">Average Score</div>
-                  <div className="text-6xl font-bold tracking-tight" style={{ color: getScoreColor(currentAverage) }}>
-                    {Math.round(latestValue ?? 0)}<span className="text-4xl">/100</span>
-                  </div>
-                </div>
+  <div className="text-lg text-slate-600 mb-2">Average Score</div>
+  <div className="text-6xl font-bold tracking-tight" style={{ color: getScoreColor(currentAverage) }}>
+    {currentAverage}<span className="text-4xl">/100</span>
+  </div>
+</div>
               </>
             )}
           </div>
