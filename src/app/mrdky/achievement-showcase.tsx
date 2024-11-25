@@ -148,7 +148,7 @@ const AchievementContentInner = () => {
       </div>
 
       <div className="h-[180px] relative">
-        <div className="absolute inset-0 overflow-y-auto overflow-x-hidden pr-2 -mr-2">
+        <div className="absolute inset-0 overflow-y-auto overflow-x-hidden pr-2 -mr-2 scrollbar-thin scrollbar-track-gray-100 scrollbar-thumb-gray-300 hover:scrollbar-thumb-gray-400">
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 p-1">
             {categories[activeCategory].map((achievement, index) => (
   <div 
