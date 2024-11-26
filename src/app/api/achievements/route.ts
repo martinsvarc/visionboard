@@ -25,9 +25,13 @@ function isNewWeek(lastResetDate: Date) {
 
 export async function POST(request: Request) {
   try {
-    const { memberId, userName, userPicture = DEFAULT_PROFILE_PICTURE, teamId, points } = await request.json();
+    const body = await request.json();
+    console.log('Received POST request with body:', body);
+    
+    const { memberId, userName, userPicture = DEFAULT_PROFILE_PICTURE, teamId, points } = body;
     
     if (!memberId || !userName) {
+      console.log('Missing required fields:', { memberId, userName });
       return NextResponse.json({ error: 'Member ID and username required' }, { status: 400 });
     }
 
@@ -35,13 +39,12 @@ export async function POST(request: Request) {
       connectionString: process.env.visionboard_PRISMA_URL
     });
 
-    const today = new Date();
-    const todayStr = today.toISOString().split('T')[0];
-
+    // Add logging for the initial user check
     const { rows: [existingUser] } = await pool.sql`
       SELECT * FROM user_achievements 
       WHERE member_id = ${memberId};
     `;
+    console.log('Existing user check:', { memberId, exists: !!existingUser });
 
     // Set default values for new users
     if (!existingUser) {
