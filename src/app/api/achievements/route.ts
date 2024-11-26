@@ -206,6 +206,22 @@ export async function GET(request: Request) {
       }))
     };
 
+const leagueBadge = badge as { 
+      id: string; 
+      image: string; 
+      description: string; 
+      tooltipTitle: string; 
+      tooltipSubtitle: string; 
+      target: number;
+      rank?: string;
+    };
+    return {
+      ...leagueBadge,
+      unlocked: userData?.league_rank === leagueBadge.rank?.toString() || false
+    };
+  })
+};
+
     // Get weekly rankings
     const { rows: weeklyRankings } = await pool.sql`
       SELECT 
