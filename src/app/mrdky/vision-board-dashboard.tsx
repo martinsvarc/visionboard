@@ -9,7 +9,7 @@ import { ArrowLeft, ArrowRight, RefreshCcw, TrendingUp, Palette, Calendar, Clock
 import { cn } from "@/lib/utils"
 import { CustomCalendar } from "@/components/custom-calendar"
 import { LeagueChart } from '@/components/LeagueChart'
-import { AchievementContent } from './achievement-showcase';
+import { AchievementContent, type AchievementContentProps } from './achievement-showcase';
 import { Badge } from '@/lib/achievement-data';
 
 interface LeaguePlayer {
@@ -427,7 +427,12 @@ useEffect(() => {
       const response = await fetch(`/api/achievements?memberId=${memberId}`);
       if (response.ok) {
         const data = await response.json();
-        setAchievementData(data);
+        setAchievementData({
+          streakAchievements: data.streakAchievements || [],
+          callAchievements: data.callAchievements || [],
+          activityAchievements: data.activityAchievements || [],
+          leagueAchievements: data.leagueAchievements || []
+        });
       }
     } catch (error) {
       console.error('Error fetching achievement data:', error);
@@ -477,11 +482,11 @@ useEffect(() => {
     { value: 0, label: 'THIS YEAR', progress: 0, color: '#fbb350', icon: 'calendar', max: 1000 },
 ]);
 
-const [achievementData, setAchievementData] = useState({
-  streakAchievements: [] as Badge[],
-  callAchievements: [] as Badge[],
-  activityAchievements: [] as Badge[],
-  leagueAchievements: [] as Badge[]
+const [achievementData, setAchievementData] = useState<AchievementContentProps['achievements']>({
+  streakAchievements: [],
+  callAchievements: [],
+  activityAchievements: [],
+  leagueAchievements: []
 });
 
   const nextActivitySlide = () => {
