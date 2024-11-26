@@ -38,16 +38,10 @@ export async function POST(request: Request) {
     const today = new Date();
     const todayStr = today.toISOString().split('T')[0];
 
-    const yesterday = new Date();
-    yesterday.setDate(yesterday.getDate() - 1);
-    const yesterdayStr = yesterday.toISOString().split('T')[0];
-
     const { rows: [existingUser] } = await pool.sql`
       SELECT * FROM user_achievements 
       WHERE member_id = ${memberId};
     `;
-
-    console.log('Existing user check:', { memberId, exists: !!existingUser });
 
     // Set default values for new users
     if (!existingUser) {
@@ -102,7 +96,7 @@ export async function POST(request: Request) {
     if (sessions_this_week >= 50) unlocked_badges = addBadge(unlocked_badges, 'weekly_50');
     if (sessions_this_month >= 100) unlocked_badges = addBadge(unlocked_badges, 'monthly_100');
 
-    const { rows: [updated] } = await pool.sql`
+   const { rows: [updated] } = await pool.sql`
       INSERT INTO user_achievements (
         member_id, 
         user_name, 
@@ -124,42 +118,33 @@ export async function POST(request: Request) {
         ${userName},
         ${userPicture},
         ${teamId},
-        ${current_points},
-        ${total_points},
-        ${current_streak},
-        ${longest_streak},
-        ${total_sessions},
-        ${sessions_today},
-        ${sessions_this_week},
-        ${sessions_this_month},
+        ${points},
+        ${points},
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
         ${todayStr},
-        ${JSON.stringify(unlocked_badges)},
-        ${shouldResetWeek ? getLastSunday().toISOString() : existingUser?.weekly_reset_at || getLastSunday().toISOString()}
+        '[]',
+        ${getLastSunday().toISOString()}
       )
       ON CONFLICT (member_id) DO UPDATE SET
         user_name = EXCLUDED.user_name,
         user_picture = EXCLUDED.user_picture,
         team_id = EXCLUDED.team_id,
-        points = CASE 
-            WHEN user_achievements.last_session_date = ${todayStr} THEN user_achievements.points + ${points}
-            ELSE ${points}
-        END,
+        points = user_achievements.points + ${points},
         total_points = user_achievements.total_points + ${points},
-        current_streak = ${current_streak},
-        longest_streak = ${longest_streak},
-        total_sessions = ${total_sessions},
+        total_sessions = user_achievements.total_sessions + 1,
         sessions_today = CASE 
             WHEN user_achievements.last_session_date = ${todayStr} THEN user_achievements.sessions_today + 1
             ELSE 1
         END,
-        sessions_this_week = ${sessions_this_week},
-        sessions_this_month = ${sessions_this_month},
+        sessions_this_week = user_achievements.sessions_this_week + 1,
+        sessions_this_month = user_achievements.sessions_this_month + 1,
         last_session_date = ${todayStr},
         unlocked_badges = ${JSON.stringify(unlocked_badges)},
-        weekly_reset_at = CASE 
-            WHEN ${shouldResetWeek} THEN ${getLastSunday().toISOString()}
-            ELSE user_achievements.weekly_reset_at
-        END,
         updated_at = CURRENT_TIMESTAMP
       RETURNING *;
     `;
