@@ -409,26 +409,26 @@ useEffect(() => {
         today.setHours(0, 0, 0, 0);
         
         // Calculate sessions for different time periods
-        const todaySessions = dates.filter(date => 
+        const todaySessions = dates.filter((date: Date) => 
           date.toDateString() === today.toDateString()
         ).length;
 
         // For this week (last 7 days)
         const weekAgo = new Date(today);
         weekAgo.setDate(weekAgo.getDate() - 7);
-        const weekSessions = dates.filter(date => 
+        const weekSessions = dates.filter((date: Date) => 
           date >= weekAgo && date <= today
         ).length;
 
         // For this month
         const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
-        const monthSessions = dates.filter(date => 
+        const monthSessions = dates.filter((date: Date) => 
           date >= monthStart && date <= today
         ).length;
 
         // For this year
         const yearStart = new Date(today.getFullYear(), 0, 1);
-        const yearSessions = dates.filter(date => 
+        const yearSessions = dates.filter((date: Date) => 
           date >= yearStart && date <= today
         ).length;
 
