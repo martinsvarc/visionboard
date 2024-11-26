@@ -131,30 +131,32 @@ export async function POST(request: Request) {
         ${shouldResetWeek ? getLastSunday().toISOString() : existingUser?.weekly_reset_at || getLastSunday().toISOString()}
       )
       ON CONFLICT (member_id) DO UPDATE SET
-    user_name = EXCLUDED.user_name,
-    user_picture = EXCLUDED.user_picture,
-    team_id = EXCLUDED.team_id,
-    points = CASE 
-        WHEN user_achievements.last_session_date = ${todayStr} THEN user_achievements.points + ${points}
-        ELSE ${points}
-    END,
-    total_points = user_achievements.total_points + ${points},
-    current_streak = ${current_streak},
-    longest_streak = ${longest_streak},
-    total_sessions = ${total_sessions},
-    sessions_today = CASE 
-        WHEN user_achievements.last_session_date = ${todayStr} THEN user_achievements.sessions_today + 1
-        ELSE 1
-    END,
-    sessions_this_week = ${sessions_this_week},
-    sessions_this_month = ${sessions_this_month},
-    last_session_date = ${todayStr},
-    unlocked_badges = ${JSON.stringify(unlocked_badges)},
-    weekly_reset_at = CASE 
-        WHEN ${shouldResetWeek} THEN ${getLastSunday().toISOString()}
-        ELSE user_achievements.weekly_reset_at
-    END,
-    updated_at = CURRENT_TIMESTAMP
+        user_name = EXCLUDED.user_name,
+        user_picture = EXCLUDED.user_picture,
+        team_id = EXCLUDED.team_id,
+        points = CASE 
+            WHEN user_achievements.last_session_date = ${todayStr} THEN user_achievements.points + ${points}
+            ELSE ${points}
+        END,
+        total_points = user_achievements.total_points + ${points},
+        current_streak = ${current_streak},
+        longest_streak = ${longest_streak},
+        total_sessions = ${total_sessions},
+        sessions_today = CASE 
+            WHEN user_achievements.last_session_date = ${todayStr} THEN user_achievements.sessions_today + 1
+            ELSE 1
+        END,
+        sessions_this_week = ${sessions_this_week},
+        sessions_this_month = ${sessions_this_month},
+        last_session_date = ${todayStr},
+        unlocked_badges = ${JSON.stringify(unlocked_badges)},
+        weekly_reset_at = CASE 
+            WHEN ${shouldResetWeek} THEN ${getLastSunday().toISOString()}
+            ELSE user_achievements.weekly_reset_at
+        END,
+        updated_at = CURRENT_TIMESTAMP
+      RETURNING *;
+    `;
 
     const { rows: weeklyRankings } = await pool.sql`
       SELECT member_id, points,
