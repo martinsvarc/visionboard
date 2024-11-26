@@ -1,5 +1,6 @@
 import { createPool } from '@vercel/postgres';
 import { NextResponse } from 'next/server';
+import { ACHIEVEMENTS } from '@/lib/achievement-data';
 
 const DEFAULT_PROFILE_PICTURE = "https://res.cloudinary.com/dmbzcxhjn/image/upload/v1732590120/WhatsApp_Image_2024-11-26_at_04.00.13_58e32347_owfpnt.jpg";
 
@@ -185,6 +186,26 @@ export async function GET(request: Request) {
       SELECT * FROM user_achievements WHERE member_id = ${memberId};
     `;
 
+// Add this section right here, after getting userData but before getting rankings
+    const achievementsData = {
+      streakAchievements: ACHIEVEMENTS.streak.map(badge => ({
+        ...badge,
+        unlocked: userData?.unlocked_badges?.includes(`streak_${badge.target}`) || false
+      })),
+      callAchievements: ACHIEVEMENTS.calls.map(badge => ({
+        ...badge,
+        unlocked: userData?.unlocked_badges?.includes(`calls_${badge.target}`) || false
+      })),
+      activityAchievements: ACHIEVEMENTS.activity.map(badge => ({
+        ...badge,
+        unlocked: userData?.unlocked_badges?.includes(`${badge.period}_${badge.target}`) || false
+      })),
+      leagueAchievements: ACHIEVEMENTS.league.map(badge => ({
+        ...badge,
+        unlocked: userData?.league_rank === badge.rank?.toString() || false
+      }))
+    };
+
     // Get weekly rankings
     const { rows: weeklyRankings } = await pool.sql`
       SELECT 
@@ -195,10 +216,11 @@ export async function GET(request: Request) {
         unlocked_badges,
         RANK() OVER (ORDER BY points DESC) as rank
       FROM user_achievements 
-      WHERE weekly_reset_at = ${userData.weekly_reset_at}
+      WHERE weekly_reset_at = ${userData?.weekly_reset_at}
       ORDER BY points DESC 
       LIMIT 10;
     `;
+
 
     // Get all-time rankings
     const { rows: allTimeRankings } = await pool.sql`
@@ -224,17 +246,19 @@ export async function GET(request: Request) {
         unlocked_badges,
         RANK() OVER (ORDER BY total_points DESC) as rank
       FROM user_achievements 
-      WHERE team_id = ${userData.team_id}
+      WHERE team_id = ${userData?.team_id}
       ORDER BY total_points DESC 
       LIMIT 10;
     `;
 
     return NextResponse.json({
+      ...achievementsData,
       userData,
       weeklyRankings,
       allTimeRankings,
       teamRankings
     });
+
   } catch (error) {
     console.error('Error getting achievements:', error);
     return NextResponse.json({ error: 'Failed to get achievements' }, { status: 500 });
