@@ -12,6 +12,7 @@ import {
 } from '@/lib/achievement-data'
 
 interface BadgeWithProgress extends Badge {
+  description?: string;
   progress?: number;
   period?: 'day' | 'week' | 'month';
   count?: number;
