@@ -27,6 +27,15 @@ interface BadgeData {
   };
 }
 
+interface BaseBadge extends Badge {
+  unlocked?: boolean;
+  progress?: number;
+}
+
+interface LeagueBadge extends BaseBadge {
+  rank?: string;
+}
+
 const getProgressBarColor = (progress: number) => {
   if (progress === 100) return 'bg-[#556bc7]' // Blue Diamond
   if (progress >= 70) return 'bg-[#51c1a9]'   // Green
@@ -77,7 +86,7 @@ const AchievementContentInner = () => {
     );
   }
 
-  const calculateBadgeProgress = (badge: Badge): Badge & { progress: number } => {
+  const calculateBadgeProgress = (badge: BaseBadge | LeagueBadge): BaseBadge & { progress: number } => {
     if (badge.unlocked) return { ...badge, progress: 100 };
 
     let progress = 0;
@@ -85,7 +94,7 @@ const AchievementContentInner = () => {
       progress = Math.min(100, (badgeData.practice_streak / badge.target) * 100);
     } else if (badge.target && badgeData?.total_calls) {
       progress = Math.min(100, (badgeData.total_calls / badge.target) * 100);
-    } else if (badge.target && badge.period && badgeData) {
+    } else if (badge.target && 'period' in badge && badge.period && badgeData) {
       const current = badge.period === 'day' ? badgeData.daily_calls :
                      badge.period === 'week' ? badgeData.weekly_calls :
                      badge.period === 'month' ? badgeData.monthly_calls : 0;
@@ -95,7 +104,7 @@ const AchievementContentInner = () => {
     return { ...badge, progress: Math.round(progress) };
   };
 
-  const categories: Record<string, (Badge & { progress: number })[]> = {
+  const categories: Record<string, (BaseBadge & { progress: number })[]> = {
     'practice-streak': ACHIEVEMENTS.streak.map(badge => {
       return calculateBadgeProgress({
         ...badge,
@@ -123,9 +132,10 @@ const AchievementContentInner = () => {
     }),
     
     'league-places': ACHIEVEMENTS.league.map(badge => {
+      const leagueBadge = badge as LeagueBadge;
       return calculateBadgeProgress({
-        ...badge,
-        unlocked: Boolean(badgeData?.league_rank === badge.rank)
+        ...leagueBadge,
+        unlocked: Boolean(badgeData?.league_rank === leagueBadge.rank)
       });
     })
   };
