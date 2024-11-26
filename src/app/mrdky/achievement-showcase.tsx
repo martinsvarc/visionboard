@@ -77,47 +77,44 @@ const AchievementContentInner = () => {
     );
   }
 
-  const calculateBadgeProgress = (badge: BadgeWithProgress): BadgeWithProgress => {
-  if (badge.unlocked) return { ...badge, progress: 100 };
+  const calculateBadgeProgress = (badge: Badge): Badge & { progress: number } => {
+    if (badge.unlocked) return { ...badge, progress: 100 };
 
-  let progress = 0;
-  if (badge.target && badgeData?.practice_streak) {
-    progress = Math.min(100, (badgeData.practice_streak / badge.target) * 100);
-  } else if (badge.target && badgeData?.total_calls) {
-    progress = Math.min(100, (badgeData.total_calls / badge.target) * 100);
-  } else if (badge.target && badge.period && badgeData) {
-    const current = badge.period === 'day' ? badgeData.daily_calls :
-                   badge.period === 'week' ? badgeData.weekly_calls :
-                   badge.period === 'month' ? badgeData.monthly_calls : 0;
-    progress = Math.min(100, (current / badge.target) * 100);
-  }
+    let progress = 0;
+    if (badge.target && badgeData?.practice_streak) {
+      progress = Math.min(100, (badgeData.practice_streak / badge.target) * 100);
+    } else if (badge.target && badgeData?.total_calls) {
+      progress = Math.min(100, (badgeData.total_calls / badge.target) * 100);
+    } else if (badge.target && badge.period && badgeData) {
+      const current = badge.period === 'day' ? badgeData.daily_calls :
+                     badge.period === 'week' ? badgeData.weekly_calls :
+                     badge.period === 'month' ? badgeData.monthly_calls : 0;
+      progress = Math.min(100, (current / badge.target) * 100);
+    }
 
-  return { ...badge, progress: Math.round(progress) };
-};
+    return { ...badge, progress: Math.round(progress) };
+  };
 
-const categories: Record<string, BadgeWithProgress[]> = {
+  const categories: Record<string, (Badge & { progress: number })[]> = {
     'practice-streak': ACHIEVEMENTS.streak.map(badge => {
-      const mappedBadge: BadgeWithProgress = {
+      const mappedBadge: Badge = {
         ...badge,
-        description: badge.tooltipTitle, // Add this line
         unlocked: Boolean(badgeData?.unlocked_badges.practice_streak.includes(badge.target || 0))
       };
       return calculateBadgeProgress(mappedBadge);
     }),
     
     'completed-calls': ACHIEVEMENTS.calls.map(badge => {
-      const mappedBadge: BadgeWithProgress = {
+      const mappedBadge: Badge = {
         ...badge,
-        description: badge.tooltipTitle, // Add this line
         unlocked: Boolean(badgeData?.unlocked_badges.completed_calls.includes(badge.target || 0))
       };
       return calculateBadgeProgress(mappedBadge);
     }),
     
     'activity-goals': ACHIEVEMENTS.activity.map(badge => {
-      const mappedBadge: BadgeWithProgress = {
+      const mappedBadge: Badge = {
         ...badge,
-        description: badge.tooltipTitle, // Add this line
         unlocked: Boolean(badgeData?.unlocked_badges.activity_goals.includes(`${badge.period}_${badge.target}`)),
         current: badge.period === 'day' ? badgeData?.daily_calls :
                 badge.period === 'week' ? badgeData?.weekly_calls :
@@ -127,15 +124,13 @@ const categories: Record<string, BadgeWithProgress[]> = {
     }),
     
     'league-places': ACHIEVEMENTS.league.map(badge => {
-      const mappedBadge: BadgeWithProgress = {
+      const mappedBadge: Badge = {
         ...badge,
-        description: badge.tooltipTitle, // Add this line
         unlocked: Boolean(badgeData?.league_rank === badge.rank),
-        progress: badgeData?.league_rank === badge.rank ? 100 : 0
       };
-      return mappedBadge;
+      return calculateBadgeProgress(mappedBadge);
     })
-};
+  };
 
   return (
     <Card className="p-4 bg-white rounded-[20px] shadow-lg md:col-span-2 max-h-[80vh] flex flex-col">
@@ -163,69 +158,69 @@ const categories: Record<string, BadgeWithProgress[]> = {
         <div className="h-full overflow-y-auto overflow-x-hidden pr-2 -mr-2 scrollbar-thin scrollbar-track-gray-100 scrollbar-thumb-gray-300 hover:scrollbar-thumb-gray-400">
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 p-1">
             {categories[activeCategory].map((achievement, index) => (
-  <div 
-  key={index} 
-  className="relative group"
-  onMouseLeave={() => setActiveTooltipId(null)}
->
-    <div 
-      className="relative flex flex-col items-center p-2 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
-      onMouseEnter={() => !achievement.unlocked ? setActiveTooltipId(index) : setActiveTooltipId(null)}
-    >
-      <div className="relative w-[40px] h-[40px] sm:w-[48px] sm:h-[48px] md:w-[56px] md:h-[56px]">
-   {achievement.unlocked ? (
-     achievement.image ? (
-       <img 
-         src={achievement.image} 
-         alt={achievement.description} 
-         className="w-full h-full object-contain"
-       />
-    ) : (
-      <div className="w-full h-full rounded-lg bg-gray-100 flex items-center justify-center">
-        <div className="w-8 h-8 rounded-full bg-gray-200" />
-      </div>
-    )
-  ) : (
-    <div className="w-full h-full rounded-lg bg-gray-100" />
-   )}
-   
-  {!achievement.unlocked && (
-    <div className="absolute inset-0 rounded-lg bg-gradient-to-br from-gray-200 to-gray-300 flex flex-col items-center justify-center gap-1">
-      <div className="bg-white/90 rounded-full p-2 shadow-sm">
-        <Lock className="w-4 h-4 text-gray-400" />
-      </div>
-      <span className="text-[10px] font-medium text-gray-500">Locked</span>
-     </div>
-   )}
- </div>
-      <div className="w-full text-center mt-2">
-        <div className="text-xs sm:text-sm font-medium mb-1 line-clamp-1 px-1">
-          {achievement.description}
-        </div>
-        <div className="text-xs text-gray-500 mb-1">
-          {achievement.progress}%
-        </div>
-        <div className="h-1.5 w-full max-w-[120px] mx-auto bg-gray-100 rounded-full overflow-hidden">
-          <div
-            className={`h-full transition-all duration-300 ease-in-out ${
-              getProgressBarColor(achievement.progress || 0)
-            }`}
-            style={{ width: `${achievement.progress || 0}%` }}
-          />
-        </div>
-      </div>
-    </div>
+              <div 
+                key={index} 
+                className="relative group"
+                onMouseLeave={() => setActiveTooltipId(null)}
+              >
+                <div 
+                  className="relative flex flex-col items-center p-2 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
+                  onMouseEnter={() => !achievement.unlocked ? setActiveTooltipId(index) : setActiveTooltipId(null)}
+                >
+                  <div className="relative w-[40px] h-[40px] sm:w-[48px] sm:h-[48px] md:w-[56px] md:h-[56px]">
+                    {achievement.unlocked ? (
+                      achievement.image ? (
+                        <img 
+                          src={achievement.image} 
+                          alt={achievement.tooltipTitle} 
+                          className="w-full h-full object-contain"
+                        />
+                      ) : (
+                        <div className="w-full h-full rounded-lg bg-gray-100 flex items-center justify-center">
+                          <div className="w-8 h-8 rounded-full bg-gray-200" />
+                        </div>
+                      )
+                    ) : (
+                      <div className="w-full h-full rounded-lg bg-gray-100" />
+                    )}
+                    
+                    {!achievement.unlocked && (
+                      <div className="absolute inset-0 rounded-lg bg-gradient-to-br from-gray-200 to-gray-300 flex flex-col items-center justify-center gap-1">
+                        <div className="bg-white/90 rounded-full p-2 shadow-sm">
+                          <Lock className="w-4 h-4 text-gray-400" />
+                        </div>
+                        <span className="text-[10px] font-medium text-gray-500">Locked</span>
+                      </div>
+                    )}
+                  </div>
+                  
+                  <div className="w-full text-center mt-2">
+                    <div className="text-xs sm:text-sm font-medium mb-1 line-clamp-1 px-1">
+                      {achievement.tooltipTitle}
+                    </div>
+                    <div className="text-xs text-gray-500 mb-1">
+                      {achievement.progress}%
+                    </div>
+                    <div className="h-1.5 w-full max-w-[120px] mx-auto bg-gray-100 rounded-full overflow-hidden">
+                      <div
+                        className={`h-full transition-all duration-300 ease-in-out ${
+                          getProgressBarColor(achievement.progress)
+                        }`}
+                        style={{ width: `${achievement.progress}%` }}
+                      />
+                    </div>
+                  </div>
+                </div>
                 
-                {/* Custom Tooltip */}
-               <div 
-  className={cn(
-    "absolute inset-0 z-[100] bg-black/90 backdrop-blur-sm shadow-lg p-2 rounded-lg border border-gray-800 pointer-events-none",
-    activeTooltipId === index ? "opacity-100" : "opacity-0"
-  )}
->
-  <p className="font-medium text-xs sm:text-sm text-white">{achievement.tooltipTitle}</p>
-  <p className="text-xs text-gray-400">{achievement.tooltipSubtitle}</p>
-</div>
+                <div 
+                  className={cn(
+                    "absolute inset-0 z-[100] bg-black/90 backdrop-blur-sm shadow-lg p-2 rounded-lg border border-gray-800 pointer-events-none",
+                    activeTooltipId === index ? "opacity-100" : "opacity-0"
+                  )}
+                >
+                  <p className="font-medium text-xs sm:text-sm text-white">{achievement.tooltipTitle}</p>
+                  <p className="text-xs text-gray-400">{achievement.tooltipSubtitle}</p>
+                </div>
               </div>
             ))}
           </div>
