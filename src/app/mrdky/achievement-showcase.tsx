@@ -13,6 +13,11 @@ import {
 
 interface BadgeWithProgress extends Badge {
   progress?: number;
+  period?: 'day' | 'week' | 'month';
+  count?: number;
+  calls?: number;
+  days?: number;
+  rank?: string;
 }
 
 interface BadgeData {
