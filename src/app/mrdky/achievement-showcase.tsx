@@ -11,8 +11,15 @@ import {
   type Badge 
 } from '@/lib/achievement-data'
 
-interface BadgeWithProgress extends Badge {
-  description?: string;
+interface BadgeWithProgress {
+  id: string;
+  image: string;
+  description: string;
+  tooltipTitle: string;
+  tooltipSubtitle: string;
+  unlocked?: boolean;
+  current?: number;
+  target?: number;
   progress?: number;
   period?: 'day' | 'week' | 'month';
   count?: number;
