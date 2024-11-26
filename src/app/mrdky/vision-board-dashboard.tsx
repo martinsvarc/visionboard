@@ -348,8 +348,6 @@ useEffect(() => {
   fetchDailyTasks();
 }, []);
 
-const calendar = Array.from({ length: 30 }, (_, i) => i + 1)
-
   const calendar = Array.from({ length: 30 }, (_, i) => i + 1)
   const weekDays = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa']
 
