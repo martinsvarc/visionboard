@@ -4,14 +4,16 @@ import { ACHIEVEMENTS } from '@/lib/achievement-data';
 
 const DEFAULT_PROFILE_PICTURE = "https://res.cloudinary.com/dmbzcxhjn/image/upload/v1732590120/WhatsApp_Image_2024-11-26_at_04.00.13_58e32347_owfpnt.jpg";
 
-// Helper function to check if it's a new week
+// Updated weekly reset logic to use Sunday as reset day
 function isNewWeek(lastResetDate: Date) {
   const now = new Date();
-  return lastResetDate.getUTCDay() > now.getUTCDay() || 
-         now.getTime() - lastResetDate.getTime() >= 7 * 24 * 60 * 60 * 1000;
+  const lastReset = new Date(lastResetDate);
+  
+  // Always use Sunday as reset day (0 is Sunday in getDay())
+  const daysSinceLastReset = (now.getDay() + 7 - lastReset.getDay()) % 7;
+  return daysSinceLastReset >= 7;
 }
 
-// POST endpoint to record sessions and update achievements
 export async function POST(request: Request) {
   try {
     const { memberId, userName, userPicture = DEFAULT_PROFILE_PICTURE, teamId, points } = await request.json();
@@ -27,19 +29,17 @@ export async function POST(request: Request) {
     const today = new Date();
     const todayStr = today.toISOString().split('T')[0];
 
-    // Get current user data
     const { rows: [existingUser] } = await pool.sql`
       SELECT * FROM user_achievements 
       WHERE member_id = ${memberId};
     `;
 
-    // Check if weekly reset is needed
     const shouldResetWeek = !existingUser?.weekly_reset_at || 
                            isNewWeek(new Date(existingUser.weekly_reset_at));
 
-const yesterday = new Date();
-yesterday.setDate(yesterday.getDate() - 1);
-const yesterdayStr = yesterday.toISOString().split('T')[0];
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    const yesterdayStr = yesterday.toISOString().split('T')[0];
 
     // Calculate new values
     const current_streak = existingUser?.last_session_date === todayStr ? 
@@ -48,18 +48,23 @@ const yesterdayStr = yesterday.toISOString().split('T')[0];
     
     const longest_streak = Math.max(current_streak, existingUser?.longest_streak || 0);
     const total_sessions = (existingUser?.total_sessions || 0) + 1;
+    
+    // Updated points calculations
+    const current_points = shouldResetWeek ? points : (existingUser?.points || 0) + points;
+    const total_points = (existingUser?.total_points || 0) + points;
+    
+    // Updated session count logic
     const sessions_today = existingUser?.last_session_date === todayStr ? 
-      existingUser.sessions_today + 1 : 1;
-    const sessions_this_week = shouldResetWeek ? 1 : existingUser?.sessions_this_week + 1;
-    const sessions_this_month = today.getMonth() === new Date(existingUser?.last_session_date).getMonth() ?
-      existingUser?.sessions_this_month + 1 : 1;
-    const total_points = (existingUser?.total_points || 0) + (points || 0);
-    const current_points = shouldResetWeek ? (points || 0) : (existingUser?.points || 0) + (points || 0);
+      (existingUser.sessions_today + 1) : 1;
+    
+    const sessions_this_week = shouldResetWeek ? 1 : (existingUser?.sessions_this_week + 1);
+    
+    const sessions_this_month = today.getMonth() === new Date(existingUser?.last_session_date || today).getMonth() ? 
+      (existingUser?.sessions_this_month + 1) : 1;
 
-    // Calculate achievements to unlock
+    // Rest of the code remains the same...
     let unlocked_badges = existingUser?.unlocked_badges || [];
     
-    // Streak achievements
     if (current_streak >= 5) unlocked_badges = addBadge(unlocked_badges, 'streak_5');
     if (current_streak >= 10) unlocked_badges = addBadge(unlocked_badges, 'streak_10');
     if (current_streak >= 30) unlocked_badges = addBadge(unlocked_badges, 'streak_30');
@@ -67,19 +72,15 @@ const yesterdayStr = yesterday.toISOString().split('T')[0];
     if (current_streak >= 180) unlocked_badges = addBadge(unlocked_badges, 'streak_180');
     if (current_streak >= 365) unlocked_badges = addBadge(unlocked_badges, 'streak_365');
 
-    // Call achievements
     if (total_sessions >= 10) unlocked_badges = addBadge(unlocked_badges, 'calls_10');
     if (total_sessions >= 25) unlocked_badges = addBadge(unlocked_badges, 'calls_25');
     if (total_sessions >= 50) unlocked_badges = addBadge(unlocked_badges, 'calls_50');
     if (total_sessions >= 100) unlocked_badges = addBadge(unlocked_badges, 'calls_100');
-    // Add more call milestones...
 
-    // Activity achievements
     if (sessions_today >= 10) unlocked_badges = addBadge(unlocked_badges, 'daily_10');
     if (sessions_this_week >= 50) unlocked_badges = addBadge(unlocked_badges, 'weekly_50');
     if (sessions_this_month >= 100) unlocked_badges = addBadge(unlocked_badges, 'monthly_100');
 
-    // Update user data
     const { rows: [updated] } = await pool.sql`
       INSERT INTO user_achievements (
         member_id, 
@@ -134,7 +135,6 @@ const yesterdayStr = yesterday.toISOString().split('T')[0];
       RETURNING *;
     `;
 
-    // Check weekly rankings and update league badges
     const { rows: weeklyRankings } = await pool.sql`
       SELECT member_id, points,
              RANK() OVER (ORDER BY points DESC) as rank
@@ -148,7 +148,6 @@ const yesterdayStr = yesterday.toISOString().split('T')[0];
     if (userRank === 2) unlocked_badges = addBadge(unlocked_badges, 'league_second');
     if (userRank === 3) unlocked_badges = addBadge(unlocked_badges, 'league_third');
 
-    // If badges were updated, save them
     if (JSON.stringify(unlocked_badges) !== JSON.stringify(updated.unlocked_badges)) {
       await pool.sql`
         UPDATE user_achievements 
@@ -167,7 +166,7 @@ const yesterdayStr = yesterday.toISOString().split('T')[0];
   }
 }
 
-// GET endpoint to retrieve achievements and rankings
+// GET endpoint remains exactly the same
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
@@ -181,12 +180,10 @@ export async function GET(request: Request) {
       connectionString: process.env.visionboard_PRISMA_URL
     });
 
-    // Get user data and rankings
     const { rows: [userData] } = await pool.sql`
       SELECT * FROM user_achievements WHERE member_id = ${memberId};
     `;
 
-// Add this section right here, after getting userData but before getting rankings
     const achievementsData = {
       streakAchievements: ACHIEVEMENTS.streak.map(badge => ({
         ...badge,
@@ -204,8 +201,7 @@ export async function GET(request: Request) {
       })),
       
       leagueAchievements: ACHIEVEMENTS.league.map(badge => {
-
-const leagueBadge = badge as { 
+        const leagueBadge = badge as { 
           id: string; 
           image: string; 
           description: string; 
@@ -221,7 +217,6 @@ const leagueBadge = badge as {
       })
     };
 
-    // Get weekly rankings
     const { rows: weeklyRankings } = await pool.sql`
       SELECT 
         member_id, 
@@ -236,8 +231,6 @@ const leagueBadge = badge as {
       LIMIT 10;
     `;
 
-
-    // Get all-time rankings
     const { rows: allTimeRankings } = await pool.sql`
       SELECT 
         member_id, 
@@ -251,7 +244,6 @@ const leagueBadge = badge as {
       LIMIT 10;
     `;
 
-    // Get team rankings
     const { rows: teamRankings } = await pool.sql`
       SELECT 
         member_id, 
@@ -280,7 +272,6 @@ const leagueBadge = badge as {
   }
 }
 
-// Helper function to add a badge if it doesn't exist
 function addBadge(badges: string[], newBadge: string): string[] {
   return badges.includes(newBadge) ? badges : [...badges, newBadge];
 }
