@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils"
 import { CustomCalendar } from "@/components/custom-calendar"
 import { LeagueChart } from '@/components/LeagueChart'
 import { AchievementContent } from './achievement-showcase';
+import type { Badge } from '@/lib/achievement-data';
 
 interface LeaguePlayer {
   rank: number
@@ -458,6 +459,13 @@ useEffect(() => {
     { value: 0, label: 'THIS MONTH', progress: 0, color: '#fbb350', icon: 'calendar', max: 100 },
     { value: 0, label: 'THIS YEAR', progress: 0, color: '#fbb350', icon: 'calendar', max: 1000 },
 ]);
+
+const [achievementData, setAchievementData] = useState({
+  streakAchievements: [] as Badge[],
+  callAchievements: [] as Badge[],
+  activityAchievements: [] as Badge[],
+  leagueAchievements: [] as Badge[]
+});
 
   const achievements: Record<string, Achievement[]> = {
     'practice-streak': [
