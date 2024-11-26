@@ -330,11 +330,29 @@ useEffect(() => {
   const calendar = Array.from({ length: 30 }, (_, i) => i + 1)
   const weekDays = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa']
 
-  const streakData = {
-    current: 7,
-    consistency: '83%',
-    longest: 7
-  }
+  const [streakData, setStreakData] = useState({
+  current: 0,
+  consistency: '0%',
+  longest: 0,
+  dates: []
+});
+
+useEffect(() => {
+  const fetchStreakData = async () => {
+    try {
+      const memberId = await getMemberId();
+      const response = await fetch(`/api/streaks?memberId=${memberId}`);
+      if (response.ok) {
+        const data = await response.json();
+        setStreakData(data);
+      }
+    } catch (error) {
+      console.error('Error fetching streak data:', error);
+    }
+  };
+
+  fetchStreakData();
+}, []);
 
   const leagueData: Record<string, LeaguePlayer[]> = {
     weekly: [
