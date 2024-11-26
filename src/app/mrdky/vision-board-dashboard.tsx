@@ -327,6 +327,29 @@ useEffect(() => {
     loadVisionBoard()
 }, [])
 
+useEffect(() => {
+  const fetchDailyTasks = async () => {
+    try {
+      const memberId = await getMemberId();
+      const response = await fetch(`/api/daily-tasks?memberId=${memberId}`);
+      if (response.ok) {
+        const data = await response.json();
+        setDailyTasks([
+          { text: data.task_1, color: 'bg-[#fbb350]' },
+          { text: data.task_2, color: 'bg-[#51c1a9]' },
+          { text: data.task_3, color: 'bg-[#556bc7]' },
+        ]);
+      }
+    } catch (error) {
+      console.error('Error fetching daily tasks:', error);
+    }
+  };
+
+  fetchDailyTasks();
+}, []);
+
+const calendar = Array.from({ length: 30 }, (_, i) => i + 1)
+
   const calendar = Array.from({ length: 30 }, (_, i) => i + 1)
   const weekDays = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa']
 
@@ -375,11 +398,11 @@ useEffect(() => {
     ],
   }
 
-  const dailyTasks = [
-    { text: 'Complete these 3 price negotiation scenarios by Friday', color: 'bg-[#fbb350]' },
-    { text: 'Practice with AI bot on product X for 20 minutes daily', color: 'bg-[#51c1a9]' },
-    { text: 'Role-play these specific customer personas with detailed feedback', color: 'bg-[#556bc7]' },
-  ]
+  const [dailyTasks, setDailyTasks] = useState([
+  { text: 'Loading...', color: 'bg-[#fbb350]' },
+  { text: 'Loading...', color: 'bg-[#51c1a9]' },
+  { text: 'Loading...', color: 'bg-[#556bc7]' },
+]);
 
   const improvements = [
     { text: 'Investor should ask clearer questions on final terms and conditions', color: 'bg-[#fbb350]' },
