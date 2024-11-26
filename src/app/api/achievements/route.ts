@@ -192,35 +192,34 @@ export async function GET(request: Request) {
         ...badge,
         unlocked: userData?.unlocked_badges?.includes(`streak_${badge.target}`) || false
       })),
+      
       callAchievements: ACHIEVEMENTS.calls.map(badge => ({
         ...badge,
         unlocked: userData?.unlocked_badges?.includes(`calls_${badge.target}`) || false
       })),
+      
       activityAchievements: ACHIEVEMENTS.activity.map(badge => ({
         ...badge,
         unlocked: userData?.unlocked_badges?.includes(`${badge.period}_${badge.target}`) || false
       })),
-      leagueAchievements: ACHIEVEMENTS.league.map(badge => ({
-        ...badge,
-        unlocked: userData?.league_rank === badge.rank?.toString() || false
-      }))
-    };
+      
+      leagueAchievements: ACHIEVEMENTS.league.map(badge => {
 
 const leagueBadge = badge as { 
-      id: string; 
-      image: string; 
-      description: string; 
-      tooltipTitle: string; 
-      tooltipSubtitle: string; 
-      target: number;
-      rank?: string;
+          id: string; 
+          image: string; 
+          description: string; 
+          tooltipTitle: string; 
+          tooltipSubtitle: string; 
+          target: number;
+          rank?: string;
+        };
+        return {
+          ...leagueBadge,
+          unlocked: userData?.league_rank === leagueBadge.rank?.toString() || false
+        };
+      })
     };
-    return {
-      ...leagueBadge,
-      unlocked: userData?.league_rank === leagueBadge.rank?.toString() || false
-    };
-  })
-};
 
     // Get weekly rankings
     const { rows: weeklyRankings } = await pool.sql`
