@@ -63,21 +63,38 @@ const AchievementContentInner = ({ achievements }: AchievementContentProps) => {
 
 const [localAchievements, setAchievements] = useState<AchievementContentProps['achievements']>();
 
- useEffect(() => {
+useEffect(() => {
   const fetchBadges = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`/api/achievements?memberId=${memberId}`); // Changed from 'badges' to 'achievements'
+      console.log('Fetching for memberId:', memberId);
+      const response = await fetch(`/api/achievements?memberId=${memberId}`);
+      
       if (!response.ok) {
-        console.log('Badge fetch failed:', await response.text());
+        const errorText = await response.text();
+        console.error('Badge fetch failed:', {
+          status: response.status,
+          statusText: response.statusText,
+          errorText
+        });
         throw new Error('Failed to fetch badges');
       }
+      
       const data = await response.json();
-      console.log('Fetched data:', data);
+      console.log('Achievement data received:', {
+        userData: data.userData,
+        badgeCounts: {
+          streak: data.streakAchievements?.length || 0,
+          calls: data.callAchievements?.length || 0,
+          activity: data.activityAchievements?.length || 0,
+          league: data.leagueAchievements?.length || 0
+        },
+        unlockedBadges: data.userData?.unlocked_badges
+      });
+
       setBadgeData(data.userData);
       
       if (!achievements) {
-        // If no achievements provided via props, use the fetched achievements
         setAchievements({
           streakAchievements: data.streakAchievements || [],
           callAchievements: data.callAchievements || [],
@@ -93,13 +110,8 @@ const [localAchievements, setAchievements] = useState<AchievementContentProps['a
     }
   };
 
-  if (!achievements) {
-    fetchBadges();
-  } else {
-    console.log('Using provided achievements:', achievements);
-    setLoading(false);
-  }
-}, [memberId, achievements]);
+  fetchBadges();
+}, [memberId]);
 
   if (loading) {
     return (
@@ -117,23 +129,35 @@ const [localAchievements, setAchievements] = useState<AchievementContentProps['a
     );
   }
 
-  const calculateBadgeProgress = (badge: BaseBadge | LeagueBadge): BaseBadge & { progress: number } => {
-    if (badge.unlocked) return { ...badge, progress: 100 };
-
-    let progress = 0;
-    if (badge.target && badgeData?.practice_streak) {
-      progress = Math.min(100, (badgeData.practice_streak / badge.target) * 100);
-    } else if (badge.target && badgeData?.total_calls) {
-      progress = Math.min(100, (badgeData.total_calls / badge.target) * 100);
-    } else if (badge.target && 'period' in badge && badge.period && badgeData) {
-      const current = badge.period === 'day' ? badgeData.daily_calls :
-                     badge.period === 'week' ? badgeData.weekly_calls :
-                     badge.period === 'month' ? badgeData.monthly_calls : 0;
-      progress = Math.min(100, (current / badge.target) * 100);
+const calculateBadgeProgress = (badge: BaseBadge | LeagueBadge): BaseBadge & { progress: number } => {
+  console.log('Calculating progress for badge:', {
+    id: badge.id,
+    target: badge.target,
+    currentData: {
+      practice_streak: badgeData?.practice_streak,
+      total_calls: badgeData?.total_calls,
+      daily_calls: badgeData?.daily_calls,
+      weekly_calls: badgeData?.weekly_calls,
+      monthly_calls: badgeData?.monthly_calls
     }
+  });
 
-    return { ...badge, progress: Math.round(progress) };
-  };
+  if (badge.unlocked) return { ...badge, progress: 100 };
+
+  let progress = 0;
+  if (badge.target && badgeData?.practice_streak) {
+    progress = Math.min(100, (badgeData.practice_streak / badge.target) * 100);
+  } else if (badge.target && badgeData?.total_calls) {
+    progress = Math.min(100, (badgeData.total_calls / badge.target) * 100);
+  } else if (badge.target && 'period' in badge && badge.period && badgeData) {
+    const current = badge.period === 'day' ? badgeData.daily_calls :
+                   badge.period === 'week' ? badgeData.weekly_calls :
+                   period === 'month' ? badgeData.monthly_calls : 0;
+    progress = Math.min(100, (current / badge.target) * 100);
+  }
+
+  return { ...badge, progress: Math.round(progress || 0) };
+};
 
  const categories: Record<string, (BaseBadge & { progress: number })[]> = {
   'practice-streak': (achievements?.streakAchievements || ACHIEVEMENTS.streak).map(badge => {
