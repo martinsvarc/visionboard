@@ -8,8 +8,6 @@ import {
   YAxis,
 } from "recharts"
 
-const DEFAULT_PROFILE_IMAGE = "https://res.cloudinary.com/dmbzcxhjn/image/upload/v1732590120/WhatsApp_Image_2024-11-26_at_04.00.13_58e32347_owfpnt.jpg"
-
 interface ChartDataPoint {
   date: string
   userPoints: number
@@ -20,13 +18,33 @@ interface LeagueChartProps {
   currentUserScore: number
   topPlayerScore: number
   historicalData?: ChartDataPoint[]
+  currentUserImage?: string | null
+  topPlayerImage?: string | null
 }
 
-export function LeagueChart({ currentUserScore, topPlayerScore, historicalData }: LeagueChartProps) {
+export function LeagueChart({ 
+  currentUserScore, 
+  topPlayerScore, 
+  historicalData,
+  currentUserImage,
+  topPlayerImage 
+}: LeagueChartProps) {
   const chartData = historicalData || generateChartData(currentUserScore, topPlayerScore)
 
   return (
     <div className="relative h-48 bg-gradient-to-t from-[#51c1a9]/20 via-[#51c1a9]/10 to-transparent rounded-[20px] overflow-hidden px-4">
+      <div className="absolute top-2 left-6 flex items-center gap-2">
+        <img 
+          src={currentUserImage || "https://res.cloudinary.com/dmbzcxhjn/image/upload/v1732590120/WhatsApp_Image_2024-11-26_at_04.00.13_58e32347_owfpnt.jpg"} 
+          alt="Your profile" 
+          className="w-6 h-6 rounded-full"
+        />
+        <img 
+          src={topPlayerImage || "https://res.cloudinary.com/dmbzcxhjn/image/upload/v1732590120/WhatsApp_Image_2024-11-26_at_04.00.13_58e32347_owfpnt.jpg"} 
+          alt="Top player" 
+          className="w-6 h-6 rounded-full"
+        />
+      </div>
       <ResponsiveContainer width="100%" height="100%">
         <AreaChart
           data={chartData}
