@@ -38,10 +38,10 @@ interface LeagueBadge extends BaseBadge {
 
 export interface AchievementContentProps {
   achievements?: {
-    streakAchievements: Badge[];
-    callAchievements: Badge[];
-    activityAchievements: Badge[];
-    leagueAchievements: Badge[];
+    streakAchievements: BaseBadge[];
+    callAchievements: BaseBadge[];
+    activityAchievements: BaseBadge[];
+    leagueAchievements: LeagueBadge[];
   };
 }
 
@@ -135,29 +135,32 @@ const [localAchievements, setAchievements] = useState<AchievementContentProps['a
     return { ...badge, progress: Math.round(progress) };
   };
 
-  const categories: Record<string, (BaseBadge & { progress: number })[]> = {
+ const categories: Record<string, (BaseBadge & { progress: number })[]> = {
   'practice-streak': (achievements?.streakAchievements || ACHIEVEMENTS.streak).map(badge => {
+    const baseBadge = badge as BaseBadge;
     return calculateBadgeProgress({
-      ...badge,
-      unlocked: achievements ? badge.unlocked : 
+      ...baseBadge,
+      unlocked: achievements ? baseBadge.unlocked : 
                 Boolean(badgeData?.unlocked_badges?.practice_streak?.includes(badge.target || 0))
     });
   }),
   
   'completed-calls': (achievements?.callAchievements || ACHIEVEMENTS.calls).map(badge => {
+    const baseBadge = badge as BaseBadge;
     return calculateBadgeProgress({
-      ...badge,
-      unlocked: achievements ? badge.unlocked :
+      ...baseBadge,
+      unlocked: achievements ? baseBadge.unlocked :
                 Boolean(badgeData?.unlocked_badges?.completed_calls?.includes(badge.target || 0))
     });
   }),
   
   'activity-goals': (achievements?.activityAchievements || ACHIEVEMENTS.activity).map(badge => {
+    const baseBadge = badge as BaseBadge;
     const period = badge.period as 'day' | 'week' | 'month';
     return calculateBadgeProgress({
-      ...badge,
+      ...baseBadge,
       period,
-      unlocked: achievements ? badge.unlocked :
+      unlocked: achievements ? baseBadge.unlocked :
                 Boolean(badgeData?.unlocked_badges?.activity_goals?.includes(`${period}_${badge.target}`)),
       current: period === 'day' ? badgeData?.daily_calls :
               period === 'week' ? badgeData?.weekly_calls :
@@ -169,7 +172,7 @@ const [localAchievements, setAchievements] = useState<AchievementContentProps['a
     const leagueBadge = badge as LeagueBadge;
     return calculateBadgeProgress({
       ...leagueBadge,
-      unlocked: achievements ? badge.unlocked :
+      unlocked: achievements ? leagueBadge.unlocked :
                 Boolean(badgeData?.league_rank === leagueBadge.rank?.toString())
     });
   })
