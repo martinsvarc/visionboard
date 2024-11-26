@@ -430,6 +430,23 @@ useEffect(() => {
   fetchActivityData();
 }, []);
 
+useEffect(() => {
+  const fetchAchievementData = async () => {
+    try {
+      const memberId = await getMemberId();
+      const response = await fetch(`/api/achievements?memberId=${memberId}`);
+      if (response.ok) {
+        const data = await response.json();
+        setAchievementData(data);
+      }
+    } catch (error) {
+      console.error('Error fetching achievement data:', error);
+    }
+  };
+
+  fetchAchievementData();
+}, []);
+
   const leagueData: Record<string, LeaguePlayer[]> = {
     weekly: [
       { rank: 10, name: 'You', points: 93, avatar: '/placeholder.svg?height=32&width=32', badge: 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/a-pixar-style-3d-render-of-a-cartoon-calendar-icon-9Ut5P-Z7Q-qcpgWOIlslCA-YQ3T7zHwThCVVysgv9KyEg-removebg-preview-xm0mDAmejz7GVlSJPPqUIeKh1ygBL8.png' },
@@ -476,65 +493,6 @@ const [achievementData, setAchievementData] = useState({
   activityAchievements: [] as Badge[],
   leagueAchievements: [] as Badge[]
 });
-
-  const achievements: Record<string, Achievement[]> = {
-    'practice-streak': [
-      { 
-        name: '5 Day Streak', 
-        progress: 100,
-        badge: 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/a-3d-render-of-a-chunky-cartoon-calendar-icon-with-HWOAO1EUTGSglSzZlSFjHA-dQjZimptRd-0SpN_-6oU5w-removebg-preview-afRSEobMghbwvgQDYDT4Foh6UMYYPk.png'
-      },
-      { 
-        name: '10 Day Streak', 
-        progress: 100,
-        badge: 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/a-3d-render-of-a-chunky-cartoon-calendar-icon-with-QHfb4ipTQUu1iR54Vmxo6g-RFBtanJsS0aS2a2tOFHHXg-removebg-preview-fWR9tkF2MvRte4gcxanOH0BT7YiTYs.png'
-      },
-      { 
-        name: '30 Day Streak', 
-        progress: 80,
-        badge: 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/a-pixar-style-3d-render-of-a-cartoon-calendar-icon-CSU-cRrnTDCAuvGYTSV90w-taY5gPBoQxydiszFPNpDvQ-removebg-preview-70auRSvZDbTm3bFEFiCBrnF9kQVU9c.png'
-      },
-      { 
-        name: '90 Day Streak', 
-        progress: 45,
-        badge: 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/a-pixar-style-3d-render-of-a-cartoon-calendar-icon-RCaF4tpKT7aJoICZ2L508Q-UCW5RDP4Q4KfvoRnq8NlfA-removebg-preview-tHPlOSXZl30GH4jugQypZiOxPaqd2v.png'
-      },
-      { 
-        name: '180 Day Streak', 
-        progress: 20,
-        badge: 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/a-pixar-style-3d-render-of-a-cartoon-calendar-icon-L5aDOKYDTgKsB2lxHimuQQ-2xr3cxz6RCeNCL9HhBtylA-removebg-preview-6pFE6lKlRPmL6hlCCVBVWQfjq5SGkn.png',
-        locked: true
-      },
-      { 
-        name: '365 Day Streak', 
-        progress: 5,
-        badge: 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/a-pixar-style-3d-render-of-a-cartoon-calendar-icon-9Ut5P-Z7Q-qcpgWOIlslCA-YQ3T7zHwThCVVysgv9KyEg-removebg-preview-UX2ycYk0Obekhk5ZuAdxefGuuQfmrH.png',
-        locked: true
-      },
-    ],
-    'completed-calls': [
-      { name: '10 Calls', progress: 100 },
-      { name: '25 Calls', progress: 100 },
-      { name: '50 Calls', progress: 100 },
-      { name: '100 Calls', progress: 80 },
-      { name: '250 Calls', progress: 60 },
-      { name: '500 Calls', progress: 40 },
-      { name: '750 Calls', progress: 20 },
-      { name: '1000 Calls', progress: 10 },
-      { name: '1500 Calls', progress: 5 },
-      { name: '2500 Calls', progress: 0 },
-    ],
-    'activity-goals': [
-      { name: '10 Sessions in a Day', progress: 80 },
-      { name: '50 Sessions in a Week', progress: 60 },
-      { name: '100 Sessions in a Month', progress: 40 },
-    ],
-    'league-places': [
-      { name: 'Bronze League', progress: 100 },
-      { name: 'Silver League', progress: 75 },
-      { name: 'Gold League', progress: 45 },
-    ],
-  }
 
   const nextActivitySlide = () => {
     setCurrentActivityIndex((prev) => (prev + 1) % activities.length)
@@ -1000,7 +958,7 @@ const [achievementData, setAchievementData] = useState({
             </div>
 
             {/* Achievement Showcase */}
-<AchievementContent />
+<AchievementContent achievements={achievementData} />
 
             {/* Activity Circles */}
             <Card className="p-2 bg-white rounded-[20px] shadow-lg h-[280px]">
