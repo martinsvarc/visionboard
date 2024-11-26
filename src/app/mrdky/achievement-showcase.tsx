@@ -7,11 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Lock } from 'lucide-react'
 import { cn } from "@/lib/utils"
 import { 
-  PRACTICE_STREAK_BADGES, 
-  CALLS_BADGES, 
-  ACTIVITY_BADGES, 
-  LEAGUE_BADGES,
-  mapBadgesWithUnlockStatus,
+  ACHIEVEMENTS,
   type Badge 
 } from '@/lib/achievement-data'
 
@@ -85,45 +81,45 @@ const AchievementContentInner = () => {
     if (badge.unlocked) return { ...badge, progress: 100 };
 
     let progress = 0;
-    if (badge.days && badgeData?.practice_streak) {
-      progress = Math.min(100, (badgeData.practice_streak / badge.days) * 100);
-    } else if (badge.calls && badgeData?.total_calls) {
-      progress = Math.min(100, (badgeData.total_calls / badge.calls) * 100);
-    } else if (badge.count && badge.period && badgeData) {
+    if (badge.target && badgeData?.practice_streak) {
+      progress = Math.min(100, (badgeData.practice_streak / badge.target) * 100);
+    } else if (badge.target && badgeData?.total_calls) {
+      progress = Math.min(100, (badgeData.total_calls / badge.target) * 100);
+    } else if (badge.target && badge.period && badgeData) {
       const current = badge.period === 'day' ? badgeData.daily_calls :
                      badge.period === 'week' ? badgeData.weekly_calls :
                      badge.period === 'month' ? badgeData.monthly_calls : 0;
-      progress = Math.min(100, (current / badge.count) * 100);
+      progress = Math.min(100, (current / badge.target) * 100);
     }
 
     return { ...badge, progress: Math.round(progress) };
-  };
+};
 
   const categories: Record<string, Badge[]> = {
-    'practice-streak': PRACTICE_STREAK_BADGES.map(badge => ({
+    'practice-streak': ACHIEVEMENTS.streak.map(badge => ({
       ...badge,
-      unlocked: badgeData?.unlocked_badges.practice_streak.includes(badge.days || 0)
+      unlocked: badgeData?.unlocked_badges.practice_streak.includes(badge.target || 0)
     })).map(calculateBadgeProgress),
     
-    'completed-calls': CALLS_BADGES.map(badge => ({
+    'completed-calls': ACHIEVEMENTS.calls.map(badge => ({
       ...badge,
-      unlocked: badgeData?.unlocked_badges.completed_calls.includes(badge.calls || 0)
+      unlocked: badgeData?.unlocked_badges.completed_calls.includes(badge.target || 0)
     })).map(calculateBadgeProgress),
     
-    'activity-goals': ACTIVITY_BADGES.map(badge => ({
+    'activity-goals': ACHIEVEMENTS.activity.map(badge => ({
       ...badge,
-      unlocked: badgeData?.unlocked_badges.activity_goals.includes(`${badge.period}_${badge.count}`),
+      unlocked: badgeData?.unlocked_badges.activity_goals.includes(`${badge.period}_${badge.target}`),
       current: badge.period === 'day' ? badgeData?.daily_calls :
               badge.period === 'week' ? badgeData?.weekly_calls :
               badge.period === 'month' ? badgeData?.monthly_calls : 0
     })).map(calculateBadgeProgress),
     
-    'league-places': LEAGUE_BADGES.map(badge => ({
+    'league-places': ACHIEVEMENTS.league.map(badge => ({
       ...badge,
       unlocked: badgeData?.league_rank === badge.rank,
       progress: badgeData?.league_rank === badge.rank ? 100 : 0
     }))
-  };
+};
 
   return (
     <Card className="p-4 bg-white rounded-[20px] shadow-lg md:col-span-2 max-h-[80vh] flex flex-col">
