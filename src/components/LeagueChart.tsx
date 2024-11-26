@@ -8,6 +8,8 @@ import {
   YAxis,
 } from "recharts"
 
+const DEFAULT_PROFILE_IMAGE = "https://res.cloudinary.com/dmbzcxhjn/image/upload/v1732590120/WhatsApp_Image_2024-11-26_at_04.00.13_58e32347_owfpnt.jpg"
+
 interface ChartDataPoint {
   date: string
   userPoints: number
