@@ -97,38 +97,36 @@ const AchievementContentInner = () => {
 
   const categories: Record<string, (Badge & { progress: number })[]> = {
     'practice-streak': ACHIEVEMENTS.streak.map(badge => {
-      const mappedBadge: Badge = {
+      return calculateBadgeProgress({
         ...badge,
         unlocked: Boolean(badgeData?.unlocked_badges.practice_streak.includes(badge.target || 0))
-      };
-      return calculateBadgeProgress(mappedBadge);
+      });
     }),
     
     'completed-calls': ACHIEVEMENTS.calls.map(badge => {
-      const mappedBadge: Badge = {
+      return calculateBadgeProgress({
         ...badge,
         unlocked: Boolean(badgeData?.unlocked_badges.completed_calls.includes(badge.target || 0))
-      };
-      return calculateBadgeProgress(mappedBadge);
+      });
     }),
     
     'activity-goals': ACHIEVEMENTS.activity.map(badge => {
-      const mappedBadge: Badge = {
+      const period = badge.period as 'day' | 'week' | 'month';
+      return calculateBadgeProgress({
         ...badge,
-        unlocked: Boolean(badgeData?.unlocked_badges.activity_goals.includes(`${badge.period}_${badge.target}`)),
-        current: badge.period === 'day' ? badgeData?.daily_calls :
-                badge.period === 'week' ? badgeData?.weekly_calls :
-                badge.period === 'month' ? badgeData?.monthly_calls : 0
-      };
-      return calculateBadgeProgress(mappedBadge);
+        period,
+        unlocked: Boolean(badgeData?.unlocked_badges.activity_goals.includes(`${period}_${badge.target}`)),
+        current: period === 'day' ? badgeData?.daily_calls :
+                period === 'week' ? badgeData?.weekly_calls :
+                period === 'month' ? badgeData?.monthly_calls : 0
+      });
     }),
     
     'league-places': ACHIEVEMENTS.league.map(badge => {
-      const mappedBadge: Badge = {
+      return calculateBadgeProgress({
         ...badge,
-        unlocked: Boolean(badgeData?.league_rank === badge.rank),
-      };
-      return calculateBadgeProgress(mappedBadge);
+        unlocked: Boolean(badgeData?.league_rank === badge.rank)
+      });
     })
   };
 
