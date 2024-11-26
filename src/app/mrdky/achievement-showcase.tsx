@@ -161,31 +161,31 @@ const AchievementContentInner = () => {
       onMouseEnter={() => !achievement.unlocked ? setActiveTooltipId(index) : setActiveTooltipId(null)}
     >
       <div className="relative w-[40px] h-[40px] sm:w-[48px] sm:h-[48px] md:w-[56px] md:h-[56px]">
-+   {achievement.unlocked ? (
-+     achievement.image ? (
-+       <img 
-+         src={achievement.image} 
-+         alt={achievement.description} 
-+         className="w-full h-full object-contain"
-+       />
-+     ) : (
-+       <div className="w-full h-full rounded-lg bg-gray-100 flex items-center justify-center">
-+         <div className="w-8 h-8 rounded-full bg-gray-200" />
-+       </div>
-+     )
-+   ) : (
-+     <div className="w-full h-full rounded-lg bg-gray-100" />
-+   )}
-+   
-+   {!achievement.unlocked && (
-+     <div className="absolute inset-0 rounded-lg bg-gradient-to-br from-gray-200 to-gray-300 flex flex-col items-center justify-center gap-1">
-+       <div className="bg-white/90 rounded-full p-2 shadow-sm">
-+         <Lock className="w-4 h-4 text-gray-400" />
-+       </div>
-+       <span className="text-[10px] font-medium text-gray-500">Locked</span>
-+     </div>
-+   )}
-+ </div>
+   {achievement.unlocked ? (
+     achievement.image ? (
+       <img 
+         src={achievement.image} 
+         alt={achievement.description} 
+         className="w-full h-full object-contain"
+       />
+    ) : (
+      <div className="w-full h-full rounded-lg bg-gray-100 flex items-center justify-center">
+        <div className="w-8 h-8 rounded-full bg-gray-200" />
+      </div>
+    )
+  ) : (
+    <div className="w-full h-full rounded-lg bg-gray-100" />
+   )}
+   
+  {!achievement.unlocked && (
+    <div className="absolute inset-0 rounded-lg bg-gradient-to-br from-gray-200 to-gray-300 flex flex-col items-center justify-center gap-1">
+      <div className="bg-white/90 rounded-full p-2 shadow-sm">
+        <Lock className="w-4 h-4 text-gray-400" />
+      </div>
+      <span className="text-[10px] font-medium text-gray-500">Locked</span>
+     </div>
+   )}
+ </div>
       <div className="w-full text-center mt-2">
         <div className="text-xs sm:text-sm font-medium mb-1 line-clamp-1 px-1">
           {achievement.description}
