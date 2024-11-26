@@ -36,6 +36,15 @@ interface LeagueBadge extends BaseBadge {
   rank?: string;
 }
 
+interface AchievementContentProps {
+  achievements?: {
+    streakAchievements: Badge[];
+    callAchievements: Badge[];
+    activityAchievements: Badge[];
+    leagueAchievements: Badge[];
+  };
+}
+
 const getProgressBarColor = (progress: number) => {
   if (progress === 100) return 'bg-[#556bc7]' // Blue Diamond
   if (progress >= 70) return 'bg-[#51c1a9]'   // Green
@@ -43,7 +52,7 @@ const getProgressBarColor = (progress: number) => {
   return 'bg-[#ef4444]'                       // Red
 }
 
-const AchievementContentInner = () => {
+const AchievementContentInner = ({ achievements }: AchievementContentProps) => {
   const searchParams = useSearchParams();
   const memberId = searchParams.get('memberId') || 'default';
   const [loading, setLoading] = useState(true);
@@ -67,8 +76,12 @@ const AchievementContentInner = () => {
       }
     };
 
-    fetchBadges();
-  }, [memberId]);
+    if (!achievements) {
+      fetchBadges();
+    } else {
+      setLoading(false);
+    }
+  }, [memberId, achievements]);
 
   if (loading) {
     return (
@@ -104,7 +117,18 @@ const AchievementContentInner = () => {
     return { ...badge, progress: Math.round(progress) };
   };
 
-  const categories: Record<string, (BaseBadge & { progress: number })[]> = {
+  const categories: Record<string, (BaseBadge & { progress: number })[]> = achievements ? {
+    'practice-streak': achievements.streakAchievements.map(badge => calculateBadgeProgress({ ...badge })),
+    'completed-calls': achievements.callAchievements.map(badge => calculateBadgeProgress({ ...badge })),
+    'activity-goals': achievements.activityAchievements.map(badge => {
+      const period = badge.period as 'day' | 'week' | 'month';
+      return calculateBadgeProgress({ ...badge, period });
+    }),
+    'league-places': achievements.leagueAchievements.map(badge => {
+      const leagueBadge = badge as LeagueBadge;
+      return calculateBadgeProgress({ ...leagueBadge });
+    })
+  } : {
     'practice-streak': ACHIEVEMENTS.streak.map(badge => {
       return calculateBadgeProgress({
         ...badge,
@@ -238,7 +262,7 @@ const AchievementContentInner = () => {
   );
 };
 
-export const AchievementContent = () => {
+export const AchievementContent: React.FC<AchievementContentProps> = (props) => {
   return (
     <Suspense 
       fallback={
@@ -247,7 +271,7 @@ export const AchievementContent = () => {
         </div>
       }
     >
-      <AchievementContentInner />
+      <AchievementContentInner {...props} />
     </Suspense>
   );
 };
