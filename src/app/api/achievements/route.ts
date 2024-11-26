@@ -36,6 +36,10 @@ export async function POST(request: Request) {
     const shouldResetWeek = !existingUser?.weekly_reset_at || 
                            isNewWeek(new Date(existingUser.weekly_reset_at));
 
+const yesterday = new Date();
+yesterday.setDate(yesterday.getDate() - 1);
+const yesterdayStr = yesterday.toISOString().split('T')[0];
+
     // Calculate new values
     const current_streak = existingUser?.last_session_date === todayStr ? 
       existingUser.current_streak : 
