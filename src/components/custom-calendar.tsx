@@ -1,36 +1,23 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { cn } from "@/lib/utils";
 
-interface CustomCalendarProps {
-  memberId: string;
+interface StreakData {
+  current: number;
+  consistency: string;
+  longest: number;
+  dates?: Date[];
 }
 
-export const CustomCalendar: React.FC<CustomCalendarProps> = ({ memberId }) => {
+interface CustomCalendarProps {
+  streakData: StreakData;
+}
+
+export const CustomCalendar: React.FC<CustomCalendarProps> = ({ streakData }) => {
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [streakData, setStreakData] = useState({
-    current: 0,
-    consistency: "0%",
-    longest: 0,
-    dates: [] as Date[]
-  });
   const weekDays = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
-
-  useEffect(() => {
-    const fetchStreakData = async () => {
-      try {
-        const response = await fetch(`/api/streaks?memberId=${memberId}`);
-        const data = await response.json();
-        setStreakData(data);
-      } catch (error) {
-        console.error('Error fetching streak data:', error);
-      }
-    };
-
-    fetchStreakData();
-  }, [memberId]);
 
   const getDaysInMonth = (date: Date) => {
     return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
@@ -67,7 +54,7 @@ export const CustomCalendar: React.FC<CustomCalendarProps> = ({ memberId }) => {
     // Add the days of the month
     for (let day = 1; day <= daysInMonth; day++) {
       const currentDayDate = new Date(currentYear, currentMonth, day);
-      const isPracticedDay = streakData.dates.some(date => 
+      const isPracticedDay = streakData.dates?.some(date => 
         new Date(date).toDateString() === currentDayDate.toDateString()
       );
       const isToday = new Date().toDateString() === currentDayDate.toDateString();
