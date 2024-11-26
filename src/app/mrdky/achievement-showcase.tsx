@@ -13,23 +13,21 @@ import {
 
 interface BadgeData {
   memberId: string;
-  practice_streak: number;
-  total_calls: number;
-  daily_calls: number;
-  weekly_calls: number;
-  monthly_calls: number;
-  current_week_points: number;
-  league_rank: string;
-  unlocked_badges: {
-    practice_streak: number[];
-    completed_calls: number[];
-    activity_goals: string[];
-  };
+  current_streak: number;
+  total_sessions: number;
+  sessions_today: number;
+  sessions_this_week: number;
+  sessions_this_month: number;
+  points: number;
+  total_points: number;
+  unlocked_badges: string[];
+  league_rank?: string;
 }
 
 interface BaseBadge extends Badge {
   unlocked?: boolean;
   progress?: number;
+  period?: 'day' | 'week' | 'month';
 }
 
 interface LeagueBadge extends BaseBadge {
@@ -60,162 +58,131 @@ const AchievementContentInner = ({ achievements }: AchievementContentProps) => {
   const [badgeData, setBadgeData] = useState<BadgeData | null>(null);
   const [activeCategory, setActiveCategory] = useState('practice-streak');
   const [activeTooltipId, setActiveTooltipId] = useState<number | null>(null);
+  const [localAchievements, setAchievements] = useState<AchievementContentProps['achievements']>();
 
-const [localAchievements, setAchievements] = useState<AchievementContentProps['achievements']>();
+  useEffect(() => {
+    const fetchBadges = async () => {
+      try {
+        setLoading(true);
+        console.log('Fetching for memberId:', memberId);
+        const response = await fetch(`/api/achievements?memberId=${memberId}`);
+        
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error('Badge fetch failed:', {
+            status: response.status,
+            statusText: response.statusText,
+            errorText
+          });
+          throw new Error('Failed to fetch badges');
+        }
+        
+        const data = await response.json();
+        console.log('Raw achievement data:', data);
+        
+        setBadgeData(data.userData);
+        
+        if (!achievements) {
+          setAchievements({
+            streakAchievements: data.streakAchievements || ACHIEVEMENTS.streak.map(badge => ({
+              ...badge,
+              unlocked: false
+            })),
+            callAchievements: data.callAchievements || ACHIEVEMENTS.calls.map(badge => ({
+              ...badge,
+              unlocked: false
+            })),
+            activityAchievements: data.activityAchievements || ACHIEVEMENTS.activity.map(badge => ({
+              ...badge,
+              unlocked: false,
+              period: badge.period as 'day' | 'week' | 'month' // Explicit type casting
+            })),
+            leagueAchievements: data.leagueAchievements || ACHIEVEMENTS.league.map(badge => ({
+              ...badge,
+              unlocked: false
+            }))
+          });
+        }
+      } catch (err) {
+        console.error('Error fetching badges:', err);
+        setError(err instanceof Error ? err.message : 'An error occurred');
+      } finally {
+        setLoading(false);
+      }
+    };
 
-useEffect(() => {
-  const fetchBadges = async () => {
-    try {
-      setLoading(true);
-      console.log('Fetching for memberId:', memberId);
-      const response = await fetch(`/api/achievements?memberId=${memberId}`);
-      
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('Badge fetch failed:', {
-          status: response.status,
-          statusText: response.statusText,
-          errorText
-        });
-        throw new Error('Failed to fetch badges');
-      }
-      
-      const data = await response.json();
-      console.log('Raw achievement data:', data);
-      
-      // Handle array response
-      const userData = Array.isArray(data) ? data[0] : data.userData;
-      console.log('Processed userData:', userData);
-      
-      setBadgeData(userData);
-      
-      if (!achievements) {
-        setAchievements({
-          streakAchievements: ACHIEVEMENTS.streak.map(badge => ({
-            ...badge,
-            unlocked: false
-          })),
-          callAchievements: ACHIEVEMENTS.calls.map(badge => ({
-            ...badge,
-            unlocked: false
-          })),
-          activityAchievements: ACHIEVEMENTS.activity.map(badge => ({
-            ...badge,
-            unlocked: false
-          })),
-          leagueAchievements: ACHIEVEMENTS.league.map(badge => ({
-            ...badge,
-            unlocked: false
-          }))
-        });
-      }
-    } catch (err) {
-      console.error('Error fetching badges:', err);
-      setError(err instanceof Error ? err.message : 'An error occurred');
-    } finally {
-      setLoading(false);
+    fetchBadges();
+  }, [memberId, achievements]);
+
+  const calculateBadgeProgress = (badge: BaseBadge | LeagueBadge): BaseBadge & { progress: number } => {
+    console.log('Badge data:', {
+      badge,
+      badgeData,
+      target: badge.target,
+      practiceStreak: badgeData?.current_streak,
+      totalCalls: badgeData?.total_sessions,
+      dailyCalls: badgeData?.sessions_today,
+      weeklyCalls: badgeData?.sessions_this_week,
+      monthlyCalls: badgeData?.sessions_this_month
+    });
+
+    if (badge.unlocked) return { ...badge, progress: 100 };
+
+    let progress = 0;
+    
+    // For streak badges
+    if (badge.id.startsWith('streak_') && badge.target && badgeData?.current_streak) {
+      progress = Math.min(100, (badgeData.current_streak / badge.target) * 100);
     }
+    // For call badges
+    else if (badge.id.startsWith('calls_') && badge.target && badgeData?.total_sessions) {
+      progress = Math.min(100, (badgeData.total_sessions / badge.target) * 100);
+    }
+    // For activity badges
+    else if (badge.target && 'period' in badge && badge.period && badgeData) {
+      const current = badge.period === 'day' ? badgeData.sessions_today :
+                     badge.period === 'week' ? badgeData.sessions_this_week :
+                     badge.period === 'month' ? badgeData.sessions_this_month : 0;
+      progress = Math.min(100, (current / badge.target) * 100);
+    }
+
+    console.log(`Progress for ${badge.id}:`, progress);
+    return { ...badge, progress: Math.round(progress || 0) };
   };
 
-  fetchBadges();
-}, [memberId]);
+  const categories: Record<string, (BaseBadge & { progress: number })[]> = {
+    'practice-streak': (achievements?.streakAchievements || ACHIEVEMENTS.streak).map(badge => {
+      return calculateBadgeProgress({
+        ...badge,
+        unlocked: badge.unlocked ?? badgeData?.unlocked_badges?.includes(`streak_${badge.target}`)
+      });
+    }),
+    
+    'completed-calls': (achievements?.callAchievements || ACHIEVEMENTS.calls).map(badge => {
+      return calculateBadgeProgress({
+        ...badge,
+        unlocked: badge.unlocked ?? badgeData?.unlocked_badges?.includes(`calls_${badge.target}`)
+      });
+    }),
+    
+    'activity-goals': (achievements?.activityAchievements || ACHIEVEMENTS.activity).map(badge => {
+      return calculateBadgeProgress({
+        ...badge,
+        period: badge.period as 'day' | 'week' | 'month',
+        unlocked: badge.unlocked ?? badgeData?.unlocked_badges?.includes(`${badge.period}_${badge.target}`)
+      });
+    }),
+    
+    'league-places': (achievements?.leagueAchievements || ACHIEVEMENTS.league).map(badge => {
+      const leagueBadge = badge as LeagueBadge;
+      return calculateBadgeProgress({
+        ...leagueBadge,
+        unlocked: badge.unlocked ?? (badgeData?.league_rank === leagueBadge.rank?.toString())
+      });
+    })
+  };
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[280px] md:min-h-[320px] lg:min-h-[360px]">
-        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="flex items-center justify-center min-h-[280px] md:min-h-[320px] lg:min-h-[360px]">
-        <div className="text-red-500">Error: {error}</div>
-      </div>
-    );
-  }
-
-const calculateBadgeProgress = (badge: BaseBadge | LeagueBadge): BaseBadge & { progress: number } => {
-  console.log('Badge data:', {
-    badge,
-    badgeData,
-    target: badge.target,
-    practiceStreak: badgeData?.current_streak,
-    totalCalls: badgeData?.total_sessions,
-    dailyCalls: badgeData?.sessions_today,
-    weeklyCalls: badgeData?.sessions_this_week,
-    monthlyCalls: badgeData?.sessions_this_month
-  });
-
-  if (badge.unlocked) return { ...badge, progress: 100 };
-
-  let progress = 0;
-  
-  // For streak badges
-  if (badge.id.startsWith('streak_') && badge.target && badgeData?.current_streak) {
-    progress = Math.min(100, (badgeData.current_streak / badge.target) * 100);
-  }
-  // For call badges
-  else if (badge.id.startsWith('calls_') && badge.target && badgeData?.total_sessions) {
-    progress = Math.min(100, (badgeData.total_sessions / badge.target) * 100);
-  }
-  // For activity badges
-  else if (badge.target && 'period' in badge && badge.period && badgeData) {
-    const current = badge.period === 'day' ? badgeData.sessions_today :
-                   badge.period === 'week' ? badgeData.sessions_this_week :
-                   badge.period === 'month' ? badgeData.sessions_this_month : 0;
-    progress = Math.min(100, (current / badge.target) * 100);
-  }
-
-  console.log(`Progress for ${badge.id}:`, progress);
-  return { ...badge, progress: Math.round(progress || 0) };
-};
-
- const categories: Record<string, (BaseBadge & { progress: number })[]> = {
-  'practice-streak': (achievements?.streakAchievements || ACHIEVEMENTS.streak).map(badge => {
-    const baseBadge = badge as BaseBadge;
-    return calculateBadgeProgress({
-      ...baseBadge,
-      unlocked: achievements ? baseBadge.unlocked : 
-                Boolean(badgeData?.unlocked_badges?.practice_streak?.includes(badge.target || 0))
-    });
-  }),
-  
-  'completed-calls': (achievements?.callAchievements || ACHIEVEMENTS.calls).map(badge => {
-    const baseBadge = badge as BaseBadge;
-    return calculateBadgeProgress({
-      ...baseBadge,
-      unlocked: achievements ? baseBadge.unlocked :
-                Boolean(badgeData?.unlocked_badges?.completed_calls?.includes(badge.target || 0))
-    });
-  }),
-  
-  'activity-goals': (achievements?.activityAchievements || ACHIEVEMENTS.activity).map(badge => {
-    const baseBadge = badge as BaseBadge;
-    const period = badge.period as 'day' | 'week' | 'month';
-    return calculateBadgeProgress({
-      ...baseBadge,
-      period,
-      unlocked: achievements ? baseBadge.unlocked :
-                Boolean(badgeData?.unlocked_badges?.activity_goals?.includes(`${period}_${badge.target}`)),
-      current: period === 'day' ? badgeData?.daily_calls :
-              period === 'week' ? badgeData?.weekly_calls :
-              period === 'month' ? badgeData?.monthly_calls : 0
-    });
-  }),
-  
-  'league-places': (achievements?.leagueAchievements || ACHIEVEMENTS.league).map(badge => {
-    const leagueBadge = badge as LeagueBadge;
-    return calculateBadgeProgress({
-      ...leagueBadge,
-      unlocked: achievements ? leagueBadge.unlocked :
-                Boolean(badgeData?.league_rank === leagueBadge.rank?.toString())
-    });
-  })
-};
-
-  return (
+return (
     <Card className="p-4 bg-white rounded-[20px] shadow-lg md:col-span-2 max-h-[80vh] flex flex-col">
       <h2 className="text-xl md:text-2xl font-semibold text-[#556bc7] mb-4">Achievement Showcase</h2>
       
