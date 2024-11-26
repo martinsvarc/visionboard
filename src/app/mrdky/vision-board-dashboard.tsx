@@ -375,6 +375,27 @@ useEffect(() => {
   fetchStreakData();
 }, []);
 
+useEffect(() => {
+  const fetchImprovements = async () => {
+    try {
+      const memberId = await getMemberId();
+      const response = await fetch(`/api/improvements?memberId=${memberId}`);
+      if (response.ok) {
+        const data = await response.json();
+        setImprovements([
+          { text: data.improvement_1, color: 'bg-[#fbb350]' },
+          { text: data.improvement_2, color: 'bg-[#51c1a9]' },
+          { text: data.improvement_3, color: 'bg-[#556bc7]' },
+        ]);
+      }
+    } catch (error) {
+      console.error('Error fetching improvements:', error);
+    }
+  };
+
+  fetchImprovements();
+}, []);
+
   const leagueData: Record<string, LeaguePlayer[]> = {
     weekly: [
       { rank: 10, name: 'You', points: 93, avatar: '/placeholder.svg?height=32&width=32', badge: 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/a-pixar-style-3d-render-of-a-cartoon-calendar-icon-9Ut5P-Z7Q-qcpgWOIlslCA-YQ3T7zHwThCVVysgv9KyEg-removebg-preview-xm0mDAmejz7GVlSJPPqUIeKh1ygBL8.png' },
@@ -402,11 +423,11 @@ useEffect(() => {
   { text: 'Loading...', color: 'bg-[#556bc7]' },
 ]);
 
-  const improvements = [
-    { text: 'Investor should ask clearer questions on final terms and conditions', color: 'bg-[#fbb350]' },
-    { text: 'Clarify lease terms better with detailed explanations', color: 'bg-[#51c1a9]' },
-    { text: 'Set a specific follow-up plan to keep hold times low and maintain engagement', color: 'bg-[#556bc7]' },
-  ]
+  const [improvements, setImprovements] = useState([
+  { text: 'Loading...', color: 'bg-[#fbb350]' },
+  { text: 'Loading...', color: 'bg-[#51c1a9]' },
+  { text: 'Loading...', color: 'bg-[#556bc7]' },
+]);
 
   const activities: ActivityCircle[] = [
     { value: 5, label: 'TODAY', progress: 75, color: '#556bc7', icon: 'clock', max: 10 },
