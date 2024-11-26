@@ -36,7 +36,7 @@ interface LeagueBadge extends BaseBadge {
   rank?: string;
 }
 
-interface AchievementContentProps {
+export interface AchievementContentProps {
   achievements?: {
     streakAchievements: Badge[];
     callAchievements: Badge[];
