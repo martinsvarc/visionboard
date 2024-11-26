@@ -7,6 +7,8 @@ export interface Badge {
   unlocked: boolean;
   current?: number;
   target?: number;
+  period?: 'day' | 'week' | 'month';  // Add this line
+  rank?: string;  // Add this line too
 }
 
 // Pre-defined achievements with their badges
@@ -134,6 +136,7 @@ export const ACHIEVEMENTS = {
       tooltipTitle: '10 Sessions in a Day',
       tooltipSubtitle: 'Complete 10 sessions in one day',
       target: 10
+      period: 'day'
     },
     {
       id: 'weekly_50',
@@ -141,6 +144,7 @@ export const ACHIEVEMENTS = {
       tooltipTitle: '50 Sessions in a Week',
       tooltipSubtitle: 'Complete 50 sessions in one week',
       target: 50
+      period: 'week'
     },
     {
       id: 'monthly_100',
@@ -148,6 +152,7 @@ export const ACHIEVEMENTS = {
       tooltipTitle: '100 Sessions in a Month',
       tooltipSubtitle: 'Complete 100 sessions in one month',
       target: 100
+      period: 'month'
     }
   ],
   league: [
