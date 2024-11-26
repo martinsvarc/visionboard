@@ -134,9 +134,10 @@ export const ACHIEVEMENTS = {
     {
       id: 'daily_10',
       image: 'https://res.cloudinary.com/dmbzcxhjn/image/upload/v1731206168/InBodPWuQrymOXROYwUwow-removebg-preview_b9fn8n.png',
+      description: '10 Sessions in a Day',
       tooltipTitle: '10 Sessions in a Day',
       tooltipSubtitle: 'Complete 10 sessions in one day',
-      target: 10
+      target: 10,
       period: 'day'
     },
     {
@@ -144,7 +145,7 @@ export const ACHIEVEMENTS = {
       image: 'https://res.cloudinary.com/dmbzcxhjn/image/upload/v1731206169/DuZdTwN_T8SRiCdUHDt-AQ-removebg-preview_1_jcg1nm.png',
       tooltipTitle: '50 Sessions in a Week',
       tooltipSubtitle: 'Complete 50 sessions in one week',
-      target: 50
+      target: 50,
       period: 'week'
     },
     {
@@ -152,7 +153,7 @@ export const ACHIEVEMENTS = {
       image: 'https://res.cloudinary.com/dmbzcxhjn/image/upload/v1731206169/73z7d5wLQiyhufwfTdw5OA-removebg-preview_1_ktrxif.png',
       tooltipTitle: '100 Sessions in a Month',
       tooltipSubtitle: 'Complete 100 sessions in one month',
-      target: 100
+      target: 100,
       period: 'month'
     }
   ],
