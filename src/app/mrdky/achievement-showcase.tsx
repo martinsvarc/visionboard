@@ -61,27 +61,45 @@ const AchievementContentInner = ({ achievements }: AchievementContentProps) => {
   const [activeCategory, setActiveCategory] = useState('practice-streak');
   const [activeTooltipId, setActiveTooltipId] = useState<number | null>(null);
 
-  useEffect(() => {
-    const fetchBadges = async () => {
-      try {
-        setLoading(true);
-        const response = await fetch(`/api/badges?memberId=${memberId}`);
-        if (!response.ok) throw new Error('Failed to fetch badges');
-        const data = await response.json();
-        setBadgeData(data);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'An error occurred');
-      } finally {
-        setLoading(false);
-      }
-    };
+const [localAchievements, setAchievements] = useState<AchievementContentProps['achievements']>();
 
-    if (!achievements) {
-      fetchBadges();
-    } else {
+ useEffect(() => {
+  const fetchBadges = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch(`/api/achievements?memberId=${memberId}`); // Changed from 'badges' to 'achievements'
+      if (!response.ok) {
+        console.log('Badge fetch failed:', await response.text());
+        throw new Error('Failed to fetch badges');
+      }
+      const data = await response.json();
+      console.log('Fetched data:', data);
+      setBadgeData(data.userData);
+      
+      if (!achievements) {
+        // If no achievements provided via props, use the fetched achievements
+        setAchievements({
+          streakAchievements: data.streakAchievements || [],
+          callAchievements: data.callAchievements || [],
+          activityAchievements: data.activityAchievements || [],
+          leagueAchievements: data.leagueAchievements || []
+        });
+      }
+    } catch (err) {
+      console.error('Error fetching badges:', err);
+      setError(err instanceof Error ? err.message : 'An error occurred');
+    } finally {
       setLoading(false);
     }
-  }, [memberId, achievements]);
+  };
+
+  if (!achievements) {
+    fetchBadges();
+  } else {
+    console.log('Using provided achievements:', achievements);
+    setLoading(false);
+  }
+}, [memberId, achievements]);
 
   if (loading) {
     return (
@@ -117,52 +135,45 @@ const AchievementContentInner = ({ achievements }: AchievementContentProps) => {
     return { ...badge, progress: Math.round(progress) };
   };
 
-  const categories: Record<string, (BaseBadge & { progress: number })[]> = achievements ? {
-    'practice-streak': achievements.streakAchievements.map(badge => calculateBadgeProgress({ ...badge })),
-    'completed-calls': achievements.callAchievements.map(badge => calculateBadgeProgress({ ...badge })),
-    'activity-goals': achievements.activityAchievements.map(badge => {
-      const period = badge.period as 'day' | 'week' | 'month';
-      return calculateBadgeProgress({ ...badge, period });
-    }),
-    'league-places': achievements.leagueAchievements.map(badge => {
-      const leagueBadge = badge as LeagueBadge;
-      return calculateBadgeProgress({ ...leagueBadge });
-    })
-  } : {
-    'practice-streak': ACHIEVEMENTS.streak.map(badge => {
-      return calculateBadgeProgress({
-        ...badge,
-        unlocked: Boolean(badgeData?.unlocked_badges.practice_streak.includes(badge.target || 0))
-      });
-    }),
-    
-    'completed-calls': ACHIEVEMENTS.calls.map(badge => {
-      return calculateBadgeProgress({
-        ...badge,
-        unlocked: Boolean(badgeData?.unlocked_badges.completed_calls.includes(badge.target || 0))
-      });
-    }),
-    
-    'activity-goals': ACHIEVEMENTS.activity.map(badge => {
-      const period = badge.period as 'day' | 'week' | 'month';
-      return calculateBadgeProgress({
-        ...badge,
-        period,
-        unlocked: Boolean(badgeData?.unlocked_badges.activity_goals.includes(`${period}_${badge.target}`)),
-        current: period === 'day' ? badgeData?.daily_calls :
-                period === 'week' ? badgeData?.weekly_calls :
-                period === 'month' ? badgeData?.monthly_calls : 0
-      });
-    }),
-    
-    'league-places': ACHIEVEMENTS.league.map(badge => {
-      const leagueBadge = badge as LeagueBadge;
-      return calculateBadgeProgress({
-        ...leagueBadge,
-        unlocked: Boolean(badgeData?.league_rank === leagueBadge.rank)
-      });
-    })
-  };
+  const categories: Record<string, (BaseBadge & { progress: number })[]> = {
+  'practice-streak': (achievements?.streakAchievements || ACHIEVEMENTS.streak).map(badge => {
+    return calculateBadgeProgress({
+      ...badge,
+      unlocked: achievements ? badge.unlocked : 
+                Boolean(badgeData?.unlocked_badges?.practice_streak?.includes(badge.target || 0))
+    });
+  }),
+  
+  'completed-calls': (achievements?.callAchievements || ACHIEVEMENTS.calls).map(badge => {
+    return calculateBadgeProgress({
+      ...badge,
+      unlocked: achievements ? badge.unlocked :
+                Boolean(badgeData?.unlocked_badges?.completed_calls?.includes(badge.target || 0))
+    });
+  }),
+  
+  'activity-goals': (achievements?.activityAchievements || ACHIEVEMENTS.activity).map(badge => {
+    const period = badge.period as 'day' | 'week' | 'month';
+    return calculateBadgeProgress({
+      ...badge,
+      period,
+      unlocked: achievements ? badge.unlocked :
+                Boolean(badgeData?.unlocked_badges?.activity_goals?.includes(`${period}_${badge.target}`)),
+      current: period === 'day' ? badgeData?.daily_calls :
+              period === 'week' ? badgeData?.weekly_calls :
+              period === 'month' ? badgeData?.monthly_calls : 0
+    });
+  }),
+  
+  'league-places': (achievements?.leagueAchievements || ACHIEVEMENTS.league).map(badge => {
+    const leagueBadge = badge as LeagueBadge;
+    return calculateBadgeProgress({
+      ...leagueBadge,
+      unlocked: achievements ? badge.unlocked :
+                Boolean(badgeData?.league_rank === leagueBadge.rank?.toString())
+    });
+  })
+};
 
   return (
     <Card className="p-4 bg-white rounded-[20px] shadow-lg md:col-span-2 max-h-[80vh] flex flex-col">
