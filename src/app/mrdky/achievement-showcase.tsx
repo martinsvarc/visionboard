@@ -81,25 +81,32 @@ useEffect(() => {
       }
       
       const data = await response.json();
-      console.log('Achievement data received:', {
-        userData: data.userData,
-        badgeCounts: {
-          streak: data.streakAchievements?.length || 0,
-          calls: data.callAchievements?.length || 0,
-          activity: data.activityAchievements?.length || 0,
-          league: data.leagueAchievements?.length || 0
-        },
-        unlockedBadges: data.userData?.unlocked_badges
-      });
-
-      setBadgeData(data.userData);
+      console.log('Raw achievement data:', data);
+      
+      // Handle array response
+      const userData = Array.isArray(data) ? data[0] : data.userData;
+      console.log('Processed userData:', userData);
+      
+      setBadgeData(userData);
       
       if (!achievements) {
         setAchievements({
-          streakAchievements: data.streakAchievements || [],
-          callAchievements: data.callAchievements || [],
-          activityAchievements: data.activityAchievements || [],
-          leagueAchievements: data.leagueAchievements || []
+          streakAchievements: ACHIEVEMENTS.streak.map(badge => ({
+            ...badge,
+            unlocked: false
+          })),
+          callAchievements: ACHIEVEMENTS.calls.map(badge => ({
+            ...badge,
+            unlocked: false
+          })),
+          activityAchievements: ACHIEVEMENTS.activity.map(badge => ({
+            ...badge,
+            unlocked: false
+          })),
+          leagueAchievements: ACHIEVEMENTS.league.map(badge => ({
+            ...badge,
+            unlocked: false
+          }))
         });
       }
     } catch (err) {
@@ -130,32 +137,38 @@ useEffect(() => {
   }
 
 const calculateBadgeProgress = (badge: BaseBadge | LeagueBadge): BaseBadge & { progress: number } => {
-  console.log('Calculating progress for badge:', {
-    id: badge.id,
+  console.log('Badge data:', {
+    badge,
+    badgeData,
     target: badge.target,
-    currentData: {
-      practice_streak: badgeData?.practice_streak,
-      total_calls: badgeData?.total_calls,
-      daily_calls: badgeData?.daily_calls,
-      weekly_calls: badgeData?.weekly_calls,
-      monthly_calls: badgeData?.monthly_calls
-    }
+    practiceStreak: badgeData?.current_streak,
+    totalCalls: badgeData?.total_sessions,
+    dailyCalls: badgeData?.sessions_today,
+    weeklyCalls: badgeData?.sessions_this_week,
+    monthlyCalls: badgeData?.sessions_this_month
   });
 
   if (badge.unlocked) return { ...badge, progress: 100 };
 
   let progress = 0;
-  if (badge.target && badgeData?.practice_streak) {
-    progress = Math.min(100, (badgeData.practice_streak / badge.target) * 100);
-  } else if (badge.target && badgeData?.total_calls) {
-    progress = Math.min(100, (badgeData.total_calls / badge.target) * 100);
-  } else if (badge.target && 'period' in badge && badge.period && badgeData) {
-    const current = badge.period === 'day' ? badgeData.daily_calls :
-                   badge.period === 'week' ? badgeData.weekly_calls :
-                   badge.period === 'month' ? badgeData.monthly_calls : 0; // Fixed this line
+  
+  // For streak badges
+  if (badge.id.startsWith('streak_') && badge.target && badgeData?.current_streak) {
+    progress = Math.min(100, (badgeData.current_streak / badge.target) * 100);
+  }
+  // For call badges
+  else if (badge.id.startsWith('calls_') && badge.target && badgeData?.total_sessions) {
+    progress = Math.min(100, (badgeData.total_sessions / badge.target) * 100);
+  }
+  // For activity badges
+  else if (badge.target && 'period' in badge && badge.period && badgeData) {
+    const current = badge.period === 'day' ? badgeData.sessions_today :
+                   badge.period === 'week' ? badgeData.sessions_this_week :
+                   badge.period === 'month' ? badgeData.sessions_this_month : 0;
     progress = Math.min(100, (current / badge.target) * 100);
   }
 
+  console.log(`Progress for ${badge.id}:`, progress);
   return { ...badge, progress: Math.round(progress || 0) };
 };
 
