@@ -1,221 +1,176 @@
 export interface Badge {
-  days?: number;
-  calls?: number;
-  count?: number;
-  period?: string;
-  rank?: string;
+  id: string;
   image: string;
   description: string;
-  unlocked?: boolean;
-  current?: number;
-  target?: number;
   tooltipTitle: string;
   tooltipSubtitle: string;
-  progress?: number;
+  unlocked: boolean;
+  current?: number;
+  target?: number;
 }
 
-export const PRACTICE_STREAK_BADGES: Badge[] = [
-  { 
-    days: 5, 
-    image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/a-3d-render-of-a-chunky-cartoon-calendar-icon-with-HWOAO1EUTGSglSzZlSFjHA-dQjZimptRd-0SpN_-6oU5w-removebg-preview-kqCdBji4NtHiKw4VNgVdM4AvaoJTeG.png", 
-    description: "5 Day Streak", 
-    tooltipTitle: "Practice Rookie",
-    tooltipSubtitle: "Practice for 5 consecutive days",
-    progress: 0
-  },
-  { 
-    days: 10, 
-    image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/a-3d-render-of-a-chunky-cartoon-calendar-icon-with-QHfb4ipTQUu1iR54Vmxo6g-RFBtanJsS0aS2a2tOFHHXg-removebg-preview-v7ErIfzS4KWNaGOsrDHAlKE567RPBl.png", 
-    description: "10 Day Streak", 
-    tooltipTitle: "Practice Enthusiast",
-    tooltipSubtitle: "Keep practicing for 10 days",
-    progress: 0
-  },
-  { 
-    days: 30, 
-    image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/a-pixar-style-3d-render-of-a-cartoon-calendar-icon-CSU-cRrnTDCAuvGYTSV90w-taY5gPBoQxydiszFPNpDvQ-removebg-preview-icmW2h12SQM5AuIhCFGS6QgVtHH4bl.png", 
-    description: "30 Day Streak", 
-    tooltipTitle: "Practice Master",
-    tooltipSubtitle: "Complete a full month of practice",
-    progress: 0
-  },
-  { 
-    days: 90, 
-    image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/a-pixar-style-3d-render-of-a-cartoon-calendar-icon-RCaF4tpKT7aJoICZ2L508Q-UCW5RDP4Q4KfvoRnq8NlfA-removebg-preview-uTOgO6F3TcAT7mgifJaah0IMdp7aBL.png", 
-    description: "90 Day Streak", 
-    tooltipTitle: "Practice Virtuoso",
-    tooltipSubtitle: "Stay committed for 90 days",
-    progress: 0
-  },
-  { 
-    days: 180, 
-    image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/a-pixar-style-3d-render-of-a-cartoon-calendar-icon-L5aDOKYDTgKsB2lxHimuQQ-2xr3cxz6RCeNCL9HhBtylA-removebg-preview-EjyMwQ76jCkYGHpc22uRIkJ4b0c6gu.png", 
-    description: "180 Day Streak", 
-    tooltipTitle: "Practice Champion",
-    tooltipSubtitle: "Maintain practice for 180 days",
-    progress: 0
-  },
-  { 
-    days: 365, 
-    image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/a-pixar-style-3d-render-of-a-cartoon-calendar-icon-9Ut5P-Z7Q-qcpgWOIlslCA-YQ3T7zHwThCVVysgv9KyEg-removebg-preview-6Gy0yI5Pl0pFnfMYafKQCjqqmtUVEL.png", 
-    description: "365 Day Streak", 
-    tooltipTitle: "Practice Legend",
-    tooltipSubtitle: "Complete a full year of daily practice",
-    progress: 0
-  }
-];
-
-export const CALLS_BADGES: Badge[] = [
-  { 
-    calls: 10, 
-    image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/WhatsApp_Image_2024-11-07_at_23.19.01_2cecae84-removebg-preview-HpwJXY8H5IMISoTv4km3ojTHoSZR8l.png", 
-    description: "10 Calls", 
-    tooltipTitle: "First Steps",
-    tooltipSubtitle: "Complete your first 10 calls",
-    progress: 0
-  },
-  { 
-    calls: 25, 
-    image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/WhatsApp_Image_2024-11-07_at_23.19.00_410bcd52-removebg-preview-dlLwx4QulGYXIPJ1SngulFRrwEzsAK.png", 
-    description: "25 Calls", 
-    tooltipTitle: "Getting Started",
-    tooltipSubtitle: "Make 25 successful calls",
-    progress: 0
-  },
-  { 
-    calls: 50, 
-    image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/WhatsApp_Image_2024-11-07_at_23.19.00_e9686083-removebg-preview-MDIRXQ0AssJavrWhCOpsWNpEU5d4Ju.png", 
-    description: "50 Calls", 
-    tooltipTitle: "Call Enthusiast",
-    tooltipSubtitle: "Reach 50 calls milestone",
-    progress: 0
-  },
-  { 
-    calls: 100, 
-    image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/WhatsApp_Image_2024-11-07_at_23.18.59_aaafd20b-removebg-preview-XjPy3hlhfslMzznTbnidnUwXshcQfA.png", 
-    description: "100 Calls", 
-    tooltipTitle: "Century Caller",
-    tooltipSubtitle: "Hit your first 100 calls",
-    progress: 0
-  },
-  { 
-    calls: 250, 
-    image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/WhatsApp_Image_2024-11-07_at_23.18.58_e34cbb5f-removebg-preview-a9uNWRXCjGbpOHLSqf3TpeOCzxTRd7.png", 
-    description: "250 Calls", 
-    tooltipTitle: "Call Expert",
-    tooltipSubtitle: "Master 250 calls",
-    progress: 0
-  },
-  { 
-    calls: 500, 
-    image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/WhatsApp_Image_2024-11-07_at_23.18.59_dac37adb-removebg-preview-hJMSixcu6MZEXimLJmrsyO2temyFDg.png", 
-    description: "500 Calls", 
-    tooltipTitle: "Call Virtuoso",
-    tooltipSubtitle: "Achieve 500 successful calls",
-    progress: 0
-  },
-  { 
-    calls: 750, 
-    image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/WhatsApp_Image_2024-11-07_at_23.18.57_f7535a53-removebg-preview-Vr88OikuiRNF7hIVXzXNPrsJFX1mpv.png", 
-    description: "750 Calls", 
-    tooltipTitle: "Elite Caller",
-    tooltipSubtitle: "Join the elite with 750 calls",
-    progress: 0
-  },
-  { 
-    calls: 1000, 
-    image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/WhatsApp_Image_2024-11-07_at_23.18.57_717b1f9c-removebg-preview-NEfGEVDhw3AK6EJSo0gtm42sq28oy2.png", 
-    description: "1000 Calls", 
-    tooltipTitle: "Call Master",
-    tooltipSubtitle: "Reach the impressive 1000 calls",
-    progress: 0
-  },
-  { 
-    calls: 1500, 
-    image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/WhatsApp_Image_2024-11-07_at_23.18.58_44ffd513-removebg-preview-3KJg104tTgbQo53R75ZJIdE4Pv6jBi.png", 
-    description: "1500 Calls", 
-    tooltipTitle: "Call Legend",
-    tooltipSubtitle: "Achieve legendary status with 1500 calls",
-    progress: 0
-  },
-  { 
-    calls: 2500, 
-    image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/WhatsApp_Image_2024-11-07_at_23.19.01_b4416b2f-removebg-preview-wl3Pqdmr7gt9BFVpspJ0ggm41XedWZ.png", 
-    description: "2500 Calls", 
-    tooltipTitle: "Ultimate Caller",
-    tooltipSubtitle: "Reach the pinnacle with 2500 calls",
-    progress: 0
-  }
-];
-
-export const ACTIVITY_BADGES: Badge[] = [
-  { 
-    count: 10,
-    period: "day",
-    image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/InBodPWuQrymOXROYwUwow-removebg-preview-IEGWv6kNCTAusDQjfDnJXpHoQRgFQR.png",
-    description: "10/Day",
-    target: 10,
-    tooltipTitle: "Daily Achiever",
-    tooltipSubtitle: "Complete 10 activities in one day",
-    progress: 0
-  },
-  { 
-    count: 50,
-    period: "week",
-    image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/DuZdTwN_T8SRiCdUHDt-AQ-removebg-preview%20(1)-7g7ItwNB5ISjQHja5mcpjzxc8hr0s7.png",
-    description: "50/Week",
-    target: 50,
-    tooltipTitle: "Weekly Warrior",
-    tooltipSubtitle: "Hit 50 activities in a week",
-    progress: 0
-  },
-  { 
-    count: 100,
-    period: "month",
-    image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/73z7d5wLQiyhufwfTdw5OA-removebg-preview%20(1)-5AC5dKLPkTLUI9LEOfALqI2ksNMNzd.png",
-    description: "100/Month",
-    target: 100,
-    tooltipTitle: "Monthly Champion",
-    tooltipSubtitle: "Complete 100 activities in a month",
-    progress: 0
-  }
-];
-
-export const LEAGUE_BADGES: Badge[] = [
-  { 
-    rank: "Bronze",
-    image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/a-3d-render-of-a-large-radiant-bronze-medal-with-a-t0r6ItMuRVOEve22GfVYdw-KxQg20b_SdOR5Y3HVUaVZg-removebg-preview-FQvuwEgYxWGz6qrgC1TDFLJgNCqMTd.png",
-    description: "3rd place",
-    tooltipTitle: "Bronze League",
-    tooltipSubtitle: "Achieve 3rd place in rankings",
-    progress: 0
-  },
-  { 
-    rank: "Silver",
-    image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/a-3d-render-of-a-large-radiant-silver-medal-with-a-SF8CEVMrSWaKtCH-SS0KPw-xITb8y53Tw-95YbTOpEHoQ-removebg-preview-U6690RSmf0Tv9j0qzPESh3bBQJKIB4.png",
-    description: "2nd place",
-    tooltipTitle: "Silver League",
-    tooltipSubtitle: "Secure 2nd place in rankings",
-    progress: 0
-  },
-  { 
-    rank: "Gold",
-    image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/a-3d-render-of-a-large-radiant-gold-medal-with-a-b-T5VpM4deRuWtnNpknWeXKA-oVpwYeqBTOuOBOCRRskHXg-removebg-preview-o68fcm402jSQQlsuqIHnmTKovqR92D.png",
-    description: "1st place",
-    tooltipTitle: "Gold League",
-    tooltipSubtitle: "Reach the top of the rankings",
-    progress: 0
-  }
-];
-
-// Helper function to map badge data with unlock status
-export const mapBadgesWithUnlockStatus = <T extends Badge>(
-  badges: T[],
-  unlockedItems: any[],
-  checkKey: keyof T
-): T[] => {
-  return badges.map(badge => ({
-    ...badge,
-    unlocked: unlockedItems.includes(badge[checkKey])
-  }));
+// Pre-defined achievements with their badges
+export const ACHIEVEMENTS = {
+  streak: [
+    {
+      id: 'streak_5',
+      image: 'https://res.cloudinary.com/dmbzcxhjn/image/upload/v1731206168/a-3d-render-of-a-chunky-cartoon-calendar-icon-with-HWOAO1EUTGSglSzZlSFjHA-dQjZimptRd-0SpN_-6oU5w-removebg-preview_iatnoy.png',
+      tooltipTitle: '5 Day Streak',
+      tooltipSubtitle: 'Practice for 5 consecutive days',
+      target: 5
+    },
+    {
+      id: 'streak_10',
+      image: 'https://res.cloudinary.com/dmbzcxhjn/image/upload/v1731206168/a-3d-render-of-a-chunky-cartoon-calendar-icon-with-QHfb4ipTQUu1iR54Vmxo6g-RFBtanJsS0aS2a2tOFHHXg-removebg-preview_kzjyge.png',
+      tooltipTitle: '10 Day Streak',
+      tooltipSubtitle: 'Practice for 10 consecutive days',
+      target: 10
+    },
+    {
+      id: 'streak_30',
+      image: 'https://res.cloudinary.com/dmbzcxhjn/image/upload/v1731206168/a-pixar-style-3d-render-of-a-cartoon-calendar-icon-CSU-cRrnTDCAuvGYTSV90w-taY5gPBoQxydiszFPNpDvQ-removebg-preview_hnqjkl.png',
+      tooltipTitle: '30 Day Streak',
+      tooltipSubtitle: 'Practice for 30 consecutive days',
+      target: 30
+    },
+    {
+      id: 'streak_90',
+      image: 'https://res.cloudinary.com/dmbzcxhjn/image/upload/v1731206168/a-pixar-style-3d-render-of-a-cartoon-calendar-icon-RCaF4tpKT7aJoICZ2L508Q-UCW5RDP4Q4KfvoRnq8NlfA-removebg-preview_tevelw.png',
+      tooltipTitle: '90 Day Streak',
+      tooltipSubtitle: 'Practice for 90 consecutive days',
+      target: 90
+    },
+    {
+      id: 'streak_180',
+      image: 'https://res.cloudinary.com/dmbzcxhjn/image/upload/v1731206168/a-pixar-style-3d-render-of-a-cartoon-calendar-icon-L5aDOKYDTgKsB2lxHimuQQ-2xr3cxz6RCeNCL9HhBtylA-removebg-preview_oooy2m.png',
+      tooltipTitle: '180 Day Streak',
+      tooltipSubtitle: 'Practice for 180 consecutive days',
+      target: 180
+    },
+    {
+      id: 'streak_365',
+      image: 'https://res.cloudinary.com/dmbzcxhjn/image/upload/v1731206168/a-pixar-style-3d-render-of-a-cartoon-calendar-icon-9Ut5P-Z7Q-qcpgWOIlslCA-YQ3T7zHwThCVVysgv9KyEg-removebg-preview_dlplgi.png',
+      tooltipTitle: '365 Day Streak',
+      tooltipSubtitle: 'Practice for 365 consecutive days',
+      target: 365
+    }
+  ],
+  calls: [
+    {
+      id: 'calls_10',
+      image: 'https://res.cloudinary.com/dmbzcxhjn/image/upload/v1731206170/WhatsApp_Image_2024-11-07_at_23.19.01_2cecae84-removebg-preview_radody.png',
+      tooltipTitle: '10 Calls',
+      tooltipSubtitle: 'Complete 10 calls',
+      target: 10
+    },
+    {
+      id: 'calls_25',
+      image: 'https://res.cloudinary.com/dmbzcxhjn/image/upload/v1731206169/WhatsApp_Image_2024-11-07_at_23.19.00_410bcd52-removebg-preview_bi6eon.png',
+      tooltipTitle: '25 Calls',
+      tooltipSubtitle: 'Complete 25 calls',
+      target: 25
+    },
+    {
+      id: 'calls_50',
+      image: 'https://res.cloudinary.com/dmbzcxhjn/image/upload/v1731206170/WhatsApp_Image_2024-11-07_at_23.19.00_e9686083-removebg-preview_qt9tyx.png',
+      tooltipTitle: '50 Calls',
+      tooltipSubtitle: 'Complete 50 calls',
+      target: 50
+    },
+    {
+      id: 'calls_100',
+      image: 'https://res.cloudinary.com/dmbzcxhjn/image/upload/v1731206169/WhatsApp_Image_2024-11-07_at_23.18.59_aaafd20b-removebg-preview_mniysw.png',
+      tooltipTitle: '100 Calls',
+      tooltipSubtitle: 'Complete 100 calls',
+      target: 100
+    },
+    {
+      id: 'calls_250',
+      image: 'https://res.cloudinary.com/dmbzcxhjn/image/upload/v1731206169/WhatsApp_Image_2024-11-07_at_23.18.58_e34cbb5f-removebg-preview_nm6c8a.png',
+      tooltipTitle: '250 Calls',
+      tooltipSubtitle: 'Complete 250 calls',
+      target: 250
+    },
+    {
+      id: 'calls_500',
+      image: 'https://res.cloudinary.com/dmbzcxhjn/image/upload/v1731206170/WhatsApp_Image_2024-11-07_at_23.18.59_dac37adb-removebg-preview_xfpwp9.png',
+      tooltipTitle: '500 Calls',
+      tooltipSubtitle: 'Complete 500 calls',
+      target: 500
+    },
+    {
+      id: 'calls_750',
+      image: 'https://res.cloudinary.com/dmbzcxhjn/image/upload/v1731206169/WhatsApp_Image_2024-11-07_at_23.18.57_f7535a53-removebg-preview_we2xbp.png',
+      tooltipTitle: '750 Calls',
+      tooltipSubtitle: 'Complete 750 calls',
+      target: 750
+    },
+    {
+      id: 'calls_1000',
+      image: 'https://res.cloudinary.com/dmbzcxhjn/image/upload/v1731206168/WhatsApp_Image_2024-11-07_at_23.18.57_717b1f9c-removebg-preview_yupyox.png',
+      tooltipTitle: '1000 Calls',
+      tooltipSubtitle: 'Complete 1000 calls',
+      target: 1000
+    },
+    {
+      id: 'calls_1500',
+      image: 'https://res.cloudinary.com/dmbzcxhjn/image/upload/v1731206169/WhatsApp_Image_2024-11-07_at_23.18.58_44ffd513-removebg-preview_jsmszk.png',
+      tooltipTitle: '1500 Calls',
+      tooltipSubtitle: 'Complete 1500 calls',
+      target: 1500
+    },
+    {
+      id: 'calls_2500',
+      image: 'https://res.cloudinary.com/dmbzcxhjn/image/upload/v1731206169/WhatsApp_Image_2024-11-07_at_23.19.01_b4416b2f-removebg-preview_jd6136.png',
+      tooltipTitle: '2500 Calls',
+      tooltipSubtitle: 'Complete 2500 calls',
+      target: 2500
+    }
+  ],
+  activity: [
+    {
+      id: 'daily_10',
+      image: 'https://res.cloudinary.com/dmbzcxhjn/image/upload/v1731206168/InBodPWuQrymOXROYwUwow-removebg-preview_b9fn8n.png',
+      tooltipTitle: '10 Sessions in a Day',
+      tooltipSubtitle: 'Complete 10 sessions in one day',
+      target: 10
+    },
+    {
+      id: 'weekly_50',
+      image: 'https://res.cloudinary.com/dmbzcxhjn/image/upload/v1731206169/DuZdTwN_T8SRiCdUHDt-AQ-removebg-preview_1_jcg1nm.png',
+      tooltipTitle: '50 Sessions in a Week',
+      tooltipSubtitle: 'Complete 50 sessions in one week',
+      target: 50
+    },
+    {
+      id: 'monthly_100',
+      image: 'https://res.cloudinary.com/dmbzcxhjn/image/upload/v1731206169/73z7d5wLQiyhufwfTdw5OA-removebg-preview_1_ktrxif.png',
+      tooltipTitle: '100 Sessions in a Month',
+      tooltipSubtitle: 'Complete 100 sessions in one month',
+      target: 100
+    }
+  ],
+  league: [
+    {
+      id: 'league_first',
+      image: 'https://res.cloudinary.com/dmbzcxhjn/image/upload/v1732605321/a-3d-render-of-a-large-radiant-gold-medal-with-a-b-T5VpM4deRuWtnNpknWeXKA-oVpwYeqBTOuOBOCRRskHXg-removebg-preview_qzif0n.png',
+      tooltipTitle: 'League Champion',
+      tooltipSubtitle: 'Finish first in weekly league',
+      target: 1
+    },
+    {
+      id: 'league_second',
+      image: 'https://res.cloudinary.com/dmbzcxhjn/image/upload/v1732605321/a-3d-render-of-a-large-radiant-silver-medal-with-a-SF8CEVMrSWaKtCH-SS0KPw-xITb8y53Tw-95YbTOpEHoQ-removebg-preview_g0hbaj.png',
+      tooltipTitle: 'League Runner-up',
+      tooltipSubtitle: 'Finish second in weekly league',
+      target: 2
+    },
+    {
+      id: 'league_third',
+      image: 'https://res.cloudinary.com/dmbzcxhjn/image/upload/v1732605321/a-3d-render-of-a-large-radiant-bronze-medal-with-a-t0r6ItMuRVOEve22GfVYdw-KxQg20b_SdOR5Y3HVUaVZg-removebg-preview_p9tfee.png',
+      tooltipTitle: 'League Top 3',
+      tooltipSubtitle: 'Finish third in weekly league',
+      target: 3
+    }
+  ]
 };
