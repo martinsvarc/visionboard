@@ -152,24 +152,27 @@ const AchievementContentInner = ({ achievements }: AchievementContentProps) => {
 
   const categories: Record<string, (BaseBadge & { progress: number })[]> = {
     'practice-streak': (achievements?.streakAchievements || ACHIEVEMENTS.streak).map(badge => {
+      const baseBadge = badge as BaseBadge;  // Add type assertion
       return calculateBadgeProgress({
-        ...badge,
-        unlocked: badge.unlocked ?? badgeData?.unlocked_badges?.includes(`streak_${badge.target}`)
+        ...baseBadge,
+        unlocked: baseBadge.unlocked ?? badgeData?.unlocked_badges?.includes(`streak_${badge.target}`)
       });
     }),
     
     'completed-calls': (achievements?.callAchievements || ACHIEVEMENTS.calls).map(badge => {
+      const baseBadge = badge as BaseBadge;  // Add type assertion
       return calculateBadgeProgress({
-        ...badge,
-        unlocked: badge.unlocked ?? badgeData?.unlocked_badges?.includes(`calls_${badge.target}`)
+        ...baseBadge,
+        unlocked: baseBadge.unlocked ?? badgeData?.unlocked_badges?.includes(`calls_${badge.target}`)
       });
     }),
     
     'activity-goals': (achievements?.activityAchievements || ACHIEVEMENTS.activity).map(badge => {
+      const baseBadge = badge as BaseBadge;  // Add type assertion
       return calculateBadgeProgress({
-        ...badge,
+        ...baseBadge,
         period: badge.period as 'day' | 'week' | 'month',
-        unlocked: badge.unlocked ?? badgeData?.unlocked_badges?.includes(`${badge.period}_${badge.target}`)
+        unlocked: baseBadge.unlocked ?? badgeData?.unlocked_badges?.includes(`${badge.period}_${badge.target}`)
       });
     }),
     
@@ -177,10 +180,10 @@ const AchievementContentInner = ({ achievements }: AchievementContentProps) => {
       const leagueBadge = badge as LeagueBadge;
       return calculateBadgeProgress({
         ...leagueBadge,
-        unlocked: badge.unlocked ?? (badgeData?.league_rank === leagueBadge.rank?.toString())
+        unlocked: leagueBadge.unlocked ?? (badgeData?.league_rank === leagueBadge.rank?.toString())
       });
     })
-  };
+};
 
 return (
     <Card className="p-4 bg-white rounded-[20px] shadow-lg md:col-span-2 max-h-[80vh] flex flex-col">
