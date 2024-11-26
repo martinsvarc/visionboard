@@ -43,8 +43,13 @@ export async function POST(request: Request) {
       WHERE member_id = ${memberId};
     `;
 
+    // Set default values for new users
+    if (!existingUser) {
+      console.log('New user detected:', memberId);
+    }
+
     const shouldResetWeek = !existingUser?.weekly_reset_at || 
-                           isNewWeek(new Date(existingUser.weekly_reset_at));
+                           isNewWeek(new Date(existingUser?.weekly_reset_at || new Date()));
 
     const yesterday = new Date();
     yesterday.setDate(yesterday.getDate() - 1);
@@ -52,8 +57,8 @@ export async function POST(request: Request) {
 
     // Calculate new values
     const current_streak = existingUser?.last_session_date === todayStr ? 
-      existingUser.current_streak : 
-      (existingUser?.last_session_date === yesterdayStr ? existingUser.current_streak + 1 : 1);
+      (existingUser.current_streak || 1) : 
+      (existingUser?.last_session_date === yesterdayStr ? (existingUser.current_streak || 0) + 1 : 1);
     
     const longest_streak = Math.max(current_streak, existingUser?.longest_streak || 0);
     const total_sessions = (existingUser?.total_sessions || 0) + 1;
