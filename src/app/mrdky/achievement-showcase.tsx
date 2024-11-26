@@ -11,23 +11,6 @@ import {
   type Badge 
 } from '@/lib/achievement-data'
 
-interface BadgeWithProgress {
-  id: string;
-  image: string;
-  description: string;
-  tooltipTitle: string;
-  tooltipSubtitle: string;
-  unlocked?: boolean;
-  current?: number;
-  target?: number;
-  progress?: number;
-  period?: 'day' | 'week' | 'month';
-  count?: number;
-  calls?: number;
-  days?: number;
-  rank?: string;
-}
-
 interface BadgeData {
   memberId: string;
   practice_streak: number;
