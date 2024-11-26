@@ -152,7 +152,7 @@ const calculateBadgeProgress = (badge: BaseBadge | LeagueBadge): BaseBadge & { p
   } else if (badge.target && 'period' in badge && badge.period && badgeData) {
     const current = badge.period === 'day' ? badgeData.daily_calls :
                    badge.period === 'week' ? badgeData.weekly_calls :
-                   period === 'month' ? badgeData.monthly_calls : 0;
+                   badge.period === 'month' ? badgeData.monthly_calls : 0; // Fixed this line
     progress = Math.min(100, (current / badge.target) * 100);
   }
 
