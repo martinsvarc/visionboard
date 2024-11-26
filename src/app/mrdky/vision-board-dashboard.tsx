@@ -636,9 +636,25 @@ useEffect(() => {
     setVisionItems(prev => prev.map(item => item.id === id ? { ...item, zIndex: maxZIndex + 1 } : item))
   }, [maxZIndex])
 
-  const deleteItem = useCallback((id: string) => {
-    setVisionItems(prev => prev.filter(item => item.id !== id))
-  }, [])
+  const deleteItem = useCallback(async (id: string) => {
+    try {
+      const memberstack = (window as any).memberstack
+      const member = await memberstack.getCurrentMember()
+      if (!member) return
+
+      const response = await fetch(`/api/vision-board?id=${id}&memberstack_id=${member.id}`, {
+        method: 'DELETE'
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to delete item')
+      }
+
+      setVisionItems(prev => prev.filter(item => item.id !== id))
+    } catch (error) {
+      console.error('Delete error:', error)
+    }
+}, [])
 
   const handleInteractionStart = (event: React.MouseEvent, id: string, type: 'move' | 'resize', direction?: string) => {
     if (event.button !== 0) return // Only handle left mouse button
@@ -707,7 +723,31 @@ useEffect(() => {
     </Button>
   </PopoverTrigger>
   <PopoverContent className="w-auto p-0" align="end">
-    <ColorPicker color={glowColor} onChange={setGlowColor} />
+    <ColorPicker 
+  color={glowColor} 
+  onChange={async (newColor: string) => {
+    try {
+      const memberstack = (window as any).memberstack
+      const member = await memberstack.getCurrentMember()
+      if (!member) return
+
+      setGlowColor(newColor)
+      
+      await fetch('/api/vision-board', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          memberstack_id: member.id,
+          board_color: newColor
+        })
+      })
+    } catch (error) {
+      console.error('Color update error:', error)
+    }
+  }} 
+/>
   </PopoverContent>
 </Popover>
                 <Button
