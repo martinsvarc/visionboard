@@ -46,6 +46,28 @@ interface VisionItem {
   aspectRatio: number
 }
 
+const getMemberId = async () => {
+  try {
+    // Try Memberstack first
+    const memberstack = (window as any).memberstack;
+    if (memberstack) {
+      const member = await memberstack.getCurrentMember();
+      if (member) return member.id;
+    }
+    
+    // Fallback to URL parameter
+    const urlParams = new URLSearchParams(window.location.search);
+    const memberId = urlParams.get('memberId');
+    if (memberId) return memberId;
+    
+    // Final fallback
+    return 'test123';
+  } catch (error) {
+    console.log('Using test member ID');
+    return 'test123';
+  }
+};
+
 const UploadIcon = () => (
   <svg
     width="24"
