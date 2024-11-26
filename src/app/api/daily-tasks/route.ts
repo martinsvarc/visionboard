@@ -25,9 +25,9 @@ export async function GET(request: Request) {
 
     if (rows.length === 0) {
       return NextResponse.json({
-        task_1: 'Complete these 3 price negotiation scenarios by Friday',
-        task_2: 'Practice with AI bot on product X for 20 minutes daily',
-        task_3: 'Role-play these specific customer personas with detailed feedback'
+        task_1: 'Complete a roleplay scenario from each category',
+        task_2: 'Review the Call Records section and listen to your recordings',
+        task_3: 'Design your vision board'
       });
     }
 
