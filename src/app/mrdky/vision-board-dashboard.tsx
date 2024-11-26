@@ -573,38 +573,16 @@ useEffect(() => {
 
   const updateItemPosition = useCallback(async (id: string, deltaX: number, deltaY: number) => {
     try {
-      const memberId = await getMemberId();
+      const memberstack = (window as any).memberstack
+      const member = await memberstack.getCurrentMember()
+      if (!member) return
+
       setVisionItems(prev => {
         const newItems = prev.map(item => {
           if (item.id === id && boardRef.current) {
             const board = boardRef.current.getBoundingClientRect()
             const newX = Math.min(Math.max(0, item.x + deltaX), board.width - item.width)
             const newY = Math.min(Math.max(0, item.y + deltaY), board.height - item.height)
-
-            // Save the new position to database
-            fetch('/api/vision-board', {
-              method: 'PUT',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({
-                id: parseInt(id),
-                memberstack_id: memberId,
-                x_position: newX,
-                y_position: newY
-              })
-            }).catch(err => console.error('Failed to update position:', err))
-
-            return { ...item, x: newX, y: newY }
-          }
-          return item
-        })
-        return newItems
-      })
-    } catch (error) {
-      console.error('Position update error:', error)
-    }
-}, [])
 
             // Save the new position to database
             fetch('/api/vision-board', {
