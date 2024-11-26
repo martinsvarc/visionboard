@@ -479,16 +479,22 @@ useEffect(() => {
     )
   }
 
-  const handleFileUpload = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = useCallback(async (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files
-    if (files && boardRef.current) {
+    if (!files || !boardRef.current) return
+
+    try {
+      const memberstack = (window as any).memberstack
+      const member = await memberstack.getCurrentMember()
+      if (!member) return
+
       Array.from(files).forEach((file) => {
         const reader = new FileReader()
-        reader.onload = (e) => {
+        reader.onload = async (e) => {
           const img = new Image()
-          img.onload = () => {
+          img.onload = async () => {
             const aspectRatio = img.width / img.height
-            const height = 300 // base height
+            const height = 300
             const width = height * aspectRatio
             const board = boardRef.current!.getBoundingClientRect()
             
@@ -497,28 +503,56 @@ useEffect(() => {
             const x = Math.min(Math.max(0, Math.random() * maxX), maxX)
             const y = Math.min(Math.max(0, Math.random() * maxY), maxY)
             
-            const newItem: VisionItem = {
-              id: `vision-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-              src: e.target?.result as string,
-              x,
-              y,
-              width,
-              height,
-              zIndex: maxZIndex + 1,
-              aspectRatio
+            try {
+              const response = await fetch('/api/vision-board', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                  memberstack_id: member.id,
+                  image_url: e.target?.result,
+                  x_position: x,
+                  y_position: y,
+                  width,
+                  height,
+                  z_index: maxZIndex + 1,
+                  board_color: glowColor
+                })
+              })
+
+              if (!response.ok) throw new Error('Failed to save image')
+              
+              const savedItem = await response.json()
+              const newItem: VisionItem = {
+                id: savedItem.id.toString(),
+                src: savedItem.image_url,
+                x: savedItem.x_position,
+                y: savedItem.y_position,
+                width: savedItem.width,
+                height: savedItem.height,
+                zIndex: savedItem.z_index,
+                aspectRatio
+              }
+              
+              setVisionItems(prev => [...prev, newItem])
+              setMaxZIndex(prev => prev + 1)
+            } catch (error) {
+              console.error('Failed to save image:', error)
             }
-            setVisionItems(prev => [...prev, newItem])
-            setMaxZIndex(prev => prev + 1)
           }
           img.src = e.target?.result as string
         }
         reader.readAsDataURL(file)
       })
+    } catch (error) {
+      console.error('Upload error:', error)
     }
+    
     if (fileInputRef.current) {
       fileInputRef.current.value = ''
     }
-  }, [maxZIndex])
+}, [maxZIndex, glowColor])
 
   const updateItemPosition = useCallback((id: string, deltaX: number, deltaY: number) => {
     setVisionItems(prev => prev.map(item => {
