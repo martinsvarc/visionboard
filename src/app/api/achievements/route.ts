@@ -39,6 +39,13 @@ export async function POST(request: Request) {
       connectionString: process.env.visionboard_PRISMA_URL
     });
 
+    const today = new Date();
+    const todayStr = today.toISOString().split('T')[0];
+    
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    const yesterdayStr = yesterday.toISOString().split('T')[0];
+
     // Add logging for the initial user check
     const { rows: [existingUser] } = await pool.sql`
       SELECT * FROM user_achievements 
