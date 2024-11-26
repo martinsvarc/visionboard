@@ -4,11 +4,12 @@ export interface Badge {
   description: string;
   tooltipTitle: string;
   tooltipSubtitle: string;
-  unlocked: boolean;
+  unlocked?: boolean;
   current?: number;
   target?: number;
   period?: 'day' | 'week' | 'month';  // Add this line
   rank?: string;  // Add this line too
+  progress?: number;
 }
 
 // Pre-defined achievements with their badges
