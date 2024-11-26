@@ -24,13 +24,19 @@ export async function GET(request: Request) {
     const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
     const yearStart = new Date(today.getFullYear(), 0, 1);
 
+    // Format dates as ISO strings
+    const todayStr = today.toISOString();
+    const weekAgoStr = weekAgo.toISOString();
+    const monthStartStr = monthStart.toISOString();
+    const yearStartStr = yearStart.toISOString();
+
     // Get all counts in a single query
     const { rows } = await pool.sql`
       SELECT 
-        COUNT(*) FILTER (WHERE session_date >= ${today}::timestamp) as today_count,
-        COUNT(*) FILTER (WHERE session_date >= ${weekAgo}::timestamp) as week_count,
-        COUNT(*) FILTER (WHERE session_date >= ${monthStart}::timestamp) as month_count,
-        COUNT(*) FILTER (WHERE session_date >= ${yearStart}::timestamp) as year_count
+        COUNT(*) FILTER (WHERE session_date >= ${todayStr}::timestamp) as today_count,
+        COUNT(*) FILTER (WHERE session_date >= ${weekAgoStr}::timestamp) as week_count,
+        COUNT(*) FILTER (WHERE session_date >= ${monthStartStr}::timestamp) as month_count,
+        COUNT(*) FILTER (WHERE session_date >= ${yearStartStr}::timestamp) as year_count
       FROM activity_sessions 
       WHERE member_id = ${memberId};
     `;
@@ -78,12 +84,18 @@ export async function POST(request: Request) {
     const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
     const yearStart = new Date(today.getFullYear(), 0, 1);
 
+    // Format dates as ISO strings
+    const todayStr = today.toISOString();
+    const weekAgoStr = weekAgo.toISOString();
+    const monthStartStr = monthStart.toISOString();
+    const yearStartStr = yearStart.toISOString();
+
     const { rows } = await pool.sql`
       SELECT 
-        COUNT(*) FILTER (WHERE session_date >= ${today}::timestamp) as today_count,
-        COUNT(*) FILTER (WHERE session_date >= ${weekAgo}::timestamp) as week_count,
-        COUNT(*) FILTER (WHERE session_date >= ${monthStart}::timestamp) as month_count,
-        COUNT(*) FILTER (WHERE session_date >= ${yearStart}::timestamp) as year_count
+        COUNT(*) FILTER (WHERE session_date >= ${todayStr}::timestamp) as today_count,
+        COUNT(*) FILTER (WHERE session_date >= ${weekAgoStr}::timestamp) as week_count,
+        COUNT(*) FILTER (WHERE session_date >= ${monthStartStr}::timestamp) as month_count,
+        COUNT(*) FILTER (WHERE session_date >= ${yearStartStr}::timestamp) as year_count
       FROM activity_sessions 
       WHERE member_id = ${memberId};
     `;
