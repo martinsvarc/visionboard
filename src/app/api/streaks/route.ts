@@ -77,11 +77,14 @@ export async function POST(request: Request) {
       connectionString: process.env.visionboard_PRISMA_URL
     });
 
-    // Add today's practice record
+    // Format today's date as YYYY-MM-DD for PostgreSQL
     const today = new Date();
+    const formattedDate = today.toISOString().split('T')[0];
+
+    // Add today's practice record
     await pool.sql`
       INSERT INTO practice_streaks (member_id, practice_date)
-      VALUES (${memberId}, ${today})
+      VALUES (${memberId}, ${formattedDate})
       ON CONFLICT (member_id, practice_date) DO NOTHING;
     `;
 
