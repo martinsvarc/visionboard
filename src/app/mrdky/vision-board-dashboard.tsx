@@ -396,6 +396,63 @@ useEffect(() => {
   fetchImprovements();
 }, []);
 
+useEffect(() => {
+  const fetchActivityData = async () => {
+    try {
+      const memberId = await getMemberId();
+      const response = await fetch(`/api/streaks?memberId=${memberId}`);
+      if (response.ok) {
+        const data = await response.json();
+        const dates = data.dates.map((date: string) => new Date(date));
+        
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        
+        // Calculate sessions for different time periods
+        const todaySessions = dates.filter(date => 
+          date.toDateString() === today.toDateString()
+        ).length;
+
+        // For this week (last 7 days)
+        const weekAgo = new Date(today);
+        weekAgo.setDate(weekAgo.getDate() - 7);
+        const weekSessions = dates.filter(date => 
+          date >= weekAgo && date <= today
+        ).length;
+
+        // For this month
+        const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
+        const monthSessions = dates.filter(date => 
+          date >= monthStart && date <= today
+        ).length;
+
+        // For this year
+        const yearStart = new Date(today.getFullYear(), 0, 1);
+        const yearSessions = dates.filter(date => 
+          date >= yearStart && date <= today
+        ).length;
+
+        // Calculate progress percentages
+        const todayProgress = (todaySessions / 10) * 100;
+        const weekProgress = (weekSessions / 50) * 100;
+        const monthProgress = (monthSessions / 100) * 100;
+        const yearProgress = (yearSessions / 1000) * 100;
+
+        setActivities([
+          { value: todaySessions, label: 'TODAY', progress: todayProgress, color: '#556bc7', icon: 'clock', max: 10 },
+          { value: weekSessions, label: 'THIS WEEK', progress: weekProgress, color: '#51c1a9', icon: 'calendar', max: 50 },
+          { value: monthSessions, label: 'THIS MONTH', progress: monthProgress, color: '#fbb350', icon: 'calendar', max: 100 },
+          { value: yearSessions, label: 'THIS YEAR', progress: yearProgress, color: '#fbb350', icon: 'calendar', max: 1000 }
+        ]);
+      }
+    } catch (error) {
+      console.error('Error fetching activity data:', error);
+    }
+  };
+
+  fetchActivityData();
+}, []);
+
   const leagueData: Record<string, LeaguePlayer[]> = {
     weekly: [
       { rank: 10, name: 'You', points: 93, avatar: '/placeholder.svg?height=32&width=32', badge: 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/a-pixar-style-3d-render-of-a-cartoon-calendar-icon-9Ut5P-Z7Q-qcpgWOIlslCA-YQ3T7zHwThCVVysgv9KyEg-removebg-preview-xm0mDAmejz7GVlSJPPqUIeKh1ygBL8.png' },
@@ -429,12 +486,12 @@ useEffect(() => {
   { text: 'Loading...', color: 'bg-[#556bc7]' },
 ]);
 
-  const activities: ActivityCircle[] = [
-    { value: 5, label: 'TODAY', progress: 75, color: '#556bc7', icon: 'clock', max: 10 },
-    { value: 18, label: 'THIS WEEK', progress: 60, color: '#51c1a9', icon: 'calendar', max: 50 },
-    { value: 12, label: 'THIS MONTH', progress: 25, color: '#fbb350', icon: 'calendar', max: 100 },
-    { value: 42, label: 'THIS YEAR', progress: 10, color: '#fbb350', icon: 'calendar', max: 1000 },
-  ]
+  const [activities, setActivities] = useState<ActivityCircle[]>([
+    { value: 0, label: 'TODAY', progress: 0, color: '#556bc7', icon: 'clock', max: 10 },
+    { value: 0, label: 'THIS WEEK', progress: 0, color: '#51c1a9', icon: 'calendar', max: 50 },
+    { value: 0, label: 'THIS MONTH', progress: 0, color: '#fbb350', icon: 'calendar', max: 100 },
+    { value: 0, label: 'THIS YEAR', progress: 0, color: '#fbb350', icon: 'calendar', max: 1000 },
+]);
 
   const achievements: Record<string, Achievement[]> = {
     'practice-streak': [
