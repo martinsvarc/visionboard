@@ -11,6 +11,10 @@ import {
   type Badge 
 } from '@/lib/achievement-data'
 
+interface BadgeWithProgress extends Badge {
+  progress?: number;
+}
+
 interface BadgeData {
   memberId: string;
   practice_streak: number;
@@ -77,7 +81,7 @@ const AchievementContentInner = () => {
     );
   }
 
-  const calculateBadgeProgress = (badge: Badge): Badge => {
+  const calculateBadgeProgress = (badge: BadgeWithProgress): BadgeWithProgress => {
     if (badge.unlocked) return { ...badge, progress: 100 };
 
     let progress = 0;
@@ -95,7 +99,7 @@ const AchievementContentInner = () => {
     return { ...badge, progress: Math.round(progress) };
 };
 
-  const categories: Record<string, Badge[]> = {
+  const categories: Record<string, BadgeWithProgress[]> = {
     'practice-streak': ACHIEVEMENTS.streak.map(badge => ({
       ...badge,
       unlocked: badgeData?.unlocked_badges.practice_streak.includes(badge.target || 0)
