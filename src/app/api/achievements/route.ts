@@ -4,6 +4,15 @@ import { ACHIEVEMENTS } from '@/lib/achievement-data';
 
 const DEFAULT_PROFILE_PICTURE = "https://res.cloudinary.com/dmbzcxhjn/image/upload/v1732590120/WhatsApp_Image_2024-11-26_at_04.00.13_58e32347_owfpnt.jpg";
 
+const getLastSunday = (date: Date = new Date()) => {
+  const newDate = new Date(date);
+  newDate.setHours(0, 0, 0, 0);
+  while (newDate.getDay() !== 0) { // 0 is Sunday
+    newDate.setDate(newDate.getDate() - 1);
+  }
+  return newDate;
+};
+
 // Updated weekly reset logic to use Sunday as reset day
 function isNewWeek(lastResetDate: Date) {
   const now = new Date();
@@ -53,12 +62,12 @@ export async function POST(request: Request) {
     const current_points = shouldResetWeek ? points : (existingUser?.points || 0) + points;
     const total_points = (existingUser?.total_points || 0) + points;
     
-    // Updated session count logic
-    const sessions_today = existingUser?.last_session_date === todayStr ? 
-      (existingUser.sessions_today + 1) : 1;
-    
-    const sessions_this_week = shouldResetWeek ? 1 : (existingUser?.sessions_this_week + 1);
-    
+    const isNewDay = !existingUser?.last_session_date || 
+                    existingUser.last_session_date !== todayStr;
+
+    // Calculate session counts
+    const sessions_today = isNewDay ? 1 : (existingUser?.sessions_today || 0) + 1;
+    const sessions_this_week = shouldResetWeek ? 1 : (existingUser?.sessions_this_week || 0) + 1;
     const sessions_this_month = today.getMonth() === new Date(existingUser?.last_session_date || today).getMonth() ? 
       (existingUser?.sessions_this_month + 1) : 1;
 
@@ -113,7 +122,7 @@ export async function POST(request: Request) {
         ${sessions_this_month},
         ${todayStr},
         ${JSON.stringify(unlocked_badges)},
-        ${shouldResetWeek ? today.toISOString() : existingUser?.weekly_reset_at || today.toISOString()}
+        ${shouldResetWeek ? getLastSunday().toISOString() : existingUser?.weekly_reset_at || getLastSunday().toISOString()}
       )
       ON CONFLICT (member_id) 
       DO UPDATE SET
