@@ -503,9 +503,7 @@ useEffect(() => {
     if (!files || !boardRef.current) return
 
     try {
-      const memberstack = (window as any).memberstack
-      const member = await memberstack.getCurrentMember()
-      if (!member) return
+      const memberId = await getMemberId();
 
       Array.from(files).forEach((file) => {
         const reader = new FileReader()
@@ -529,7 +527,7 @@ useEffect(() => {
                   'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                  memberstack_id: member.id,
+                  memberstack_id: memberId,
                   image_url: e.target?.result,
                   x_position: x,
                   y_position: y,
