@@ -1,21 +1,36 @@
-// src/components/custom-calendar.tsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { cn } from "@/lib/utils";
 
 interface CustomCalendarProps {
-  streakData: {
-    current: number;
-    consistency: string;
-    longest: number;
-  };
+  memberId: string;
 }
 
-export const CustomCalendar: React.FC<CustomCalendarProps> = ({ streakData }) => {
-  const [currentDate, setCurrentDate] = useState(new Date(2024, 10, 17));
+export const CustomCalendar: React.FC<CustomCalendarProps> = ({ memberId }) => {
+  const [currentDate, setCurrentDate] = useState(new Date());
+  const [streakData, setStreakData] = useState({
+    current: 0,
+    consistency: "0%",
+    longest: 0,
+    dates: [] as Date[]
+  });
   const weekDays = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
+
+  useEffect(() => {
+    const fetchStreakData = async () => {
+      try {
+        const response = await fetch(`/api/streaks?memberId=${memberId}`);
+        const data = await response.json();
+        setStreakData(data);
+      } catch (error) {
+        console.error('Error fetching streak data:', error);
+      }
+    };
+
+    fetchStreakData();
+  }, [memberId]);
 
   const getDaysInMonth = (date: Date) => {
     return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
@@ -51,15 +66,20 @@ export const CustomCalendar: React.FC<CustomCalendarProps> = ({ streakData }) =>
 
     // Add the days of the month
     for (let day = 1; day <= daysInMonth; day++) {
-      const isStreak = currentMonth === 10 && day >= 11 && day <= 16;
-      const isCurrent = currentMonth === 10 && (day === 17 || day === 18);
+      const currentDayDate = new Date(currentYear, currentMonth, day);
+      const isPracticedDay = streakData.dates.some(date => 
+        new Date(date).toDateString() === currentDayDate.toDateString()
+      );
+      const isToday = new Date().toDateString() === currentDayDate.toDateString();
+
       days.push(
         <div
           key={day}
           className={cn(
             "text-center py-2.5 text-sm rounded-[16px] font-medium",
-            isStreak ? "bg-[#51c1a9] text-white" : "",
-            isCurrent ? "border-2 border-[#556bc7] text-[#556bc7]" : "",
+            isPracticedDay ? "bg-[#51c1a9] text-white" : "",
+            isToday ? "border-2 border-[#556bc7] text-[#556bc7]" : "",
+            !isPracticedDay && !isToday ? "hover:bg-gray-50" : ""
           )}
         >
           {day}
