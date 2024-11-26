@@ -95,27 +95,28 @@ const AchievementContentInner = () => {
   }
 
   const calculateBadgeProgress = (badge: BadgeWithProgress): BadgeWithProgress => {
-    if (badge.unlocked) return { ...badge, progress: 100 };
+  if (badge.unlocked) return { ...badge, progress: 100 };
 
-    let progress = 0;
-    if (badge.target && badgeData?.practice_streak) {
-      progress = Math.min(100, (badgeData.practice_streak / badge.target) * 100);
-    } else if (badge.target && badgeData?.total_calls) {
-      progress = Math.min(100, (badgeData.total_calls / badge.target) * 100);
-    } else if (badge.target && badge.period && badgeData) {
-      const current = badge.period === 'day' ? badgeData.daily_calls :
-                     badge.period === 'week' ? badgeData.weekly_calls :
-                     badge.period === 'month' ? badgeData.monthly_calls : 0;
-      progress = Math.min(100, (current / badge.target) * 100);
-    }
+  let progress = 0;
+  if (badge.target && badgeData?.practice_streak) {
+    progress = Math.min(100, (badgeData.practice_streak / badge.target) * 100);
+  } else if (badge.target && badgeData?.total_calls) {
+    progress = Math.min(100, (badgeData.total_calls / badge.target) * 100);
+  } else if (badge.target && badge.period && badgeData) {
+    const current = badge.period === 'day' ? badgeData.daily_calls :
+                   badge.period === 'week' ? badgeData.weekly_calls :
+                   badge.period === 'month' ? badgeData.monthly_calls : 0;
+    progress = Math.min(100, (current / badge.target) * 100);
+  }
 
-    return { ...badge, progress: Math.round(progress) };
+  return { ...badge, progress: Math.round(progress) };
 };
 
 const categories: Record<string, BadgeWithProgress[]> = {
     'practice-streak': ACHIEVEMENTS.streak.map(badge => {
       const mappedBadge: BadgeWithProgress = {
         ...badge,
+        description: badge.tooltipTitle, // Add this line
         unlocked: Boolean(badgeData?.unlocked_badges.practice_streak.includes(badge.target || 0))
       };
       return calculateBadgeProgress(mappedBadge);
@@ -124,6 +125,7 @@ const categories: Record<string, BadgeWithProgress[]> = {
     'completed-calls': ACHIEVEMENTS.calls.map(badge => {
       const mappedBadge: BadgeWithProgress = {
         ...badge,
+        description: badge.tooltipTitle, // Add this line
         unlocked: Boolean(badgeData?.unlocked_badges.completed_calls.includes(badge.target || 0))
       };
       return calculateBadgeProgress(mappedBadge);
@@ -132,6 +134,7 @@ const categories: Record<string, BadgeWithProgress[]> = {
     'activity-goals': ACHIEVEMENTS.activity.map(badge => {
       const mappedBadge: BadgeWithProgress = {
         ...badge,
+        description: badge.tooltipTitle, // Add this line
         unlocked: Boolean(badgeData?.unlocked_badges.activity_goals.includes(`${badge.period}_${badge.target}`)),
         current: badge.period === 'day' ? badgeData?.daily_calls :
                 badge.period === 'week' ? badgeData?.weekly_calls :
@@ -143,6 +146,7 @@ const categories: Record<string, BadgeWithProgress[]> = {
     'league-places': ACHIEVEMENTS.league.map(badge => {
       const mappedBadge: BadgeWithProgress = {
         ...badge,
+        description: badge.tooltipTitle, // Add this line
         unlocked: Boolean(badgeData?.league_rank === badge.rank),
         progress: badgeData?.league_rank === badge.rank ? 100 : 0
       };
