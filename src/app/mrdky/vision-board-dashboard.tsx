@@ -270,6 +270,41 @@ export default function VisionBoardDashboardClient() {
   const boardRef = useRef<HTMLDivElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
+useEffect(() => {
+    const loadVisionBoard = async () => {
+      try {
+        const memberstack = (window as any).memberstack
+        const member = await memberstack.getCurrentMember()
+        
+        if (!member) return
+        
+        const response = await fetch('/api/vision-board', {
+          headers: { 'Authorization': `Bearer ${member.id}` }
+        })
+        
+        if (!response.ok) return
+        
+        const data = await response.json()
+        setVisionItems(data.map((item: any) => ({
+          id: item.id.toString(),
+          src: item.image_url,
+          x: item.x_position,
+          y: item.y_position,
+          width: item.width,
+          height: item.height,
+          zIndex: item.z_index,
+          aspectRatio: item.width / item.height
+        })))
+        
+        setGlowColor(data[0]?.board_color || 'rgba(85, 107, 199, 0.3)')
+      } catch (error) {
+        console.error('Load error:', error)
+      }
+    }
+    
+    loadVisionBoard()
+  }, [])
+
   const calendar = Array.from({ length: 30 }, (_, i) => i + 1)
   const weekDays = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa']
 
