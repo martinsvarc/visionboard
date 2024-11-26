@@ -400,49 +400,15 @@ useEffect(() => {
   const fetchActivityData = async () => {
     try {
       const memberId = await getMemberId();
-      const response = await fetch(`/api/streaks?memberId=${memberId}`);
+      const response = await fetch(`/api/activity-sessions?memberId=${memberId}`);
       if (response.ok) {
         const data = await response.json();
-        const dates = data.dates.map((date: string) => new Date(date));
         
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        
-        // Calculate sessions for different time periods
-        const todaySessions = dates.filter((date: Date) => 
-          date.toDateString() === today.toDateString()
-        ).length;
-
-        // For this week (last 7 days)
-        const weekAgo = new Date(today);
-        weekAgo.setDate(weekAgo.getDate() - 7);
-        const weekSessions = dates.filter((date: Date) => 
-          date >= weekAgo && date <= today
-        ).length;
-
-        // For this month
-        const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
-        const monthSessions = dates.filter((date: Date) => 
-          date >= monthStart && date <= today
-        ).length;
-
-        // For this year
-        const yearStart = new Date(today.getFullYear(), 0, 1);
-        const yearSessions = dates.filter((date: Date) => 
-          date >= yearStart && date <= today
-        ).length;
-
-        // Calculate progress percentages
-        const todayProgress = (todaySessions / 10) * 100;
-        const weekProgress = (weekSessions / 50) * 100;
-        const monthProgress = (monthSessions / 100) * 100;
-        const yearProgress = (yearSessions / 1000) * 100;
-
         setActivities([
-          { value: todaySessions, label: 'TODAY', progress: todayProgress, color: '#556bc7', icon: 'clock', max: 10 },
-          { value: weekSessions, label: 'THIS WEEK', progress: weekProgress, color: '#51c1a9', icon: 'calendar', max: 50 },
-          { value: monthSessions, label: 'THIS MONTH', progress: monthProgress, color: '#fbb350', icon: 'calendar', max: 100 },
-          { value: yearSessions, label: 'THIS YEAR', progress: yearProgress, color: '#fbb350', icon: 'calendar', max: 1000 }
+          { value: data.today, label: 'TODAY', progress: (data.today / 10) * 100, color: '#556bc7', icon: 'clock', max: 10 },
+          { value: data.week, label: 'THIS WEEK', progress: (data.week / 50) * 100, color: '#51c1a9', icon: 'calendar', max: 50 },
+          { value: data.month, label: 'THIS MONTH', progress: (data.month / 100) * 100, color: '#fbb350', icon: 'calendar', max: 100 },
+          { value: data.year, label: 'THIS YEAR', progress: (data.year / 1000) * 100, color: '#fbb350', icon: 'calendar', max: 1000 }
         ]);
       }
     } catch (error) {
