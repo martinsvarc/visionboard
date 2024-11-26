@@ -10,7 +10,6 @@ import { cn } from "@/lib/utils"
 import { CustomCalendar } from "@/components/custom-calendar"
 import { LeagueChart } from '@/components/LeagueChart'
 import { AchievementContent } from './achievement-showcase';
-import type { Badge } from '@/lib/achievement-data';
 
 interface LeaguePlayer {
   rank: number
@@ -45,6 +44,17 @@ interface VisionItem {
   height: number
   zIndex: number
   aspectRatio: number
+}
+
+interface Badge {
+  id: string;
+  image: string;
+  description?: string;
+  tooltipTitle: string;
+  tooltipSubtitle: string;
+  unlocked?: boolean;
+  current?: number;
+  target?: number;
 }
 
 const getMemberId = async () => {
