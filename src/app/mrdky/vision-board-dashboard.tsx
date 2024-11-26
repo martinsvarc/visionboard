@@ -295,12 +295,9 @@ export default function VisionBoardDashboardClient() {
 useEffect(() => {
     const loadVisionBoard = async () => {
       try {
-        const memberstack = (window as any).memberstack
-        const member = await memberstack.getCurrentMember()
+        const memberId = await getMemberId();
         
-        if (!member) return
-        
-        const response = await fetch(`/api/vision-board?memberId=${member.id}`)
+        const response = await fetch(`/api/vision-board?memberId=${memberId}`)
         
         if (!response.ok) {
           console.error('Failed to load vision board')
