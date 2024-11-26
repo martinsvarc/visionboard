@@ -108,7 +108,7 @@ const categories: Record<string, BadgeWithProgress[]> = {
     'practice-streak': ACHIEVEMENTS.streak.map(badge => {
       const mappedBadge: BadgeWithProgress = {
         ...badge,
-        unlocked: badgeData?.unlocked_badges.practice_streak.includes(badge.target || 0)
+        unlocked: Boolean(badgeData?.unlocked_badges.practice_streak.includes(badge.target || 0))
       };
       return calculateBadgeProgress(mappedBadge);
     }),
@@ -116,7 +116,7 @@ const categories: Record<string, BadgeWithProgress[]> = {
     'completed-calls': ACHIEVEMENTS.calls.map(badge => {
       const mappedBadge: BadgeWithProgress = {
         ...badge,
-        unlocked: badgeData?.unlocked_badges.completed_calls.includes(badge.target || 0)
+        unlocked: Boolean(badgeData?.unlocked_badges.completed_calls.includes(badge.target || 0))
       };
       return calculateBadgeProgress(mappedBadge);
     }),
@@ -124,7 +124,7 @@ const categories: Record<string, BadgeWithProgress[]> = {
     'activity-goals': ACHIEVEMENTS.activity.map(badge => {
       const mappedBadge: BadgeWithProgress = {
         ...badge,
-        unlocked: badgeData?.unlocked_badges.activity_goals.includes(`${badge.period}_${badge.target}`),
+        unlocked: Boolean(badgeData?.unlocked_badges.activity_goals.includes(`${badge.period}_${badge.target}`)),
         current: badge.period === 'day' ? badgeData?.daily_calls :
                 badge.period === 'week' ? badgeData?.weekly_calls :
                 badge.period === 'month' ? badgeData?.monthly_calls : 0
@@ -135,7 +135,7 @@ const categories: Record<string, BadgeWithProgress[]> = {
     'league-places': ACHIEVEMENTS.league.map(badge => {
       const mappedBadge: BadgeWithProgress = {
         ...badge,
-        unlocked: badgeData?.league_rank === badge.rank,
+        unlocked: Boolean(badgeData?.league_rank === badge.rank),
         progress: badgeData?.league_rank === badge.rank ? 100 : 0
       };
       return mappedBadge;
