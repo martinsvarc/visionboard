@@ -2,8 +2,6 @@ import { createPool } from '@vercel/postgres';
 import { NextResponse } from 'next/server';
 import { ACHIEVEMENTS } from '@/lib/achievement-data';
 
-const DEFAULT_PROFILE_PICTURE = "https://res.cloudinary.com/dmbzcxhjn/image/upload/v1732590120/WhatsApp_Image_2024-11-26_at_04.00.13_58e32347_owfpnt.jpg";
-
 const getNextSunday = (date: Date = new Date()) => {
   const newDate = new Date(date);
   newDate.setHours(0, 0, 0, 0);
