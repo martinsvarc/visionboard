@@ -4,11 +4,11 @@ import { ACHIEVEMENTS } from '@/lib/achievement-data';
 
 const DEFAULT_PROFILE_PICTURE = "https://res.cloudinary.com/dmbzcxhjn/image/upload/v1732590120/WhatsApp_Image_2024-11-26_at_04.00.13_58e32347_owfpnt.jpg";
 
-const getLastSunday = (date: Date = new Date()) => {
+const getNextSunday = (date: Date = new Date()) => {
   const newDate = new Date(date);
   newDate.setHours(0, 0, 0, 0);
   while (newDate.getDay() !== 0) { // 0 is Sunday
-    newDate.setDate(newDate.getDate() - 1);
+    newDate.setDate(newDate.getDate() + 1);  // Add days until we hit Sunday
   }
   return newDate;
 };
@@ -128,7 +128,7 @@ export async function POST(request: Request) {
         1,
         ${todayStr},
         '[]',
-        ${getLastSunday().toISOString()}
+        ${getNextSunday().toISOString()}
       )
       ON CONFLICT (member_id) DO UPDATE SET
         user_name = EXCLUDED.user_name,
@@ -150,24 +150,32 @@ export async function POST(request: Request) {
     `;
 
     const { rows: weeklyRankings } = await pool.sql`
-      SELECT member_id, points,
-             RANK() OVER (ORDER BY points DESC) as rank
-      FROM user_achievements
-      WHERE weekly_reset_at = ${updated.weekly_reset_at};
+      SELECT 
+        member_id, 
+        points,
+        RANK() OVER (ORDER BY points DESC) as rank
+      FROM user_achievements 
+      WHERE weekly_reset_at = ${updated.weekly_reset_at}
+      ORDER BY points DESC;
     `;
 
-    const userRank = weeklyRankings.find(r => r.member_id === memberId)?.rank;
+   const userRank = weeklyRankings.find(r => r.member_id === memberId)?.rank;
     
-    if (userRank === 1) unlocked_badges = addBadge(unlocked_badges, 'league_first');
-    if (userRank === 2) unlocked_badges = addBadge(unlocked_badges, 'league_second');
-    if (userRank === 3) unlocked_badges = addBadge(unlocked_badges, 'league_third');
-
-    if (JSON.stringify(unlocked_badges) !== JSON.stringify(updated.unlocked_badges)) {
-      await pool.sql`
-        UPDATE user_achievements 
-        SET unlocked_badges = ${JSON.stringify(unlocked_badges)}
-        WHERE member_id = ${memberId};
-      `;
+    if (userRank <= 3) {
+      let leagueBadge = '';
+      if (userRank === 1) leagueBadge = 'league_first';
+      else if (userRank === 2) leagueBadge = 'league_second';
+      else if (userRank === 3) leagueBadge = 'league_third';
+      
+      if (leagueBadge) {
+        unlocked_badges = addBadge(unlocked_badges, leagueBadge);
+        // Update the badges in database
+        await pool.sql`
+          UPDATE user_achievements 
+          SET unlocked_badges = ${JSON.stringify(unlocked_badges)}
+          WHERE member_id = ${memberId};
+        `;
+      }
     }
 
     return NextResponse.json({
