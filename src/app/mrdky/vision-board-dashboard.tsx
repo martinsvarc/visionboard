@@ -11,6 +11,7 @@ import { CustomCalendar } from "@/components/custom-calendar"
 import { LeagueChart } from '@/components/LeagueChart'
 import { AchievementContent, type AchievementContentProps } from './achievement-showcase';
 import { Badge } from '@/lib/achievement-data';
+import League from './league';
 
 interface LeaguePlayer {
   rank: number
@@ -177,107 +178,6 @@ function ColorPicker({ color, onChange }: { color: string, onChange: (color: str
   )
 }
 
-function League({ activeCategory, leagueData, setActiveLeagueCategory }: { activeCategory: string, leagueData: Record<string, LeaguePlayer[]>, setActiveLeagueCategory: (category: 'weekly' | 'allTime' | 'allTimeTeam') => void }) {
-  // Get current user and top player data
-  const currentUser = leagueData[activeCategory][0];
-  const topPlayer = leagueData[activeCategory][1];
-
-  return (
-    <Card className="p-3 bg-white rounded-[20px] shadow-lg h-full">
-      <h2 className="text-2xl font-semibold text-[#556bc7] mb-4">League</h2>
-      
-      <div className="flex flex-wrap gap-2 mb-6">
-        <Button 
-          onClick={() => setActiveLeagueCategory('weekly')}
-          className={cn(
-            "flex-1 px-4 py-2 text-base font-medium transition-colors rounded-full",
-            activeCategory === 'weekly' 
-              ? "bg-[#fbb350] text-white hover:bg-[#fbb350]/90" 
-              : "bg-transparent text-gray-500 hover:bg-gray-100"
-          )}
-        >
-          Weekly League
-        </Button>
-        <Button 
-          onClick={() => setActiveLeagueCategory('allTime')}
-          className={cn(
-            "flex-1 px-4 py-2 text-base font-medium transition-colors rounded-full",
-            activeCategory === 'allTime' 
-              ? "bg-[#fbb350] text-white hover:bg-[#fbb350]/90" 
-              : "bg-transparent text-gray-500 hover:bg-gray-100"
-          )}
-        >
-          All Time
-        </Button>
-        <Button 
-          onClick={() => setActiveLeagueCategory('allTimeTeam')}
-          className={cn(
-            "flex-1 px-4 py-2 text-base font-medium transition-colors rounded-full",
-            activeCategory === 'allTimeTeam' 
-              ? "bg-[#fbb350] text-white hover:bg-[#fbb350]/90" 
-              : "bg-transparent text-gray-500 hover:bg-gray-100"
-          )}
-        >
-          All Time Team
-        </Button>
-      </div>
-      
-      <div className="mb-6">
-        <LeagueChart 
-          currentUserScore={currentUser.points}
-          topPlayerScore={topPlayer.points}
-        />
-      </div>
-
-      <div className="space-y-2">
-        <div className="bg-[#51c1a9] text-white p-2 rounded-[20px] flex items-center gap-2 text-sm">
-          <span className="text-white/90 font-medium">#{leagueData[activeCategory][0].rank}</span>
-          <img src={leagueData[activeCategory][0].avatar} alt="" className="w-8 h-8 rounded-full" />
-          <div className="flex items-center gap-1">
-            <span className="font-medium">{leagueData[activeCategory][0].name}</span>
-            {leagueData[activeCategory][0].badge && (
-              <img 
-                src={leagueData[activeCategory][0].badge} 
-                alt="Badge" 
-                className="w-5 h-5" 
-              />
-            )}
-          </div>
-          <span className="ml-auto font-medium">{leagueData[activeCategory][0].points} pts</span>
-        </div>
-
-        <h3 className="text-base font-semibold text-[#556bc7] mt-4 mb-2">Top 3 places</h3>
-
-        {leagueData[activeCategory].slice(1).map((player, index) => (
-          <div 
-            key={player.rank} 
-            className={cn(
-              "p-2 rounded-[20px] flex items-center gap-2 text-sm border",
-              index === 0 ? "border-[#fbb350] text-[#fbb350]" : // 1st place
-              index === 1 ? "border-[#556bc7] text-[#556bc7]" : // 2nd place
-              "border-[#f97316] text-[#f97316]" // 3rd place
-            )}
-          >
-            <span className="font-medium">#{player.rank}</span>
-            <img src={player.avatar} alt="" className="w-8 h-8 rounded-full" />
-            <div className="flex items-center gap-1">
-              <span className="font-medium">{player.name}</span>
-              {player.badge && (
-                <img 
-                  src={player.badge} 
-                  alt="Badge" 
-                  className="w-5 h-5" 
-                />
-              )}
-            </div>
-            <span className="ml-auto font-medium">{player.points} pts</span>
-          </div>
-        ))}
-      </div>
-    </Card>
-  );
-}
-
 export default function VisionBoardDashboardClient() {
   const [currentDate] = useState(new Date(2024, 10, 17))
   const [currentActivityIndex, setCurrentActivityIndex] = useState(0)
@@ -441,11 +341,6 @@ useEffect(() => {
 
   fetchAchievementData();
 }, []);
-
-  <League 
-  activeCategory={activeLeagueCategory}
-  setActiveLeagueCategory={setActiveLeagueCategory}
-/>
 
   const [dailyTasks, setDailyTasks] = useState([
   { text: 'Loading...', color: 'bg-[#fbb350]' },
@@ -886,7 +781,6 @@ const [achievementData, setAchievementData] = useState<AchievementContentProps['
             {/* League */}
             <League
               activeCategory={activeLeagueCategory}
-              leagueData={leagueData}
               setActiveLeagueCategory={setActiveLeagueCategory}
             />
 
