@@ -1,29 +1,28 @@
 import { createClient } from '@vercel/postgres';
 import { NextResponse } from 'next/server';
 
-export async function GET(request: Request) {
-  const { searchParams } = new URL(request.url);
-  const memberId = searchParams.get('memberId');
-  
-  if (!memberId) {
-    return NextResponse.json({ error: 'Member ID required' }, { status: 400 });
-  }
-
+export async function PUT(request: Request) {
   try {
+    const body = await request.json();
+    const { id, memberstack_id, x_position, y_position } = body;
+
     const client = createClient();
     await client.connect();
     
     const { rows } = await client.query(
-      'SELECT * FROM vision_board_items WHERE memberstack_id = $1 ORDER BY z_index ASC',
-      [memberId]
+      `UPDATE vision_board_items 
+       SET x_position = $1, y_position = $2
+       WHERE id = $3 AND memberstack_id = $4
+       RETURNING *`,
+      [x_position, y_position, id, memberstack_id]
     );
     
     await client.end();
-    return NextResponse.json(rows);
+    return NextResponse.json(rows[0]);
   } catch (err) {
     const error = err as Error;
     console.error('Database error:', error);
-    return NextResponse.json({ error: 'Failed to load vision board', details: error?.toString() }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to update position' }, { status: 500 });
   }
 }
 
@@ -149,5 +148,30 @@ export async function DELETE(request: Request) {
     const error = err as Error;
     console.error('Database error:', error);
     return NextResponse.json({ error: 'Failed to delete item', details: error?.toString() }, { status: 500 });
+  }
+}
+
+export async function PATCH(request: Request) {
+  try {
+    const body = await request.json();
+    const { memberstack_id, board_color } = body;
+
+    const client = createClient();
+    await client.connect();
+    
+    const { rows } = await client.query(
+      `UPDATE vision_board_items 
+       SET board_color = $1 
+       WHERE memberstack_id = $2 
+       RETURNING *`,
+      [board_color, memberstack_id]
+    );
+    
+    await client.end();
+    return NextResponse.json(rows[0]);
+  } catch (err) {
+    const error = err as Error;
+    console.error('Database error:', error);
+    return NextResponse.json({ error: 'Failed to update color' }, { status: 500 });
   }
 }
