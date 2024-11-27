@@ -197,6 +197,18 @@ export async function POST(request: Request) {
       }
     }
 
+// Add this section right here
+    const { rows: currentRankings } = await pool.sql`
+      SELECT 
+        member_id,
+        DENSE_RANK() OVER (ORDER BY points DESC) as rank
+      FROM user_achievements
+      WHERE weekly_reset_at = ${updated.weekly_reset_at}
+      ORDER BY points DESC;
+    `;
+
+    const userRank = currentRankings.find(r => r.member_id === memberId)?.rank;
+
     return NextResponse.json({
       ...updated,
       rank: userRank
