@@ -115,13 +115,23 @@ const sessions_this_month = shouldResetMonth ?
     if (total_sessions >= 100) unlocked_badges = addBadge(unlocked_badges, 'calls_100');
 
    // Activity badges check based on sessions
-    const dailyBadge = ACHIEVEMENTS.activity.find(badge => badge.period === 'day' && badge.target === 10);
-    const weeklyBadge = ACHIEVEMENTS.activity.find(badge => badge.period === 'week' && badge.target === 50);
-    const monthlyBadge = ACHIEVEMENTS.activity.find(badge => badge.period === 'month' && badge.target === 100);
+const dailyBadge = ACHIEVEMENTS.activity.find(badge => badge.period === 'day' && badge.target === 10);
+const weeklyBadge = ACHIEVEMENTS.activity.find(badge => badge.period === 'week' && badge.target === 50);
+const monthlyBadge = ACHIEVEMENTS.activity.find(badge => badge.period === 'month' && badge.target === 100);
 
-    if (dailyBadge && sessions_today >= 10) unlocked_badges = addBadge(unlocked_badges, dailyBadge.id);
-    if (weeklyBadge && sessions_this_week >= 50) unlocked_badges = addBadge(unlocked_badges, weeklyBadge.id);
-    if (monthlyBadge && sessions_this_month >= 100) unlocked_badges = addBadge(unlocked_badges, monthlyBadge.id);
+console.log('Debug activity badges:', {
+    sessions_today,
+    dailyBadge,
+    currentUnlockedBadges: unlocked_badges
+});
+
+if (dailyBadge && sessions_today >= 10) {
+    console.log('Should unlock daily badge', dailyBadge.id);
+    unlocked_badges = addBadge(unlocked_badges, dailyBadge.id);
+    console.log('Updated badges:', unlocked_badges);
+}
+if (weeklyBadge && sessions_this_week >= 50) unlocked_badges = addBadge(unlocked_badges, weeklyBadge.id);
+if (monthlyBadge && sessions_this_month >= 100) unlocked_badges = addBadge(unlocked_badges, monthlyBadge.id);
 
    const { rows: [updated] } = await pool.sql`
       INSERT INTO user_achievements (
