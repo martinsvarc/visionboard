@@ -75,17 +75,12 @@ export async function POST(request: Request) {
     const isNewDay = !existingUser?.last_session_date || 
                     existingUser.last_session_date !== todayStr;
 
-    try {
+    // Calculate session counts
     const sessions_today = existingUser?.last_session_date === todayStr ? 
-      (existingUser?.sessions_today || 0) + 1 : 1;
-
-    if (sessions_today >= 10) {
-        // Force add the badge to test if the badge system works at all
-        unlocked_badges = ['daily_10']; // Test with forced badge
-    }
-} catch (error) {
-    console.error('Unlock error:', error);
-}
+        (existingUser?.sessions_today || 0) + 1 : 1;
+    const sessions_this_week = shouldResetWeek ? 1 : (existingUser?.sessions_this_week || 0) + 1;
+    const sessions_this_month = today.getMonth() === new Date(existingUser?.last_session_date || today).getMonth() ? 
+        (existingUser?.sessions_this_month + 1) : 1;
 
     // First, ensure unlocked_badges is an array
     let unlocked_badges = Array.isArray(existingUser?.unlocked_badges) 
