@@ -82,8 +82,8 @@ export async function GET(request: Request) {
       teamRankings = rows;
     }
 
-    // If user is not in top 10, get their rank
-    async function getUserRank(category: 'weekly' | 'allTime' | 'team'): Promise<number> {
+    // Convert to const function expression
+    const getUserRank = async (category: 'weekly' | 'allTime' | 'team'): Promise<number> => {
       if (!userData) return 0;
 
       let query;
@@ -109,7 +109,7 @@ export async function GET(request: Request) {
         `;
       }
       return query.rows[0].rank;
-    }
+    };
 
     // Add user to rankings if not present
     if (!weeklyRankings.find(r => r.member_id === memberId)) {
