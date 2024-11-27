@@ -1,33 +1,28 @@
 import { createPool } from '@vercel/postgres';
 import { NextResponse } from 'next/server';
 
+const getPool = () => createPool({
+  connectionString: process.env.POSTGRES_URL + "?sslmode=require&pgbouncer=true"
+});
+
 export async function GET(request: Request) {
-  console.log('GET request received');
   const { searchParams } = new URL(request.url);
   const memberId = searchParams.get('memberId');
   
   if (!memberId) {
-    console.log('Missing memberId');
     return NextResponse.json({ error: 'Member ID required' }, { status: 400 });
   }
 
   try {
-    console.log('Creating pool connection');
-    const pool = createPool({
-  connectionString: process.env.POSTGRES_URL + "?sslmode=require&pgbouncer=true"
-});
-
-    console.log('Executing query for memberId:', memberId);
+    const pool = getPool();
     const { rows } = await pool.query(
       'SELECT * FROM vision_board_items WHERE memberstack_id = $1 ORDER BY z_index ASC',
       [memberId]
     );
-    
-    console.log('Query results:', rows);
     return NextResponse.json(rows);
   } catch (err) {
     const error = err as Error;
-    console.error('Detailed database error:', error);
+    console.error('Database error:', error);
     return NextResponse.json({ error: 'Failed to load vision board', details: error?.toString() }, { status: 500 });
   }
 }
@@ -37,10 +32,7 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { memberstack_id, image_url, x_position, y_position, width, height, z_index, board_color } = body;
     
-    const pool = createPool({
-      connectionString: process.env.POSTGRES_URL
-    });
-    
+    const pool = getPool();
     const { rows } = await pool.query(
       `INSERT INTO vision_board_items 
        (memberstack_id, image_url, x_position, y_position, width, height, z_index, board_color)
@@ -66,10 +58,7 @@ export async function PUT(request: Request) {
       return NextResponse.json({ error: 'ID and Member ID required' }, { status: 400 });
     }
 
-    const pool = createPool({
-      connectionString: process.env.POSTGRES_URL
-    });
-    
+    const pool = getPool();
     const updates = [];
     const values = [id, memberstack_id];
     let paramCount = 3;
@@ -134,10 +123,7 @@ export async function DELETE(request: Request) {
       return NextResponse.json({ error: 'ID and Member ID required' }, { status: 400 });
     }
 
-    const pool = createPool({
-      connectionString: process.env.POSTGRES_URL
-    });
-    
+    const pool = getPool();
     const { rows } = await pool.query(
       'DELETE FROM vision_board_items WHERE id = $1 AND memberstack_id = $2 RETURNING *',
       [id, memberstack_id]
