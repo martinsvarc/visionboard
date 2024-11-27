@@ -180,6 +180,7 @@ function ColorPicker({ color, onChange }: { color: string, onChange: (color: str
 
 export default function VisionBoardDashboardClient() {
   const [currentDate] = useState(new Date(2024, 10, 17))
+  const [memberId, setMemberId] = useState<string | null>(null);
   const [currentActivityIndex, setCurrentActivityIndex] = useState(0)
   const [activeAchievementCategory, setActiveAchievementCategory] = useState('practice-streak')
   const [activeLeagueCategory, setActiveLeagueCategory] = useState<'weekly' | 'allTime' | 'allTimeTeam'>('weekly')
@@ -192,6 +193,10 @@ export default function VisionBoardDashboardClient() {
   const [glowColor, setGlowColor] = useState('rgba(85, 107, 199, 0.3)')
   const boardRef = useRef<HTMLDivElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
+
+useEffect(() => {
+    getMemberId().then(setMemberId);
+  }, []);
 
 useEffect(() => {
     const loadVisionBoard = async () => {
@@ -504,43 +509,34 @@ const [achievementData, setAchievementData] = useState<AchievementContentProps['
     }
 }, [maxZIndex, glowColor])
 
-  const updateItemPosition = useCallback(async (id: string, deltaX: number, deltaY: number) => {
-    try {
-      const memberstack = (window as any).memberstack
-      const member = await memberstack.getCurrentMember()
-      if (!member) return
+const updateItemPosition = useCallback(async (id: string, deltaX: number, deltaY: number) => {
+  if (!memberId) return;
+  
+  setVisionItems(prev => {
+    const newItems = prev.map(item => {
+      if (item.id === id && boardRef.current) {
+        const board = boardRef.current.getBoundingClientRect();
+        const newX = Math.min(Math.max(0, item.x + deltaX), board.width - item.width);
+        const newY = Math.min(Math.max(0, item.y + deltaY), board.height - item.height);
+        
+        fetch('/api/vision-board', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            id: parseInt(id),
+            memberstack_id: memberId,
+            x_position: newX,
+            y_position: newY
+          })
+        });
 
-      setVisionItems(prev => {
-        const newItems = prev.map(item => {
-          if (item.id === id && boardRef.current) {
-            const board = boardRef.current.getBoundingClientRect()
-            const newX = Math.min(Math.max(0, item.x + deltaX), board.width - item.width)
-            const newY = Math.min(Math.max(0, item.y + deltaY), board.height - item.height)
-
-            // Save the new position to database
-            fetch('/api/vision-board', {
-              method: 'PUT',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({
-                id: parseInt(id),
-                memberstack_id: member.id,
-                x_position: newX,
-                y_position: newY
-              })
-            }).catch(err => console.error('Failed to update position:', err))
-
-            return { ...item, x: newX, y: newY }
-          }
-          return item
-        })
-        return newItems
-      })
-    } catch (error) {
-      console.error('Position update error:', error)
-    }
-}, [])
+        return { ...item, x: newX, y: newY };
+      }
+      return item;
+    });
+    return newItems;
+  });
+}, [memberId]);
 
   const updateItemSize = useCallback((id: string, deltaWidth: number, deltaHeight: number, direction: string) => {
     setVisionItems(prev => prev.map(item => {
@@ -586,25 +582,21 @@ const [achievementData, setAchievementData] = useState<AchievementContentProps['
     setVisionItems(prev => prev.map(item => item.id === id ? { ...item, zIndex: maxZIndex + 1 } : item))
   }, [maxZIndex])
 
-  const deleteItem = useCallback(async (id: string) => {
-    try {
-      const memberstack = (window as any).memberstack
-      const member = await memberstack.getCurrentMember()
-      if (!member) return
+ const deleteItem = useCallback(async (id: string) => {
+  if (!memberId) return;
 
-      const response = await fetch(`/api/vision-board?id=${id}&memberstack_id=${member.id}`, {
-        method: 'DELETE'
-      })
-
-      if (!response.ok) {
-        throw new Error('Failed to delete item')
-      }
-
-      setVisionItems(prev => prev.filter(item => item.id !== id))
-    } catch (error) {
-      console.error('Delete error:', error)
+  try {
+    const response = await fetch(`/api/vision-board?id=${id}&memberstack_id=${memberId}`, {
+      method: 'DELETE'
+    });
+    
+    if (response.ok) {
+      setVisionItems(prev => prev.filter(item => item.id !== id));
     }
-}, [])
+  } catch (error) {
+    console.error('Delete error:', error);
+  }
+}, [memberId]);
 
   const handleInteractionStart = (event: React.MouseEvent, id: string, type: 'move' | 'resize', direction?: string) => {
     if (event.button !== 0) return // Only handle left mouse button
@@ -677,20 +669,21 @@ const [achievementData, setAchievementData] = useState<AchievementContentProps['
     <ColorPicker 
       color={glowColor} 
       onChange={async (newColor: string) => {
-        try {
-          setGlowColor(newColor);
-          await fetch('/api/vision-board', {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              memberstack_id: memberId,
-              board_color: newColor
-            })
-          });
-        } catch (error) {
-          console.error('Color update error:', error);
-        }
-      }}
+  try {
+    setGlowColor(newColor);
+    
+    await fetch('/api/vision-board', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        memberstack_id: memberId,
+        board_color: newColor
+      })
+    });
+  } catch (error) {
+    console.error('Color update error:', error);
+  }
+}}
     />
   </PopoverContent>
 </Popover>
