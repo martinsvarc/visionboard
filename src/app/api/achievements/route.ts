@@ -22,10 +22,14 @@ const getNextSunday = (date: Date = new Date()) => {
 function isNewWeek(lastResetDate: Date) {
   const now = new Date();
   const lastReset = new Date(lastResetDate);
-  
-  // Always use Sunday as reset day (0 is Sunday in getDay())
   const daysSinceLastReset = (now.getDay() + 7 - lastReset.getDay()) % 7;
   return daysSinceLastReset >= 7;
+}
+
+// Add the new function here
+function isNewMonth(lastDate: Date, currentDate: Date = new Date()) {
+  return lastDate.getMonth() !== currentDate.getMonth() || 
+         lastDate.getFullYear() !== currentDate.getFullYear();
 }
 
 export async function POST(request: Request) {
@@ -75,12 +79,21 @@ export async function POST(request: Request) {
     const isNewDay = !existingUser?.last_session_date || 
                     existingUser.last_session_date !== todayStr;
 
-    // Calculate session counts
-    const sessions_today = existingUser?.last_session_date === todayStr ? 
-        (existingUser?.sessions_today || 0) + 1 : 1;
-    const sessions_this_week = shouldResetWeek ? 1 : (existingUser?.sessions_this_week || 0) + 1;
-    const sessions_this_month = today.getMonth() === new Date(existingUser?.last_session_date || today).getMonth() ? 
-        (existingUser?.sessions_this_month + 1) : 1;
+   // Calculate session counts
+const isNewMonth = !existingUser?.last_session_date ? 
+  true : 
+  isNewMonth(new Date(existingUser.last_session_date));
+
+const sessions_today = existingUser?.last_session_date === todayStr ? 
+    (existingUser?.sessions_today || 0) + 1 : 1;
+
+const sessions_this_week = shouldResetWeek ? 
+    1 : 
+    (existingUser?.sessions_this_week || 0) + 1;
+
+const sessions_this_month = isNewMonth ? 
+    1 : 
+    (existingUser?.sessions_this_month || 0) + 1;
 
     // First, ensure unlocked_badges is an array
     let unlocked_badges = Array.isArray(existingUser?.unlocked_badges) 
@@ -155,8 +168,14 @@ export async function POST(request: Request) {
             WHEN user_achievements.last_session_date = ${todayStr} THEN user_achievements.sessions_today + 1
             ELSE 1
         END,
-        sessions_this_week = user_achievements.sessions_this_week + 1,
-        sessions_this_month = user_achievements.sessions_this_month + 1,
+        sessions_this_week = CASE 
+    WHEN ${shouldResetWeek} THEN 1
+    ELSE user_achievements.sessions_this_week + 1
+END,
+sessions_this_month = CASE 
+    WHEN TO_CHAR(user_achievements.last_session_date::date, 'YYYY-MM') != TO_CHAR(CURRENT_DATE, 'YYYY-MM') THEN 1
+    ELSE user_achievements.sessions_this_month + 1
+END,
         last_session_date = ${todayStr},
         unlocked_badges = ${JSON.stringify(unlocked_badges)},
         weekly_reset_at = ${shouldResetWeek ? getNextSunday().toISOString() : existingUser?.weekly_reset_at || getNextSunday().toISOString()},
