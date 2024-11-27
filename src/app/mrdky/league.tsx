@@ -77,11 +77,21 @@ interface LeagueApiResponse {
     total_points: number;
     unlocked_badges: string;
     team_id?: string;
-  };
+  } | null;
 }
 
-// Modified League Component
-function League({ activeCategory, setActiveLeagueCategory }: { 
+const getImageUrl = (url: string, memberId: string) => {
+  const timestamp = new Date().getTime();
+  if (url?.includes('cloudinary')) {
+    return `${url}?t=${timestamp}`;
+  }
+  return `${url}?userId=${memberId}&t=${timestamp}`;
+};
+
+function League({ 
+  activeCategory, 
+  setActiveLeagueCategory 
+}: { 
   activeCategory: 'weekly' | 'allTime' | 'allTimeTeam', 
   setActiveLeagueCategory: (category: 'weekly' | 'allTime' | 'allTimeTeam') => void 
 }) {
@@ -93,6 +103,34 @@ function League({ activeCategory, setActiveLeagueCategory }: {
   const [currentUser, setCurrentUser] = useState<LeaguePlayer | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isNewUser, setIsNewUser] = useState(false);
+
+  const getBestBadge = (unlocked_badges: string | null | undefined): string | undefined => {
+    if (!unlocked_badges) return undefined;
+    
+    try {
+      const badges = unlocked_badges.split(',');
+      const lastBadge = badges[badges.length - 1];
+      
+      if (lastBadge.includes('league_')) {
+        const badge = ACHIEVEMENTS.league.find(b => b.id === lastBadge);
+        return badge?.image;
+      }
+      if (lastBadge.includes('streak_')) {
+        const badge = ACHIEVEMENTS.streak.find(b => b.id === lastBadge);
+        return badge?.image;
+      }
+      if (lastBadge.includes('calls_')) {
+        const badge = ACHIEVEMENTS.calls.find(b => b.id === lastBadge);
+        return badge?.image;
+      }
+      
+      return undefined;
+    } catch (error) {
+      console.error('Error processing badge:', error);
+      return undefined;
+    }
+  };
 
   useEffect(() => {
     const fetchLeagueData = async () => {
@@ -106,15 +144,29 @@ function League({ activeCategory, setActiveLeagueCategory }: {
         }
         
         const data = await response.json() as LeagueApiResponse;
-        console.log('API Response:', data);
         
-        // Transform the rankings data
+        if (!data.userData) {
+          setIsNewUser(true);
+          setCurrentUser(null);
+          setLeagueData({
+            weekly: [],
+            allTime: [],
+            allTimeTeam: []
+          });
+          return;
+        }
+
+        setIsNewUser(false);
+        
         const transformRankings = (rankings: any[]): LeaguePlayer[] => {
           return rankings.map(player => ({
             rank: player.rank,
             name: player.user_name,
-            points: player.points,
-            avatar: player.user_picture || 'https://res.cloudinary.com/dmbzcxhjn/image/upload/v1732590120/WhatsApp_Image_2024-11-26_at_04.00.13_58e32347_owfpnt.jpg',
+            points: player.points || 0,
+            avatar: getImageUrl(
+              player.user_picture || 'https://res.cloudinary.com/dmbzcxhjn/image/upload/v1732590120/WhatsApp_Image_2024-11-26_at_04.00.13_58e32347_owfpnt.jpg',
+              player.member_id
+            ),
             badge: player.unlocked_badges?.length > 0 
               ? getBestBadge(player.unlocked_badges)
               : undefined,
@@ -122,20 +174,18 @@ function League({ activeCategory, setActiveLeagueCategory }: {
           }));
         };
 
-        // Process rankings data
         const weeklyPlayers = transformRankings(data.weeklyRankings);
         const allTimePlayers = transformRankings(data.allTimeRankings);
         const teamPlayers = transformRankings(data.teamRankings);
-
-        // Find current user in each category
-        const findUserInRankings = (rankings: LeaguePlayer[]) => 
-          rankings.find(player => player.memberId === memberId) || null;
 
         setLeagueData({
           weekly: weeklyPlayers,
           allTime: allTimePlayers,
           allTimeTeam: teamPlayers
         });
+
+        const findUserInRankings = (rankings: LeaguePlayer[]) => 
+          rankings.find(player => player.memberId === memberId) || null;
 
         setCurrentUser(findUserInRankings(
           activeCategory === 'weekly' ? weeklyPlayers :
@@ -154,64 +204,25 @@ function League({ activeCategory, setActiveLeagueCategory }: {
     fetchLeagueData();
   }, [activeCategory]);
 
-  const getBestBadge = (unlocked_badges: string | null | undefined): string | undefined => {
-  // If unlocked_badges is null, undefined, or empty string, return undefined
-  if (!unlocked_badges) return undefined;
-  
-  try {
-    // Split by comma and get the last badge
-    const badges = unlocked_badges.split(',');
-    const lastBadge = badges[badges.length - 1];
-    
-    // Find this badge in ACHIEVEMENTS
-    if (lastBadge.includes('league_')) {
-      const badge = ACHIEVEMENTS.league.find(b => b.id === lastBadge);
-      return badge?.image;
-    }
-    if (lastBadge.includes('streak_')) {
-      const badge = ACHIEVEMENTS.streak.find(b => b.id === lastBadge);
-      return badge?.image;
-    }
-    if (lastBadge.includes('calls_')) {
-      const badge = ACHIEVEMENTS.calls.find(b => b.id === lastBadge);
-      return badge?.image;
-    }
-    
-    return undefined;
-  } catch (error) {
-    console.error('Error processing badge:', error);
-    return undefined;
-  }
-};
-
-    const categoryData = leagueData[activeCategory];
-    const topPlayer = categoryData[0];
-
   if (isLoading) {
     return <div>Loading...</div>;
   }
 
-if (error) {
-  return (
-    <Card className="p-3 bg-white rounded-[20px] shadow-lg h-full">
-      <div className="text-red-500">{error}</div>
-    </Card>
-  );
-}
+  if (error) {
+    return (
+      <Card className="p-3 bg-white rounded-[20px] shadow-lg h-full">
+        <div className="text-red-500">{error}</div>
+      </Card>
+    );
+  }
 
-if (!categoryData?.length) {
-  return (
-    <Card className="p-3 bg-white rounded-[20px] shadow-lg h-full">
-      <div className="text-gray-500">No league data available</div>
-    </Card>
-  );
-}
+  const categoryData = leagueData[activeCategory];
+  const topPlayer = categoryData[0];
 
   return (
     <Card className="p-3 bg-white rounded-[20px] shadow-lg h-full">
       <h2 className="text-2xl font-semibold text-[#556bc7] mb-4">League</h2>
       
-      {/* Category buttons */}
       <div className="flex flex-wrap gap-2 mb-6">
         <Button 
           onClick={() => setActiveLeagueCategory('weekly')}
@@ -250,79 +261,84 @@ if (!categoryData?.length) {
           All Time Team
         </Button>
       </div>
-      
-      {/* League Chart */}
-      <div className="mb-6">
-        <LeagueChart 
-          currentUserScore={currentUser?.points || 0}
-          topPlayerScore={topPlayer?.points || 0}
-        />
-      </div>
 
-      {/* Rankings Display */}
-      <div className="space-y-2">
-        {/* Current User */}
-        {currentUser && (
-          <div className="bg-[#51c1a9] text-white p-2 rounded-[20px] flex items-center gap-2 text-sm">
-            <span className="text-white/90 font-medium">#{currentUser.rank}</span>
-<img 
-  src={currentUser.avatar} 
-  alt="" 
-  className="w-8 h-8 rounded-full" 
-  onError={(e) => {
-    e.currentTarget.src = 'https://res.cloudinary.com/dmbzcxhjn/image/upload/v1732590120/WhatsApp_Image_2024-11-26_at_04.00.13_58e32347_owfpnt.jpg'
-  }}
-/>
-            <div className="flex items-center gap-1">
-              <span className="font-medium">{currentUser.name}</span>
-              {currentUser.badge && (
-                <img 
-                  src={currentUser.badge} 
-                  alt="Badge" 
-                  className="w-5 h-5" 
-                />
-              )}
-            </div>
-            <span className="ml-auto font-medium">{currentUser.points} pts</span>
+      {isNewUser ? (
+        <div className="bg-[#51c1a9]/10 p-4 rounded-[20px] mb-6 text-center">
+          <p className="text-[#51c1a9] font-medium mb-2">Welcome to the League! 🎉</p>
+          <p className="text-gray-600">Start sessions to earn points and compete with others</p>
+        </div>
+      ) : (
+        <>
+          <div className="mb-6">
+            <LeagueChart 
+              currentUserScore={currentUser?.points || 0}
+              topPlayerScore={topPlayer?.points || 0}
+            />
           </div>
-        )}
 
-        <h3 className="text-base font-semibold text-[#556bc7] mt-4 mb-2">Top 3 places</h3>
-
-        {/* Top 3 Players */}
-        {categoryData.slice(0, 3).map((player, index) => (
-          <div 
-            key={player.memberId} 
-            className={cn(
-              "p-2 rounded-[20px] flex items-center gap-2 text-sm border",
-              index === 0 ? "border-[#fbb350] text-[#fbb350]" :
-              index === 1 ? "border-[#556bc7] text-[#556bc7]" :
-              "border-[#f97316] text-[#f97316]"
+          <div className="space-y-2">
+            {currentUser && (
+              <div className="bg-[#51c1a9] text-white p-2 rounded-[20px] flex items-center gap-2 text-sm">
+                <span className="text-white/90 font-medium">#{currentUser.rank}</span>
+                <img 
+                  src={currentUser.avatar} 
+                  alt="" 
+                  className="w-8 h-8 rounded-full" 
+                  onError={(e) => {
+                    e.currentTarget.src = 'https://res.cloudinary.com/dmbzcxhjn/image/upload/v1732590120/WhatsApp_Image_2024-11-26_at_04.00.13_58e32347_owfpnt.jpg'
+                  }}
+                />
+                <div className="flex items-center gap-1">
+                  <span className="font-medium">{currentUser.name}</span>
+                  {currentUser.badge && (
+                    <img 
+                      src={currentUser.badge} 
+                      alt="Badge" 
+                      className="w-5 h-5" 
+                    />
+                  )}
+                </div>
+                <span className="ml-auto font-medium">{currentUser.points} pts</span>
+              </div>
             )}
-          >
-            <span className="font-medium">#{player.rank}</span>
-           <img 
-  src={player.avatar} 
-  alt="" 
-  className="w-8 h-8 rounded-full" 
-  onError={(e) => {
-    e.currentTarget.src = 'https://res.cloudinary.com/dmbzcxhjn/image/upload/v1732590120/WhatsApp_Image_2024-11-26_at_04.00.13_58e32347_owfpnt.jpg'
-  }}
-/>
-            <div className="flex items-center gap-1">
-              <span className="font-medium">{player.name}</span>
-              {player.badge && (
+
+            <h3 className="text-base font-semibold text-[#556bc7] mt-4 mb-2">Top 3 places</h3>
+
+            {categoryData.slice(0, 3).map((player, index) => (
+              <div 
+                key={player.memberId} 
+                className={cn(
+                  "p-2 rounded-[20px] flex items-center gap-2 text-sm border",
+                  index === 0 ? "border-[#fbb350] text-[#fbb350]" :
+                  index === 1 ? "border-[#556bc7] text-[#556bc7]" :
+                  "border-[#f97316] text-[#f97316]"
+                )}
+              >
+                <span className="font-medium">#{player.rank}</span>
                 <img 
-                  src={player.badge} 
-                  alt="Badge" 
-                  className="w-5 h-5" 
+                  src={player.avatar} 
+                  alt="" 
+                  className="w-8 h-8 rounded-full" 
+                  onError={(e) => {
+                    e.currentTarget.src = 'https://res.cloudinary.com/dmbzcxhjn/image/upload/v1732590120/WhatsApp_Image_2024-11-26_at_04.00.13_58e32347_owfpnt.jpg'
+                  }}
                 />
-              )}
-            </div>
-            <span className="ml-auto font-medium">{player.points} pts</span>
+                <div className="flex items-center gap-1">
+                  <span className="font-medium">{player.name}</span>
+                  {player.badge && (
+                    <img 
+                      src={player.badge} 
+                      alt="Badge" 
+                      className="w-5 h-5" 
+                    />
+                  )}
+                </div>
+                <span className="ml-auto font-medium">{player.points} pts</span>
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
+        </>
+      )}
     </Card>
   );
 }
