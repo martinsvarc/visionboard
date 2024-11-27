@@ -80,7 +80,7 @@ export async function POST(request: Request) {
                     existingUser.last_session_date !== todayStr;
 
    // Calculate session counts
-const isNewMonth = !existingUser?.last_session_date ? 
+const shouldResetMonth = !existingUser?.last_session_date ? 
   true : 
   isNewMonth(new Date(existingUser.last_session_date));
 
@@ -91,7 +91,7 @@ const sessions_this_week = shouldResetWeek ?
     1 : 
     (existingUser?.sessions_this_week || 0) + 1;
 
-const sessions_this_month = isNewMonth ? 
+const sessions_this_month = shouldResetMonth ? 
     1 : 
     (existingUser?.sessions_this_month || 0) + 1;
 
