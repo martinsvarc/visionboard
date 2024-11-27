@@ -163,6 +163,16 @@ function League({ activeCategory, setActiveLeagueCategory }: {
   // Get the last badge (most recent/best)
   const lastBadge = badges[badges.length - 1];
   
+  // Define the Achievement type that matches your ACHIEVEMENTS structure
+  interface Achievement {
+    id: string;
+    image: string;
+    description: string;
+    tooltipTitle: string;
+    tooltipSubtitle: string;
+    target?: number;
+  }
+  
   // Get the corresponding badge image
   const allAchievements = {
     ...ACHIEVEMENTS.streak,
@@ -170,18 +180,10 @@ function League({ activeCategory, setActiveLeagueCategory }: {
     ...ACHIEVEMENTS.league
   };
   
-  // Add type for badge data
-  type BadgeData = {
-    id: string;
-    image: string;
-    description: string;
-    tooltipTitle: string;
-    tooltipSubtitle: string;
-  };
-
-  const badgeData = Object.values(allAchievements).find((b: BadgeData) => b.id === lastBadge);
+  const badgeData = Object.values(allAchievements as Record<string, Achievement>).find(b => b.id === lastBadge);
   return badgeData?.image;
 };
+
     const categoryData = leagueData[activeCategory];
     const topPlayer = categoryData[0];
 
