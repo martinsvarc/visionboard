@@ -49,48 +49,54 @@ export async function GET(request: Request) {
     `;
 
     // Team rankings (if team_id exists)
-    const { rows: teamRankings } = userData?.team_id ? await pool.sql`
-      SELECT 
-        member_id, 
-        user_name, 
-        user_picture, 
-        total_points as points,
-        unlocked_badges,
-        DENSE_RANK() OVER (ORDER BY total_points DESC) as rank
-      FROM user_achievements 
-      WHERE team_id = ${userData.team_id}
-      ORDER BY total_points DESC 
-      LIMIT 10;
-    ` : { rows: [] };
+    let teamRankings = [];
+    if (userData?.team_id) {
+      const { rows } = await pool.sql`
+        SELECT 
+          member_id, 
+          user_name, 
+          user_picture, 
+          total_points as points,
+          unlocked_badges,
+          DENSE_RANK() OVER (ORDER BY total_points DESC) as rank
+        FROM user_achievements 
+        WHERE team_id = ${userData.team_id}
+        ORDER BY total_points DESC 
+        LIMIT 10;
+      `;
+      teamRankings = rows;
+    }
 
-    // Get user's rank in each category if not in top 10
-    const getUserRank = async (category: 'weekly' | 'allTime' | 'team') => {
+    // If user is not in top 10, get their rank
+    async function getUserRank(category: 'weekly' | 'allTime' | 'team') {
       if (!userData) return null;
 
-      const query = category === 'weekly' ? 
-        await pool.sql`
+      let query;
+      if (category === 'weekly') {
+        query = await pool.sql`
           SELECT count(*) + 1 as rank
           FROM user_achievements
           WHERE points > ${userData.points}
           AND weekly_reset_at = ${userData.weekly_reset_at};
-        ` :
-        category === 'allTime' ?
-        await pool.sql`
+        `;
+      } else if (category === 'allTime') {
+        query = await pool.sql`
           SELECT count(*) + 1 as rank
           FROM user_achievements
           WHERE total_points > ${userData.total_points};
-        ` :
-        await pool.sql`
+        `;
+      } else {
+        query = await pool.sql`
           SELECT count(*) + 1 as rank
           FROM user_achievements
           WHERE total_points > ${userData.total_points}
           AND team_id = ${userData.team_id};
         `;
-
+      }
       return query.rows[0].rank;
-    };
+    }
 
-    // Get user's rank if not in top rankings
+    // Add user to rankings if not present
     if (!weeklyRankings.find(r => r.member_id === memberId)) {
       const rank = await getUserRank('weekly');
       weeklyRankings.push({
@@ -130,18 +136,3 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: 'Failed to fetch league data' }, { status: 500 });
   }
 }
-
-// src/app/mrdky/vision-board-dashboard.tsx (modifications only)
-// Add this to your imports at the top
-import League from './league';
-
-// Inside your VisionBoardDashboardClient component, replace the existing League component with:
-  <League
-    activeCategory={activeLeagueCategory}
-    setActiveLeagueCategory={setActiveLeagueCategory}
-  />
-
-// Make sure the state is defined at the top of your component:
-const [activeLeagueCategory, setActiveLeagueCategory] = useState<'weekly' | 'allTime' | 'allTimeTeam'>('weekly');
-
-// Remove any static leagueData declarations since data will now come from the API
