@@ -97,17 +97,17 @@ export async function POST(request: Request) {
     if (total_sessions >= 50) unlocked_badges = addBadge(unlocked_badges, 'calls_50');
     if (total_sessions >= 100) unlocked_badges = addBadge(unlocked_badges, 'calls_100');
 
-   // Daily badge
+  // Daily badge
     if (sessions_today >= 10) {
-        unlocked_badges = addBadge(unlocked_badges, 'activity_daily_10');
+        unlocked_badges = addBadge(unlocked_badges, 'daily_10');
     }
     // Weekly badge
     if (sessions_this_week >= 50) {
-        unlocked_badges = addBadge(unlocked_badges, 'activity_weekly_50');
+        unlocked_badges = addBadge(unlocked_badges, 'weekly_50');
     }
     // Monthly badge
     if (sessions_this_month >= 100) {
-        unlocked_badges = addBadge(unlocked_badges, 'activity_monthly_100');
+        unlocked_badges = addBadge(unlocked_badges, 'monthly_100');
     }
 
    const { rows: [updated] } = await pool.sql`
