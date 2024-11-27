@@ -157,13 +157,16 @@ export async function POST(request: Request) {
 
     // After your INSERT statement
     const { rows: weeklyRankings } = await pool.sql`
-      SELECT 
-        member_id, 
-        points,
-        RANK() OVER (ORDER BY points DESC) as rank,
-        COUNT(*) OVER () as total_users
-      FROM user_achievements 
-      WHERE weekly_reset_at = ${updated.weekly_reset_at}
+      WITH CurrentRankings AS (
+        SELECT 
+          member_id,
+          points,
+          DENSE_RANK() OVER (ORDER BY points DESC) as rank
+        FROM user_achievements
+        WHERE weekly_reset_at = ${updated.weekly_reset_at}
+      )
+      SELECT *
+      FROM CurrentRankings
       ORDER BY points DESC;
     `;
 
