@@ -109,7 +109,7 @@ function League({ activeCategory, setActiveLeagueCategory }: {
   }, [activeCategory]);
 
   // Helper function to get the most prestigious badge
-  const getBestBadge = (unlocked_badges: string[]): string => {
+  if (!bestBadge) return '';
     // Priority order of badges
     const badgePriority = [
       'league_first', 'league_second', 'league_third',
