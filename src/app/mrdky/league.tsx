@@ -157,31 +157,24 @@ function League({ activeCategory, setActiveLeagueCategory }: {
   if (!unlocked_badges) return undefined;
   
   // Split by comma and get the last badge
-  const badges = unlocked_badges.split(',').filter(badge => badge);
-  if (badges.length === 0) return undefined;
-  
-  // Get the last badge (most recent/best)
+  const badges = unlocked_badges.split(',');
   const lastBadge = badges[badges.length - 1];
   
-  // Define the Achievement type that matches your ACHIEVEMENTS structure
-  interface Achievement {
-    id: string;
-    image: string;
-    description: string;
-    tooltipTitle: string;
-    tooltipSubtitle: string;
-    target?: number;
+  // Find this badge in ACHIEVEMENTS
+  if (lastBadge.includes('league_')) {
+    const badge = ACHIEVEMENTS.league.find(b => b.id === lastBadge);
+    return badge?.image;
+  }
+  if (lastBadge.includes('streak_')) {
+    const badge = ACHIEVEMENTS.streak.find(b => b.id === lastBadge);
+    return badge?.image;
+  }
+  if (lastBadge.includes('calls_')) {
+    const badge = ACHIEVEMENTS.calls.find(b => b.id === lastBadge);
+    return badge?.image;
   }
   
-  // Get the corresponding badge image
-  const allAchievements = {
-    ...ACHIEVEMENTS.streak,
-    ...ACHIEVEMENTS.calls,
-    ...ACHIEVEMENTS.league
-  };
-  
-  const badgeData = Object.values(allAchievements as Record<string, Achievement>).find(b => b.id === lastBadge);
-  return badgeData?.image;
+  return undefined;
 };
 
     const categoryData = leagueData[activeCategory];
