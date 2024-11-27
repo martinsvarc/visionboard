@@ -108,29 +108,24 @@ function League({ activeCategory, setActiveLeagueCategory }: {
     fetchLeagueData();
   }, [activeCategory]);
 
-  // Helper function to get the most prestigious badge
-  if (!bestBadge) return '';
-    // Priority order of badges
-    const badgePriority = [
-      'league_first', 'league_second', 'league_third',
-      'streak_365', 'streak_180', 'streak_90', 'streak_30', 'streak_10', 'streak_5',
-      'calls_2500', 'calls_1500', 'calls_1000', 'calls_750', 'calls_500', 
-      'calls_250', 'calls_100', 'calls_50', 'calls_25', 'calls_10'
-    ];
-
-    // Find the first (highest priority) badge that the user has unlocked
-    const bestBadge = badgePriority.find(badge => unlocked_badges.includes(badge));
+  const getBestBadge = (unlocked_badges: string): string | undefined => {
+    if (!unlocked_badges) return undefined;
     
-    if (!bestBadge) return undefined;
+    // Split by comma and get the last badge
+    const badges = unlocked_badges.split(',').filter(badge => badge);
+    if (badges.length === 0) return undefined;
     
-    // Return the corresponding badge image from achievement-data.ts
+    // Get the last badge (most recent/best)
+    const lastBadge = badges[badges.length - 1];
+    
+    // Get the corresponding badge image
     const allAchievements = {
       ...ACHIEVEMENTS.streak,
       ...ACHIEVEMENTS.calls,
       ...ACHIEVEMENTS.league
     };
     
-    const badgeData = Object.values(allAchievements).find(b => b.id === bestBadge);
+    const badgeData = Object.values(allAchievements).find(b => b.id === lastBadge);
     return badgeData?.image;
   };
 
