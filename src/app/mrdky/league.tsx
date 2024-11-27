@@ -1,3 +1,5 @@
+import { useState, useEffect } from 'react';
+
 interface LeagueRankings {
   weekly: LeaguePlayer[];
   allTime: LeaguePlayer[];
