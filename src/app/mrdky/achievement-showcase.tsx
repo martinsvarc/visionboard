@@ -247,23 +247,26 @@ return (
                     )}
                   </div>
                   
-                  <div className="w-full text-center mt-2">
-                    <div className="text-xs sm:text-sm font-medium mb-1 line-clamp-1 px-1">
-                      {achievement.tooltipTitle}
-                    </div>
-                    <div className="text-xs text-gray-500 mb-1">
-                      {achievement.progress}%
-                    </div>
-                    <div className="h-1.5 w-full max-w-[120px] mx-auto bg-gray-100 rounded-full overflow-hidden">
-                      <div
-                        className={`h-full transition-all duration-300 ease-in-out ${
-                          getProgressBarColor(achievement.progress)
-                        }`}
-                        style={{ width: `${achievement.progress}%` }}
-                      />
-                    </div>
-                  </div>
-                </div>
+                 <div className="w-full text-center mt-2">
+  <div className="text-xs sm:text-sm font-medium mb-1 line-clamp-1 px-1">
+    {achievement.tooltipTitle}
+  </div>
+  {!achievement.id.startsWith('league_') && (
+    <>
+      <div className="text-xs text-gray-500 mb-1">
+        {achievement.progress}%
+      </div>
+      <div className="h-1.5 w-full max-w-[120px] mx-auto bg-gray-100 rounded-full overflow-hidden">
+        <div
+          className={`h-full transition-all duration-300 ease-in-out ${
+            getProgressBarColor(achievement.progress)
+          }`}
+          style={{ width: `${achievement.progress}%` }}
+        />
+      </div>
+    </>
+  )}
+</div>
                 
                 <div 
                   className={cn(
