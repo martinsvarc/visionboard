@@ -96,28 +96,42 @@ const sessions_this_month = shouldResetMonth ?
     (existingUser?.sessions_this_month || 0) + 1;
 
     // First, ensure unlocked_badges is an array
-    let unlocked_badges = Array.isArray(existingUser?.unlocked_badges) 
-        ? [...existingUser.unlocked_badges] 
-        : [];
+let unlocked_badges = Array.isArray(existingUser?.unlocked_badges) 
+    ? [...existingUser.unlocked_badges] 
+    : [];
+console.log('Initial unlocked_badges:', unlocked_badges);
 
-    // Unlock streak badges
-    if (current_streak >= 5) unlocked_badges = addBadge(unlocked_badges, 'streak_5');
-    if (current_streak >= 10) unlocked_badges = addBadge(unlocked_badges, 'streak_10');
-    if (current_streak >= 30) unlocked_badges = addBadge(unlocked_badges, 'streak_30');
-    if (current_streak >= 90) unlocked_badges = addBadge(unlocked_badges, 'streak_90');
-    if (current_streak >= 180) unlocked_badges = addBadge(unlocked_badges, 'streak_180');
-    if (current_streak >= 365) unlocked_badges = addBadge(unlocked_badges, 'streak_365');
+// Unlock streak badges
+if (current_streak >= 5) unlocked_badges = addBadge(unlocked_badges, 'streak_5');
+if (current_streak >= 10) unlocked_badges = addBadge(unlocked_badges, 'streak_10');
+if (current_streak >= 30) unlocked_badges = addBadge(unlocked_badges, 'streak_30');
+if (current_streak >= 90) unlocked_badges = addBadge(unlocked_badges, 'streak_90');
+if (current_streak >= 180) unlocked_badges = addBadge(unlocked_badges, 'streak_180');
+if (current_streak >= 365) unlocked_badges = addBadge(unlocked_badges, 'streak_365');
 
-    // Unlock call badges
-    if (total_sessions >= 10) unlocked_badges = addBadge(unlocked_badges, 'calls_10');
-    if (total_sessions >= 25) unlocked_badges = addBadge(unlocked_badges, 'calls_25');
-    if (total_sessions >= 50) unlocked_badges = addBadge(unlocked_badges, 'calls_50');
-    if (total_sessions >= 100) unlocked_badges = addBadge(unlocked_badges, 'calls_100');
+// Unlock call badges
+if (total_sessions >= 10) unlocked_badges = addBadge(unlocked_badges, 'calls_10');
+if (total_sessions >= 25) unlocked_badges = addBadge(unlocked_badges, 'calls_25');
+if (total_sessions >= 50) unlocked_badges = addBadge(unlocked_badges, 'calls_50');
+if (total_sessions >= 100) unlocked_badges = addBadge(unlocked_badges, 'calls_100');
 
-   // Activity badges check based on sessions
-if (sessions_today >= 10) unlocked_badges = addBadge(unlocked_badges, 'daily_10');
-if (sessions_this_week >= 50) unlocked_badges = addBadge(unlocked_badges, 'weekly_50');
-if (sessions_this_month >= 100) unlocked_badges = addBadge(unlocked_badges, 'monthly_100');
+// Activity badges check based on sessions
+if (sessions_today >= 10) {
+    unlocked_badges = addBadge(unlocked_badges, 'daily_10');
+    console.log('Daily badge check:', {
+        sessions_today,
+        unlocked_badges,
+        badge_added: unlocked_badges.includes('daily_10')
+    });
+}
+
+if (sessions_this_week >= 50) {
+    unlocked_badges = addBadge(unlocked_badges, 'weekly_50');
+}
+
+if (sessions_this_month >= 100) {
+    unlocked_badges = addBadge(unlocked_badges, 'monthly_100');
+}
 
    const { rows: [updated] } = await pool.sql`
       INSERT INTO user_achievements (
@@ -349,5 +363,5 @@ export async function GET(request: Request) {
 }
 
 function addBadge(badges: string[], newBadge: string): string[] {
-  return badges.includes(newBadge) ? badges : [...badges, newBadge];
+    return badges.includes(newBadge) ? badges : [...badges, newBadge];
 }
