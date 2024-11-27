@@ -661,10 +661,11 @@ const [achievementData, setAchievementData] = useState<AchievementContentProps['
               <h2 className="text-2xl font-semibold text-[#556bc7]">Interactive Vision Board</h2>
               
               <div className="flex gap-2">
-                <Popover>
+                ```jsx
+<Popover>
   <PopoverTrigger>
     <Button
-      variant="outline"
+      variant="outline" 
       size="sm"
       className="bg-[#fbb350] hover:bg-[#f9a238] text-white border-[#fbb350] gap-2 rounded-xl"
     >
@@ -672,51 +673,44 @@ const [achievementData, setAchievementData] = useState<AchievementContentProps['
       Color
     </Button>
   </PopoverTrigger>
-  <PopoverContent className="w-auto p-0" align="end">
+  <PopoverContent className="w-auto p-0 z-[9999]" align="end">
     <ColorPicker 
-  color={glowColor} 
-  onChange={async (newColor: string) => {
-    try {
-      const memberstack = (window as any).memberstack
-      const member = await memberstack.getCurrentMember()
-      if (!member) return
-
-      setGlowColor(newColor)
-      
-      await fetch('/api/vision-board', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          memberstack_id: member.id,
-          board_color: newColor
-        })
-      })
-    } catch (error) {
-      console.error('Color update error:', error)
-    }
-  }} 
-/>
+      color={glowColor} 
+      onChange={async (newColor: string) => {
+        try {
+          setGlowColor(newColor);
+          await fetch('/api/vision-board', {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              memberstack_id: memberId,
+              board_color: newColor
+            })
+          });
+        } catch (error) {
+          console.error('Color update error:', error);
+        }
+      }}
+    />
   </PopoverContent>
 </Popover>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="bg-[#51c1a9] hover:bg-[#45a892] text-white border-[#51c1a9] gap-2 rounded-xl"
-                  onClick={() => fileInputRef.current?.click()}
-                >
-                  <UploadIcon />
-                  Add Vision
-                </Button>
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  multiple
-                  accept="image/*"
-                  className="hidden"
-                  onChange={handleFileUpload}
-                />
+<Button
+  variant="outline"
+  size="sm"
+  className="bg-[#51c1a9] hover:bg-[#45a892] text-white border-[#51c1a9] gap-2 rounded-xl"
+  onClick={() => fileInputRef.current?.click()}
+>
+  <UploadIcon />
+  Add Vision
+</Button>
+<input
+  ref={fileInputRef}
+  type="file"
+  multiple
+  accept="image/*"
+  className="hidden"
+  onChange={handleFileUpload}
+/>
               </div>
             </div>
 
