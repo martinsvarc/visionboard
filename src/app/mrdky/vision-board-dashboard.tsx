@@ -442,26 +442,10 @@ useEffect(() => {
   fetchAchievementData();
 }, []);
 
-  const leagueData: Record<string, LeaguePlayer[]> = {
-    weekly: [
-      { rank: 10, name: 'You', points: 93, avatar: '/placeholder.svg?height=32&width=32', badge: 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/a-pixar-style-3d-render-of-a-cartoon-calendar-icon-9Ut5P-Z7Q-qcpgWOIlslCA-YQ3T7zHwThCVVysgv9KyEg-removebg-preview-xm0mDAmejz7GVlSJPPqUIeKh1ygBL8.png' },
-      { rank: 1, name: 'Agent45', points: 98, avatar: '/placeholder.svg?height=32&width=32', badge: 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/WhatsApp_Image_2024-11-07_at_23.19.01_2cecae84-removebg-preview-3wBv81wHW6Ya9A4xe2lgnPVfi9BkC6.png' },
-      { rank: 2, name: 'Agent23', points: 97, avatar: '/placeholder.svg?height=32&width=32', badge: 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/WhatsApp_Image_2024-11-07_at_23.18.59_dac37adb-removebg-preview-4wxMtjKvSvJ1wdrprNbJ1IKOOMlgcw.png' },
-      { rank: 3, name: 'Agent35', points: 96, avatar: '/placeholder.svg?height=32&width=32', badge: 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/WhatsApp_Image_2024-11-07_at_23.18.58_44ffd513-removebg-preview-E4hPl1pYL2la0jvrklcaFpVblXa28d.png' },
-    ],
-    allTime: [
-      { rank: 15, name: 'You', points: 1250, avatar: '/placeholder.svg?height=32&width=32' },
-      { rank: 1, name: 'TopAgent', points: 1500, avatar: '/placeholder.svg?height=32&width=32', badge: 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/a-3d-render-of-a-large-radiant-gold-medal-with-a-b-T5VpM4deRuWtnNpknWeXKA-oVpwYeqBTOuOBOCRRskHXg-removebg-preview-Sy7TVr1liR5FzaFhizFxCYSBdn4dp6.png' },
-      { rank: 2, name: 'SuperSeller', points: 1450, avatar: '/placeholder.svg?height=32&width=32', badge: 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/WhatsApp_Image_2024-11-07_at_23.18.59_dac37adb-removebg-preview-4wxMtjKvSvJ1wdrprNbJ1IKOOMlgcw.png' },
-      { rank: 3, name: 'MegaCloser', points: 1400, avatar: '/placeholder.svg?height=32&width=32', badge: 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/WhatsApp_Image_2024-11-07_at_23.18.58_44ffd513-removebg-preview-E4hPl1pYL2la0jvrklcaFpVblXa28d.png' },
-    ],
-    allTimeTeam: [
-      { rank: 5, name: 'Your Team', points: 5000, avatar: '/placeholder.svg?height=32&width=32' },
-      { rank: 1, name: 'Dream Team', points: 5500, avatar: '/placeholder.svg?height=32&width=32' },
-      { rank: 2, name: 'Power Sellers', points: 5300, avatar: '/placeholder.svg?height=32&width=32' },
-      { rank: 3, name: 'Top Performers', points: 5200, avatar: '/placeholder.svg?height=32&width=32' },
-    ],
-  }
+  <League 
+  activeCategory={activeLeagueCategory}
+  setActiveLeagueCategory={setActiveLeagueCategory}
+/>
 
   const [dailyTasks, setDailyTasks] = useState([
   { text: 'Loading...', color: 'bg-[#fbb350]' },
