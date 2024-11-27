@@ -45,7 +45,8 @@ export async function POST(request: Request) {
     });
 
     const today = new Date();
-    const todayStr = today.toISOString().split('T')[0];
+today.setHours(0, 0, 0, 0);  // Reset time part to midnight
+const todayStr = today.toISOString();
 
     const { rows: [existingUser] } = await pool.sql`
       SELECT * FROM user_achievements 
@@ -84,7 +85,12 @@ const shouldResetMonth = !existingUser?.last_session_date ?
   true : 
   isNewMonth(new Date(existingUser.last_session_date));
 
-const sessions_today = existingUser?.last_session_date === todayStr ? 
+const lastSessionDate = existingUser?.last_session_date ? new Date(existingUser.last_session_date) : null;
+if (lastSessionDate) {
+    lastSessionDate.setHours(0, 0, 0, 0);
+}
+
+const sessions_today = lastSessionDate && lastSessionDate.getTime() === today.getTime() ? 
     (existingUser?.sessions_today || 0) + 1 : 1;
 
 const sessions_this_week = shouldResetWeek ? 
@@ -117,7 +123,7 @@ if (total_sessions >= 100) unlocked_badges = addBadge(unlocked_badges, 'calls_10
 
 console.log('Before activity check:', { sessions_today, unlocked_badges });
 // Activity badges check based on sessions
-if (dailyCalls >= 10) unlocked_badges = addBadge(unlocked_badges, 'daily_10');
+if (sessions_today >= 10) unlocked_badges = addBadge(unlocked_badges, 'daily_10');
 if (sessions_this_week >= 50) unlocked_badges = addBadge(unlocked_badges, 'weekly_50');
 if (sessions_this_month >= 100) unlocked_badges = addBadge(unlocked_badges, 'monthly_100');
 console.log('After activity check:', { sessions_today, unlocked_badges });
@@ -175,7 +181,7 @@ sessions_this_month = CASE
     WHEN TO_CHAR(user_achievements.last_session_date::date, 'YYYY-MM') != TO_CHAR(CURRENT_DATE, 'YYYY-MM') THEN 1
     ELSE user_achievements.sessions_this_month + 1
 END,
-        last_session_date = ${todayStr},
+        last_session_date = ${today.toISOString()},
         unlocked_badges = ${JSON.stringify(unlocked_badges)},
         weekly_reset_at = ${shouldResetWeek ? getNextSunday().toISOString() : existingUser?.weekly_reset_at || getNextSunday().toISOString()},
         updated_at = CURRENT_TIMESTAMP
