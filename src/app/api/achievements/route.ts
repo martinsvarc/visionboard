@@ -117,7 +117,7 @@ if (total_sessions >= 100) unlocked_badges = addBadge(unlocked_badges, 'calls_10
 
 console.log('Before activity check:', { sessions_today, unlocked_badges });
 // Activity badges check based on sessions
-if (sessions_today >= 10) unlocked_badges = addBadge(unlocked_badges, 'daily_10');
+if (dailyCalls >= 10) unlocked_badges = addBadge(unlocked_badges, 'daily_10');
 if (sessions_this_week >= 50) unlocked_badges = addBadge(unlocked_badges, 'weekly_50');
 if (sessions_this_month >= 100) unlocked_badges = addBadge(unlocked_badges, 'monthly_100');
 console.log('After activity check:', { sessions_today, unlocked_badges });
