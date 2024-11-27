@@ -1,9 +1,5 @@
-import { createPool } from '@vercel/postgres';
+import { createClient } from '@vercel/postgres';
 import { NextResponse } from 'next/server';
-
-const getPool = () => createPool({
-  connectionString: process.env.POSTGRES_URL + "?sslmode=require&pgbouncer=true"
-});
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -14,11 +10,15 @@ export async function GET(request: Request) {
   }
 
   try {
-    const pool = getPool();
-    const { rows } = await pool.query(
+    const client = createClient();
+    await client.connect();
+    
+    const { rows } = await client.query(
       'SELECT * FROM vision_board_items WHERE memberstack_id = $1 ORDER BY z_index ASC',
       [memberId]
     );
+    
+    await client.end();
     return NextResponse.json(rows);
   } catch (err) {
     const error = err as Error;
@@ -32,8 +32,10 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { memberstack_id, image_url, x_position, y_position, width, height, z_index, board_color } = body;
     
-    const pool = getPool();
-    const { rows } = await pool.query(
+    const client = createClient();
+    await client.connect();
+    
+    const { rows } = await client.query(
       `INSERT INTO vision_board_items 
        (memberstack_id, image_url, x_position, y_position, width, height, z_index, board_color)
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
@@ -41,6 +43,7 @@ export async function POST(request: Request) {
       [memberstack_id, image_url, x_position, y_position, width, height, z_index, board_color]
     );
     
+    await client.end();
     return NextResponse.json(rows[0]);
   } catch (err) {
     const error = err as Error;
@@ -58,7 +61,9 @@ export async function PUT(request: Request) {
       return NextResponse.json({ error: 'ID and Member ID required' }, { status: 400 });
     }
 
-    const pool = getPool();
+    const client = createClient();
+    await client.connect();
+    
     const updates = [];
     const values = [id, memberstack_id];
     let paramCount = 3;
@@ -99,7 +104,9 @@ export async function PUT(request: Request) {
       RETURNING *
     `;
 
-    const { rows } = await pool.query(query, values);
+    const { rows } = await client.query(query, values);
+    
+    await client.end();
     
     if (rows.length === 0) {
       return NextResponse.json({ error: 'Item not found' }, { status: 404 });
@@ -123,11 +130,15 @@ export async function DELETE(request: Request) {
       return NextResponse.json({ error: 'ID and Member ID required' }, { status: 400 });
     }
 
-    const pool = getPool();
-    const { rows } = await pool.query(
+    const client = createClient();
+    await client.connect();
+    
+    const { rows } = await client.query(
       'DELETE FROM vision_board_items WHERE id = $1 AND memberstack_id = $2 RETURNING *',
       [id, memberstack_id]
     );
+    
+    await client.end();
 
     if (rows.length === 0) {
       return NextResponse.json({ error: 'Item not found' }, { status: 404 });
