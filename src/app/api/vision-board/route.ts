@@ -2,23 +2,32 @@ import { createPool } from '@vercel/postgres';
 import { NextResponse } from 'next/server';
 
 export async function GET(request: Request) {
+  console.log('GET request received');
   const { searchParams } = new URL(request.url);
   const memberId = searchParams.get('memberId');
   
   if (!memberId) {
+    console.log('Missing memberId');
     return NextResponse.json({ error: 'Member ID required' }, { status: 400 });
   }
 
   try {
-    const pool = createPool();
+    console.log('Creating pool connection');
+    const pool = createPool({
+      connectionString: process.env.POSTGRES_URL
+    });
+
+    console.log('Executing query for memberId:', memberId);
     const { rows } = await pool.query(
       'SELECT * FROM vision_board_items WHERE memberstack_id = $1 ORDER BY z_index ASC',
       [memberId]
     );
+    
+    console.log('Query results:', rows);
     return NextResponse.json(rows);
   } catch (error) {
-    console.error('Database error:', error);
-    return NextResponse.json({ error: 'Failed to load vision board' }, { status: 500 });
+    console.error('Detailed database error:', error);
+    return NextResponse.json({ error: 'Failed to load vision board', details: error.message }, { status: 500 });
   }
 }
 
