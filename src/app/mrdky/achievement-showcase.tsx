@@ -251,7 +251,7 @@ return (
   <div className="text-xs sm:text-sm font-medium mb-1 line-clamp-1 px-1">
     {achievement.tooltipTitle}
   </div>
-  {!achievement.id.startsWith('league_') && (
+  {!achievement.id.includes('league_') && (
     <>
       <div className="text-xs text-gray-500 mb-1">
         {achievement.progress}%
