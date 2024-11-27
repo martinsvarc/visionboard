@@ -82,9 +82,12 @@ export async function POST(request: Request) {
     const sessions_this_month = today.getMonth() === new Date(existingUser?.last_session_date || today).getMonth() ? 
       (existingUser?.sessions_this_month + 1) : 1;
 
-    // Rest of the code remains the same...
-    let unlocked_badges = existingUser?.unlocked_badges || [];
-    
+    // First, ensure unlocked_badges is an array
+    let unlocked_badges = Array.isArray(existingUser?.unlocked_badges) 
+        ? [...existingUser.unlocked_badges] 
+        : [];
+
+    // Unlock streak badges
     if (current_streak >= 5) unlocked_badges = addBadge(unlocked_badges, 'streak_5');
     if (current_streak >= 10) unlocked_badges = addBadge(unlocked_badges, 'streak_10');
     if (current_streak >= 30) unlocked_badges = addBadge(unlocked_badges, 'streak_30');
@@ -92,22 +95,18 @@ export async function POST(request: Request) {
     if (current_streak >= 180) unlocked_badges = addBadge(unlocked_badges, 'streak_180');
     if (current_streak >= 365) unlocked_badges = addBadge(unlocked_badges, 'streak_365');
 
+    // Unlock call badges
     if (total_sessions >= 10) unlocked_badges = addBadge(unlocked_badges, 'calls_10');
     if (total_sessions >= 25) unlocked_badges = addBadge(unlocked_badges, 'calls_25');
     if (total_sessions >= 50) unlocked_badges = addBadge(unlocked_badges, 'calls_50');
     if (total_sessions >= 100) unlocked_badges = addBadge(unlocked_badges, 'calls_100');
 
+    // Unlock activity badges
     if (sessions_today >= 10) unlocked_badges = addBadge(unlocked_badges, 'daily_10');
     if (sessions_this_week >= 50) unlocked_badges = addBadge(unlocked_badges, 'weekly_50');
     if (sessions_this_month >= 100) unlocked_badges = addBadge(unlocked_badges, 'monthly_100');
 
    const { rows: [updated] } = await pool.sql`
-      WITH new_badges AS (
-        SELECT CASE
-          WHEN ${sessions_today} >= 10 THEN array_append(${JSON.stringify(unlocked_badges)}::text[], 'daily_10')
-          ELSE ${JSON.stringify(unlocked_badges)}::text[]
-        END as badges
-      )
       INSERT INTO user_achievements (
         member_id, 
         user_name, 
@@ -134,11 +133,11 @@ export async function POST(request: Request) {
         1,
         1,
         1,
-        ${sessions_today},
-        ${sessions_this_week},
-        ${sessions_this_month},
+        ${sessions_today},  // Use calculated value instead of 1
+        ${sessions_this_week},  // Use calculated value instead of 1
+        ${sessions_this_month},  // Use calculated value instead of 1
         ${todayStr},
-        (SELECT badges FROM new_badges),
+        ${JSON.stringify(unlocked_badges)},  // Use calculated badges instead of '[]'
         ${getNextSunday().toISOString()}
       )
       ON CONFLICT (member_id) DO UPDATE SET
@@ -155,10 +154,7 @@ export async function POST(request: Request) {
         sessions_this_week = user_achievements.sessions_this_week + 1,
         sessions_this_month = user_achievements.sessions_this_month + 1,
         last_session_date = ${todayStr},
-        unlocked_badges = CASE
-            WHEN ${sessions_today} >= 10 THEN array_append(user_achievements.unlocked_badges, 'daily_10')
-            ELSE user_achievements.unlocked_badges
-        END,
+        unlocked_badges = ${JSON.stringify(unlocked_badges)},
         weekly_reset_at = ${shouldResetWeek ? getNextSunday().toISOString() : existingUser?.weekly_reset_at || getNextSunday().toISOString()},
         updated_at = CURRENT_TIMESTAMP
       RETURNING *;
