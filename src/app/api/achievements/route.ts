@@ -97,9 +97,18 @@ export async function POST(request: Request) {
     if (total_sessions >= 50) unlocked_badges = addBadge(unlocked_badges, 'calls_50');
     if (total_sessions >= 100) unlocked_badges = addBadge(unlocked_badges, 'calls_100');
 
-    if (sessions_today >= 10) unlocked_badges = addBadge(unlocked_badges, 'daily_10');
-    if (sessions_this_week >= 50) unlocked_badges = addBadge(unlocked_badges, 'weekly_50');
-    if (sessions_this_month >= 100) unlocked_badges = addBadge(unlocked_badges, 'monthly_100');
+   // Daily badge
+    if (sessions_today >= 10) {
+        unlocked_badges = addBadge(unlocked_badges, 'activity_daily_10');
+    }
+    // Weekly badge
+    if (sessions_this_week >= 50) {
+        unlocked_badges = addBadge(unlocked_badges, 'activity_weekly_50');
+    }
+    // Monthly badge
+    if (sessions_this_month >= 100) {
+        unlocked_badges = addBadge(unlocked_badges, 'activity_monthly_100');
+    }
 
    const { rows: [updated] } = await pool.sql`
       INSERT INTO user_achievements (
@@ -155,35 +164,31 @@ export async function POST(request: Request) {
       RETURNING *;
     `;
 
-    // After your INSERT statement
-    const { rows: weeklyRankings } = await pool.sql`
-      WITH CurrentRankings AS (
-        SELECT 
-          member_id,
-          points,
-          DENSE_RANK() OVER (ORDER BY points DESC) as rank
-        FROM user_achievements
-        WHERE weekly_reset_at = ${updated.weekly_reset_at}
-      )
-      SELECT *
-      FROM CurrentRankings
-      ORDER BY points DESC;
-    `;
+    if (shouldResetWeek) {
+      // Get current rankings right before reset
+      const { rows: finalRankings } = await pool.sql`
+        WITH Rankings AS (
+          SELECT 
+            member_id,
+            points,
+            DENSE_RANK() OVER (ORDER BY points DESC) as rank
+          FROM user_achievements
+          WHERE weekly_reset_at = ${updated.weekly_reset_at}
+        )
+        SELECT *
+        FROM Rankings
+        WHERE points > 0
+        ORDER BY points DESC;
+      `;
 
-    // Get the actual numeric rank
-    const userRanking = weeklyRankings.find(r => r.member_id === memberId);
-    const userRank = userRanking?.rank;
-    console.log('User ranking:', { memberId, rank: userRank, totalUsers: userRanking?.total_users });
-    
-    // Only update league badges if there are enough users competing
-    if (userRank && userRanking?.total_users >= 3) {
-      let leagueBadge = '';
-      if (userRank === 1) leagueBadge = 'league_first';
-      else if (userRank === 2) leagueBadge = 'league_second';
-      else if (userRank === 3) leagueBadge = 'league_third';
+      const userFinalRank = finalRankings.find(r => r.member_id === memberId)?.rank;
       
-      if (leagueBadge) {
-        unlocked_badges = addBadge(unlocked_badges, leagueBadge);
+      // Only award league badges if user has points and is in top 3
+      if (userFinalRank && finalRankings.length >= 3) {
+        if (userFinalRank === 1) unlocked_badges = addBadge(unlocked_badges, 'league_first');
+        if (userFinalRank === 2) unlocked_badges = addBadge(unlocked_badges, 'league_second');
+        if (userFinalRank === 3) unlocked_badges = addBadge(unlocked_badges, 'league_third');
+
         await pool.sql`
           UPDATE user_achievements 
           SET unlocked_badges = ${JSON.stringify(unlocked_badges)}
@@ -248,10 +253,9 @@ export async function GET(request: Request) {
         };
         return {
           ...leagueBadge,
-          unlocked: userData?.league_rank === leagueBadge.rank?.toString() || false
+          unlocked: userData?.unlocked_badges?.includes(badge.id) || false
         };
       })
-    };
 
     const { rows: weeklyRankings } = await pool.sql`
       SELECT 
