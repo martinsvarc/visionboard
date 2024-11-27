@@ -115,23 +115,12 @@ if (total_sessions >= 25) unlocked_badges = addBadge(unlocked_badges, 'calls_25'
 if (total_sessions >= 50) unlocked_badges = addBadge(unlocked_badges, 'calls_50');
 if (total_sessions >= 100) unlocked_badges = addBadge(unlocked_badges, 'calls_100');
 
+console.log('Before activity check:', { sessions_today, unlocked_badges });
 // Activity badges check based on sessions
-if (sessions_today >= 10) {
-    unlocked_badges = addBadge(unlocked_badges, 'daily_10');
-    console.log('Daily badge check:', {
-        sessions_today,
-        unlocked_badges,
-        badge_added: unlocked_badges.includes('daily_10')
-    });
-}
-
-if (sessions_this_week >= 50) {
-    unlocked_badges = addBadge(unlocked_badges, 'weekly_50');
-}
-
-if (sessions_this_month >= 100) {
-    unlocked_badges = addBadge(unlocked_badges, 'monthly_100');
-}
+if (sessions_today >= 10) unlocked_badges = addBadge(unlocked_badges, 'daily_10');
+if (sessions_this_week >= 50) unlocked_badges = addBadge(unlocked_badges, 'weekly_50');
+if (sessions_this_month >= 100) unlocked_badges = addBadge(unlocked_badges, 'monthly_100');
+console.log('After activity check:', { sessions_today, unlocked_badges });
 
    const { rows: [updated] } = await pool.sql`
       INSERT INTO user_achievements (
