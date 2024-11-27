@@ -1,27 +1,29 @@
 import { createClient } from '@vercel/postgres';
 import { NextResponse } from 'next/server';
 
+const getDbClient = async () => {
+  const client = createClient();
+  await client.connect();
+  return client;
+};
+
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const memberId = searchParams.get('memberId');
   
-  if (!memberId) {
-    return NextResponse.json({ error: 'Member ID required' }, { status: 400 });
-  }
+  if (!memberId) return NextResponse.json({ error: 'Member ID required' }, { status: 400 });
 
   try {
-    const client = createClient();
-    await client.connect();
-    
+    const client = await getDbClient();
     const { rows } = await client.query(
       'SELECT * FROM vision_board_items WHERE memberstack_id = $1 ORDER BY z_index ASC',
       [memberId]
     );
-    
     await client.end();
     return NextResponse.json(rows);
   } catch (err) {
     const error = err as Error;
+    console.error('Database error:', error);
     return NextResponse.json({ error: 'Failed to load vision board', details: error?.toString() }, { status: 500 });
   }
 }
@@ -31,9 +33,7 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { memberstack_id, image_url, x_position, y_position, width, height, z_index, board_color } = body;
     
-    const client = createClient();
-    await client.connect();
-    
+    const client = await getDbClient();
     const { rows } = await client.query(
       `INSERT INTO vision_board_items 
        (memberstack_id, image_url, x_position, y_position, width, height, z_index, board_color)
@@ -46,6 +46,7 @@ export async function POST(request: Request) {
     return NextResponse.json(rows[0]);
   } catch (err) {
     const error = err as Error;
+    console.error('Database error:', error);
     return NextResponse.json({ error: 'Failed to save item', details: error?.toString() }, { status: 500 });
   }
 }
@@ -59,76 +60,65 @@ export async function PUT(request: Request) {
       return NextResponse.json({ error: 'ID and Member ID required' }, { status: 400 });
     }
 
-    const client = createClient();
-    await client.connect();
+    const client = await getDbClient();
+    const updateFields = [];
+    const values = [];
+    let paramCount = 1;
 
-    const updates = [];
-    const values = [id, memberstack_id];
-    let paramCount = 3;
+    const fieldsToUpdate = {
+      x_position, y_position, width, height, z_index, board_color
+    };
 
-    if (x_position !== undefined) {
-      updates.push(`x_position = $${paramCount++}`);
-      values.push(x_position);
-    }
-    if (y_position !== undefined) {
-      updates.push(`y_position = $${paramCount++}`);
-      values.push(y_position);
-    }
-    if (width !== undefined) {
-      updates.push(`width = $${paramCount++}`);
-      values.push(width);
-    }
-    if (height !== undefined) {
-      updates.push(`height = $${paramCount++}`);
-      values.push(height);
-    }
-    if (z_index !== undefined) {
-      updates.push(`z_index = $${paramCount++}`);
-      values.push(z_index);
-    }
-    if (board_color !== undefined) {
-      updates.push(`board_color = $${paramCount++}`);
-      values.push(board_color);
+    for (const [key, value] of Object.entries(fieldsToUpdate)) {
+      if (value !== undefined) {
+        updateFields.push(`${key} = $${paramCount++}`);
+        values.push(value);
+      }
     }
 
-    if (updates.length === 0) {
+    if (updateFields.length === 0) {
       return NextResponse.json({ error: 'No fields to update' }, { status: 400 });
     }
 
-    const { rows } = await client.query(
-      `UPDATE vision_board_items 
-       SET ${updates.join(', ')}
-       WHERE id = $1 AND memberstack_id = $2
-       RETURNING *`,
-      values
-    );
+    values.push(id, memberstack_id); // Add id and memberstack_id at the end
 
+    const query = `
+      UPDATE vision_board_items 
+      SET ${updateFields.join(', ')}
+      WHERE id = $${paramCount++} AND memberstack_id = $${paramCount}
+      RETURNING *
+    `;
+
+    const { rows } = await client.query(query, values);
     await client.end();
+
+    if (rows.length === 0) {
+      return NextResponse.json({ error: 'Item not found' }, { status: 404 });
+    }
+
     return NextResponse.json(rows[0]);
   } catch (err) {
     const error = err as Error;
+    console.error('Database error:', error);
     return NextResponse.json({ error: 'Failed to update item', details: error?.toString() }, { status: 500 });
   }
 }
 
 export async function DELETE(request: Request) {
-  try {
-    const { searchParams } = new URL(request.url);
-    const id = searchParams.get('id');
-    const memberstack_id = searchParams.get('memberstack_id');
-    
-    if (!id || !memberstack_id) {
-      return NextResponse.json({ error: 'ID and Member ID required' }, { status: 400 });
-    }
+  const { searchParams } = new URL(request.url);
+  const id = searchParams.get('id');
+  const memberstack_id = searchParams.get('memberstack_id');
+  
+  if (!id || !memberstack_id) {
+    return NextResponse.json({ error: 'ID and Member ID required' }, { status: 400 });
+  }
 
-    const client = createClient();
-    await client.connect();
-    
+  try {
+    const client = await getDbClient();
     const { rows } = await client.query(
       'DELETE FROM vision_board_items WHERE id = $1 AND memberstack_id = $2 RETURNING *',
       [id, memberstack_id]
     );
-
     await client.end();
 
     if (rows.length === 0) {
@@ -138,6 +128,7 @@ export async function DELETE(request: Request) {
     return NextResponse.json({ success: true });
   } catch (err) {
     const error = err as Error;
+    console.error('Database error:', error);
     return NextResponse.json({ error: 'Failed to delete item', details: error?.toString() }, { status: 500 });
   }
 }
@@ -147,9 +138,7 @@ export async function PATCH(request: Request) {
     const body = await request.json();
     const { memberstack_id, board_color } = body;
 
-    const client = createClient();
-    await client.connect();
-    
+    const client = await getDbClient();
     const { rows } = await client.query(
       `UPDATE vision_board_items 
        SET board_color = $1 
@@ -162,6 +151,7 @@ export async function PATCH(request: Request) {
     return NextResponse.json(rows[0]);
   } catch (err) {
     const error = err as Error;
+    console.error('Database error:', error);
     return NextResponse.json({ error: 'Failed to update color', details: error?.toString() }, { status: 500 });
   }
 }
