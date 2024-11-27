@@ -1,6 +1,21 @@
 import { createPool } from '@vercel/postgres';
 import { NextResponse } from 'next/server';
 
+interface RankingUser {
+  member_id: string;
+  user_name: string;
+  user_picture: string;
+  points: number;
+  unlocked_badges: string[];
+  rank: number;
+}
+
+interface UserData extends RankingUser {
+  team_id?: string;
+  total_points: number;
+  weekly_reset_at: string;
+}
+
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
@@ -32,7 +47,7 @@ export async function GET(request: Request) {
       WHERE weekly_reset_at = ${userData?.weekly_reset_at}
       ORDER BY points DESC 
       LIMIT 10;
-    `;
+    ` as { rows: RankingUser[] };
 
     // All-time rankings
     const { rows: allTimeRankings } = await pool.sql`
@@ -46,10 +61,10 @@ export async function GET(request: Request) {
       FROM user_achievements 
       ORDER BY total_points DESC 
       LIMIT 10;
-    `;
+    ` as { rows: RankingUser[] };
 
     // Team rankings (if team_id exists)
-    let teamRankings = [];
+    let teamRankings: RankingUser[] = [];
     if (userData?.team_id) {
       const { rows } = await pool.sql`
         SELECT 
@@ -63,13 +78,13 @@ export async function GET(request: Request) {
         WHERE team_id = ${userData.team_id}
         ORDER BY total_points DESC 
         LIMIT 10;
-      `;
+      ` as { rows: RankingUser[] };
       teamRankings = rows;
     }
 
     // If user is not in top 10, get their rank
-    async function getUserRank(category: 'weekly' | 'allTime' | 'team') {
-      if (!userData) return null;
+    async function getUserRank(category: 'weekly' | 'allTime' | 'team'): Promise<number> {
+      if (!userData) return 0;
 
       let query;
       if (category === 'weekly') {
@@ -103,7 +118,7 @@ export async function GET(request: Request) {
         ...userData,
         rank,
         points: userData.points
-      });
+      } as RankingUser);
     }
 
     if (!allTimeRankings.find(r => r.member_id === memberId)) {
@@ -112,7 +127,7 @@ export async function GET(request: Request) {
         ...userData,
         rank,
         points: userData.total_points
-      });
+      } as RankingUser);
     }
 
     if (userData?.team_id && !teamRankings.find(r => r.member_id === memberId)) {
@@ -121,7 +136,7 @@ export async function GET(request: Request) {
         ...userData,
         rank,
         points: userData.total_points
-      });
+      } as RankingUser);
     }
 
     return NextResponse.json({
