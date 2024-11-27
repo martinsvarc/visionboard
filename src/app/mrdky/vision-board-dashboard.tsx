@@ -653,7 +653,7 @@ const updateItemPosition = useCallback(async (id: string, deltaX: number, deltaY
               <h2 className="text-2xl font-semibold text-[#556bc7]">Interactive Vision Board</h2>
               
               <div className="flex gap-2">
-                ```jsx
+                Honzaaa Trejbal Millionaire Visionaire and Prorok!
 <Popover>
   <PopoverTrigger>
     <Button
