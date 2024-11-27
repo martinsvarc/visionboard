@@ -106,6 +106,7 @@ function League({ activeCategory, setActiveLeagueCategory }: {
         }
         
         const data = await response.json() as LeagueApiResponse;
+        console.log('API Response:', data);
         
         // Transform the rankings data
         const transformRankings = (rankings: any[]): LeaguePlayer[] => {
@@ -153,28 +154,34 @@ function League({ activeCategory, setActiveLeagueCategory }: {
     fetchLeagueData();
   }, [activeCategory]);
 
-  const getBestBadge = (unlocked_badges: string): string | undefined => {
+  const getBestBadge = (unlocked_badges: string | null | undefined): string | undefined => {
+  // If unlocked_badges is null, undefined, or empty string, return undefined
   if (!unlocked_badges) return undefined;
   
-  // Split by comma and get the last badge
-  const badges = unlocked_badges.split(',');
-  const lastBadge = badges[badges.length - 1];
-  
-  // Find this badge in ACHIEVEMENTS
-  if (lastBadge.includes('league_')) {
-    const badge = ACHIEVEMENTS.league.find(b => b.id === lastBadge);
-    return badge?.image;
+  try {
+    // Split by comma and get the last badge
+    const badges = unlocked_badges.split(',');
+    const lastBadge = badges[badges.length - 1];
+    
+    // Find this badge in ACHIEVEMENTS
+    if (lastBadge.includes('league_')) {
+      const badge = ACHIEVEMENTS.league.find(b => b.id === lastBadge);
+      return badge?.image;
+    }
+    if (lastBadge.includes('streak_')) {
+      const badge = ACHIEVEMENTS.streak.find(b => b.id === lastBadge);
+      return badge?.image;
+    }
+    if (lastBadge.includes('calls_')) {
+      const badge = ACHIEVEMENTS.calls.find(b => b.id === lastBadge);
+      return badge?.image;
+    }
+    
+    return undefined;
+  } catch (error) {
+    console.error('Error processing badge:', error);
+    return undefined;
   }
-  if (lastBadge.includes('streak_')) {
-    const badge = ACHIEVEMENTS.streak.find(b => b.id === lastBadge);
-    return badge?.image;
-  }
-  if (lastBadge.includes('calls_')) {
-    const badge = ACHIEVEMENTS.calls.find(b => b.id === lastBadge);
-    return badge?.image;
-  }
-  
-  return undefined;
 };
 
     const categoryData = leagueData[activeCategory];
