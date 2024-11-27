@@ -1,4 +1,11 @@
+'use client'
+
 import { useState, useEffect } from 'react';
+import { Button } from "@/components/ui/button"
+import { Card } from "@/components/ui/card"
+import { ACHIEVEMENTS } from '@/lib/achievement-data';
+import { cn } from "@/lib/utils"
+import { LeagueChart } from '@/components/LeagueChart'
 
 const getMemberId = async () => {
   try {
@@ -37,6 +44,42 @@ interface LeaguePlayer {
   memberId: string;
 }
 
+interface LeagueApiResponse {
+  weeklyRankings: {
+    member_id: string;
+    user_name: string;
+    user_picture: string;
+    points: number;
+    unlocked_badges: string;
+    rank: number;
+  }[];
+  allTimeRankings: {
+    member_id: string;
+    user_name: string;
+    user_picture: string;
+    points: number;
+    unlocked_badges: string;
+    rank: number;
+  }[];
+  teamRankings: {
+    member_id: string;
+    user_name: string;
+    user_picture: string;
+    points: number;
+    unlocked_badges: string;
+    rank: number;
+  }[];
+  userData: {
+    member_id: string;
+    user_name: string;
+    user_picture: string;
+    points: number;
+    total_points: number;
+    unlocked_badges: string;
+    team_id?: string;
+  };
+}
+
 // Modified League Component
 function League({ activeCategory, setActiveLeagueCategory }: { 
   activeCategory: 'weekly' | 'allTime' | 'allTimeTeam', 
@@ -49,6 +92,7 @@ function League({ activeCategory, setActiveLeagueCategory }: {
   });
   const [currentUser, setCurrentUser] = useState<LeaguePlayer | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchLeagueData = async () => {
@@ -61,7 +105,7 @@ function League({ activeCategory, setActiveLeagueCategory }: {
           throw new Error('Failed to fetch league data');
         }
         
-        const data = await response.json();
+        const data = await response.json() as LeagueApiResponse;
         
         // Transform the rankings data
         const transformRankings = (rankings: any[]): LeaguePlayer[] => {
@@ -69,7 +113,7 @@ function League({ activeCategory, setActiveLeagueCategory }: {
             rank: player.rank,
             name: player.user_name,
             points: player.points,
-            avatar: player.user_picture || '/placeholder.svg?height=32&width=32',
+            avatar: player.user_picture || 'https://res.cloudinary.com/dmbzcxhjn/image/upload/v1732590120/WhatsApp_Image_2024-11-26_at_04.00.13_58e32347_owfpnt.jpg',
             badge: player.unlocked_badges?.length > 0 
               ? getBestBadge(player.unlocked_badges)
               : undefined,
@@ -100,6 +144,7 @@ function League({ activeCategory, setActiveLeagueCategory }: {
 
       } catch (error) {
         console.error('Error fetching league data:', error);
+        setError('Failed to load league data');
       } finally {
         setIsLoading(false);
       }
@@ -129,13 +174,28 @@ function League({ activeCategory, setActiveLeagueCategory }: {
     return badgeData?.image;
   };
 
+    const categoryData = leagueData[activeCategory];
+    const topPlayer = categoryData[0];
+
   if (isLoading) {
     return <div>Loading...</div>;
   }
 
-  // Get current category data
-  const categoryData = leagueData[activeCategory];
-  const topPlayer = categoryData[0];
+if (error) {
+  return (
+    <Card className="p-3 bg-white rounded-[20px] shadow-lg h-full">
+      <div className="text-red-500">{error}</div>
+    </Card>
+  );
+}
+
+if (!categoryData?.length) {
+  return (
+    <Card className="p-3 bg-white rounded-[20px] shadow-lg h-full">
+      <div className="text-gray-500">No league data available</div>
+    </Card>
+  );
+}
 
   return (
     <Card className="p-3 bg-white rounded-[20px] shadow-lg h-full">
