@@ -97,18 +97,9 @@ export async function POST(request: Request) {
     if (total_sessions >= 50) unlocked_badges = addBadge(unlocked_badges, 'calls_50');
     if (total_sessions >= 100) unlocked_badges = addBadge(unlocked_badges, 'calls_100');
 
-  // Daily badge
-    if (sessions_today >= 10) {
-        unlocked_badges = addBadge(unlocked_badges, 'daily_10');
-    }
-    // Weekly badge
-    if (sessions_this_week >= 50) {
-        unlocked_badges = addBadge(unlocked_badges, 'weekly_50');
-    }
-    // Monthly badge
-    if (sessions_this_month >= 100) {
-        unlocked_badges = addBadge(unlocked_badges, 'monthly_100');
-    }
+    if (sessions_today >= 10) unlocked_badges = addBadge(unlocked_badges, 'daily_10');
+    if (sessions_this_week >= 50) unlocked_badges = addBadge(unlocked_badges, 'weekly_50');
+    if (sessions_this_month >= 100) unlocked_badges = addBadge(unlocked_badges, 'monthly_100');
 
    const { rows: [updated] } = await pool.sql`
       INSERT INTO user_achievements (
@@ -137,11 +128,11 @@ export async function POST(request: Request) {
         1,
         1,
         1,
-        1,
-        1,
-        1,
+        ${sessions_today},  // Use calculated value instead of 1
+        ${sessions_this_week},  // Use calculated value instead of 1
+        ${sessions_this_month},  // Use calculated value instead of 1
         ${todayStr},
-        '[]',
+        ${JSON.stringify(unlocked_badges)},  // Use calculated badges instead of '[]'
         ${getNextSunday().toISOString()}
       )
       ON CONFLICT (member_id) DO UPDATE SET
