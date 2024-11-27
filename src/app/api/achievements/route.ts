@@ -7,8 +7,13 @@ const DEFAULT_PROFILE_PICTURE = "https://res.cloudinary.com/dmbzcxhjn/image/uplo
 const getNextSunday = (date: Date = new Date()) => {
   const newDate = new Date(date);
   newDate.setHours(0, 0, 0, 0);
-  while (newDate.getDay() !== 0) { // 0 is Sunday
-    newDate.setDate(newDate.getDate() + 1);  // Add days until we hit Sunday
+  // Add days until we reach Sunday
+  while (newDate.getDay() !== 0) {
+    newDate.setDate(newDate.getDate() + 1);
+  }
+  // If the date is today and it's Sunday, add 7 days to get next Sunday
+  if (newDate.getDay() === 0 && newDate.getDate() === new Date().getDate()) {
+    newDate.setDate(newDate.getDate() + 7);
   }
   return newDate;
 };
@@ -150,19 +155,25 @@ export async function POST(request: Request) {
       RETURNING *;
     `;
 
+    // After your INSERT statement
     const { rows: weeklyRankings } = await pool.sql`
       SELECT 
         member_id, 
         points,
-        RANK() OVER (ORDER BY points DESC) as rank
+        RANK() OVER (ORDER BY points DESC) as rank,
+        COUNT(*) OVER () as total_users
       FROM user_achievements 
       WHERE weekly_reset_at = ${updated.weekly_reset_at}
       ORDER BY points DESC;
     `;
 
-   const userRank = weeklyRankings.find(r => r.member_id === memberId)?.rank;
+    // Get the actual numeric rank
+    const userRanking = weeklyRankings.find(r => r.member_id === memberId);
+    const userRank = userRanking?.rank;
+    console.log('User ranking:', { memberId, rank: userRank, totalUsers: userRanking?.total_users });
     
-    if (userRank <= 3) {
+    // Only update league badges if there are enough users competing
+    if (userRank && userRanking?.total_users >= 3) {
       let leagueBadge = '';
       if (userRank === 1) leagueBadge = 'league_first';
       else if (userRank === 2) leagueBadge = 'league_second';
@@ -170,7 +181,6 @@ export async function POST(request: Request) {
       
       if (leagueBadge) {
         unlocked_badges = addBadge(unlocked_badges, leagueBadge);
-        // Update the badges in database
         await pool.sql`
           UPDATE user_achievements 
           SET unlocked_badges = ${JSON.stringify(unlocked_badges)}
