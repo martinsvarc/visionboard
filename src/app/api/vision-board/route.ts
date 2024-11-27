@@ -25,9 +25,10 @@ export async function GET(request: Request) {
     
     console.log('Query results:', rows);
     return NextResponse.json(rows);
-  } catch (error) {
+  } catch (err) {
+    const error = err as Error;
     console.error('Detailed database error:', error);
-    return NextResponse.json({ error: 'Failed to load vision board', details: error.message }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to load vision board', details: error?.toString() }, { status: 500 });
   }
 }
 
@@ -36,7 +37,10 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { memberstack_id, image_url, x_position, y_position, width, height, z_index, board_color } = body;
     
-    const pool = createPool();
+    const pool = createPool({
+      connectionString: process.env.POSTGRES_URL
+    });
+    
     const { rows } = await pool.query(
       `INSERT INTO vision_board_items 
        (memberstack_id, image_url, x_position, y_position, width, height, z_index, board_color)
@@ -46,9 +50,10 @@ export async function POST(request: Request) {
     );
     
     return NextResponse.json(rows[0]);
-  } catch (error) {
+  } catch (err) {
+    const error = err as Error;
     console.error('Database error:', error);
-    return NextResponse.json({ error: 'Failed to save item' }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to save item', details: error?.toString() }, { status: 500 });
   }
 }
 
@@ -61,7 +66,10 @@ export async function PUT(request: Request) {
       return NextResponse.json({ error: 'ID and Member ID required' }, { status: 400 });
     }
 
-    const pool = createPool();
+    const pool = createPool({
+      connectionString: process.env.POSTGRES_URL
+    });
+    
     const updates = [];
     const values = [id, memberstack_id];
     let paramCount = 3;
@@ -103,10 +111,16 @@ export async function PUT(request: Request) {
     `;
 
     const { rows } = await pool.query(query, values);
+    
+    if (rows.length === 0) {
+      return NextResponse.json({ error: 'Item not found' }, { status: 404 });
+    }
+    
     return NextResponse.json(rows[0]);
-  } catch (error) {
+  } catch (err) {
+    const error = err as Error;
     console.error('Database error:', error);
-    return NextResponse.json({ error: 'Failed to update item' }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to update item', details: error?.toString() }, { status: 500 });
   }
 }
 
@@ -120,7 +134,10 @@ export async function DELETE(request: Request) {
       return NextResponse.json({ error: 'ID and Member ID required' }, { status: 400 });
     }
 
-    const pool = createPool();
+    const pool = createPool({
+      connectionString: process.env.POSTGRES_URL
+    });
+    
     const { rows } = await pool.query(
       'DELETE FROM vision_board_items WHERE id = $1 AND memberstack_id = $2 RETURNING *',
       [id, memberstack_id]
@@ -131,8 +148,9 @@ export async function DELETE(request: Request) {
     }
 
     return NextResponse.json({ success: true });
-  } catch (error) {
+  } catch (err) {
+    const error = err as Error;
     console.error('Database error:', error);
-    return NextResponse.json({ error: 'Failed to delete item' }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to delete item', details: error?.toString() }, { status: 500 });
   }
 }
