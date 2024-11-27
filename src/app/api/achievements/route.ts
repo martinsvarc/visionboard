@@ -101,10 +101,14 @@ export async function POST(request: Request) {
     if (total_sessions >= 50) unlocked_badges = addBadge(unlocked_badges, 'calls_50');
     if (total_sessions >= 100) unlocked_badges = addBadge(unlocked_badges, 'calls_100');
 
-    // Unlock activity badges
-    if (sessions_today >= 10) unlocked_badges = addBadge(unlocked_badges, 'daily_10');
-    if (sessions_this_week >= 50) unlocked_badges = addBadge(unlocked_badges, 'weekly_50');
-    if (sessions_this_month >= 100) unlocked_badges = addBadge(unlocked_badges, 'monthly_100');
+   // Activity badges check based on sessions
+    const dailyBadge = ACHIEVEMENTS.activity.find(badge => badge.period === 'day' && badge.target === 10);
+    const weeklyBadge = ACHIEVEMENTS.activity.find(badge => badge.period === 'week' && badge.target === 50);
+    const monthlyBadge = ACHIEVEMENTS.activity.find(badge => badge.period === 'month' && badge.target === 100);
+
+    if (dailyBadge && sessions_today >= 10) unlocked_badges = addBadge(unlocked_badges, dailyBadge.id);
+    if (weeklyBadge && sessions_this_week >= 50) unlocked_badges = addBadge(unlocked_badges, weeklyBadge.id);
+    if (monthlyBadge && sessions_this_month >= 100) unlocked_badges = addBadge(unlocked_badges, monthlyBadge.id);
 
    const { rows: [updated] } = await pool.sql`
       INSERT INTO user_achievements (
