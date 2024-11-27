@@ -14,8 +14,8 @@ export async function GET(request: Request) {
   try {
     console.log('Creating pool connection');
     const pool = createPool({
-      connectionString: process.env.POSTGRES_URL
-    });
+  connectionString: process.env.POSTGRES_URL + "?sslmode=require&pgbouncer=true"
+});
 
     console.log('Executing query for memberId:', memberId);
     const { rows } = await pool.query(
