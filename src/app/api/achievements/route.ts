@@ -256,6 +256,7 @@ export async function GET(request: Request) {
           unlocked: userData?.unlocked_badges?.includes(badge.id) || false
         };
       })
+    };  // Add this closing brace and semicolon
 
     const { rows: weeklyRankings } = await pool.sql`
       SELECT 
