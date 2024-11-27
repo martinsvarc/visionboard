@@ -244,10 +244,18 @@ export async function GET(request: Request) {
         unlocked: userData?.unlocked_badges?.includes(`calls_${badge.target}`) || false
       })),
       
-      activityAchievements: ACHIEVEMENTS.activity.map(badge => ({
-        ...badge,
-        unlocked: userData?.unlocked_badges?.includes(`${badge.period}_${badge.target}`) || false
-      })),
+      activityAchievements: ACHIEVEMENTS.activity.map(badge => {
+        const isUnlocked = userData?.unlocked_badges?.includes(badge.id);
+        console.log('Activity badge check:', {
+          badgeId: badge.id,
+          unlocked_badges: userData?.unlocked_badges,
+          isUnlocked
+        });
+        return {
+          ...badge,
+          unlocked: isUnlocked || false
+        };
+      }),
       
       leagueAchievements: ACHIEVEMENTS.league.map(badge => {
         const leagueBadge = badge as { 
