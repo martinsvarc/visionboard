@@ -133,11 +133,11 @@ export async function POST(request: Request) {
         1,
         1,
         1,
-        ${sessions_today},  // Use calculated value instead of 1
-        ${sessions_this_week},  // Use calculated value instead of 1
-        ${sessions_this_month},  // Use calculated value instead of 1
+        ${sessions_today},
+        ${sessions_this_week},
+        ${sessions_this_month},
         ${todayStr},
-        ${JSON.stringify(unlocked_badges)},  // Use calculated badges instead of '[]'
+        ${JSON.stringify(unlocked_badges)},
         ${getNextSunday().toISOString()}
       )
       ON CONFLICT (member_id) DO UPDATE SET
