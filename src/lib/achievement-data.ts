@@ -182,7 +182,6 @@ export const ACHIEVEMENTS = {
       description: 'League Champion',
       tooltipTitle: 'League Champion',
       tooltipSubtitle: 'Finish first in weekly league',
-      target: 1
     },
     {
       id: 'league_second',
@@ -190,7 +189,6 @@ export const ACHIEVEMENTS = {
       description: 'League Runner-up',
       tooltipTitle: 'League Runner-up',
       tooltipSubtitle: 'Finish second in weekly league',
-      target: 2
     },
     {
       id: 'league_third',
@@ -198,7 +196,6 @@ export const ACHIEVEMENTS = {
       description: 'League Top 3',
       tooltipTitle: 'League Top 3',
       tooltipSubtitle: 'Finish third in weekly league',
-      target: 3
     }
   ]
 };
