@@ -145,6 +145,7 @@ export async function POST(request: Request) {
         sessions_this_month = user_achievements.sessions_this_month + 1,
         last_session_date = ${todayStr},
         unlocked_badges = ${JSON.stringify(unlocked_badges)},
+        weekly_reset_at = ${shouldResetWeek ? getNextSunday().toISOString() : existingUser?.weekly_reset_at || getNextSunday().toISOString()},
         updated_at = CURRENT_TIMESTAMP
       RETURNING *;
     `;
