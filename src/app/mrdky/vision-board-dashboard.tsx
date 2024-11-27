@@ -651,9 +651,8 @@ const updateItemPosition = useCallback(async (id: string, deltaX: number, deltaY
           <Card className="p-4 bg-white rounded-[20px] shadow-lg">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-2xl font-semibold text-[#556bc7]">Interactive Vision Board</h2>
-              
               <div className="flex gap-2">
-                Honzaaa Trejbal Millionaire Visionaire and Prorok!
+
 <Popover>
   <PopoverTrigger>
     <Button
