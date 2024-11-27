@@ -154,26 +154,34 @@ function League({ activeCategory, setActiveLeagueCategory }: {
   }, [activeCategory]);
 
   const getBestBadge = (unlocked_badges: string): string | undefined => {
-    if (!unlocked_badges) return undefined;
-    
-    // Split by comma and get the last badge
-    const badges = unlocked_badges.split(',').filter(badge => badge);
-    if (badges.length === 0) return undefined;
-    
-    // Get the last badge (most recent/best)
-    const lastBadge = badges[badges.length - 1];
-    
-    // Get the corresponding badge image
-    const allAchievements = {
-      ...ACHIEVEMENTS.streak,
-      ...ACHIEVEMENTS.calls,
-      ...ACHIEVEMENTS.league
-    };
-    
-    const badgeData = Object.values(allAchievements).find(b => b.id === lastBadge);
-    return badgeData?.image;
+  if (!unlocked_badges) return undefined;
+  
+  // Split by comma and get the last badge
+  const badges = unlocked_badges.split(',').filter(badge => badge);
+  if (badges.length === 0) return undefined;
+  
+  // Get the last badge (most recent/best)
+  const lastBadge = badges[badges.length - 1];
+  
+  // Get the corresponding badge image
+  const allAchievements = {
+    ...ACHIEVEMENTS.streak,
+    ...ACHIEVEMENTS.calls,
+    ...ACHIEVEMENTS.league
+  };
+  
+  // Add type for badge data
+  type BadgeData = {
+    id: string;
+    image: string;
+    description: string;
+    tooltipTitle: string;
+    tooltipSubtitle: string;
   };
 
+  const badgeData = Object.values(allAchievements).find((b: BadgeData) => b.id === lastBadge);
+  return badgeData?.image;
+};
     const categoryData = leagueData[activeCategory];
     const topPlayer = categoryData[0];
 
@@ -205,6 +213,7 @@ if (!categoryData?.length) {
       <div className="flex flex-wrap gap-2 mb-6">
         <Button 
           onClick={() => setActiveLeagueCategory('weekly')}
+          aria-label="Weekly League"
           className={cn(
             "flex-1 px-4 py-2 text-base font-medium transition-colors rounded-full",
             activeCategory === 'weekly' 
@@ -215,7 +224,8 @@ if (!categoryData?.length) {
           Weekly League
         </Button>
         <Button 
-          onClick={() => setActiveLeagueCategory('allTime')}
+          onClick={() => setActiveLeagueCategory('allTime')}  
+          aria-label="All Time"
           className={cn(
             "flex-1 px-4 py-2 text-base font-medium transition-colors rounded-full",
             activeCategory === 'allTime' 
@@ -227,6 +237,7 @@ if (!categoryData?.length) {
         </Button>
         <Button 
           onClick={() => setActiveLeagueCategory('allTimeTeam')}
+          aria-label="All Time Team"
           className={cn(
             "flex-1 px-4 py-2 text-base font-medium transition-colors rounded-full",
             activeCategory === 'allTimeTeam' 
@@ -252,7 +263,14 @@ if (!categoryData?.length) {
         {currentUser && (
           <div className="bg-[#51c1a9] text-white p-2 rounded-[20px] flex items-center gap-2 text-sm">
             <span className="text-white/90 font-medium">#{currentUser.rank}</span>
-            <img src={currentUser.avatar} alt="" className="w-8 h-8 rounded-full" />
+<img 
+  src={currentUser.avatar} 
+  alt="" 
+  className="w-8 h-8 rounded-full" 
+  onError={(e) => {
+    e.currentTarget.src = 'https://res.cloudinary.com/dmbzcxhjn/image/upload/v1732590120/WhatsApp_Image_2024-11-26_at_04.00.13_58e32347_owfpnt.jpg'
+  }}
+/>
             <div className="flex items-center gap-1">
               <span className="font-medium">{currentUser.name}</span>
               {currentUser.badge && (
@@ -281,7 +299,14 @@ if (!categoryData?.length) {
             )}
           >
             <span className="font-medium">#{player.rank}</span>
-            <img src={player.avatar} alt="" className="w-8 h-8 rounded-full" />
+           <img 
+  src={player.avatar} 
+  alt="" 
+  className="w-8 h-8 rounded-full" 
+  onError={(e) => {
+    e.currentTarget.src = 'https://res.cloudinary.com/dmbzcxhjn/image/upload/v1732590120/WhatsApp_Image_2024-11-26_at_04.00.13_58e32347_owfpnt.jpg'
+  }}
+/>
             <div className="flex items-center gap-1">
               <span className="font-medium">{player.name}</span>
               {player.badge && (
