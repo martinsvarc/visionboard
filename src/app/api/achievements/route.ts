@@ -102,6 +102,12 @@ export async function POST(request: Request) {
     if (sessions_this_month >= 100) unlocked_badges = addBadge(unlocked_badges, 'monthly_100');
 
    const { rows: [updated] } = await pool.sql`
+      WITH new_badges AS (
+        SELECT CASE
+          WHEN ${sessions_today} >= 10 THEN array_append(${JSON.stringify(unlocked_badges)}::text[], 'daily_10')
+          ELSE ${JSON.stringify(unlocked_badges)}::text[]
+        END as badges
+      )
       INSERT INTO user_achievements (
         member_id, 
         user_name, 
@@ -128,11 +134,11 @@ export async function POST(request: Request) {
         1,
         1,
         1,
-        ${sessions_today},  // Use calculated value instead of 1
-        ${sessions_this_week},  // Use calculated value instead of 1
-        ${sessions_this_month},  // Use calculated value instead of 1
+        ${sessions_today},
+        ${sessions_this_week},
+        ${sessions_this_month},
         ${todayStr},
-        ${JSON.stringify(unlocked_badges)},  // Use calculated badges instead of '[]'
+        (SELECT badges FROM new_badges),
         ${getNextSunday().toISOString()}
       )
       ON CONFLICT (member_id) DO UPDATE SET
@@ -149,7 +155,10 @@ export async function POST(request: Request) {
         sessions_this_week = user_achievements.sessions_this_week + 1,
         sessions_this_month = user_achievements.sessions_this_month + 1,
         last_session_date = ${todayStr},
-        unlocked_badges = ${JSON.stringify(unlocked_badges)},
+        unlocked_badges = CASE
+            WHEN ${sessions_today} >= 10 THEN array_append(user_achievements.unlocked_badges, 'daily_10')
+            ELSE user_achievements.unlocked_badges
+        END,
         weekly_reset_at = ${shouldResetWeek ? getNextSunday().toISOString() : existingUser?.weekly_reset_at || getNextSunday().toISOString()},
         updated_at = CURRENT_TIMESTAMP
       RETURNING *;
