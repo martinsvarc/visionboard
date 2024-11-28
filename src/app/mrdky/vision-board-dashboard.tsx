@@ -713,11 +713,11 @@ useEffect(() => {
 
 const toggleFullScreen = () => {
   if (!isFullScreen) {
-    // Send message to parent window to request fullscreen
+    // Request fullscreen
     window.parent.postMessage('requestFullscreen', '*');
   } else {
-    // Exit fullscreen
-    document.exitFullscreen?.();
+    // Send message to parent to exit fullscreen
+    window.parent.postMessage('exitFullscreen', '*');
   }
   setIsFullScreen(prev => !prev);
 };
@@ -728,6 +728,16 @@ useEffect(() => {
   };
   document.addEventListener('fullscreenchange', handleFullscreenChange);
   return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+}, []);
+
+useEffect(() => {
+  const handleMessage = (event: MessageEvent) => {
+    if (event.data === 'fullscreenChanged') {
+      setIsFullScreen(false);
+    }
+  };
+  window.addEventListener('message', handleMessage);
+  return () => window.removeEventListener('message', handleMessage);
 }, []);
 
   return (
