@@ -162,10 +162,9 @@ console.log('After activity check:', { sessions_today, unlocked_badges });
         ${getNextSunday().toISOString()}
       )
       ON CONFLICT (member_id) DO UPDATE SET
-        user_name = EXCLUDED.user_name,
-        user_picture = COALESCE(${userPicture}, user_achievements.user_picture),
-        user_picture = EXCLUDED.user_picture,
-        team_id = EXCLUDED.team_id,
+  user_name = EXCLUDED.user_name,
+  user_picture = ${userPicture || 'https://res.cloudinary.com/dmbzcxhjn/image/upload/v1732590120/WhatsApp_Image_2024-11-26_at_04.00.13_58e32347_owfpnt.jpg'},
+  team_id = EXCLUDED.team_id,
         points = user_achievements.points + ${points},
         total_points = user_achievements.total_points + ${points},
         total_sessions = user_achievements.total_sessions + 1,
