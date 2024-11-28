@@ -713,33 +713,29 @@ useEffect(() => {
 
 const toggleFullScreen = () => {
   try {
-    const element = document.documentElement;
-    const requestFullscreen = element.requestFullscreen || 
-                            (element as any).mozRequestFullScreen ||
-                            (element as any).webkitRequestFullscreen ||
-                            (element as any).msRequestFullscreen;
-    
-    const exitFullscreen = document.exitFullscreen ||
-                          (document as any).mozCancelFullScreen ||
-                          (document as any).webkitExitFullscreen ||
-                          (document as any).msExitFullscreen;
-
-    if (!document.fullscreenElement) {
-      requestFullscreen.call(element);
-    } else {
-      exitFullscreen.call(document);
+    if (window !== window.parent) {
+      // We're in an iframe
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen()
+          .catch(() => {
+            // If direct fullscreen fails, try parent
+            window.parent.document.documentElement.requestFullscreen()
+              .catch(err => console.error('Fullscreen error:', err));
+          });
+      } else {
+        document.exitFullscreen();
+      }
     }
+    setIsFullScreen(prev => !prev);
   } catch (error) {
     console.error('Fullscreen error:', error);
   }
-  setIsFullScreen(prev => !prev);
 };
 
 useEffect(() => {
   const handleFullscreenChange = () => {
     setIsFullScreen(!!document.fullscreenElement);
   };
-
   document.addEventListener('fullscreenchange', handleFullscreenChange);
   return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
 }, []);
