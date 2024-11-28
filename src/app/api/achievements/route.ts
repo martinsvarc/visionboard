@@ -32,7 +32,8 @@ function isNewMonth(lastDate: Date, currentDate: Date = new Date()) {
 
 export async function POST(request: Request) {
   try {
-    const { memberId, userName, userPicture = DEFAULT_PROFILE_PICTURE, teamId, points } = await request.json();
+    const body = await request.json();
+const { memberId, userName, userPicture, teamId, points } = body;
     
     if (!memberId || !userName) {
       return NextResponse.json({ error: 'Member ID and username required' }, { status: 400 });
@@ -162,6 +163,7 @@ console.log('After activity check:', { sessions_today, unlocked_badges });
       )
       ON CONFLICT (member_id) DO UPDATE SET
         user_name = EXCLUDED.user_name,
+        user_picture = COALESCE(${userPicture}, user_achievements.user_picture),
         user_picture = EXCLUDED.user_picture,
         team_id = EXCLUDED.team_id,
         points = user_achievements.points + ${points},
