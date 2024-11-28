@@ -713,32 +713,40 @@ useEffect(() => {
 
 const toggleFullScreen = () => {
   if (!isFullScreen) {
-    // Try to get the top-most iframe (our app's container)
-    const iframe = window.frameElement;
-    if (iframe) {
-      // Try multiple fullscreen methods
-      Promise.any([
-        // Try iframe fullscreen
-        iframe.requestFullscreen?.(),
-        iframe.webkitRequestFullscreen?.(),
-        // Try parent document fullscreen
-        window.parent.document.documentElement.requestFullscreen?.(),
-        // Try current document fullscreen
-        document.documentElement.requestFullscreen?.()
-      ]).catch(err => {
-        console.error('Fullscreen failed:', err);
-      });
-    } else {
-      // Fallback to regular fullscreen
-      document.documentElement.requestFullscreen?.()
-        .catch(err => console.error('Fullscreen failed:', err));
+    try {
+      const iframe = window.frameElement as HTMLElement & {
+        webkitRequestFullscreen?: () => Promise<void>;
+        mozRequestFullScreen?: () => Promise<void>;
+        msRequestFullscreen?: () => Promise<void>;
+      };
+
+      if (iframe) {
+        const requestFullscreenPromises = [
+          iframe.requestFullscreen && iframe.requestFullscreen(),
+          iframe.webkitRequestFullscreen && iframe.webkitRequestFullscreen(),
+          window.parent.document.documentElement.requestFullscreen(),
+          document.documentElement.requestFullscreen(),
+        ].filter(Boolean);
+
+        Promise.any(requestFullscreenPromises).catch(err => {
+          console.error('Fullscreen failed:', err);
+        });
+      } else {
+        document.documentElement.requestFullscreen()
+          .catch(err => console.error('Fullscreen failed:', err));
+      }
+    } catch (error) {
+      console.error('Fullscreen error:', error);
     }
   } else {
-    // Exit fullscreen - try multiple methods
-    if (document.exitFullscreen) {
-      document.exitFullscreen();
-    } else if (window.parent.document.exitFullscreen) {
-      window.parent.document.exitFullscreen();
+    try {
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+      } else if (window.parent.document.exitFullscreen) {
+        window.parent.document.exitFullscreen();
+      }
+    } catch (error) {
+      console.error('Exit fullscreen error:', error);
     }
   }
   setIsFullScreen(prev => !prev);
