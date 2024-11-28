@@ -12,6 +12,8 @@ import { LeagueChart } from '@/components/LeagueChart'
 import { AchievementContent, type AchievementContentProps } from './achievement-showcase';
 import { Badge } from '@/lib/achievement-data';
 import League from './league';
+import { debounce } from 'lodash';
+
 
 interface LeaguePlayer {
   rank: number
@@ -538,15 +540,25 @@ const updateItemPosition = useCallback(async (id: string, deltaX: number, deltaY
   });
 }, [memberId]);
 
-  const updateItemSize = useCallback((id: string, deltaWidth: number, deltaHeight: number, direction: string) => {
-    setVisionItems(prev => prev.map(item => {
+const updateItemSize = useCallback((id: string, deltaWidth: number, deltaHeight: number, direction: string) => {
+  if (!memberId) return;
+
+  // Keep track of the previous state for rollback
+  let previousState: VisionItem | null = null;
+
+  setVisionItems(prev => {
+    const newItems = prev.map(item => {
       if (item.id === id && boardRef.current) {
+        // Store the previous state
+        previousState = { ...item };
+        
         const board = boardRef.current.getBoundingClientRect()
         let newWidth = item.width
         let newHeight = item.height
         let newX = item.x
         let newY = item.y
 
+        // Calculate new dimensions (existing logic)
         if (direction.includes('right')) {
           newWidth = Math.min(Math.max(100, item.width + deltaWidth), board.width - item.x)
         } else if (direction.includes('left')) {
@@ -571,11 +583,64 @@ const updateItemPosition = useCallback(async (id: string, deltaX: number, deltaY
           newHeight = newWidth / aspectRatio
         }
 
+        // Trigger debounced save
+        debouncedSaveSize(id, newX, newY, newWidth, newHeight, previousState);
+
         return { ...item, width: newWidth, height: newHeight, x: newX, y: newY }
       }
       return item
-    }))
-  }, [])
+    });
+    return newItems;
+  });
+}, [memberId]);
+
+// Debounced save function
+const debouncedSaveSize = useCallback(
+  debounce(async (
+    id: string, 
+    x: number, 
+    y: number, 
+    width: number, 
+    height: number, 
+    previousState: VisionItem
+  ) => {
+    try {
+      const response = await fetch('/api/vision-board', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: parseInt(id),
+          memberstack_id: memberId,
+          x_position: x,
+          y_position: y,
+          width: width,
+          height: height
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update dimensions');
+      }
+    } catch (error) {
+      console.error('Failed to save dimensions:', error);
+      
+      // Rollback on failure
+      if (previousState) {
+        setVisionItems(prev => prev.map(item => 
+          item.id === id ? previousState : item
+        ));
+      }
+    }
+  }, 500), // 500ms debounce delay
+  [memberId]
+);
+
+// Cleanup debounced function on unmount
+useEffect(() => {
+  return () => {
+    debouncedSaveSize.cancel();
+  };
+}, [debouncedSaveSize]);
 
   const bringToFront = useCallback((id: string) => {
     setMaxZIndex(prev => prev + 1)
