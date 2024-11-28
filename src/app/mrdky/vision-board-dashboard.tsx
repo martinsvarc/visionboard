@@ -712,24 +712,36 @@ useEffect(() => {
   }, [])
 
 const toggleFullScreen = () => {
-  try {
-    if (window !== window.parent) {
-      // We're in an iframe
-      if (!document.fullscreenElement) {
-        document.documentElement.requestFullscreen()
-          .catch(() => {
-            // If direct fullscreen fails, try parent
-            window.parent.document.documentElement.requestFullscreen()
-              .catch(err => console.error('Fullscreen error:', err));
-          });
-      } else {
-        document.exitFullscreen();
-      }
+  if (!isFullScreen) {
+    // Try to get the top-most iframe (our app's container)
+    const iframe = window.frameElement;
+    if (iframe) {
+      // Try multiple fullscreen methods
+      Promise.any([
+        // Try iframe fullscreen
+        iframe.requestFullscreen?.(),
+        iframe.webkitRequestFullscreen?.(),
+        // Try parent document fullscreen
+        window.parent.document.documentElement.requestFullscreen?.(),
+        // Try current document fullscreen
+        document.documentElement.requestFullscreen?.()
+      ]).catch(err => {
+        console.error('Fullscreen failed:', err);
+      });
+    } else {
+      // Fallback to regular fullscreen
+      document.documentElement.requestFullscreen?.()
+        .catch(err => console.error('Fullscreen failed:', err));
     }
-    setIsFullScreen(prev => !prev);
-  } catch (error) {
-    console.error('Fullscreen error:', error);
+  } else {
+    // Exit fullscreen - try multiple methods
+    if (document.exitFullscreen) {
+      document.exitFullscreen();
+    } else if (window.parent.document.exitFullscreen) {
+      window.parent.document.exitFullscreen();
+    }
   }
+  setIsFullScreen(prev => !prev);
 };
 
 useEffect(() => {
