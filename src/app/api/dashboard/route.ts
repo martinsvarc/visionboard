@@ -1,7 +1,6 @@
 import { createPool } from '@vercel/postgres';
 import { NextResponse } from 'next/server';
 
-// Types
 interface CategoryScores {
   engagement: number;
   objection_handling: number;
@@ -9,18 +8,18 @@ interface CategoryScores {
   program_explanation: number;
   closing_skills: number;
   overall_effectiveness: number;
-  overall_performance: number; 
+  overall_performance?: number;
   average_success: number;
 }
 
 interface CategoryDescriptions {
-  engagement: string;
-  objection_handling: string;
-  information_gathering: string;
-  program_explanation: string;
-  closing_skills: string;
-  overall_effectiveness: string;
-  overall_performance: string;
+  engagement?: string;
+  objection_handling?: string;
+  information_gathering?: string;
+  program_explanation?: string;
+  closing_skills?: string;
+  overall_effectiveness?: string;
+  overall_performance?: string;
 }
 
 interface CategoryFeedback {
@@ -41,10 +40,9 @@ interface CallData {
   call_details: string;
   scores: CategoryScores;
   feedback: CategoryFeedback;
-  descriptions: CategoryDescriptions;
+  descriptions?: CategoryDescriptions;
 }
 
-// GET endpoint
 export const GET = async (request: Request) => {
   try {
     const { searchParams } = new URL(request.url);
@@ -66,43 +64,42 @@ export const GET = async (request: Request) => {
     `;
 
     const transformedRows = rows.map(row => ({
-  id: row.id,
-  call_number: row.call_number,
-  user_name: row.user_name,
-  agent_name: row.agent_name,
-  agent_picture_url: row.agent_picture_url,
-  call_date: row.call_date,
-  call_recording_url: row.call_recording_url,
-  call_details: row.call_details,
-  scores: {
-    engagement: parseFloat(row.engagement_score),
-    objection_handling: parseFloat(row.objection_handling_score),
-    information_gathering: parseFloat(row.information_gathering_score),
-    program_explanation: parseFloat(row.program_explanation_score),
-    closing_skills: parseFloat(row.closing_skills_score),
-    overall_effectiveness: parseFloat(row.overall_effectiveness_score),
-    overall_performance: parseFloat(row.overall_performance),
-    average_success: parseFloat(row.average_success_score)
-  },
-  feedback: {
-    engagement: row.engagement_feedback,
-    objection_handling: row.objection_handling_feedback,
-    information_gathering: row.information_gathering_feedback,
-    program_explanation: row.program_explanation_feedback,
-    closing_skills: row.closing_skills_feedback,
-    overall_effectiveness: row.overall_effectiveness_feedback
-  },
-  // Add this new section for descriptions
-  descriptions: {
-    engagement: row.engagement_description,
-    objection_handling: row.objection_handling_description,
-    information_gathering: row.information_gathering_description,
-    program_explanation: row.program_explanation_description,
-    closing_skills: row.closing_skills_description,
-    overall_effectiveness: row.overall_effectiveness_description,
-    overall_performance: row.overall_performance_description
-  }
-}));
+      id: row.id,
+      call_number: row.call_number,
+      user_name: row.user_name,
+      agent_name: row.agent_name,
+      agent_picture_url: row.agent_picture_url,
+      call_date: row.call_date,
+      call_recording_url: row.call_recording_url,
+      call_details: row.call_details,
+      scores: {
+        engagement: parseFloat(row.engagement_score),
+        objection_handling: parseFloat(row.objection_handling_score),
+        information_gathering: parseFloat(row.information_gathering_score),
+        program_explanation: parseFloat(row.program_explanation_score),
+        closing_skills: parseFloat(row.closing_skills_score),
+        overall_effectiveness: parseFloat(row.overall_effectiveness_score),
+        overall_performance: parseFloat(row.overall_performance),
+        average_success: parseFloat(row.average_success_score)
+      },
+      feedback: {
+        engagement: row.engagement_feedback,
+        objection_handling: row.objection_handling_feedback,
+        information_gathering: row.information_gathering_feedback,
+        program_explanation: row.program_explanation_feedback,
+        closing_skills: row.closing_skills_feedback,
+        overall_effectiveness: row.overall_effectiveness_feedback
+      },
+      descriptions: {
+        engagement: row.engagement_description,
+        objection_handling: row.objection_handling_description,
+        information_gathering: row.information_gathering_description,
+        program_explanation: row.program_explanation_description,
+        closing_skills: row.closing_skills_description,
+        overall_effectiveness: row.overall_effectiveness_description,
+        overall_performance: row.overall_performance_description
+      }
+    }));
 
     return NextResponse.json(transformedRows);
   } catch (error) {
@@ -111,7 +108,6 @@ export const GET = async (request: Request) => {
   }
 }
 
-// POST endpoint
 export const POST = async (request: Request) => {
   try {
     const { memberId, callData }: { memberId: string, callData: CallData } = await request.json();
@@ -124,7 +120,6 @@ export const POST = async (request: Request) => {
       connectionString: process.env.visionboard_PRISMA_URL
     });
 
-    // Get the current highest call number for this member
     const { rows: existingCalls } = await pool.sql`
       SELECT COALESCE(MAX(call_number), 0) as max_call_number
       FROM call_logs
@@ -133,7 +128,6 @@ export const POST = async (request: Request) => {
 
     const nextCallNumber = parseInt(existingCalls[0].max_call_number) + 1;
 
-    // Match exact column names from your database table
     const { rows } = await pool.sql`
       INSERT INTO call_logs (
         member_id,
@@ -180,7 +174,7 @@ export const POST = async (request: Request) => {
         ${callData.scores.program_explanation},
         ${callData.scores.closing_skills},
         ${callData.scores.overall_effectiveness},
-        ${callData.scores.overall_performance},
+        ${callData.scores.overall_performance ?? null},
         ${callData.scores.average_success},
         ${callData.feedback.engagement},
         ${callData.feedback.objection_handling},
@@ -188,13 +182,13 @@ export const POST = async (request: Request) => {
         ${callData.feedback.program_explanation},
         ${callData.feedback.closing_skills},
         ${callData.feedback.overall_effectiveness},
-        ${callData.descriptions.engagement},
-        ${callData.descriptions.objection_handling},
-        ${callData.descriptions.information_gathering},
-        ${callData.descriptions.program_explanation},
-        ${callData.descriptions.closing_skills},
-        ${callData.descriptions.overall_effectiveness},
-        ${callData.descriptions.overall_performance}
+        ${callData.descriptions?.engagement ?? null},
+        ${callData.descriptions?.objection_handling ?? null},
+        ${callData.descriptions?.information_gathering ?? null},
+        ${callData.descriptions?.program_explanation ?? null},
+        ${callData.descriptions?.closing_skills ?? null},
+        ${callData.descriptions?.overall_effectiveness ?? null},
+        ${callData.descriptions?.overall_performance ?? null}
       )
       RETURNING *;
     `;
@@ -202,7 +196,6 @@ export const POST = async (request: Request) => {
     return NextResponse.json(rows[0]);
   } catch (error) {
     console.error('Error adding call log:', error);
-    // Add more detailed error logging
     if (error instanceof Error) {
       console.error('Error details:', error.message);
     }
@@ -210,7 +203,6 @@ export const POST = async (request: Request) => {
   }
 }
 
-// PUT endpoint to update a call log
 export const PUT = async (request: Request) => {
   try {
     const { searchParams } = new URL(request.url);
@@ -256,7 +248,6 @@ export const PUT = async (request: Request) => {
   }
 }
 
-// DELETE endpoint
 export const DELETE = async (request: Request) => {
   try {
     const { searchParams } = new URL(request.url);
