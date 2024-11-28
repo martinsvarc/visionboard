@@ -712,15 +712,9 @@ useEffect(() => {
   }, [])
 
 const toggleFullScreen = () => {
-  if (!document.fullscreenElement) {
-    document.documentElement.requestFullscreen().catch(err => {
-      console.error(`Error attempting to enable full-screen mode: ${err.message}`);
-    });
-  } else {
-    if (document.exitFullscreen) {
-      document.exitFullscreen();
-    }
-  }
+  setIsFullScreen(prev => !prev);
+}
+
   setIsFullScreen(prev => !prev);
 }
 
@@ -734,7 +728,11 @@ useEffect(() => {
 }, []);
 
   return (
-      <div className={`min-h-screen bg-gray-100 p-2 ${isFullScreen ? 'fixed inset-0 z-[100]' : ''}`}>
+    <div className={`transition-all duration-300 ease-in-out ${
+      isFullScreen 
+        ? 'fixed inset-0 z-[100] bg-[#f0f1f7]' 
+        : 'relative w-full h-[600px] bg-[#f0f1f7]'
+    }`}>
         <div className="max-w-7xl mx-auto space-y-4">
           {/* Interactive Vision Board */}
           <Card className="p-4 bg-white rounded-[20px] shadow-lg">
@@ -807,17 +805,17 @@ useEffect(() => {
 
             <div 
   ref={boardRef} 
-  className={`relative w-full ${
-    isFullScreen ? 'h-[calc(100vh-120px)]' : 'h-[750px]'
-  } rounded-3xl bg-[#f0f1f7] shadow-lg border transition-all duration-300`}
+  className={`relative w-full rounded-3xl bg-[#f0f1f7] shadow-lg border transition-all duration-300 overflow-hidden ${
+    isFullScreen ? 'h-[calc(100vh-88px)]' : 'h-[calc(600px-88px)]'
+  }`}
   style={{
     borderColor: glowColor,
     boxShadow: `0 0 10px ${glowColor}, 0 0 20px ${glowColor.replace('0.3', '0.2')}`
   }}
-              onMouseMove={handleInteractionMove}
-              onMouseUp={handleInteractionEnd}
-              onMouseLeave={handleInteractionEnd}
-            >
+  onMouseMove={handleInteractionMove}
+  onMouseUp={handleInteractionEnd}
+  onMouseLeave={handleInteractionEnd}
+>
               <div className="absolute inset-0 overflow-hidden">
                 {visionItems.map((item) => (
                   <div
