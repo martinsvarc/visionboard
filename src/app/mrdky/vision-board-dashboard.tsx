@@ -713,41 +713,11 @@ useEffect(() => {
 
 const toggleFullScreen = () => {
   if (!isFullScreen) {
-    try {
-      const iframe = window.frameElement as HTMLElement & {
-        webkitRequestFullscreen?: () => Promise<void>;
-        mozRequestFullScreen?: () => Promise<void>;
-        msRequestFullscreen?: () => Promise<void>;
-      };
-
-      if (iframe) {
-        const requestFullscreenPromises = [
-          iframe.requestFullscreen && iframe.requestFullscreen(),
-          iframe.webkitRequestFullscreen && iframe.webkitRequestFullscreen(),
-          window.parent.document.documentElement.requestFullscreen(),
-          document.documentElement.requestFullscreen(),
-        ].filter(Boolean);
-
-        Promise.any(requestFullscreenPromises).catch(err => {
-          console.error('Fullscreen failed:', err);
-        });
-      } else {
-        document.documentElement.requestFullscreen()
-          .catch(err => console.error('Fullscreen failed:', err));
-      }
-    } catch (error) {
-      console.error('Fullscreen error:', error);
-    }
+    // Send message to parent window to request fullscreen
+    window.parent.postMessage('requestFullscreen', '*');
   } else {
-    try {
-      if (document.exitFullscreen) {
-        document.exitFullscreen();
-      } else if (window.parent.document.exitFullscreen) {
-        window.parent.document.exitFullscreen();
-      }
-    } catch (error) {
-      console.error('Exit fullscreen error:', error);
-    }
+    // Exit fullscreen
+    document.exitFullscreen?.();
   }
   setIsFullScreen(prev => !prev);
 };
