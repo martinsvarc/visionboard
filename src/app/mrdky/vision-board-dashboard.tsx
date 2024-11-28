@@ -715,9 +715,6 @@ const toggleFullScreen = () => {
   setIsFullScreen(prev => !prev);
 }
 
-  setIsFullScreen(prev => !prev);
-}
-
 useEffect(() => {
   const handleFullscreenChange = () => {
     setIsFullScreen(!!document.fullscreenElement);
