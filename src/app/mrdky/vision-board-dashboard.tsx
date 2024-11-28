@@ -13,6 +13,7 @@ import { AchievementContent, type AchievementContentProps } from './achievement-
 import { Badge } from '@/lib/achievement-data';
 import League from './league';
 import { debounce } from 'lodash';
+import { Maximize2 } from 'lucide-react'
 
 
 interface LeaguePlayer {
@@ -195,6 +196,7 @@ export default function VisionBoardDashboardClient() {
   const [glowColor, setGlowColor] = useState('rgba(85, 107, 199, 0.3)')
   const boardRef = useRef<HTMLDivElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const [isFullScreen, setIsFullScreen] = useState(false)
 
 useEffect(() => {
     getMemberId().then(setMemberId);
@@ -709,8 +711,30 @@ useEffect(() => {
     }
   }, [])
 
+const toggleFullScreen = () => {
+  if (!document.fullscreenElement) {
+    document.documentElement.requestFullscreen().catch(err => {
+      console.error(`Error attempting to enable full-screen mode: ${err.message}`);
+    });
+  } else {
+    if (document.exitFullscreen) {
+      document.exitFullscreen();
+    }
+  }
+  setIsFullScreen(prev => !prev);
+}
+
+useEffect(() => {
+  const handleFullscreenChange = () => {
+    setIsFullScreen(!!document.fullscreenElement);
+  };
+
+  document.addEventListener('fullscreenchange', handleFullscreenChange);
+  return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+}, []);
+
   return (
-      <div className="min-h-screen bg-gray-100 p-2">
+      <div className={`min-h-screen bg-gray-100 p-2 ${isFullScreen ? 'fixed inset-0 z-[100]' : ''}`}>
         <div className="max-w-7xl mx-auto space-y-4">
           {/* Interactive Vision Board */}
           <Card className="p-4 bg-white rounded-[20px] shadow-lg">
@@ -760,6 +784,16 @@ useEffect(() => {
   <UploadIcon />
   Add Vision
 </Button>
+<Button
+  variant="outline"
+  size="lg"
+  className="bg-[#556bc7] hover:bg-[#4a5eb3] text-white border-[#556bc7] gap-2 rounded-xl"
+  onClick={toggleFullScreen}
+>
+  <Maximize2 />
+  {isFullScreen ? 'Exit Full Screen' : 'Full Screen'}
+</Button>
+
 <input
   ref={fileInputRef}
   type="file"
@@ -772,12 +806,14 @@ useEffect(() => {
             </div>
 
             <div 
-              ref={boardRef} 
-              className="relative w-full h-[750px] rounded-3xl bg-[#f0f1f7] shadow-lg border transition-all duration-300"
-              style={{
-                borderColor: glowColor,
-                boxShadow: `0 0 10px ${glowColor}, 0 0 20px ${glowColor.replace('0.3', '0.2')}`
-              }}
+  ref={boardRef} 
+  className={`relative w-full ${
+    isFullScreen ? 'h-[calc(100vh-120px)]' : 'h-[750px]'
+  } rounded-3xl bg-[#f0f1f7] shadow-lg border transition-all duration-300`}
+  style={{
+    borderColor: glowColor,
+    boxShadow: `0 0 10px ${glowColor}, 0 0 20px ${glowColor.replace('0.3', '0.2')}`
+  }}
               onMouseMove={handleInteractionMove}
               onMouseUp={handleInteractionEnd}
               onMouseLeave={handleInteractionEnd}
