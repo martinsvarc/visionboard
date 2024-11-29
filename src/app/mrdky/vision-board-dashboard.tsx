@@ -1067,22 +1067,42 @@ return (
               </div>
             </Card>
           </div>
-          <style jsx global>{`
-            .resize-handle {
-              position: absolute;
-              width: 10px;
-              height: 10px;
-              background-color: white;
-              border: 1px solid #ccc;
-            }
-            .resize-handle-tl { top: -5px; left: -5px; cursor: nwse-resize; }
-            .resize-handle-tr { top: -5px; right: -5px; cursor: nesw-resize; }
-            .resize-handle-bl { bottom: -5px; left: -5px; cursor: nesw-resize; }
-            .resize-handle-br { bottom: -5px; right: -5px; cursor: nwse-resize; }
-            .color-slider {
-              background: linear-gradient(to right, #fbb350 0%, #51c1a9 50%, #556bc7 100%);
-            }
-          `}</style>
+         <style jsx global>{`
+  /* New height management styles */
+  html, body {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    height: auto !important;
+    min-height: 100%;
+  }
+
+  #__next {
+    height: auto !important;
+    min-height: 100%;
+  }
+
+  .relative.w-full.bg-[#f0f1f7] {
+    height: auto !important;
+    min-height: 100%;
+  }
+
+  /* Existing resize handle styles */
+  .resize-handle {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background-color: white;
+    border: 1px solid #ccc;
+  }
+  .resize-handle-tl { top: -5px; left: -5px; cursor: nwse-resize; }
+  .resize-handle-tr { top: -5px; right: -5px; cursor: nesw-resize; }
+  .resize-handle-bl { bottom: -5px; left: -5px; cursor: nesw-resize; }
+  .resize-handle-br { bottom: -5px; right: -5px; cursor: nwse-resize; }
+  .color-slider {
+    background: linear-gradient(to right, #fbb350 0%, #51c1a9 50%, #556bc7 100%);
+  }
+`}</style>
         </div>
       </div>
     )}
