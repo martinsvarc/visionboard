@@ -140,16 +140,18 @@ const VisionBoardContent = ({
       </div>
 
       <div 
-        ref={boardRef} 
-        className="relative w-full rounded-3xl bg-[#f0f1f7] shadow-lg border h-[512px]"
-        style={{
-          borderColor: glowColor,
-          boxShadow: `0 0 10px ${glowColor}, 0 0 20px ${glowColor.replace('0.3', '0.2')}`
-        }}
-        onMouseMove={handleInteractionMove}
-        onMouseUp={handleInteractionEnd}
-        onMouseLeave={handleInteractionEnd}
-      >
+  ref={boardRef} 
+  className={`relative w-full rounded-3xl bg-[#f0f1f7] shadow-lg border h-[512px] transition-transform duration-300 ${
+    isFullScreen ? 'scale-[1.8]' : ''  // Adjust this scaling factor as needed
+  }`}
+  style={{
+    borderColor: glowColor,
+    boxShadow: `0 0 10px ${glowColor}, 0 0 20px ${glowColor.replace('0.3', '0.2')}`
+  }}
+  onMouseMove={handleInteractionMove}
+  onMouseUp={handleInteractionEnd}
+  onMouseLeave={handleInteractionEnd}
+>
         <div className="absolute inset-0 overflow-hidden">
           {visionItems.map((item) => (
             <div
@@ -898,7 +900,7 @@ return (
   <>
     {isFullScreen ? (
       <div className="fixed inset-0 z-[100] bg-black/80 flex items-center justify-center p-8">
-        <Card className="w-[1024px] bg-white rounded-[20px] shadow-lg overflow-hidden">
+        <Card className="w-[90vw] bg-white rounded-[20px] shadow-lg overflow-hidden">
           <div className="p-4">
             <VisionBoardContent
               glowColor={glowColor}
