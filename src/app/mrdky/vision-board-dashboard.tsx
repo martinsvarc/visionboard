@@ -83,92 +83,72 @@ const VisionBoardContent: React.FC<VisionBoardContentProps> = ({
   setGlowColor
 }) => {
   const calculateScale = () => {
-    if (!boardRef.current || !isFullScreen) return 1;
-    
-    const boardRect = boardRef.current.getBoundingClientRect();
-    const boardWidth = boardRect.width;
-    const boardHeight = boardRect.height;
-    const windowWidth = window.innerWidth * 0.95;
-    const windowHeight = window.innerHeight * 0.95;
-    
-    const scaleX = windowWidth / boardWidth;
-    const scaleY = windowHeight / boardHeight;
-    return Math.min(scaleX, scaleY);
-  };
+  if (!boardRef.current || !isFullScreen) return 1;
+  
+  const boardRect = boardRef.current.getBoundingClientRect();
+  const containerWidth = window.innerWidth * 0.9; // 90vw
+  const containerHeight = window.innerHeight * 0.9; // 90vh
+  
+  // Account for padding
+  const availableWidth = containerWidth - 32; // 2rem padding
+  const availableHeight = containerHeight - 32; // 2rem padding
+  
+  const scaleX = availableWidth / boardRect.width;
+  const scaleY = availableHeight / boardRect.height;
+  
+  // Use the smaller scale to ensure it fits both dimensions
+  return Math.min(scaleX, scaleY, 2); // Cap at 2x to prevent excessive scaling
+};
 
-  return (
-    <div>
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-2xl font-semibold text-[#556bc7]">Interactive Vision Board</h2>
-        <div className="flex gap-2">
-          <Popover>
-            <PopoverTrigger>
+return (
+  <>
+    {isFullScreen ? (
+      <div className="fixed inset-0 z-[100] bg-black/80">
+        <div className="absolute top-0 left-0 right-0 px-4 py-2 bg-gray-700/50 text-white text-sm">
+          To exit full screen, press <kbd className="px-2 py-0.5 bg-gray-600 rounded">Esc</kbd>
+        </div>
+        
+        <div className="absolute inset-0 flex items-center justify-center p-8">
+          <Card className="relative w-[90vw] h-[90vh] bg-white rounded-[20px] shadow-lg overflow-hidden">
+            <div className="absolute top-4 right-4 z-10 flex gap-2">
               <Button
-                variant="outline" 
+                variant="outline"
                 size="sm"
                 className="bg-[#fbb350] hover:bg-[#f9a238] text-white border-[#fbb350] gap-2 rounded-xl"
+                onClick={() => fileInputRef.current?.click()}
               >
-                <Palette />
-                Color
+                <Upload />
+                Add Vision
               </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0 z-[9999]" align="end">
-              <ColorPicker 
-                color={glowColor} 
-                onChange={async (newColor: string) => {
-                  try {
-                    setGlowColor(newColor);
-                    await fetch('/api/vision-board', {
-                      method: 'PATCH',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({
-                        memberstack_id: memberId,
-                        board_color: newColor
-                      })
-                    });
-                  } catch (error) {
-                    console.error('Color update error:', error);
-                  }
+              <Button
+                variant="outline"
+                size="sm"
+                className="bg-[#556bc7] hover:bg-[#4a5eb3] text-white border-[#556bc7] gap-2 rounded-xl"
+                onClick={toggleFullScreen}
+              >
+                <Maximize2 />
+                Exit Full Screen
+              </Button>
+            </div>
+            
+            <div 
+              ref={boardRef}
+              className="w-full h-full p-4"
+              style={{
+                transform: `scale(${calculateScale()})`,
+                transformOrigin: 'center center'
+              }}
+            >
+              <div 
+                className="relative w-full h-full rounded-3xl bg-[#f0f1f7] shadow-lg border overflow-hidden"
+                style={{
+                  borderColor: glowColor,
+                  boxShadow: `0 0 10px ${glowColor}, 0 0 20px ${glowColor.replace('0.3', '0.2')}`
                 }}
-              />
-            </PopoverContent>
-          </Popover>
-          <Button
-            variant="outline"
-            size="sm"
-            className="bg-[#51c1a9] hover:bg-[#45a892] text-white border-[#51c1a9] gap-2 rounded-xl"
-            onClick={() => fileInputRef.current?.click()}
-          >
-            <Upload />
-            Add Vision
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            className="bg-[#556bc7] hover:bg-[#4a5eb3] text-white border-[#556bc7] gap-2 rounded-xl"
-            onClick={toggleFullScreen}
-          >
-            <Maximize2 />
-            {isFullScreen ? 'Exit Full Screen' : 'Full Screen'}
-          </Button>
-        </div>
-      </div>
-
-      <div 
-        ref={boardRef} 
-        className={cn(
-          "relative w-full h-[600px] rounded-3xl bg-[#f0f1f7] shadow-lg border overflow-hidden",
-          isFullScreen && "origin-center"
-        )}
-        style={{
-          borderColor: glowColor,
-          boxShadow: `0 0 10px ${glowColor}, 0 0 20px ${glowColor.replace('0.3', '0.2')}`,
-          transform: isFullScreen ? `scale(${calculateScale()})` : 'none'
-        }}
-        onMouseMove={handleInteractionMove}
-        onMouseUp={handleInteractionEnd}
-        onMouseLeave={handleInteractionEnd}
-      >
+                onMouseMove={handleInteractionMove}
+                onMouseUp={handleInteractionEnd}
+                onMouseLeave={handleInteractionEnd}
+              >
         <div className="relative w-full h-full">
           {visionItems.map((item) => (
             <div
