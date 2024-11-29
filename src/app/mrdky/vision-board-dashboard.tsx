@@ -51,7 +51,23 @@ interface VisionItem {
   aspectRatio: number
 }
 
-const VisionBoardContent = ({
+interface VisionBoardContentProps {
+  glowColor: string
+  fileInputRef: React.RefObject<HTMLInputElement>
+  boardRef: React.RefObject<HTMLDivElement>
+  isFullScreen: boolean
+  handleFileUpload: (event: React.ChangeEvent<HTMLInputElement>) => void
+  toggleFullScreen: () => void
+  handleInteractionMove: (event: React.MouseEvent) => void
+  handleInteractionEnd: () => void
+  visionItems: VisionItem[]
+  handleInteractionStart: (event: React.MouseEvent, id: string, type: 'move' | 'resize', direction?: string) => void
+  deleteItem: (id: string) => void
+  memberId: string | null
+  setGlowColor: (color: string) => void
+}
+
+const VisionBoardContent: React.FC<VisionBoardContentProps> = ({
   glowColor,
   fileInputRef,
   boardRef,
@@ -65,20 +81,6 @@ const VisionBoardContent = ({
   deleteItem,
   memberId,
   setGlowColor
-}: {
-  glowColor: string;
-  fileInputRef: React.RefObject<HTMLInputElement>;
-  boardRef: React.RefObject<HTMLDivElement>;
-  isFullScreen: boolean;
-  handleFileUpload: (event: React.ChangeEvent<HTMLInputElement>) => void;
-  toggleFullScreen: () => void;
-  handleInteractionMove: (event: React.MouseEvent) => void;
-  handleInteractionEnd: () => void;
-  visionItems: VisionItem[];
-  handleInteractionStart: (event: React.MouseEvent, id: string, type: 'move' | 'resize', direction?: string) => void;
-  deleteItem: (id: string) => void;
-  memberId: string | null;
-  setGlowColor: (color: string) => void;
 }) => {
   return (
     <div>
@@ -92,7 +94,7 @@ const VisionBoardContent = ({
                 size="sm"
                 className="bg-[#fbb350] hover:bg-[#f9a238] text-white border-[#fbb350] gap-2 rounded-xl"
               >
-                <PaletteIcon />
+                <Palette />
                 Color
               </Button>
             </PopoverTrigger>
@@ -124,7 +126,7 @@ const VisionBoardContent = ({
             className="bg-[#51c1a9] hover:bg-[#45a892] text-white border-[#51c1a9] gap-2 rounded-xl"
             onClick={() => fileInputRef.current?.click()}
           >
-            <UploadIcon />
+            <Upload />
             Add Vision
           </Button>
           <Button
@@ -139,7 +141,7 @@ const VisionBoardContent = ({
         </div>
       </div>
 
-<div 
+      <div 
         ref={boardRef} 
         className={`relative w-full rounded-3xl bg-[#f0f1f7] shadow-lg border overflow-hidden ${
           isFullScreen ? 'h-[80vh]' : 'h-[512px]'
@@ -152,53 +154,52 @@ const VisionBoardContent = ({
         onMouseUp={handleInteractionEnd}
         onMouseLeave={handleInteractionEnd}
       >
-  <div className="relative w-full h-full">
-    {visionItems.map((item) => (
-      <div
-            key={item.id}
-            className={`absolute cursor-move group select-none`}
-            style={{
-              left: `${item.x}px`,
-              top: `${item.y}px`,
-              width: `${item.width}px`,
-              height: `${item.height}px`,
-              zIndex: item.zIndex,
-            }}
-            onMouseDown={(e) => handleInteractionStart(e, item.id, 'move')}
-          >
-            <div 
-              className="relative w-full h-full rounded-2xl overflow-hidden border shadow-lg transition-all duration-300"
+        <div className="relative w-full h-full">
+          {visionItems.map((item) => (
+            <div
+              key={item.id}
+              className={`absolute cursor-move group select-none`}
               style={{
-                borderColor: glowColor,
-                boxShadow: `0 0 10px ${glowColor}, 0 0 20px ${glowColor.replace('0.3', '0.2')}`
+                left: `${item.x}px`,
+                top: `${item.y}px`,
+                width: `${item.width}px`,
+                height: `${item.height}px`,
+                zIndex: item.zIndex,
               }}
+              onMouseDown={(e) => handleInteractionStart(e, item.id, 'move')}
             >
-              <img 
-                src={item.src} 
-                alt="Vision Item" 
-                className="w-full h-full object-cover select-none" 
-                draggable="false"
-              />
-              <Button
-                variant="destructive"
-                size="icon"
-                className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-[#fbb350] hover:bg-[#f9a238] text-white"
-                onClick={() => deleteItem(item.id)}
+              <div 
+                className="relative w-full h-full rounded-2xl overflow-hidden border shadow-lg transition-all duration-300"
+                style={{
+                  borderColor: glowColor,
+                  boxShadow: `0 0 10px ${glowColor}, 0 0 20px ${glowColor.replace('0.3', '0.2')}`
+                }}
               >
-                <TrashIcon />
-              </Button>
-              <div className="resize-handle resize-handle-tl" onMouseDown={(e) => handleInteractionStart(e, item.id, 'resize', 'top-left')} />
-              <div className="resize-handle resize-handle-tr" onMouseDown={(e) => handleInteractionStart(e, item.id, 'resize', 'top-right')} />
-              <div className="resize-handle resize-handle-bl" onMouseDown={(e) => handleInteractionStart(e, item.id, 'resize', 'bottom-left')} />
-              <div className="resize-handle resize-handle-br" onMouseDown={(e) => handleInteractionStart(e, item.id, 'resize', 'bottom-right')} />
+                <img 
+                  src={item.src} 
+                  alt="Vision Item" 
+                  className="w-full h-full object-cover select-none" 
+                  draggable="false"
+                />
+                <Button
+                  variant="destructive"
+                  size="icon"
+                  className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-[#fbb350] hover:bg-[#f9a238] text-white"
+                  onClick={() => deleteItem(item.id)}
+                >
+                  <X />
+                </Button>
+                <div className="resize-handle resize-handle-tl" onMouseDown={(e) => handleInteractionStart(e, item.id, 'resize', 'top-left')} />
+                <div className="resize-handle resize-handle-tr" onMouseDown={(e) => handleInteractionStart(e, item.id, 'resize', 'top-right')} />
+                <div className="resize-handle resize-handle-bl" onMouseDown={(e) => handleInteractionStart(e, item.id, 'resize', 'bottom-left')} />
+                <div className="resize-handle resize-handle-br" onMouseDown={(e) => handleInteractionStart(e, item.id, 'resize', 'bottom-right')} />
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
-    </div>
-  </div>
-        
-        <input
+      
+      <input
         ref={fileInputRef}
         type="file"
         multiple
@@ -207,10 +208,8 @@ const VisionBoardContent = ({
         onChange={handleFileUpload}
       />
     </div>
-  </div>
-</div>
   );
-}; 
+};
 
 const getMemberId = async () => {
   try {
