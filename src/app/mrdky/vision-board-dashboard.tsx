@@ -15,6 +15,15 @@ import League from './league';
 import { debounce } from 'lodash';
 import { Maximize2 } from 'lucide-react'
 
+const MobileNotice = () => (
+  <Card className="p-6 bg-white rounded-[20px] shadow-lg text-center">
+    <div className="flex flex-col items-center gap-4">
+      <Lock className="w-12 h-12 text-[#556bc7]" />
+      <h2 className="text-xl font-semibold text-[#556bc7]">Desktop Experience Only</h2>
+      <p className="text-gray-600">The Interactive Vision Board is optimized for desktop viewing. Please access this feature from a larger screen for the best experience.</p>
+    </div>
+  </Card>
+);
 
 interface LeaguePlayer {
   rank: number
