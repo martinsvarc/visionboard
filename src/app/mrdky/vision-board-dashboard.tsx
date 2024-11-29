@@ -14,6 +14,7 @@ import { Badge } from '@/lib/achievement-data';
 import League from './league';
 import { debounce } from 'lodash';
 import { Maximize2 } from 'lucide-react'
+import { LoadingSpinner } from './loading-spinner'
 
 const MobileNotice = () => (
   <Card className="p-6 bg-white rounded-[20px] shadow-lg text-center">
@@ -93,6 +94,8 @@ const VisionBoardContent: React.FC<VisionBoardContentProps> = ({
 }) => {
 
 const [isMobile, setIsMobile] = useState(false);
+
+const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const checkMobile = () => {
@@ -389,6 +392,7 @@ useEffect(() => {
 
 useEffect(() => {
     const loadVisionBoard = async () => {
+    setIsLoading(true);
       try {
         const memberId = await getMemberId();
         
@@ -416,6 +420,8 @@ useEffect(() => {
         }
       } catch (error) {
         console.error('Load error:', error)
+      } finally {
+        setIsLoading(false);
       }
     }
     
@@ -944,32 +950,34 @@ const resizeObserver = new ResizeObserver(() => {
 
 return (
   <>
-   {isFullScreen ? (
-  <div className="fixed inset-0 z-[100] bg-black/80 flex items-center justify-center">
-    <Card className="w-[95vw] h-[95vh] bg-white rounded-[20px] shadow-lg overflow-hidden">
-      <div className="p-4 h-full">
-        <VisionBoardContent
-          glowColor={glowColor}
-          fileInputRef={fileInputRef}
-          boardRef={boardRef}
-          isFullScreen={isFullScreen}
-          handleFileUpload={handleFileUpload}
-          toggleFullScreen={toggleFullScreen}
-          handleInteractionMove={handleInteractionMove}
-          handleInteractionEnd={handleInteractionEnd}
-          visionItems={visionItems}
-          handleInteractionStart={handleInteractionStart}
-          deleteItem={deleteItem}
-          memberId={memberId}
-          setGlowColor={setGlowColor}
-        />
+    {isLoading ? (
+      <LoadingSpinner />
+    ) : isFullScreen ? (
+      <div className="fixed inset-0 z-[100] bg-black/80 flex items-center justify-center">
+        <Card className="w-[95vw] h-[95vh] bg-white rounded-[20px] shadow-lg overflow-hidden">
+          <div className="p-4 h-full">
+            <VisionBoardContent
+              glowColor={glowColor}
+              fileInputRef={fileInputRef}
+              boardRef={boardRef}
+              isFullScreen={isFullScreen}
+              handleFileUpload={handleFileUpload}
+              toggleFullScreen={toggleFullScreen}
+              handleInteractionMove={handleInteractionMove}
+              handleInteractionEnd={handleInteractionEnd}
+              visionItems={visionItems}
+              handleInteractionStart={handleInteractionStart}
+              deleteItem={deleteItem}
+              memberId={memberId}
+              setGlowColor={setGlowColor}
+            />
+          </div>
+        </Card>
       </div>
-    </Card>
-  </div>
-) : (
+    ) : (
       <div className="relative w-full bg-[#f0f1f7]">
-  <div className="max-w-7xl mx-auto space-y-4">
-    <Card className="p-4 bg-white rounded-[20px] shadow-lg">
+        <div className="max-w-7xl mx-auto space-y-4">
+          <Card className="p-4 bg-white rounded-[20px] shadow-lg">
             <VisionBoardContent
               glowColor={glowColor}
               fileInputRef={fileInputRef}
