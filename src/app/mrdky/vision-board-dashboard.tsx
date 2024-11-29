@@ -899,6 +899,23 @@ useEffect(() => {
   return () => window.removeEventListener('message', handleMessage);
 }, []);
 
+useEffect(() => {
+  const updateHeight = () => {
+    const contentHeight = document.documentElement.scrollHeight;
+    window.parent.postMessage({ type: 'setHeight', height: contentHeight }, '*');
+  };
+
+const resizeObserver = new ResizeObserver(() => {
+    updateHeight();
+  });
+
+  resizeObserver.observe(document.body);
+  updateHeight();
+  return () => {
+    resizeObserver.disconnect();
+  };
+}, []);
+
 return (
   <>
    {isFullScreen ? (
