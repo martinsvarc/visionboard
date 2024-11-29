@@ -14,7 +14,7 @@ import { Badge } from '@/lib/achievement-data';
 import League from './league';
 import { debounce } from 'lodash';
 import { Maximize2 } from 'lucide-react'
-import { LoadingSpinner } from './loading-spinner'
+import LoadingSpinner from './loading-spinner'
 
 const MobileNotice = () => (
   <Card className="p-6 bg-white rounded-[20px] shadow-lg text-center">
