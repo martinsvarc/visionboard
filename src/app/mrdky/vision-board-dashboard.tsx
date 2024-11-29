@@ -51,6 +51,160 @@ interface VisionItem {
   aspectRatio: number
 }
 
+const VisionBoardContent = ({
+  glowColor,
+  fileInputRef,
+  boardRef,
+  isFullScreen,
+  handleFileUpload,
+  toggleFullScreen,
+  handleInteractionMove,
+  handleInteractionEnd,
+  visionItems,
+  handleInteractionStart,
+  deleteItem,
+  memberId,
+  setGlowColor
+}: {
+  glowColor: string;
+  fileInputRef: React.RefObject<HTMLInputElement>;
+  boardRef: React.RefObject<HTMLDivElement>;
+  isFullScreen: boolean;
+  handleFileUpload: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  toggleFullScreen: () => void;
+  handleInteractionMove: (event: React.MouseEvent) => void;
+  handleInteractionEnd: () => void;
+  visionItems: VisionItem[];
+  handleInteractionStart: (event: React.MouseEvent, id: string, type: 'move' | 'resize', direction?: string) => void;
+  deleteItem: (id: string) => void;
+  memberId: string | null;
+  setGlowColor: (color: string) => void;
+}) => {
+  return (
+    <>
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-2xl font-semibold text-[#556bc7]">Interactive Vision Board</h2>
+        <div className="flex gap-2">
+          <Popover>
+            <PopoverTrigger>
+              <Button
+                variant="outline" 
+                size="sm"
+                className="bg-[#fbb350] hover:bg-[#f9a238] text-white border-[#fbb350] gap-2 rounded-xl"
+              >
+                <PaletteIcon />
+                Color
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0 z-[9999]" align="end">
+              <ColorPicker 
+                color={glowColor} 
+                onChange={async (newColor: string) => {
+                  try {
+                    setGlowColor(newColor);
+                    
+                    await fetch('/api/vision-board', {
+                      method: 'PATCH',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({
+                        memberstack_id: memberId,
+                        board_color: newColor
+                      })
+                    });
+                  } catch (error) {
+                    console.error('Color update error:', error);
+                  }
+                }}
+              />
+            </PopoverContent>
+          </Popover>
+          <Button
+            variant="outline"
+            size="sm"
+            className="bg-[#51c1a9] hover:bg-[#45a892] text-white border-[#51c1a9] gap-2 rounded-xl"
+            onClick={() => fileInputRef.current?.click()}
+          >
+            <UploadIcon />
+            Add Vision
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            className="bg-[#556bc7] hover:bg-[#4a5eb3] text-white border-[#556bc7] gap-2 rounded-xl"
+            onClick={toggleFullScreen}
+          >
+            <Maximize2 />
+            {isFullScreen ? 'Exit Full Screen' : 'Full Screen'}
+          </Button>
+        </div>
+      </div>
+
+      <div 
+        ref={boardRef} 
+        className="relative w-full rounded-3xl bg-[#f0f1f7] shadow-lg border h-[512px]"
+        style={{
+          borderColor: glowColor,
+          boxShadow: `0 0 10px ${glowColor}, 0 0 20px ${glowColor.replace('0.3', '0.2')}`
+        }}
+        onMouseMove={handleInteractionMove}
+        onMouseUp={handleInteractionEnd}
+        onMouseLeave={handleInteractionEnd}
+      >
+        <div className="absolute inset-0 overflow-hidden">
+          {visionItems.map((item) => (
+            <div
+              key={item.id}
+              className={`absolute cursor-move group select-none`}
+              style={{
+                left: `${item.x}px`,
+                top: `${item.y}px`,
+                width: `${item.width}px`,
+                height: `${item.height}px`,
+                zIndex: item.zIndex,
+              }}
+              onMouseDown={(e) => handleInteractionStart(e, item.id, 'move')}
+            >
+              <div className="relative w-full h-full rounded-2xl overflow-hidden border shadow-lg transition-all duration-300"
+                style={{
+                  borderColor: glowColor,
+                  boxShadow: `0 0 10px ${glowColor}, 0 0 20px ${glowColor.replace('0.3', '0.2')}`
+                }}>
+                <img 
+                  src={item.src} 
+                  alt="Vision Item" 
+                  className="w-full h-full object-cover select-none" 
+                  draggable="false"
+                />
+                <Button
+                  variant="destructive"
+                  size="icon"
+                  className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-[#fbb350] hover:bg-[#f9a238] text-white"
+                  onClick={() => deleteItem(item.id)}
+                >
+                  <TrashIcon />
+                </Button>
+                <div className="resize-handle resize-handle-tl" onMouseDown={(e) => handleInteractionStart(e, item.id, 'resize', 'top-left')} />
+                <div className="resize-handle resize-handle-tr" onMouseDown={(e) => handleInteractionStart(e, item.id, 'resize', 'top-right')} />
+                <div className="resize-handle resize-handle-bl" onMouseDown={(e) => handleInteractionStart(e, item.id, 'resize', 'bottom-left')} />
+                <div className="resize-handle resize-handle-br" onMouseDown={(e) => handleInteractionStart(e, item.id, 'resize', 'bottom-right')} />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <input
+        ref={fileInputRef}
+        type="file"
+        multiple
+        accept="image/*"
+        className="hidden"
+        onChange={handleFileUpload}
+      />
+    </>
+  );
+};
+
 const getMemberId = async () => {
   try {
     // Try Memberstack first
@@ -740,169 +894,59 @@ useEffect(() => {
   return () => window.removeEventListener('message', handleMessage);
 }, []);
 
-  return (
+return (
   <>
     {isFullScreen ? (
-      // Fullscreen mode - only show the Vision Board
       <div className="fixed inset-0 z-[100] bg-black/80 flex items-center justify-center p-8">
         <Card className="w-[1024px] bg-white rounded-[20px] shadow-lg overflow-hidden">
           <div className="p-4">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-2xl font-semibold text-[#556bc7]">Interactive Vision Board</h2>
-              <div className="flex gap-2">
-                {/* Your three buttons here... */}
-              </div>
-            </div>
-            {/* Your board div here... */}
+            <VisionBoardContent
+              glowColor={glowColor}
+              fileInputRef={fileInputRef}
+              boardRef={boardRef}
+              isFullScreen={isFullScreen}
+              handleFileUpload={handleFileUpload}
+              toggleFullScreen={toggleFullScreen}
+              handleInteractionMove={handleInteractionMove}
+              handleInteractionEnd={handleInteractionEnd}
+              visionItems={visionItems}
+              handleInteractionStart={handleInteractionStart}
+              deleteItem={deleteItem}
+              memberId={memberId}
+              setGlowColor={setGlowColor}
+            />
           </div>
         </Card>
       </div>
     ) : (
-      // Normal mode - show full dashboard
       <div className="relative w-full h-[600px] bg-[#f0f1f7]">
         <div className="max-w-7xl mx-auto space-y-4">
-          {/* Your existing content... */}
-        </div>
-      </div>
-    )}
-  </>
-);
-          {/* Interactive Vision Board */}
           <Card className="p-4 bg-white rounded-[20px] shadow-lg">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-2xl font-semibold text-[#556bc7]">Interactive Vision Board</h2>
-              <div className="flex gap-2">
-
-<Popover>
-  <PopoverTrigger>
-    <Button
-      variant="outline" 
-      size="sm"
-      className="bg-[#fbb350] hover:bg-[#f9a238] text-white border-[#fbb350] gap-2 rounded-xl"
-    >
-      <PaletteIcon />
-      Color
-    </Button>
-  </PopoverTrigger>
-  <PopoverContent className="w-auto p-0 z-[9999]" align="end">
-    <ColorPicker 
-      color={glowColor} 
-      onChange={async (newColor: string) => {
-  try {
-    setGlowColor(newColor);
-    
-    await fetch('/api/vision-board', {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        memberstack_id: memberId,
-        board_color: newColor
-      })
-    });
-  } catch (error) {
-    console.error('Color update error:', error);
-  }
-}}
-    />
-  </PopoverContent>
-</Popover>
-<Button
-  variant="outline"
-  size="sm"
-  className="bg-[#51c1a9] hover:bg-[#45a892] text-white border-[#51c1a9] gap-2 rounded-xl"
-  onClick={() => fileInputRef.current?.click()}
->
-  <UploadIcon />
-  Add Vision
-</Button>
-<Button
-  variant="outline"
-  size="sm"
-  className="bg-[#556bc7] hover:bg-[#4a5eb3] text-white border-[#556bc7] gap-2 rounded-xl"
-  onClick={toggleFullScreen}
->
-  <Maximize2 />
-  {isFullScreen ? 'Exit Full Screen' : 'Full Screen'}
-</Button>
-
-<input
-  ref={fileInputRef}
-  type="file"
-  multiple
-  accept="image/*"
-  className="hidden"
-  onChange={handleFileUpload}
-/>
-              </div>
-            </div>
-
-           <div 
-  ref={boardRef} 
-  className={`relative w-full rounded-3xl bg-[#f0f1f7] shadow-lg border h-[512px] ${
-    isFullScreen ? 'max-h-full max-w-full aspect-[16/9] scale-100 sm:scale-110 md:scale-125 lg:scale-150' : ''
-  }`}
-  style={{
-    borderColor: glowColor,
-    boxShadow: `0 0 10px ${glowColor}, 0 0 20px ${glowColor.replace('0.3', '0.2')}`
-  }}
-  onMouseMove={handleInteractionMove}
-  onMouseUp={handleInteractionEnd}
-  onMouseLeave={handleInteractionEnd}
->
-              <div className="absolute inset-0 overflow-hidden">
-                {visionItems.map((item) => (
-                  <div
-                    key={item.id}
-                    className={`absolute cursor-move group select-none`}
-                    style={{
-                      left: `${item.x}px`,
-                      top: `${item.y}px`,
-                      width: `${item.width}px`,
-                      height: `${item.height}px`,
-                      zIndex: item.zIndex,
-                    }}
-                    onMouseDown={(e) => handleInteractionStart(e, item.id, 'move')}
-                  >
-                    <div className="relative w-full h-full rounded-2xl overflow-hidden border shadow-lg transition-all duration-300"
-                      style={{
-                        borderColor: glowColor,
-                        boxShadow: `0 0 10px ${glowColor}, 0 0 20px ${glowColor.replace('0.3', '0.2')}`
-                      }}>
-                      <img 
-                        src={item.src} 
-                        alt="Vision Item" 
-                        className="w-full h-full object-cover select-none" 
-                        draggable="false"
-                      />
-                      <Button
-                        variant="destructive"
-                        size="icon"
-                        className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-[#fbb350] hover:bg-[#f9a238] text-white"
-                        onClick={() => deleteItem(item.id)}
-                      >
-                        <TrashIcon />
-                      </Button>
-                      <div className="resize-handle resize-handle-tl" onMouseDown={(e) => handleInteractionStart(e, item.id, 'resize', 'top-left')} />
-                      <div className="resize-handle resize-handle-tr" onMouseDown={(e) => handleInteractionStart(e, item.id, 'resize', 'top-right')} />
-                      <div className="resize-handle resize-handle-bl" onMouseDown={(e) => handleInteractionStart(e, item.id, 'resize', 'bottom-left')} />
-                      <div className="resize-handle resize-handle-br" onMouseDown={(e) => handleInteractionStart(e, item.id, 'resize', 'bottom-right')} />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
+            <VisionBoardContent
+              glowColor={glowColor}
+              fileInputRef={fileInputRef}
+              boardRef={boardRef}
+              isFullScreen={isFullScreen}
+              handleFileUpload={handleFileUpload}
+              toggleFullScreen={toggleFullScreen}
+              handleInteractionMove={handleInteractionMove}
+              handleInteractionEnd={handleInteractionEnd}
+              visionItems={visionItems}
+              handleInteractionStart={handleInteractionStart}
+              deleteItem={deleteItem}
+              memberId={memberId}
+              setGlowColor={setGlowColor}
+            />
           </Card>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
             <CustomCalendar streakData={streakData} />
 
-            {/* League */}
             <League
               activeCategory={activeLeagueCategory}
               setActiveLeagueCategory={setActiveLeagueCategory}
             />
 
-            {/* Daily Plan & Improvements */}
             <div className="space-y-4 flex flex-col h-full">
               <Card className="p-3 bg-white rounded-[20px] shadow-lg flex-1">
                 <div className="space-y-4">
@@ -948,21 +992,19 @@ useEffect(() => {
               </Card>
             </div>
 
-            {/* Achievement Showcase */}
-<AchievementContent achievements={achievementData} />
+            <AchievementContent achievements={achievementData} />
 
-            {/* Activity Circles */}
             <Card className="p-2 bg-white rounded-[20px] shadow-lg h-[280px]">
-  <h2 className="text-2xl font-semibold text-[#556bc7] mb-6">Activity Circles</h2>
-  <div className="relative flex justify-center items-center mb-2">
-    <Button
-      variant="ghost"
-      size="icon"
-      className="absolute -left-2 top-1/2 -translate-y-1/2 hover:bg-transparent"
-      onClick={prevActivitySlide}
-    >
-      <ArrowLeft className="w-4 h-4 text-gray-400" />
-    </Button>
+              <h2 className="text-2xl font-semibold text-[#556bc7] mb-6">Activity Circles</h2>
+              <div className="relative flex justify-center items-center mb-2">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="absolute -left-2 top-1/2 -translate-y-1/2 hover:bg-transparent"
+                  onClick={prevActivitySlide}
+                >
+                  <ArrowLeft className="w-4 h-4 text-gray-400" />
+                </Button>
 
                 <div className="relative">
                   <div className="rounded-full">
@@ -1021,5 +1063,6 @@ useEffect(() => {
           `}</style>
         </div>
       </div>
-  )
-}
+    )}
+  </>
+);
