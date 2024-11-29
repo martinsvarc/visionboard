@@ -85,12 +85,12 @@ const VisionBoardContent: React.FC<VisionBoardContentProps> = ({
   const calculateScale = () => {
     if (!boardRef.current || !isFullScreen) return 1;
     
-    const boardWidth = 512; // Original width
-    const boardHeight = 512; // Original height
-    const windowWidth = window.innerWidth * 0.95; // 95% of window width
-    const windowHeight = window.innerHeight * 0.95; // 95% of window height
+    const boardRect = boardRef.current.getBoundingClientRect();
+    const boardWidth = boardRect.width;
+    const boardHeight = boardRect.height;
+    const windowWidth = window.innerWidth * 0.95;
+    const windowHeight = window.innerHeight * 0.95;
     
-    // Calculate scale based on the limiting dimension
     const scaleX = windowWidth / boardWidth;
     const scaleY = windowHeight / boardHeight;
     return Math.min(scaleX, scaleY);
@@ -157,7 +157,7 @@ const VisionBoardContent: React.FC<VisionBoardContentProps> = ({
       <div 
         ref={boardRef} 
         className={cn(
-          "relative w-[512px] h-[512px] rounded-3xl bg-[#f0f1f7] shadow-lg border overflow-hidden",
+          "relative w-full h-[600px] rounded-3xl bg-[#f0f1f7] shadow-lg border overflow-hidden",
           isFullScreen && "origin-center"
         )}
         style={{
