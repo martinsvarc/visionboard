@@ -140,18 +140,18 @@ const VisionBoardContent = ({
       </div>
 
 <div 
-  ref={boardRef} 
-  className={`relative w-full rounded-3xl bg-[#f0f1f7] shadow-lg border overflow-hidden ${
-    isFullScreen ? 'h-[80vh]' : 'h-[512px]'
-  }`}
-  style={{
-    borderColor: glowColor,
-    boxShadow: `0 0 10px ${glowColor}, 0 0 20px ${glowColor.replace('0.3', '0.2')}`
-  }}
-  onMouseMove={handleInteractionMove}
-  onMouseUp={handleInteractionEnd}
-  onMouseLeave={handleInteractionEnd}
->
+        ref={boardRef} 
+        className={`relative w-full rounded-3xl bg-[#f0f1f7] shadow-lg border overflow-hidden ${
+          isFullScreen ? 'h-[80vh]' : 'h-[512px]'
+        }`}
+        style={{
+          borderColor: glowColor,
+          boxShadow: `0 0 10px ${glowColor}, 0 0 20px ${glowColor.replace('0.3', '0.2')}`
+        }}
+        onMouseMove={handleInteractionMove}
+        onMouseUp={handleInteractionEnd}
+        onMouseLeave={handleInteractionEnd}
+      >
   <div className="relative w-full h-full">
     {visionItems.map((item) => (
       <div
@@ -199,14 +199,18 @@ const VisionBoardContent = ({
   </div>
         
         <input
-    ref={fileInputRef}
-    type="file"
-    multiple
-    accept="image/*"
-    className="hidden"
-    onChange={handleFileUpload}
-  />
+        ref={fileInputRef}
+        type="file"
+        multiple
+        accept="image/*"
+        className="hidden"
+        onChange={handleFileUpload}
+      />
+    </div>
+  </div>
 </div>
+  );
+}; 
 
 const getMemberId = async () => {
   try {
