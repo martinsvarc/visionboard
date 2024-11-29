@@ -741,12 +741,32 @@ useEffect(() => {
 }, []);
 
   return (
-    <div className={`transition-all duration-300 ease-in-out ${
-  isFullScreen 
-    ? 'fixed inset-0 z-[100] bg-black/80 flex items-center justify-center p-8' 
-    : 'relative w-full h-[600px] bg-[#f0f1f7]'
-}`}>
+  <>
+    {isFullScreen ? (
+      // Fullscreen mode - only show the Vision Board
+      <div className="fixed inset-0 z-[100] bg-black/80 flex items-center justify-center p-8">
+        <Card className="w-[1024px] bg-white rounded-[20px] shadow-lg overflow-hidden">
+          <div className="p-4">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-2xl font-semibold text-[#556bc7]">Interactive Vision Board</h2>
+              <div className="flex gap-2">
+                {/* Your three buttons here... */}
+              </div>
+            </div>
+            {/* Your board div here... */}
+          </div>
+        </Card>
+      </div>
+    ) : (
+      // Normal mode - show full dashboard
+      <div className="relative w-full h-[600px] bg-[#f0f1f7]">
         <div className="max-w-7xl mx-auto space-y-4">
+          {/* Your existing content... */}
+        </div>
+      </div>
+    )}
+  </>
+);
           {/* Interactive Vision Board */}
           <Card className="p-4 bg-white rounded-[20px] shadow-lg">
             <div className="flex justify-between items-center mb-4">
