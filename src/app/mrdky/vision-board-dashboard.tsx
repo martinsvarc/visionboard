@@ -95,8 +95,6 @@ const VisionBoardContent: React.FC<VisionBoardContentProps> = ({
 
 const [isMobile, setIsMobile] = useState(false);
 
-const [isLoading, setIsLoading] = useState(true);
-
   useEffect(() => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768);
@@ -385,6 +383,7 @@ export default function VisionBoardDashboardClient() {
   const boardRef = useRef<HTMLDivElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [isFullScreen, setIsFullScreen] = useState(false)
+  const [isLoading, setIsLoading] = useState(true);
 
 useEffect(() => {
     getMemberId().then(setMemberId);
