@@ -797,7 +797,7 @@ useEffect(() => {
 </Button>
 <Button
   variant="outline"
-  size="lg"
+  size="sm"
   className="bg-[#556bc7] hover:bg-[#4a5eb3] text-white border-[#556bc7] gap-2 rounded-xl"
   onClick={toggleFullScreen}
 >
