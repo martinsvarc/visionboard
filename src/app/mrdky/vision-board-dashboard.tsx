@@ -139,81 +139,76 @@ const VisionBoardContent = ({
         </div>
       </div>
 
-      <div 
-        ref={boardRef} 
-        className={`relative w-full rounded-3xl bg-[#f0f1f7] shadow-lg border transform-gpu overflow-hidden ${
-          isFullScreen ? 'h-[85vh]' : 'h-[512px]'
-        }`}
-        style={{
-          borderColor: glowColor,
-          boxShadow: `0 0 10px ${glowColor}, 0 0 20px ${glowColor.replace('0.3', '0.2')}`
-        }}
-        onMouseMove={handleInteractionMove}
-        onMouseUp={handleInteractionEnd}
-        onMouseLeave={handleInteractionEnd}
-      >
-        <div className={`absolute inset-0 transition-transform duration-300 ${
-          isFullScreen ? 'scale-[1.8] origin-center' : ''
-        }`}>
-          <div className="absolute inset-0 overflow-hidden">
-            <div className="relative w-full h-full">
-              {visionItems.map((item) => (
-                <div
-                  key={item.id}
-                  className={`absolute cursor-move group select-none`}
-                  style={{
-                    left: `${item.x}px`,
-                    top: `${item.y}px`,
-                    width: `${item.width}px`,
-                    height: `${item.height}px`,
-                    zIndex: item.zIndex,
-                  }}
-                  onMouseDown={(e) => handleInteractionStart(e, item.id, 'move')}
-                >
-                  <div 
-                    className="relative w-full h-full rounded-2xl overflow-hidden border shadow-lg transition-all duration-300"
-                    style={{
-                      borderColor: glowColor,
-                      boxShadow: `0 0 10px ${glowColor}, 0 0 20px ${glowColor.replace('0.3', '0.2')}`
-                    }}
-                  >
-                    <img 
-                      src={item.src} 
-                      alt="Vision Item" 
-                      className="w-full h-full object-cover select-none" 
-                      draggable="false"
-                    />
-                    <Button
-                      variant="destructive"
-                      size="icon"
-                      className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-[#fbb350] hover:bg-[#f9a238] text-white"
-                      onClick={() => deleteItem(item.id)}
-                    >
-                      <TrashIcon />
-                    </Button>
-                    <div className="resize-handle resize-handle-tl" onMouseDown={(e) => handleInteractionStart(e, item.id, 'resize', 'top-left')} />
-                    <div className="resize-handle resize-handle-tr" onMouseDown={(e) => handleInteractionStart(e, item.id, 'resize', 'top-right')} />
-                    <div className="resize-handle resize-handle-bl" onMouseDown={(e) => handleInteractionStart(e, item.id, 'resize', 'bottom-left')} />
-                    <div className="resize-handle resize-handle-br" onMouseDown={(e) => handleInteractionStart(e, item.id, 'resize', 'bottom-right')} />
-                  </div>
-                </div>
-              ))}
+<div 
+  ref={boardRef} 
+  className={`relative w-full rounded-3xl bg-[#f0f1f7] shadow-lg border transform-gpu overflow-hidden ${
+    isFullScreen ? 'h-[85vh]' : 'h-[512px]'
+  }`}
+  style={{
+    borderColor: glowColor,
+    boxShadow: `0 0 10px ${glowColor}, 0 0 20px ${glowColor.replace('0.3', '0.2')}`
+  }}
+  onMouseMove={handleInteractionMove}
+  onMouseUp={handleInteractionEnd}
+  onMouseLeave={handleInteractionEnd}
+>
+  <div className="absolute inset-0">
+    <div className="absolute inset-0 overflow-hidden">
+      <div className="relative w-full h-full">
+        {visionItems.map((item) => (
+          <div
+            key={item.id}
+            className={`absolute cursor-move group select-none`}
+            style={{
+              left: `${item.x}px`,
+              top: `${item.y}px`,
+              width: `${item.width}px`,
+              height: `${item.height}px`,
+              zIndex: item.zIndex,
+            }}
+            onMouseDown={(e) => handleInteractionStart(e, item.id, 'move')}
+          >
+            <div 
+              className="relative w-full h-full rounded-2xl overflow-hidden border shadow-lg transition-all duration-300"
+              style={{
+                borderColor: glowColor,
+                boxShadow: `0 0 10px ${glowColor}, 0 0 20px ${glowColor.replace('0.3', '0.2')}`
+              }}
+            >
+              <img 
+                src={item.src} 
+                alt="Vision Item" 
+                className="w-full h-full object-cover select-none" 
+                draggable="false"
+              />
+              <Button
+                variant="destructive"
+                size="icon"
+                className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-[#fbb350] hover:bg-[#f9a238] text-white"
+                onClick={() => deleteItem(item.id)}
+              >
+                <TrashIcon />
+              </Button>
+              <div className="resize-handle resize-handle-tl" onMouseDown={(e) => handleInteractionStart(e, item.id, 'resize', 'top-left')} />
+              <div className="resize-handle resize-handle-tr" onMouseDown={(e) => handleInteractionStart(e, item.id, 'resize', 'top-right')} />
+              <div className="resize-handle resize-handle-bl" onMouseDown={(e) => handleInteractionStart(e, item.id, 'resize', 'bottom-left')} />
+              <div className="resize-handle resize-handle-br" onMouseDown={(e) => handleInteractionStart(e, item.id, 'resize', 'bottom-right')} />
             </div>
           </div>
-        </div>
-        
-        <input
-          ref={fileInputRef}
-          type="file"
-          multiple
-          accept="image/*"
-          className="hidden"
-          onChange={handleFileUpload}
-        />
+        ))}
       </div>
     </div>
-  );
-};
+  </div>
+        
+        <input
+    ref={fileInputRef}
+    type="file"
+    multiple
+    accept="image/*"
+    className="hidden"
+    onChange={handleFileUpload}
+  />
+</div>
 
 const getMemberId = async () => {
   try {
@@ -906,29 +901,29 @@ useEffect(() => {
 
 return (
   <>
-    {isFullScreen ? (
-      <div className="fixed inset-0 z-[100] bg-black/80 flex items-center justify-center p-8">
-        <Card className="w-[90vw] bg-white rounded-[20px] shadow-lg overflow-hidden">
-          <div className="p-4">
-            <VisionBoardContent
-              glowColor={glowColor}
-              fileInputRef={fileInputRef}
-              boardRef={boardRef}
-              isFullScreen={isFullScreen}
-              handleFileUpload={handleFileUpload}
-              toggleFullScreen={toggleFullScreen}
-              handleInteractionMove={handleInteractionMove}
-              handleInteractionEnd={handleInteractionEnd}
-              visionItems={visionItems}
-              handleInteractionStart={handleInteractionStart}
-              deleteItem={deleteItem}
-              memberId={memberId}
-              setGlowColor={setGlowColor}
-            />
-          </div>
-        </Card>
+   {isFullScreen ? (
+  <div className="fixed inset-0 z-[100] bg-black/80 flex items-center justify-center">
+    <Card className="w-[95vw] h-[95vh] bg-white rounded-[20px] shadow-lg overflow-hidden">
+      <div className="p-4 h-full">
+        <VisionBoardContent
+          glowColor={glowColor}
+          fileInputRef={fileInputRef}
+          boardRef={boardRef}
+          isFullScreen={isFullScreen}
+          handleFileUpload={handleFileUpload}
+          toggleFullScreen={toggleFullScreen}
+          handleInteractionMove={handleInteractionMove}
+          handleInteractionEnd={handleInteractionEnd}
+          visionItems={visionItems}
+          handleInteractionStart={handleInteractionStart}
+          deleteItem={deleteItem}
+          memberId={memberId}
+          setGlowColor={setGlowColor}
+        />
       </div>
-    ) : (
+    </Card>
+  </div>
+) : (
       <div className="relative w-full h-[600px] bg-[#f0f1f7]">
         <div className="max-w-7xl mx-auto space-y-4">
           <Card className="p-4 bg-white rounded-[20px] shadow-lg">
