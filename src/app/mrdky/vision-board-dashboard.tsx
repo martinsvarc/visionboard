@@ -91,6 +91,23 @@ const VisionBoardContent: React.FC<VisionBoardContentProps> = ({
   memberId,
   setGlowColor
 }) => {
+
+const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  if (isMobile) {
+    return <MobileNotice />;
+  }
+  
   return (
     <div>
       <div className="flex justify-between items-center mb-4">
