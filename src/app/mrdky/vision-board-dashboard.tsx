@@ -82,6 +82,20 @@ const VisionBoardContent: React.FC<VisionBoardContentProps> = ({
   memberId,
   setGlowColor
 }) => {
+  const calculateScale = () => {
+    if (!boardRef.current || !isFullScreen) return 1;
+    
+    const boardWidth = 512; // Original width
+    const boardHeight = 512; // Original height
+    const windowWidth = window.innerWidth * 0.95; // 95% of window width
+    const windowHeight = window.innerHeight * 0.95; // 95% of window height
+    
+    // Calculate scale based on the limiting dimension
+    const scaleX = windowWidth / boardWidth;
+    const scaleY = windowHeight / boardHeight;
+    return Math.min(scaleX, scaleY);
+  };
+
   return (
     <div>
       <div className="flex justify-between items-center mb-4">
@@ -104,7 +118,6 @@ const VisionBoardContent: React.FC<VisionBoardContentProps> = ({
                 onChange={async (newColor: string) => {
                   try {
                     setGlowColor(newColor);
-                    
                     await fetch('/api/vision-board', {
                       method: 'PATCH',
                       headers: { 'Content-Type': 'application/json' },
@@ -143,12 +156,14 @@ const VisionBoardContent: React.FC<VisionBoardContentProps> = ({
 
       <div 
         ref={boardRef} 
-        className={`relative w-full rounded-3xl bg-[#f0f1f7] shadow-lg border overflow-hidden ${
-          isFullScreen ? 'h-[80vh]' : 'h-[512px]'
-        }`}
+        className={cn(
+          "relative w-[512px] h-[512px] rounded-3xl bg-[#f0f1f7] shadow-lg border overflow-hidden",
+          isFullScreen && "origin-center"
+        )}
         style={{
           borderColor: glowColor,
-          boxShadow: `0 0 10px ${glowColor}, 0 0 20px ${glowColor.replace('0.3', '0.2')}`
+          boxShadow: `0 0 10px ${glowColor}, 0 0 20px ${glowColor.replace('0.3', '0.2')}`,
+          transform: isFullScreen ? `scale(${calculateScale()})` : 'none'
         }}
         onMouseMove={handleInteractionMove}
         onMouseUp={handleInteractionEnd}
@@ -158,7 +173,7 @@ const VisionBoardContent: React.FC<VisionBoardContentProps> = ({
           {visionItems.map((item) => (
             <div
               key={item.id}
-              className={`absolute cursor-move group select-none`}
+              className="absolute cursor-move group select-none"
               style={{
                 left: `${item.x}px`,
                 top: `${item.y}px`,
@@ -904,8 +919,8 @@ return (
   <>
    {isFullScreen ? (
   <div className="fixed inset-0 z-[100] bg-black/80 flex items-center justify-center">
-    <Card className="w-[95vw] h-[95vh] bg-white rounded-[20px] shadow-lg overflow-hidden">
-      <div className="p-4 h-full">
+    <Card className="w-[95vw] h-[95vh] bg-white rounded-[20px] shadow-lg overflow-hidden flex items-center justify-center">
+      <div className="p-4">
         <VisionBoardContent
           glowColor={glowColor}
           fileInputRef={fileInputRef}
@@ -925,25 +940,25 @@ return (
     </Card>
   </div>
 ) : (
-      <div className="relative w-full h-[600px] bg-[#f0f1f7]">
-        <div className="max-w-7xl mx-auto space-y-4">
-          <Card className="p-4 bg-white rounded-[20px] shadow-lg">
-            <VisionBoardContent
-              glowColor={glowColor}
-              fileInputRef={fileInputRef}
-              boardRef={boardRef}
-              isFullScreen={isFullScreen}
-              handleFileUpload={handleFileUpload}
-              toggleFullScreen={toggleFullScreen}
-              handleInteractionMove={handleInteractionMove}
-              handleInteractionEnd={handleInteractionEnd}
-              visionItems={visionItems}
-              handleInteractionStart={handleInteractionStart}
-              deleteItem={deleteItem}
-              memberId={memberId}
-              setGlowColor={setGlowColor}
-            />
-          </Card>
+  <div className="relative w-full bg-[#f0f1f7]">
+    <div className="max-w-7xl mx-auto space-y-4">
+      <Card className="p-4 bg-white rounded-[20px] shadow-lg">
+        <VisionBoardContent
+          glowColor={glowColor}
+          fileInputRef={fileInputRef}
+          boardRef={boardRef}
+          isFullScreen={isFullScreen}
+          handleFileUpload={handleFileUpload}
+          toggleFullScreen={toggleFullScreen}
+          handleInteractionMove={handleInteractionMove}
+          handleInteractionEnd={handleInteractionEnd}
+          visionItems={visionItems}
+          handleInteractionStart={handleInteractionStart}
+          deleteItem={deleteItem}
+          memberId={memberId}
+          setGlowColor={setGlowColor}
+        />
+      </Card>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
             <CustomCalendar streakData={streakData} />
