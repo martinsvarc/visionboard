@@ -158,58 +158,59 @@ const VisionBoardContent = ({
     <div className="absolute inset-0 overflow-hidden">
       <div className="relative w-full h-full">
         {visionItems.map((item) => (
-            <div
-              key={item.id}
-              className={`absolute cursor-move group select-none`}
+          <div
+            key={item.id}
+            className={`absolute cursor-move group select-none`}
+            style={{
+              left: `${item.x}px`,
+              top: `${item.y}px`,
+              width: `${item.width}px`,
+              height: `${item.height}px`,
+              zIndex: item.zIndex,
+            }}
+            onMouseDown={(e) => handleInteractionStart(e, item.id, 'move')}
+          >
+            <div 
+              className="relative w-full h-full rounded-2xl overflow-hidden border shadow-lg transition-all duration-300"
               style={{
-                left: `${item.x}px`,
-                top: `${item.y}px`,
-                width: `${item.width}px`,
-                height: `${item.height}px`,
-                zIndex: item.zIndex,
+                borderColor: glowColor,
+                boxShadow: `0 0 10px ${glowColor}, 0 0 20px ${glowColor.replace('0.3', '0.2')}`
               }}
-              onMouseDown={(e) => handleInteractionStart(e, item.id, 'move')}
             >
-              <div className="relative w-full h-full rounded-2xl overflow-hidden border shadow-lg transition-all duration-300"
-                style={{
-                  borderColor: glowColor,
-                  boxShadow: `0 0 10px ${glowColor}, 0 0 20px ${glowColor.replace('0.3', '0.2')}`
-                }}>
-                <img 
-                  src={item.src} 
-                  alt="Vision Item" 
-                  className="w-full h-full object-cover select-none" 
-                  draggable="false"
-                />
-                <Button
-                  variant="destructive"
-                  size="icon"
-                  className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-[#fbb350] hover:bg-[#f9a238] text-white"
-                  onClick={() => deleteItem(item.id)}
-                >
-                  <TrashIcon />
-                </Button>
-                <div className="resize-handle resize-handle-tl" onMouseDown={(e) => handleInteractionStart(e, item.id, 'resize', 'top-left')} />
-                <div className="resize-handle resize-handle-tr" onMouseDown={(e) => handleInteractionStart(e, item.id, 'resize', 'top-right')} />
-                <div className="resize-handle resize-handle-bl" onMouseDown={(e) => handleInteractionStart(e, item.id, 'resize', 'bottom-left')} />
-                <div className="resize-handle resize-handle-br" onMouseDown={(e) => handleInteractionStart(e, item.id, 'resize', 'bottom-right')} />
-              </div>
+              <img 
+                src={item.src} 
+                alt="Vision Item" 
+                className="w-full h-full object-cover select-none" 
+                draggable="false"
+              />
+              <Button
+                variant="destructive"
+                size="icon"
+                className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-[#fbb350] hover:bg-[#f9a238] text-white"
+                onClick={() => deleteItem(item.id)}
+              >
+                <TrashIcon />
+              </Button>
+              <div className="resize-handle resize-handle-tl" onMouseDown={(e) => handleInteractionStart(e, item.id, 'resize', 'top-left')} />
+              <div className="resize-handle resize-handle-tr" onMouseDown={(e) => handleInteractionStart(e, item.id, 'resize', 'top-right')} />
+              <div className="resize-handle resize-handle-bl" onMouseDown={(e) => handleInteractionStart(e, item.id, 'resize', 'bottom-left')} />
+              <div className="resize-handle resize-handle-br" onMouseDown={(e) => handleInteractionStart(e, item.id, 'resize', 'bottom-right')} />
             </div>
-          ))}
-        </div>
+          </div>
+        ))}
       </div>
-
-      <input
-        ref={fileInputRef}
-        type="file"
-        multiple
-        accept="image/*"
-        className="hidden"
-        onChange={handleFileUpload}
-      />
-    </>
-  );
-};
+    </div>
+  </div>
+  
+  <input
+    ref={fileInputRef}
+    type="file"
+    multiple
+    accept="image/*"
+    className="hidden"
+    onChange={handleFileUpload}
+  />
+</div>
 
 const getMemberId = async () => {
   try {
