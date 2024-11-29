@@ -141,8 +141,8 @@ const VisionBoardContent = ({
 
 <div 
   ref={boardRef} 
-  className={`relative w-full rounded-3xl bg-[#f0f1f7] shadow-lg border transform-gpu overflow-hidden ${
-    isFullScreen ? 'h-[85vh]' : 'h-[512px]'
+  className={`relative w-full rounded-3xl bg-[#f0f1f7] shadow-lg border overflow-hidden ${
+    isFullScreen ? 'h-[80vh]' : 'h-[512px]'
   }`}
   style={{
     borderColor: glowColor,
@@ -152,11 +152,9 @@ const VisionBoardContent = ({
   onMouseUp={handleInteractionEnd}
   onMouseLeave={handleInteractionEnd}
 >
-  <div className="absolute inset-0">
-    <div className="absolute inset-0 overflow-hidden">
-      <div className="relative w-full h-full">
-        {visionItems.map((item) => (
-          <div
+  <div className="relative w-full h-full">
+    {visionItems.map((item) => (
+      <div
             key={item.id}
             className={`absolute cursor-move group select-none`}
             style={{
