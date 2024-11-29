@@ -152,8 +152,9 @@ const VisionBoardContent = ({
   onMouseUp={handleInteractionEnd}
   onMouseLeave={handleInteractionEnd}
 >
-  <div ref={boardRef} className={`relative w-full rounded-3xl...`}>
-  <div className={`absolute inset-0 transition-transform... ${isFullScreen ? 'scale-[1.8] origin-center' : ''}`}>
+  <div className={`absolute inset-0 transition-transform duration-300 ${
+    isFullScreen ? 'scale-[1.8] origin-center' : ''
+  }`}>
     <div className="absolute inset-0 overflow-hidden">
       <div className="relative w-full h-full">
         {visionItems.map((item) => (
