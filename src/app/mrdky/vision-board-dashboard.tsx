@@ -83,22 +83,18 @@ const VisionBoardContent: React.FC<VisionBoardContentProps> = ({
   setGlowColor
 }) => {
   const calculateScale = () => {
-  if (!boardRef.current || !isFullScreen) return 1;
-  
-  const boardRect = boardRef.current.getBoundingClientRect();
-  const containerWidth = window.innerWidth * 0.9; // 90vw
-  const containerHeight = window.innerHeight * 0.9; // 90vh
-  
-  // Account for padding
-  const availableWidth = containerWidth - 32; // 2rem padding
-  const availableHeight = containerHeight - 32; // 2rem padding
-  
-  const scaleX = availableWidth / boardRect.width;
-  const scaleY = availableHeight / boardRect.height;
-  
-  // Use the smaller scale to ensure it fits both dimensions
-  return Math.min(scaleX, scaleY, 2); // Cap at 2x to prevent excessive scaling
-};
+    if (!boardRef.current || !isFullScreen) return 1;
+    
+    const boardRect = boardRef.current.getBoundingClientRect();
+    const boardWidth = boardRect.width;
+    const boardHeight = boardRect.height;
+    const windowWidth = window.innerWidth * 0.95;
+    const windowHeight = window.innerHeight * 0.95;
+    
+    const scaleX = windowWidth / boardWidth;
+    const scaleY = windowHeight / boardHeight;
+    return Math.min(scaleX, scaleY);
+  };
 
 return (
   <>
