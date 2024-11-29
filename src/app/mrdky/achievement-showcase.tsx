@@ -185,8 +185,8 @@ const AchievementContentInner = ({ achievements }: AchievementContentProps) => {
     })
 };
 
-return (
-    <Card className="p-4 bg-white rounded-[20px] shadow-lg md:col-span-2 max-h-[80vh] flex flex-col">
+  return (
+    <Card className="p-4 bg-white rounded-[20px] shadow-lg md:col-span-2 h-[600px] flex flex-col">
       <h2 className="text-xl md:text-2xl font-semibold text-[#556bc7] mb-4">Achievement Showcase</h2>
       
       <div className="flex gap-2 mb-4 overflow-x-auto pb-2 -mx-2 px-2 no-scrollbar">
@@ -207,8 +207,8 @@ return (
         ))}
       </div>
 
-      <div className="flex-1 min-h-0">
-        <div className="h-full overflow-y-auto overflow-x-hidden pr-2 -mr-2 scrollbar-thin scrollbar-track-gray-100 scrollbar-thumb-gray-300 hover:scrollbar-thumb-gray-400">
+      <div className="flex-1 overflow-hidden">
+        <div className="h-full overflow-y-auto pr-2 scrollbar-thin scrollbar-track-gray-100 scrollbar-thumb-gray-300 hover:scrollbar-thumb-gray-400">
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 p-1">
             {categories[activeCategory].map((achievement, index) => (
               <div 
@@ -287,7 +287,7 @@ export const AchievementContent: React.FC<AchievementContentProps> = (props) => 
   return (
     <Suspense 
       fallback={
-        <div className="flex items-center justify-center min-h-[280px] md:min-h-[320px] lg:min-h-[360px]">
+        <div className="flex items-center justify-center h-[600px]">
           <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
         </div>
       }
