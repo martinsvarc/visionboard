@@ -15,15 +15,6 @@ import League from './league';
 import { debounce } from 'lodash';
 import { Maximize2 } from 'lucide-react'
 
-const MobileNotice = () => (
-  <Card className="p-6 bg-white rounded-[20px] shadow-lg text-center">
-    <div className="flex flex-col items-center gap-4">
-      <Lock className="w-12 h-12 text-[#556bc7]" />
-      <h2 className="text-xl font-semibold text-[#556bc7]">Desktop Experience Only</h2>
-      <p className="text-gray-600">The Interactive Vision Board is optimized for desktop viewing. Please access this feature from a larger screen for the best experience.</p>
-    </div>
-  </Card>
-);
 
 interface LeaguePlayer {
   rank: number
@@ -91,23 +82,6 @@ const VisionBoardContent: React.FC<VisionBoardContentProps> = ({
   memberId,
   setGlowColor
 }) => {
-
-  const [isMobile, setIsMobile] = useState(false);
-
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-    
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
-
-  if (isMobile) {
-    return <MobileNotice />;
-  }
-
   return (
     <div>
       <div className="flex justify-between items-center mb-4">
@@ -968,7 +942,7 @@ return (
   </div>
 ) : (
       <div className="relative w-full bg-[#f0f1f7]">
-  <div className="max-w-7xl mx-auto space-y-4 px-4 sm:px-6 lg:px-8">
+  <div className="max-w-7xl mx-auto space-y-4">
     <Card className="p-4 bg-white rounded-[20px] shadow-lg">
             <VisionBoardContent
               glowColor={glowColor}
@@ -987,7 +961,7 @@ return (
             />
           </Card>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
             <CustomCalendar streakData={streakData} />
 
             <League
@@ -1113,26 +1087,6 @@ return (
     min-height: 100%;
   }
 
-  /* Responsive styles */
-  @media (max-width: 767px) {
-    .max-w-7xl {
-      padding-left: 1rem;
-      padding-right: 1rem;
-    }
-    
-    .grid {
-      grid-template-columns: 1fr;
-    }
-    
-    .col-span-2 {
-      grid-column: span 1;
-    }
-
-    .relative.w-full.bg-[#f0f1f7] {
-      padding: 1rem;
-    }
-  }
-
   /* Existing resize handle styles */
   .resize-handle {
     position: absolute;
@@ -1141,12 +1095,10 @@ return (
     background-color: white;
     border: 1px solid #ccc;
   }
-
   .resize-handle-tl { top: -5px; left: -5px; cursor: nwse-resize; }
   .resize-handle-tr { top: -5px; right: -5px; cursor: nesw-resize; }
   .resize-handle-bl { bottom: -5px; left: -5px; cursor: nesw-resize; }
   .resize-handle-br { bottom: -5px; right: -5px; cursor: nwse-resize; }
-  
   .color-slider {
     background: linear-gradient(to right, #fbb350 0%, #51c1a9 50%, #556bc7 100%);
   }
