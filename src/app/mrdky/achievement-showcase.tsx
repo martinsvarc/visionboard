@@ -186,7 +186,7 @@ const AchievementContentInner = ({ achievements }: AchievementContentProps) => {
 };
 
   return (
-    <Card className="p-4 bg-white rounded-[20px] shadow-lg md:col-span-2 h-[600px] flex flex-col">
+    <Card className="p-4 bg-white rounded-[20px] shadow-lg md:col-span-2 h-[280px] flex flex-col">
       <h2 className="text-xl md:text-2xl font-semibold text-[#556bc7] mb-4">Achievement Showcase</h2>
       
       <div className="flex gap-2 mb-4 overflow-x-auto pb-2 -mx-2 px-2 no-scrollbar">
