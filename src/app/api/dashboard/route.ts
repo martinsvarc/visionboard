@@ -60,13 +60,26 @@ export const GET = async (request: Request) => {
       return NextResponse.json({ error: 'Invalid limit parameter' }, { status: 400 });
     }
 
-    const { rows } = await sql`
-      SELECT *
-      FROM call_logs 
-      WHERE member_id = ${memberId}
-      ORDER BY call_date DESC
-      ${limit ? sql`LIMIT ${parseInt(limit)}` : sql``}
-    `;
+    // Build the query based on whether limit exists
+    let query;
+    if (limit) {
+      query = await sql`
+        SELECT *
+        FROM call_logs 
+        WHERE member_id = ${memberId}
+        ORDER BY call_date DESC
+        LIMIT ${parseInt(limit)}
+      `;
+    } else {
+      query = await sql`
+        SELECT *
+        FROM call_logs 
+        WHERE member_id = ${memberId}
+        ORDER BY call_date DESC
+      `;
+    }
+
+    const { rows } = query;
 
     const transformedRows = rows.map(row => ({
       id: row.id,
