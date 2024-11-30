@@ -57,12 +57,25 @@ export const GET = async (request: Request) => {
       connectionString: process.env.visionboard_PRISMA_URL
     });
 
-    const { rows } = await pool.sql`
-      SELECT *
-      FROM call_logs 
-      WHERE member_id = ${memberId}
-      ORDER BY call_date ${latest ? 'DESC LIMIT 10' : 'ASC'}
-    `;
+    let query;
+    if (latest) {
+      query = await pool.sql`
+        SELECT *
+        FROM call_logs 
+        WHERE member_id = ${memberId}
+        ORDER BY call_date DESC
+        LIMIT 10
+      `;
+    } else {
+      query = await pool.sql`
+        SELECT *
+        FROM call_logs 
+        WHERE member_id = ${memberId}
+        ORDER BY call_date ASC
+      `;
+    }
+
+    const { rows } = query;
 
     const transformedRows = rows.map(row => ({
       id: row.id,
