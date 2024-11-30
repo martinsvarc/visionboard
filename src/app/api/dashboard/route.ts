@@ -1,4 +1,4 @@
-import { createPool } from '@vercel/postgres';
+import { createPool, sql } from '@vercel/postgres';
 import { NextResponse } from 'next/server';
 
 interface CategoryScores {
@@ -61,7 +61,7 @@ export const GET = async (request: Request) => {
       SELECT *
       FROM call_logs 
       WHERE member_id = ${memberId}
-      ORDER BY call_date ${latest ? sql`DESC LIMIT 10` : sql`ASC`}
+      ORDER BY call_date ${latest ? 'DESC LIMIT 10' : 'ASC'}
     `;
 
     const transformedRows = rows.map(row => ({
