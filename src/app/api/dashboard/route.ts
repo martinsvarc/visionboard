@@ -47,9 +47,16 @@ export const GET = async (request: Request) => {
   try {
     const { searchParams } = new URL(request.url);
     const memberId = searchParams.get('memberId');
+    const limit = searchParams.get('limit');
     
+    // Validate memberId
     if (!memberId) {
       return NextResponse.json({ error: 'Member ID required' }, { status: 400 });
+    }
+
+    // Validate limit if provided
+    if (limit && isNaN(parseInt(limit))) {
+      return NextResponse.json({ error: 'Invalid limit parameter' }, { status: 400 });
     }
 
     const pool = createPool({
@@ -60,7 +67,8 @@ export const GET = async (request: Request) => {
       SELECT *
       FROM call_logs 
       WHERE member_id = ${memberId}
-      ORDER BY call_date ASC;
+      ORDER BY call_date DESC
+      ${limit ? sql`LIMIT ${parseInt(limit)}` : sql``};
     `;
 
     const transformedRows = rows.map(row => ({
