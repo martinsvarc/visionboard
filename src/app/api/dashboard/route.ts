@@ -1,6 +1,5 @@
 import { createPool } from '@vercel/postgres';
 import { NextResponse } from 'next/server';
-import { sql } from '@vercel/postgres';
 
 interface CategoryScores {
   engagement: number;
@@ -48,38 +47,22 @@ export const GET = async (request: Request) => {
   try {
     const { searchParams } = new URL(request.url);
     const memberId = searchParams.get('memberId');
-    const limit = searchParams.get('limit');
     
-    // Validate memberId
     if (!memberId) {
       return NextResponse.json({ error: 'Member ID required' }, { status: 400 });
     }
 
-    // Validate limit if provided
-    if (limit && isNaN(parseInt(limit))) {
-      return NextResponse.json({ error: 'Invalid limit parameter' }, { status: 400 });
-    }
+    const pool = createPool({
+      connectionString: process.env.visionboard_PRISMA_URL
+    });
 
-    // Build the query based on whether limit exists
-    let query;
-    if (limit) {
-      query = await sql`
-        SELECT *
-        FROM call_logs 
-        WHERE member_id = ${memberId}
-        ORDER BY call_date DESC
-        LIMIT ${parseInt(limit)}
-      `;
-    } else {
-      query = await sql`
-        SELECT *
-        FROM call_logs 
-        WHERE member_id = ${memberId}
-        ORDER BY call_date DESC
-      `;
-    }
-
-    const { rows } = query;
+    const { rows } = await pool.sql`
+      SELECT *
+      FROM call_logs 
+      WHERE member_id = ${memberId}
+      ORDER BY call_date DESC
+      LIMIT 10;
+    `;
 
     const transformedRows = rows.map(row => ({
       id: row.id,
