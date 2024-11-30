@@ -1,6 +1,6 @@
 import { createPool } from '@vercel/postgres';
 import { NextResponse } from 'next/server';
-import { createPool, sql } from '@vercel/postgres';
+import { sql } from '@vercel/postgres';
 
 interface CategoryScores {
   engagement: number;
@@ -60,11 +60,7 @@ export const GET = async (request: Request) => {
       return NextResponse.json({ error: 'Invalid limit parameter' }, { status: 400 });
     }
 
-    const pool = createPool({
-      connectionString: process.env.visionboard_PRISMA_URL
-    });
-
-    const { rows } = await pool.sql`
+    const { rows } = await sql`
       SELECT *
       FROM call_logs 
       WHERE member_id = ${memberId}
