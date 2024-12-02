@@ -1,1067 +1,993 @@
 'use client'
 
-import React, { useEffect, useState, useCallback, Suspense } from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import React, { useState, useCallback, useRef, useEffect } from 'react'
+import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { TooltipProps as RechartsTooltipProps } from 'recharts';
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer, AreaChart, Area, ReferenceLine, Tooltip as RechartsTooltip } from 'recharts'
+import { Textarea } from "@/components/ui/textarea"
+import { Play, Pause, ChevronRight, ChevronLeft, Calendar, ChevronDown, ChevronUp } from 'lucide-react'
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Cell, ReferenceLine, Area, AreaChart } from 'recharts'
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { Calendar as CalendarComponent } from "@/components/ui/calendar"
-import { format, startOfWeek, endOfWeek, startOfMonth, endOfMonth, subDays } from "date-fns"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
-import { useSearchParams } from 'next/navigation'
-import { TooltipProvider, TooltipContent, TooltipTrigger, Tooltip } from "@/components/ui/tooltip"
-import { DateRange } from "react-day-picker"
-import './calendar.css' 
 import { Slider } from "@/components/ui/slider"
-import { Play, Pause, ChevronRight, Calendar, ChevronLeft, RefreshCw, SkipBack, SkipForward, PlayCircle } from "lucide-react"
+import { format, subDays, startOfWeek, endOfWeek, startOfMonth, endOfMonth } from "date-fns"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
+
+type DateRange = {
+  from: Date;
+  to: Date;
+} | null;
+
+type Category = {
+  key: string;
+  label: string;
+  description?: string;
+}
+
+type CategoryScore = {
+  engagement: number;
+  objection_handling: number;
+  information_gathering: number;
+  program_explanation: number;
+  closing_skills: number;
+  overall_effectiveness: number;
+}
+
+type ChartProps = {
+  data: Array<{
+    name: string;
+    date: string;
+  } & Partial<CategoryScore>>;
+  category?: Category;
+  dateRange: DateRange;
+  setDateRange: (range: DateRange) => void;
+}
 
 interface CallLog {
   id: number;
-  call_number: number;
+  created_at: string;
+  call_duration: number;
+  power_moment: string;
+  call_notes: string;
+  level_up_1: string;
+  level_up_2: string;
+  level_up_3: string;
+  call_transcript: string;
+  strong_points: string;
+  areas_for_improvement: string;
+  engagement: number;
+  objection_handling: number;
+  information_gathering: number;
+  program_explanation: number;
+  closing_skills: number;
+  overall_effectiveness: number;
+  duration: number;
   agent_name: string;
-  agent_picture_url: string;
-  call_date: string;
-  call_recording_url: string;
-  call_details: string;
-  scores: {
-    engagement: number;
-    objection_handling: number;
-    information_gathering: number;
-    program_explanation: number;
-    closing_skills: number;
-    overall_effectiveness: number;
-    overall_performance: number;
-    average_success: number;
-  };
-  feedback: {
-    engagement: string;
-    objection_handling: string;
-    information_gathering: string;
-    program_explanation: string;
-    closing_skills: string;
-    overall_effectiveness: string;
-  };
-  descriptions: CategoryDescriptions;
 }
 
-interface CategoryDescriptions {
-  engagement: string;
-  objection_handling: string;
-  information_gathering: string;
-  program_explanation: string;
-  closing_skills: string;
-  overall_effectiveness: string;
-  overall_performance: string;
+const getColorByScore = (score: number) => {
+  if (score >= 90) return '#51c1a9'  // Success green
+  if (score >= 75) return '#556bc7'  // Progress blue
+  if (score >= 60) return '#ffb367'  // Warning orange
+  return '#ff5656'                   // Alert red
 }
 
-interface AudioPlayerProps {
-  audioSrc: string;
-  caller: string;
-}
+const Chart = ({ data, category, dateRange, setDateRange }: ChartProps) => {
+ if (!data.length) {
+   return (
+     <Card className="relative overflow-hidden border-0 bg-white rounded-[32px] shadow-lg h-[400px] flex items-center justify-center">
+       <div className="text-slate-500">No data available</div>
+     </Card>
+   )
+ }
 
-interface Category {
-  key: string;
-  label: string;
-  color: string;
-}
-
-interface ChartProps {
-  data: CallLog[];
-  category?: Category;
-  dateRange: {
-    from: Date | null;
-    to: Date | null;
-  };
-  setDateRange: (range: { from: Date | null; to: Date | null }) => void;
-  filteredCallLogs: CallLog[];
-}
-
-interface ChartDataPoint {
-  name: string;
-  value: number;
-}
-
-const CustomTooltip: React.FC<RechartsTooltipProps<number, string>> = ({ active, payload }) => {
-  if (!active || !payload || payload.length === 0) {
-    return null;
+const filterByDateRange = (date: string) => {
+    if (!dateRange) return true
+    const itemDate = new Date(date)
+    const fromDate = new Date(dateRange.from.setHours(0, 0, 0, 0))
+    const toDate = new Date(dateRange.to.setHours(23, 59, 59, 999))
+    return itemDate >= fromDate && itemDate <= toDate
   }
 
-  const data = payload[0];
-  if (!data || typeof data.value !== 'number') {
-    return null;
-  }
+const chartData = React.useMemo(() => {
+  return data
+    .filter(item => filterByDateRange(item.date))
+    .map(item => ({
+      name: item.name,
+      value: category ? item[category.key] : item.value
+    }))
+}, [data, dateRange, category, filterByDateRange])
+
+ const latestValue = chartData.length > 0 ? chartData[chartData.length - 1].value : 0
+ const color = getColorByScore(latestValue || 0)
+
+const noDataContent = (
+  <div className="absolute inset-0 flex flex-col items-center justify-center text-slate-500">
+    <div className="text-lg">No data</div>
+    <div className="text-sm mt-1">for selected time period</div>
+  </div>
+)
 
   return (
-    <div className="bg-black/80 text-white p-2 rounded-lg text-sm" style={{ zIndex: 99999, position: 'relative' }}>
-      <p>{`Call ${data.name}: ${data.value.toFixed(1)}%`}</p>
-    </div>
-  );
-};
+ <Card className="relative overflow-hidden border-0 bg-white rounded-[32px] shadow-lg [&>*:last-child]:overflow-visible">
+   <div className="flex justify-between items-center p-6">
+     <span className="text-slate-900 text-xl font-semibold">{category ? category.label : 'Average Success'}</span>
+   </div>
+   <CardContent className="p-0">
+     {chartData.length === 0 ? noDataContent : (
+       <div className="h-[320px] relative -mx-8 -mb-8 overflow-visible">
+         <ResponsiveContainer width="100%" height="100%">
+           <AreaChart 
+             data={chartData} 
+             margin={{ top: 16, right: 16, bottom: -48, left: -48 }}
+           >
+              <defs>
+                <linearGradient id={`colorGradient-${category ? category.key : 'overall'}`} x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor={color} stopOpacity={0.4}/>
+                  <stop offset="95%" stopColor={color} stopOpacity={0.1}/>
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
+              <XAxis 
+                dataKey="name" 
+                axisLine={false} 
+                tickLine={false}
+                tick={false}
+              />
+              <YAxis 
+                axisLine={false} 
+                tickLine={false}
+                tick={false}
+                domain={[0, 100]} 
+              />
+              <Tooltip 
+                contentStyle={{ 
+                  backgroundColor: '#1c1c1c',
+                  color: '#fff',
+                  border: 'none',
+                  borderRadius: '12px',
+                  padding: '12px',
+                  boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
+                  fontSize: '16px',
+                  fontWeight: 500
+                }}
+                formatter={(value) => [`Average Success: ${value}`, '']}
+                cursor={{
+                  stroke: '#666',
+                  strokeWidth: 1,
+                  strokeDasharray: '4 4'
+                }}
+              />
+              <Area 
+                type="monotone" 
+                dataKey="value" 
+                stroke={color}
+                strokeWidth={2}
+                fill={`url(#colorGradient-${category ? category.key : 'overall'})`}
+                dot={false}
+                activeDot={{
+                  r: 6,
+                  fill: color,
+                  stroke: "white",
+                  strokeWidth: 2,
+                  className: "drop-shadow-md"
+                }}
+              />
+            </AreaChart>
+          </ResponsiveContainer>
+          <div className="absolute inset-0 flex flex-col items-center justify-center">
+            <div className="text-[64px] font-bold tracking-tight" style={{ color: getColorByScore(latestValue || 0) }}>
+              {Math.round(latestValue || 0)}/100
+            </div>
+            <div className="text-lg text-slate-600 mt-1">Average Score</div>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  )
+}
 
-const getScoreColor = (score: number) => {
-  if (score >= 95) return "#51c1a9"; 
-  if (score >= 70) return "#556bc7"; 
-  if (score >= 40) return "#f97316"; 
-  return "#ef4444"; // Red
-};
+const AudioPlayer = ({ src }: { src: string }) => {
+  const [isPlaying, setIsPlaying] = useState(false)
+  const [duration, setDuration] = useState(0)
+  const [currentTime, setCurrentTime] = useState(0)
+  const audioRef = useRef<HTMLAudioElement>(null)
 
-const formatTime = (time: number) => {
-  if (!time) return "0:00";
-  const minutes = Math.floor(time / 60);
-  const seconds = Math.floor(time % 60);
-  return `${minutes}:${seconds.toString().padStart(2, '0')}`;
-};
+  useEffect(() => {
+    const audio = audioRef.current
+    if (!audio) return
 
-const scoreCategories = [
-  { key: 'engagement', label: 'Engagement', color: '#556bc7' },
-  { key: 'objection_handling', label: 'Objection Handling', color: '#556bc7' },
-  { key: 'information_gathering', label: 'Information Gathering', color: '#556bc7' },
-  { key: 'program_explanation', label: 'Program Explanation', color: '#556bc7' },
-  { key: 'closing_skills', label: 'Closing Skills', color: '#556bc7' },
-  { key: 'overall_effectiveness', label: 'Overall Effectiveness', color: '#556bc7' }
-] as const;
+    const setAudioData = () => {
+      setDuration(audio.duration)
+      setCurrentTime(audio.currentTime)
+    }
 
-const AudioPlayer: React.FC<AudioPlayerProps> = ({ audioSrc, caller }) => {
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [currentTime, setCurrentTime] = useState(0);
-  const [duration, setDuration] = useState(0);
-  const audioRef = React.useRef<HTMLAudioElement>(null);
+    const setAudioTime = () => setCurrentTime(audio.currentTime)
+
+    audio.addEventListener('loadeddata', setAudioData)
+    audio.addEventListener('timeupdate', setAudioTime)
+
+    return () => {
+      audio.removeEventListener('loadeddata', setAudioData)
+      audio.removeEventListener('timeupdate', setAudioTime)
+    }
+  }, [])
 
   const togglePlayPause = () => {
-    if (audioRef.current) {
-      if (isPlaying) {
-        audioRef.current.pause();
-      } else {
-        audioRef.current.play();
-      }
-      setIsPlaying(!isPlaying);
-    }
-  };
+    const audio = audioRef.current
+    if (!audio) return
 
-  const handleTimeUpdate = () => {
-    if (audioRef.current) {
-      setCurrentTime(audioRef.current.currentTime);
+    if (isPlaying) {
+      audio.pause()
+    } else {
+      audio.play()
     }
-  };
+    setIsPlaying(!isPlaying)
+  }
 
-  const handleLoadedMetadata = () => {
-    if (audioRef.current) {
-      setDuration(audioRef.current.duration);
-    }
-  };
+  const handleSliderChange = (newValue: number[]) => {
+    const audio = audioRef.current
+    if (!audio) return
 
-  const handleSliderChange = (value: number[]) => {
-    if (audioRef.current) {
-      audioRef.current.currentTime = value[0];
-      setCurrentTime(value[0]);
-    }
-  };
+    const [newTime] = newValue
+    audio.currentTime = newTime
+    setCurrentTime(newTime)
+  }
 
   const formatTime = (time: number) => {
-    const minutes = Math.floor(time / 60);
-    const seconds = Math.floor(time % 60);
-    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
-  };
+    const minutes = Math.floor(time / 60)
+    const seconds = Math.floor(time % 60)
+    return `${minutes}:${seconds.toString().padStart(2, '0')}`
+  }
 
   return (
-    <div className="flex flex-col space-y-4 p-4">
-      <audio
-        ref={audioRef}
-        src={audioSrc}
-        onTimeUpdate={handleTimeUpdate}
-        onLoadedMetadata={handleLoadedMetadata}
-      />
-      <h3 className="text-xl font-semibold text-center">Call with {caller}</h3>
-      <div className="w-full">
-        <div className="flex justify-between mb-1 text-sm text-gray-500">
-          <span>{formatTime(currentTime)}</span>
-          <span>{formatTime(duration)}</span>
-        </div>
+    <div className="w-full space-y-1.5">
+      <audio ref={audioRef} src={src} />
+      <div className="flex items-center gap-3">
+        <Button
+          size="sm"
+          variant="ghost"
+          onClick={togglePlayPause}
+          className="h-8 w-8 rounded-full p-0 hover:bg-slate-100"
+          aria-label={isPlaying ? 'Pause' : 'Play'}
+        >
+          {isPlaying ? <Pause className="h-3.5 w-3.5" /> : <Play className="h-3.5 w-3.5" />}
+        </Button>
         <Slider
           value={[currentTime]}
           max={duration}
-          step={0.1}
+          step={1}
           onValueChange={handleSliderChange}
-          className="w-full"
+          className="flex-grow"
+          aria-label="Audio progress"
         />
       </div>
-      <div className="flex justify-center items-center gap-2">
-        <Button 
-          variant="outline" 
-          size="sm" 
-          className="rounded-full h-8 w-8 p-0"
-          onClick={() => audioRef.current && (audioRef.current.currentTime -= 10)}
-        >
-          <SkipBack className="h-4 w-4" />
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          className="rounded-full h-8 w-8 p-0"
-          onClick={togglePlayPause}
-        >
-          {isPlaying ? <Pause className="h-4 w-4" /> : <PlayCircle className="h-4 w-4" />}
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          className="rounded-full h-8 w-8 p-0"
-          onClick={() => audioRef.current && (audioRef.current.currentTime += 10)}
-        >
-          <SkipForward className="h-4 w-4" />
-        </Button>
+      <div className="flex justify-between text-xs text-slate-500">
+        <span>{formatTime(currentTime)}</span>
+        <span>{formatTime(duration)}</span>
       </div>
     </div>
-  );
-};
+  )
+}
 
-  interface CustomizedLabelProps {
-    value: string;
-    viewBox: {
-      x: number;
-      y: number;
-      width: number;
-    };
-  }
-
-  const CustomizedLabel = ({ value, viewBox }: CustomizedLabelProps) => {
-    const { x, y, width } = viewBox;
-    const centerX = x + width / 2;
-    const centerY = y;
-    const numericValue = parseFloat(value);
-
-    return (
-      <g>
-        <rect 
-          x={centerX - 30} 
-          y={centerY - 12} 
-          width="60" 
-          height="24" 
-          fill="rgba(0, 0, 0, 0.7)" 
-          rx="4" 
-          ry="4" 
-        />
-        <text 
-          x={centerX} 
-          y={centerY + 4} 
-          textAnchor="middle" 
-          fill="#ffffff" 
-          fontSize="12"
-          fontWeight="500"
-        >
-          {numericValue > 0 ? `+${value}%` : `${value}%`}
-        </text>
-      </g>
-    );
-  };
-
-const Chart: React.FC<ChartProps> = ({ data, category, dateRange, setDateRange, filteredCallLogs }) => {
-  const [selectedPoints, setSelectedPoints] = useState<ChartDataPoint[]>([]);
-  const [percentageChange, setPercentageChange] = useState<string | null>(null);
-
-  // Add these 3 functions here
-  const staticDescriptions = {
-    engagement: "This metric evaluates the agent's ability to connect with customers and maintain meaningful interactions throughout the call. It measures rapport building, active listening, and customer engagement levels.",
-    objection_handling: "This score reflects how well the agent addresses customer concerns and manages challenging situations. It evaluates the ability to turn objections into opportunities and maintain professional composure.",
-    information_gathering: "This metric assesses the agent's proficiency in collecting relevant information and asking appropriate questions. It measures the thoroughness and efficiency of the discovery process.",
-    program_explanation: "This score evaluates how effectively the agent communicates program details and complex information. It measures clarity, completeness, and the ability to adjust explanations based on customer understanding.",
-    closing_skills: "This metric measures the agent's ability to guide conversations toward positive outcomes. It evaluates the use of appropriate closing techniques and the success rate in achieving call objectives.",
-    overall_effectiveness: "This comprehensive metric evaluates the agent's overall impact and success in handling calls. It considers all aspects of call management and customer interaction."
-  };
-
-const getCategoryDescription = (key: string) => {
-    // First try to find the latest non-empty description
-    const latestWithDescription = filteredCallLogs.length > 0 
-      ? filteredCallLogs
-          .sort((a, b) => new Date(b.call_date).getTime() - new Date(a.call_date).getTime())
-          .find(call => {
-            const description = call.descriptions[key as keyof CategoryDescriptions];
-            return description && description.trim() !== '';
-          })
-      : null;
-
-    return {
-      static: staticDescriptions[key as keyof typeof staticDescriptions] || "",
-      dynamic: latestWithDescription?.descriptions[key as keyof CategoryDescriptions] || ""
-    };
-  };
-
-const getOverallDescription = () => {
-    // Find the latest non-empty overall performance description
-    const latestWithDescription = filteredCallLogs.length > 0 
-      ? filteredCallLogs
-          .sort((a, b) => new Date(b.call_date).getTime() - new Date(a.call_date).getTime())
-          .find(call => {
-            const description = call.descriptions.overall_performance;
-            return description && description.trim() !== '';
-          })
-      : null;
-
-    return {
-      static: "This comprehensive score represents the agent's overall performance across all measured metrics. It takes into account engagement, objection handling, information gathering, program explanation, closing skills, and overall effectiveness. Click and drag on the chart to compare performance between different points.",
-      dynamic: latestWithDescription?.descriptions.overall_performance || ""
-    };
-  };
+const DatePicker = ({ onChange }: { onChange: (range: DateRange) => void }) => {
+  const [currentDate, setCurrentDate] = React.useState(new Date())
   
-const chartData = data
-  .filter((item) => {
-    if (!dateRange || !dateRange.from || !dateRange.to) return true;
-    const itemDate = new Date(item.call_date);
-    return itemDate >= dateRange.from && itemDate <= dateRange.to;
-  })
-  // Sort by date in ascending order
-  .sort((a, b) => new Date(a.call_date).getTime() - new Date(b.call_date).getTime())
-  .map((item, index) => ({
-    name: String(index + 1),
-    value: category 
-      ? item.scores[category.key as keyof typeof item.scores] 
-      : item.scores.overall_performance // Changed from overall_effectiveness to overall_performance
-  }));
+  const firstMonth = currentDate
+  const secondMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1)
+  
+  const renderMonth = (date: Date) => {
+    const daysInMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate()
+    const firstDayOfMonth = new Date(date.getFullYear(), date.getMonth(), 1).getDay()
+    const days = Array.from({ length: daysInMonth }, (_, i) => i + 1)
+    const paddingDays = Array.from({ length: firstDayOfMonth }, (_, i) => null)
 
-// Calculate true average
-const currentAverage = chartData.length > 0 
-  ? Math.round(chartData.reduce((sum, item) => sum + item.value, 0) / chartData.length)
-  : 0;
-
- const latestValue = chartData.length > 0 ? chartData[chartData.length - 1].value : null;
-
-const handleClick = (point: ChartDataPoint | null) => {
-    if (!point) {
-      setSelectedPoints([]);
-      setPercentageChange(null);
-      return;
-    }
-
-    if (selectedPoints.length === 2) {
-      setSelectedPoints([]);
-      setPercentageChange(null);
-    } else if (selectedPoints.length === 1) {
-      if (Number(point.name) > Number(selectedPoints[0].name)) {
-        const newSelectedPoints = [...selectedPoints, point].sort((a, b) => 
-          Number(a.name) - Number(b.name)
-        );
-        setSelectedPoints(newSelectedPoints);
-        const change = ((newSelectedPoints[1].value - newSelectedPoints[0].value) / 
-          newSelectedPoints[0].value) * 100;
-        setPercentageChange(change.toFixed(2));
-      } else {
-        setSelectedPoints([]);
-        setPercentageChange(null);
-      }
-    } else {
-      setSelectedPoints([point]);
-    }
-  };
-
-  interface CustomDotProps {
-    cx: number;
-    cy: number;
-    payload: ChartDataPoint;
+    return (
+      <div className="space-y-4">
+        <div className="text-xl font-semibold">
+          {format(date, "MMMM yyyy")}
+        </div>
+        <div className="grid grid-cols-7 gap-2 text-sm">
+          {["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"].map((day) => (
+            <div key={day} className="text-center text-slate-500">
+              {day}
+            </div>
+          ))}
+          {[...paddingDays, ...days].map((day, index) => (
+            <Button
+              key={index}
+              variant="ghost"
+              className={`h-9 w-9 p-0 font-normal ${
+                day === null
+                  ? "invisible"
+                  : "text-slate-900"
+              } ${
+                day === new Date().getDate() && date.getMonth() === new Date().getMonth() && date.getFullYear() === new Date().getFullYear()
+                  ? "border border-slate-200"
+                  : ""
+              }`}
+              onClick={() => {
+                if (day !== null) {
+                  const selectedDate = new Date(date.getFullYear(), date.getMonth(), day)
+                  onChange({
+                    from: selectedDate,
+                    to: selectedDate
+                  })
+                }
+              }}
+            >
+              {day}
+            </Button>
+          ))}
+        </div>
+      </div>
+    )
   }
 
-  const CustomizedDot = (props: CustomDotProps) => {
-    const { cx, cy, payload } = props;
-    const isSelected = selectedPoints.some(point => point.name === payload.name);
-    
-    if (isSelected) {
-      return (
-        <circle 
-          cx={cx} 
-          cy={cy} 
-          r={6} 
-          fill={category ? category.color : "#10B981"} 
-          stroke="#FFFFFF" 
-          strokeWidth={2} 
-        />
-      );
+  const presets = [
+    {
+      label: "This Week",
+      getValue: () => ({
+        from: startOfWeek(new Date()),
+        to: endOfWeek(new Date())
+      })
+    },
+    {
+      label: "Last Week",
+      getValue: () => ({
+        from: startOfWeek(subDays(new Date(), 7)),
+        to: endOfWeek(subDays(new Date(), 7))
+      })
+    },
+    {
+      label: "Last 7 Days",
+      getValue: () => ({
+        from: subDays(new Date(), 7),
+        to: new Date()
+      })
+    },
+    {
+      label: "This Month",
+      getValue: () => ({
+        from: startOfMonth(new Date()),
+        to: endOfMonth(new Date())
+      })
+    },
+    {
+      label: "Last 14 Days",
+      getValue: () => ({
+        from: subDays(new Date(), 14),
+        to: new Date()
+      })
+    },
+    {
+      label: "Last 30 Days",
+      getValue: () => ({
+        from: subDays(new Date(), 30),
+        to: new Date()
+      })
     }
-    return (
-      <circle 
-        cx={cx} 
-        cy={cy} 
-        r={0} 
-        fill="none" 
-      />
-    );
-  };
+  ]
 
-return (
-  <Popover>
-    <PopoverTrigger asChild>
-      <Card className="relative overflow-hidden border-0 bg-white rounded-[32px] shadow-lg hover:shadow-xl transition-all cursor-pointer">
-        <CardContent className="p-6">
-          <div className="flex justify-between items-center mb-6">
-<span className="text-slate-900 text-xl font-semibold">
-              {category ? category.label : 'Overall Performance'}
-            </span>
-          </div>
-          <div className="h-[240px] relative">
-            {chartData.length === 0 && (
-              <div className="flex flex-col items-center justify-center h-full space-y-4">
-                <span className="text-slate-600 text-xl">No calls found</span>
-                <Button variant="outline" onClick={() => setDateRange({ from: null, to: null })}>
-                  View all time
-                </Button>
-              </div>
-            )}
-            {chartData.length > 0 && (
-              <>
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart 
-                    data={chartData} 
-                    margin={{ top: 20, right: 0, bottom: 0, left: -32 }}
-                    onClick={(data) => data && data.activePayload 
-                      ? handleClick(data.activePayload[0].payload) 
-                      : handleClick(null)}
-                  >
-                    <defs>
-  <linearGradient id={`colorGradient-${category ? category.key : 'overall'}`} x1="0" y1="0" x2="0" y2="1">
-    <stop offset="5%" stopColor={getScoreColor(currentAverage)} stopOpacity={0.3}/>
-    <stop offset="95%" stopColor={getScoreColor(currentAverage)} stopOpacity={0.1}/>
-  </linearGradient>
-</defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.1)" />
-                    <XAxis 
-                      dataKey="name" 
-                      axisLine={false} 
-                      tickLine={false}
-                      tick={{ fill: 'rgba(0,0,0,0.6)', fontSize: 10 }}
-                    />
-                    <YAxis 
-                      axisLine={false} 
-                      tickLine={false} 
-                      tick={{ fill: 'rgba(0,0,0,0.6)', fontSize: 10 }} 
-                      domain={[0, 100]} 
-                    />
-                   <RechartsTooltip 
-  content={CustomTooltip} 
-  cursor={false}
-  wrapperStyle={{ zIndex: 99999, position: 'relative' }}
-/>
-                    <Area 
-                      type="monotone" 
-                      dataKey="value" 
-                      stroke={getScoreColor(currentAverage)}
-                      strokeWidth={3}
-                      fill={`url(#colorGradient-${category ? category.key : 'overall'})`}
-                      dot={CustomizedDot}
-                      activeDot={{ r: 8, fill: getScoreColor(currentAverage), stroke: '#FFFFFF', strokeWidth: 2 }}
-                    />
-                    {selectedPoints.length > 1 && percentageChange !== null && (
-                      <ReferenceLine
-                        segment={selectedPoints.map(point => ({ x: point.name, y: point.value }))}
-                        stroke="rgba(0, 0, 0, 0.2)"
-                        strokeWidth={2}
-                        strokeDasharray="3 3"
-                        label={<CustomizedLabel 
-                          value={percentageChange}
-                          viewBox={{
-                            x: Math.min(Number(selectedPoints[0].name), Number(selectedPoints[1].name)),
-                            y: Math.min(selectedPoints[0].value, selectedPoints[1].value),
-                            width: Math.abs(Number(selectedPoints[1].name) - Number(selectedPoints[0].name))
-                          }} 
-                        />}
-                      />
-                    )}
-                  </AreaChart>
-                </ResponsiveContainer>
-                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex flex-col items-center" style={{ zIndex: 0 }}>
-  <div className="text-lg text-slate-600 mb-2">Average Score</div>
-  <div className="text-6xl font-bold tracking-tight" style={{ color: getScoreColor(currentAverage) }}>
-    {currentAverage}<span className="text-4xl">/100</span>
-  </div>
-</div>
-              </>
-            )}
-          </div>
-        </CardContent>
-      </Card>
-    </PopoverTrigger>
-   <PopoverContent className="w-[600px] bg-white p-6 rounded-xl shadow-xl">
-  <div className="space-y-2">
-    <h3 className="text-xl font-bold text-slate-900">
-      {category ? `${category.label} Analysis` : 'Overall Performance Analysis'}
-    </h3>
-
-    <p className="text-slate-600 text-sm italic">
-      {category ? getCategoryDescription(category.key).static : getOverallDescription().static}
-    </p>
-
-    <div className="text-6xl font-bold text-center" style={{ color: getScoreColor(currentAverage) }}>
-      {currentAverage}<span className="text-2xl text-slate-600">/100</span>
-    </div>
-
-    {(() => {
-      const dynamicDescription = category 
-        ? getCategoryDescription(category.key).dynamic 
-        : getOverallDescription().dynamic;
+  return (
+    <Card className="p-4 space-y-4">
+      <Button 
+        variant="outline" 
+        className="w-full justify-center text-center h-10 px-4 py-2"
+        onClick={() => onChange(null)}
+      >
+        All time
+      </Button>
       
-      return dynamicDescription && dynamicDescription.trim() !== '' ? (
-        <p className="text-slate-600">
-          {dynamicDescription}
-        </p>
-      ) : null;
-    })()}
-  </div>
-</PopoverContent>
-  </Popover>
-);
-};
-function DashboardComponent() {
-  const [callLogs, setCallLogs] = useState<CallLog[]>([]);
-  const [filteredCallLogs, setFilteredCallLogs] = useState<CallLog[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [dateRange, setDateRange] = useState<{ from: Date | null; to: Date | null }>({ from: null, to: null });
+      <div className="flex items-center justify-between">
+        <Button
+          variant="ghost"
+          className="h-7 w-7 p-0 hover:bg-transparent"
+          onClick={() => setCurrentDate(date => new Date(date.getFullYear(), date.getMonth() - 1, 1))}
+        >
+          <ChevronLeft className="h-4 w-4" />
+          <span className="sr-only">Previous month</span>
+        </Button>
+        <div className="grid grid-cols-2 gap-8">
+          {renderMonth(firstMonth)}
+          {renderMonth(secondMonth)}
+        </div>
+        <Button
+          variant="ghost"
+          className="h-7 w-7 p-0 hover:bg-transparent"
+          onClick={() => setCurrentDate(date => new Date(date.getFullYear(), date.getMonth() + 1, 1))}
+        >
+          <ChevronRight className="h-4 w-4" />
+          <span className="sr-only">Next month</span>
+        </Button>
+      </div>
 
-  const [playCallModal, setPlayCallModal] = useState<{
-    isOpen: boolean;
-    callId: number | null;
-  }>({ isOpen: false, callId: null });
-  const [detailsModal, setDetailsModal] = useState<{
-    isOpen: boolean;
-    call: CallLog | null;
-  }>({ isOpen: false, call: null });
-  const [currentPage, setCurrentPage] = useState(1);
-  const recordsPerPage = 10;
+      <div className="grid grid-cols-2 gap-2">
+        {presets.map((preset) => (
+          <Button
+            key={preset.label}
+            variant="outline"
+            className="justify-center"
+            onClick={() => onChange(preset.getValue())}
+          >
+            {preset.label}
+          </Button>
+        ))}
+      </div>
+    </Card>
+  )
+}
 
-  const searchParams = useSearchParams();
-  const memberId = searchParams.get('memberId');
+export default function Component() {
+  const [dateRange, setDateRange] = useState<DateRange>(null)
+  const [expandedCards, setExpandedCards] = useState<Record<number, boolean>>({})
+  const [currentPage, setCurrentPage] = useState(1)
+  const recordsPerPage = 5
+  const [playCallModal, setPlayCallModal] = useState<{ isOpen: boolean; callId: number | null }>({ isOpen: false, callId: null })
+  const [detailsModal, setDetailsModal] = useState<{ 
+  isOpen: boolean; 
+  call: CallLog | null 
+}>({ isOpen: false, call: null })
+  const [callNotes, setCallNotes] = useState<Record<number, string>>({})
+  const [callLogs, setCallLogs] = useState<{
+  id: number;
+  call_duration: number;
+  power_moment: string;
+  call_notes: string;
+  level_up_1: string; 
+  level_up_2: string;
+  level_up_3: string;
+  call_transcript: string;
+  strong_points: string;
+  areas_for_improvement: string;
+  engagement: number;
+  objection_handling: number;
+  information_gathering: number;
+  program_explanation: number;
+  closing_skills: number;
+  overall_effectiveness: number;
+  agent_name: string;
+  created_at: string;
+}[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
-  const fetchCallLogs = useCallback(async () => {
-    if (!memberId) return;
-    
-    setIsLoading(true);
-    setError(null);
-    try {
-      const response = await fetch(`/api/dashboard?memberId=${memberId}`);
-      const data = await response.json();
+const handleError = (error: unknown) => {
+  setError(error instanceof Error ? error.message : 'An error occurred')
+  setIsLoading(false)
+}
 
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to fetch call logs');
-      }
+const scoreCategories: Category[] = [
+  { key: 'engagement', label: 'Engagement', description: 'Measures how well the agent connects with the customer.' },
+  { key: 'objection_handling', label: 'Objection Handling', description: 'Evaluates the agent\'s ability to address concerns.' },
+  { key: 'information_gathering', label: 'Information Gathering', description: 'Assesses information collection effectiveness.' },
+  { key: 'program_explanation', label: 'Program Explanation', description: 'Rates explanation clarity.' },
+  { key: 'closing_skills', label: 'Closing Skills', description: 'Measures conversation conclusion effectiveness.' },
+  { key: 'overall_effectiveness', label: 'Overall Effectiveness', description: 'Overall performance score.' },
+]
 
-      setCallLogs(data);
-      setFilteredCallLogs(data);
-    } catch (err) {
-      console.error('Error fetching call logs:', err);
-      setError('Failed to fetch call logs. Please try again later.');
-    } finally {
-      setIsLoading(false);
-    }
-  }, [memberId]);
+const getDashboardUrl = (memberId: string | null, options?: { latest?: boolean }) => {
+  const baseUrl = `/api/dashboard?memberId=${memberId}`
+  return options?.latest ? `${baseUrl}&latest=true` : baseUrl
+}
+
+if (error) {
+  return (
+    <div className="flex items-center justify-center min-h-screen text-red-500">
+      {error}
+    </div>
+  )
+}
+
+if (isLoading) {
+  return <div className="flex items-center justify-center min-h-screen">Loading...</div>
+}
 
 useEffect(() => {
-  const sendHeightToParent = () => {
-    const height = document.documentElement.scrollHeight;
-    window.parent.postMessage({ type: 'setHeight', height }, '*');
-  };
-
-  sendHeightToParent();
-  
-  const observer = new ResizeObserver(() => {
-    sendHeightToParent();
-  });
-
-  observer.observe(document.body);
-  return () => observer.disconnect();
-}, []);
-
-  useEffect(() => {
-    fetchCallLogs();
-  }, [fetchCallLogs]);
-
-  useEffect(() => {
-    if (dateRange?.from && dateRange?.to) {
-      const filtered = callLogs.filter(call => {
-        const callDate = new Date(call.call_date);
-        return callDate >= dateRange.from! && callDate <= dateRange.to!;
-      });
-      setFilteredCallLogs(filtered);
-    } else {
-      setFilteredCallLogs(callLogs);
+  const fetchCalls = async () => {
+    const memberId = searchParams.get('memberId')
+    if (!memberId) return
+    
+    try {
+      setIsLoading(true)
+      const response = await fetch(getDashboardUrl(memberId))
+      const data = await response.json()
+      setCallLogs(data)
+    } catch (error) {
+      handleError(error)
+    } finally {
+      setIsLoading(false)
     }
-  }, [callLogs, dateRange]);
+  }
+  fetchCalls()
+}, [searchParams])
 
-  const handlePlayCall = (callId: number) => {
-    setPlayCallModal({ isOpen: true, callId });
-  };
-
-  const handleViewDetails = (call: CallLog) => {
-    setDetailsModal({ isOpen: true, call });
-  };
+const indexOfLastRecord = currentPage * recordsPerPage
+const indexOfFirstRecord = indexOfLastRecord - recordsPerPage
+const currentRecords = callLogs.slice(indexOfFirstRecord, indexOfLastRecord)
+const totalPages = Math.ceil(callLogs.length / recordsPerPage)
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-slate-50">
-        <RefreshCw className="w-6 h-6 text-slate-600 animate-spin" />
-      </div>
-    );
+    return <div className="flex items-center justify-center min-h-screen">Loading...</div>
   }
 
-  if (error) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-slate-50">
-        <Card className="w-96">
-          <CardContent className="pt-6">
-            <div className="text-center space-y-4">
-              <p className="text-red-500">{error}</p>
-              <Button onClick={fetchCallLogs}>Try Again</Button>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    );
+  if (!callLogs.length) {
+    return <div className="flex items-center justify-center min-h-screen">No call data found</div>
   }
-const indexOfLastRecord = currentPage * recordsPerPage;
-  const indexOfFirstRecord = indexOfLastRecord - recordsPerPage;
-const currentRecords = filteredCallLogs
-  .slice()
-  .sort((a, b) => b.call_number - a.call_number)
-  .slice(indexOfFirstRecord, indexOfLastRecord);
-  const totalPages = Math.ceil(filteredCallLogs.length / recordsPerPage);
 
- return (
-  <div className="min-h-screen bg-[#f2f3f8]">
-    <div className="max-w-7xl mx-auto space-y-8 bg-white rounded-[32px] p-8 shadow-lg">
-      {/* Date Range Picker */}
-      <div className="flex justify-end">
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button 
-              variant="outline" 
-              className="bg-white border-slate-200 text-slate-900 hover:bg-slate-50"
-            >
-              <Calendar className="mr-2 h-4 w-4" />
-              {dateRange?.from ? (
-                dateRange.to ? (
+  const scoreCategories: Category[] = [
+    { key: 'engagement', label: 'Engagement', description: 'Measures how well the agent connects with the customer and keeps them interested throughout the call.' },
+    { key: 'objection_handling', label: 'Objection Handling', description: 'Evaluates the agent\'s ability to address and overcome customer concerns or objections.' },
+    { key: 'information_gathering', label: 'Information Gathering', description: 'Assesses how effectively the agent collects relevant information from the customer.' },
+    { key: 'program_explanation', label: 'Program Explanation', description: 'Rates the clarity and completeness of the agent\'s explanation of products or services.' },
+    { key: 'closing_skills', label: 'Closing Skills', description: 'Measures the agent\'s ability to guide the conversation towards a successful conclusion or sale.' },
+    { key: 'overall_effectiveness', label: 'Overall Effectiveness', description: 'A comprehensive score reflecting the agent\'s overall performance during the call.' },
+  ]
+
+  // Mock data with proper typing
+ const [callLogs, setCallLogs] = useState<{
+  id: number;
+  call_duration: number;
+  power_moment: string;
+  call_notes: string;
+  level_up_1: string; 
+  level_up_2: string;
+  level_up_3: string;
+  call_transcript: string;
+  strong_points: string;
+  areas_for_improvement: string;
+  engagement: number;
+  objection_handling: number;
+  information_gathering: number;
+  program_explanation: number;
+  closing_skills: number;
+  overall_effectiveness: number;
+  agent_name: string;
+  created_at: string;
+}[]>([])
+
+useEffect(() => {
+  const fetchCalls = async () => {
+    const memberId = searchParams.get('memberId')
+    if (!memberId) return
+    
+    try {
+      const response = await fetch(`/api/dashboard?memberId=${memberId}`)
+      const data = await response.json()
+      setCallLogs(data)
+    } catch (error) {
+      console.error('Error fetching calls:', error)
+    }
+  }
+
+  fetchCalls()
+}, [searchParams])
+
+  // Replace/update this section
+const chartData = React.useMemo(() => callLogs.map((call, index) => ({
+  name: `${index + 1}`,
+  date: call.created_at,
+  engagement: call.engagement,
+  objection_handling: call.objection_handling,
+  information_gathering: call.information_gathering,
+  program_explanation: call.program_explanation,
+  closing_skills: call.closing_skills,
+  overall_effectiveness: call.overall_effectiveness
+})), [callLogs])
+
+const averageSuccessData = React.useMemo(() => callLogs.map((call, index) => ({
+  name: `${index + 1}`,
+  date: call.created_at,
+  value: call.overall_effectiveness
+})), [callLogs])
+
+  const indexOfLastRecord = currentPage * recordsPerPage
+  const indexOfFirstRecord = indexOfLastRecord - recordsPerPage
+  const currentRecords = callLogs.slice(indexOfFirstRecord, indexOfLastRecord)
+const totalPages = Math.ceil(callLogs.length / recordsPerPage)
+
+  const toggleExpandCard = useCallback((id: number) => {
+    setExpandedCards(prev => ({
+      ...prev,
+      [id]: !prev[id]
+    }))
+  }, [])
+
+  const handleNotesChange = (id: number, notes: string) => {
+    setCallNotes(prev => ({
+      ...prev,
+      [id]: notes
+    }))
+  }
+
+  const saveNotes = async (id: number) => {
+  try {
+    const response = await fetch(`/api/dashboard?id=${id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        call_notes: callNotes[id]
+      })
+    });
+    if (!response.ok) throw new Error('Failed to save notes');
+  } catch (error) {
+    console.error('Error saving notes:', error);
+  }
+}
+
+  return (
+    <div className="min-h-screen p-8 bg-slate-50">
+      <div className="max-w-7xl mx-auto">
+        <div className="flex justify-end mb-4">
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button 
+                variant="outline" 
+                className="bg-white border-slate-200 text-slate-900 hover:bg-slate-50 h-9 px-4 py-2 text-sm font-medium rounded-full shadow-sm"
+              >
+                <Calendar className="mr-2 h-4 w-4" />
+                {dateRange ? (
                   <>
                     {format(dateRange.from, "LLL dd, y")} - {format(dateRange.to, "LLL dd, y")}
                   </>
                 ) : (
-                  format(dateRange.from, "LLL dd, y")
-                )
-              ) : (
-                "Pick a date range"
-              )}
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent 
-            className="bg-white border border-slate-200 p-0 shadow-lg rounded-xl w-auto" 
-            align="end"
-            sideOffset={8}
-            style={{ zIndex: 9999 }}
-          >
-            <div className="flex flex-col space-y-4 p-4">
-              <Button
-                variant="outline"
-                className="w-full justify-center text-center font-normal col-span-2"
-                onClick={() => setDateRange({ from: null, to: null })}
-              >
-                All time
+                  <span>Pick a date range</span>
+                )}
               </Button>
-              <CalendarComponent
-                initialFocus
-                mode="range"
-                defaultMonth={dateRange?.from || new Date()}
-                selected={{
-                  from: dateRange?.from ? new Date(dateRange.from) : undefined,
-                  to: dateRange?.to ? new Date(dateRange.to) : undefined
-                }}
-                onSelect={(range: DateRange | undefined) => {
-                  setDateRange({
-                    from: range?.from || null,
-                    to: range?.to || null
-                  });
-                }}
-                numberOfMonths={2}
-                modifiers={{
-                  selected: (date) => {
-                    if (!dateRange?.from || !dateRange?.to) return false;
-                    return (
-                      date.getTime() === dateRange.from.getTime() ||
-                      date.getTime() === dateRange.to.getTime()
-                    );
-                  }
-                }}
-                modifiersStyles={{
-                  selected: {
-                    backgroundColor: 'rgb(15 23 42)',
-                    color: 'white'
-                  }
-                }}
-                className="bg-white [&_.rdp]:p-0 [&_.rdp-months]:space-x-4 [&_.rdp-month]:w-full [&_.rdp-day]:h-10 [&_.rdp-day]:w-10 [&_.rdp-day]:text-sm [&_.rdp-day]:font-normal [&_.rdp-day_span]:flex [&_.rdp-day_span]:h-full [&_.rdp-day_span]:w-full [&_.rdp-day_span]:items-center [&_.rdp-day_span]:justify-center [&_.rdp-day]:hover:bg-slate-100 [&_.rdp-day_button]:font-normal [&_.rdp-button]:hover:bg-slate-100 [&_.rdp-nav_button]:h-9 [&_.rdp-nav_button]:w-9 [&_.rdp-nav_button]:bg-transparent [&_.rdp-nav_button]:hover:bg-slate-100 [&_.rdp-head_cell]:font-normal [&_.rdp-head_cell]:text-slate-500 [&_.rdp-caption_label]:font-medium [&_.rdp-caption_label]:text-slate-900 [&_.rdp-day_selected]:bg-slate-900 [&_.rdp-day_selected]:text-white [&_.rdp-day_selected]:hover:bg-slate-900 [&_.rdp-day_selected]:hover:text-white [&_.rdp-day_range_start]:bg-slate-900 [&_.rdp-day_range_start]:text-white [&_.rdp-day_range_start]:hover:bg-slate-900 [&_.rdp-day_range_start]:hover:text-white [&_.rdp-day_range_end]:bg-slate-900 [&_.rdp-day_range_end]:text-white [&_.rdp-day_range_end]:hover:bg-slate-900 [&_.rdp-day_range_end]:hover:text-white [&_.rdp-day_range_middle]:bg-slate-100 [&_.rdp-day_today]:font-bold"
+            </PopoverTrigger>
+            <PopoverContent 
+              className="bg-white border border-slate-200 p-0 shadow-lg rounded-xl w-auto" 
+              align="end" 
+              sideOffset={8}
+            >
+              <DatePicker onChange={setDateRange} />
+            </PopoverContent>
+          </Popover>
+        </div>
+        <div className="mb-8">
+          <Chart 
+            data={averageSuccessData} 
+            dateRange={dateRange} 
+            setDateRange={setDateRange} 
+          />
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+          {scoreCategories.map((category) => (
+            <div key={category.key}>
+              <Chart 
+                data={chartData} 
+                category={category} 
+                dateRange={dateRange} 
+                setDateRange={setDateRange} 
               />
-              <div className="grid grid-cols-2 gap-2">
-                <Button
-                  variant="outline"
-                  className="w-full justify-center text-center font-normal rounded-xl h-11 hover:bg-slate-100"
-                  onClick={() => {
-                    const end = new Date();
-                    const start = startOfWeek(end);
-                    setDateRange({ from: start, to: end });
-                  }}
-                >
-                  This Week
-                </Button>
-                <Button
-                  variant="outline"
-                  className="w-full justify-center text-center font-normal rounded-xl h-11 hover:bg-slate-100"
-                  onClick={() => {
-                    const end = subDays(startOfWeek(new Date()), 1);
-                    const start = startOfWeek(end);
-                    setDateRange({ from: start, to: end });
-                  }}
-                >
-                  Last Week
-                </Button>
-                <Button
-                  variant="outline"
-                  className="w-full justify-center text-center font-normal rounded-xl h-11 hover:bg-slate-100"
-                  onClick={() => {
-                    const end = new Date();
-                    const start = subDays(end, 7);
-                    setDateRange({ from: start, to: end });
-                  }}
-                >
-                  Last 7 Days
-                </Button>
-                <Button
-                  variant="outline"
-                  className="w-full justify-center text-center font-normal rounded-xl h-11 hover:bg-slate-100"
-                  onClick={() => {
-                    const end = endOfMonth(new Date());
-                    const start = startOfMonth(new Date());
-                    setDateRange({ from: start, to: end });
-                  }}
-                >
-                  This Month
-                </Button>
-                <Button
-                  variant="outline"
-                  className="w-full justify-center text-center font-normal rounded-xl h-11 hover:bg-slate-100"
-                  onClick={() => {
-                    const end = new Date();
-                    const start = subDays(end, 14);
-                    setDateRange({ from: start, to: end });
-                  }}
-                >
-                  Last 14 Days
-                </Button>
-                <Button
-                  variant="outline"
-                  className="w-full justify-center text-center font-normal rounded-xl h-11 hover:bg-slate-100"
-                  onClick={() => {
-                    const end = new Date();
-                    const start = subDays(end, 30);
-                    setDateRange({ from: start, to: end });
-                  }}
-                >
-                  Last 30 Days
-                </Button>
-              </div>
             </div>
-          </PopoverContent>
-        </Popover>
-      </div>
+          ))}
+        </div>
 
-      {/* Overall Performance Chart */}
-      <Chart 
-        data={filteredCallLogs} 
-        dateRange={dateRange} 
-        setDateRange={setDateRange}
-        filteredCallLogs={filteredCallLogs}
-      />
-
-        {/* Category Charts Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-  {scoreCategories.map((category) => (
-    <Chart 
-      key={category.key}
-      data={filteredCallLogs} 
-      category={category}
-      dateRange={dateRange} 
-      setDateRange={setDateRange}
-      filteredCallLogs={filteredCallLogs}
-    />
-  ))}
-</div>
-
-        {/* Call Records */}
+        <h2 className="text-3xl font-bold mb-6 text-slate-900 text-center">
+          CALL RECORDS
+        </h2>
         <div className="space-y-6">
-          <h2 className="text-3xl font-bold text-center text-slate-900">
-            CALL RECORDS
-          </h2>
-          {currentRecords.map((call) => (
-<Card key={call.id} className="bg-white rounded-[32px] shadow-lg overflow-hidden border-0">
-              <CardContent className="p-8">
-                <div className="flex flex-col md:flex-row gap-8">
-                  {/* Agent Info Section */}
-                  <div className="md:w-1/3 space-y-4">
-                    <div className="flex flex-col items-center">
-                      <Avatar className="h-24 w-24 mb-4">
-                        <AvatarImage src={call.agent_picture_url} alt={call.agent_name} />
-                        <AvatarFallback>{call.agent_name.slice(0, 2).toUpperCase()}</AvatarFallback>
-                      </Avatar>
-                      <h3 className="text-2xl font-bold text-slate-900">{call.agent_name}</h3>
-                      <p className="text-lg text-slate-600">CALL NUMBER {call.call_number}</p>
-                      <p className="text-sm text-slate-600">
-                        {format(new Date(call.call_date), 'PPpp')}
-                      </p>
-<Popover>
-  <PopoverTrigger asChild>
-    <button 
-      className="relative w-full text-center cursor-pointer hover:opacity-90 transition-opacity"
-    >
-      <div className="text-6xl font-bold" style={{ color: getScoreColor(call.scores.overall_performance) }}>
-        {call.scores.overall_performance}
-        <span className="text-2xl text-slate-600">/100</span>
-      </div>
-      <p className="text-lg" style={{ color: getScoreColor(call.scores.overall_performance) }}>Overall Performance</p>
-    </button>
-  </PopoverTrigger>
-  <PopoverContent 
-    className="w-[600px] bg-white p-6 rounded-xl shadow-xl"
-    style={{ zIndex: 9999, position: 'relative' }}
-    sideOffset={5}
-    align="center"
-  >
-    <div className="space-y-6">
-      <h3 className="text-xl font-bold text-slate-900">Overall Performance Analysis</h3>
-      
-      {/* Score Display */}
-      <div className="text-6xl font-bold text-center" style={{ color: getScoreColor(call.scores.overall_performance) }}>
-        {call.scores.overall_performance}
-        <span className="text-2xl text-slate-600">/100</span>
-      </div>
-
-      {/* Performance Analysis Text */}
-      <div className="text-slate-600 space-y-4">
-        <p>This overall performance score is calculated based on a comprehensive evaluation of all key performance indicators:</p>
-        <ul className="list-disc pl-6 space-y-2">
-          <li>Engagement: {call.scores.engagement}%</li>
-          <li>Objection Handling: {call.scores.objection_handling}%</li>
-          <li>Information Gathering: {call.scores.information_gathering}%</li>
-          <li>Program Explanation: {call.scores.program_explanation}%</li>
-          <li>Closing Skills: {call.scores.closing_skills}%</li>
-          <li>Overall Effectiveness: {call.scores.overall_effectiveness}%</li>
-        </ul>
-        <p className="mt-4">
-        </p>
-      </div>
-    </div>
-  </PopoverContent>
-</Popover>
+          {currentRecords.map((call, index) => (
+            <Card key={call.id} className="bg-white shadow-lg rounded-[32px] overflow-hidden border-0">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-start mb-6 gap-4">
+                  <div className="flex items-center gap-4">
+                    <img
+                      src="/placeholder.svg?height=48&width=48"
+                      alt="Profile"
+                      className="rounded-full w-12 h-12 bg-slate-100"
+                    />
+                    <div>
+                      <p className="text-sm font-medium text-slate-700">{call.agent_name}</p>
+                      <h2 className="text-2xl font-bold text-slate-900">
+                        Call {indexOfFirstRecord + index + 1}
+                      </h2>
                     </div>
-                    <div className="flex flex-col gap-2">
-  <Popover>
-    <PopoverTrigger asChild>
-      <Button className="w-full">
-        <Play className="mr-2 h-4 w-4" /> Play Call
-      </Button>
-    </PopoverTrigger>
-    <PopoverContent className="w-[300px] p-4 bg-white shadow-md rounded-md border" sideOffset={5}>
-      <div className="space-y-4">
-        <h2 className="text-xl font-semibold text-center">Call with {call.agent_name}</h2>
-        <audio
-          src={call.call_recording_url}
-          ref={(audio) => {
-            if (audio) {
-              audio.addEventListener('timeupdate', () => {
-                const progress = (audio.currentTime / audio.duration) * 100;
-                const progressBar = audio.parentElement?.querySelector('.progress-bar') as HTMLElement;
-                const progressThumb = audio.parentElement?.querySelector('.progress-thumb') as HTMLElement;
-                const currentTimeEl = audio.parentElement?.querySelector('.current-time') as HTMLElement;
-                const durationEl = audio.parentElement?.querySelector('.duration') as HTMLElement;
-                
-                if (progressBar) progressBar.style.width = `${progress}%`;
-                if (progressThumb) progressThumb.style.left = `${progress}%`;
-                if (currentTimeEl) currentTimeEl.textContent = formatTime(audio.currentTime);
-                if (durationEl) durationEl.textContent = formatTime(audio.duration);
-              });
-            }
-          }}
-          className="hidden"
-        />
-        <div className="flex justify-center gap-4">
-          <button 
-            className="p-2 rounded border hover:bg-gray-100"
-            onClick={(e) => {
-              const audio = (e.currentTarget.parentElement?.parentElement?.querySelector('audio')) as HTMLAudioElement;
-              if (audio) audio.currentTime -= 10;
-            }}
-          >
-            <ChevronLeft className="h-5 w-5" />
-          </button>
-          <button 
-  className="p-2 rounded border hover:bg-gray-100"
-  onClick={(e) => {
-    const audio = (e.currentTarget.parentElement?.parentElement?.querySelector('audio')) as HTMLAudioElement;
-    const playIcon = (e.currentTarget.querySelector('svg') as unknown) as HTMLElement;
-    const pauseIcon = e.currentTarget.querySelector('.pause') as HTMLElement;
-    
-    if (audio) {
-      if (audio.paused) {
-        audio.play();
-        playIcon?.classList.add('hidden');
-        pauseIcon?.classList.remove('hidden');
-      } else {
-        audio.pause();
-        playIcon?.classList.remove('hidden');
-        pauseIcon?.classList.add('hidden');
-      }
-    }
-  }}
->
-  <Play className="h-5 w-5" />
-  <Pause className="h-5 w-5 hidden pause" />
-</button>
-          <button 
-            className="p-2 rounded border hover:bg-gray-100"
-            onClick={(e) => {
-              const audio = (e.currentTarget.parentElement?.parentElement?.querySelector('audio')) as HTMLAudioElement;
-              if (audio) audio.currentTime += 10;
-            }}
-          >
-            <ChevronRight className="h-5 w-5" />
-          </button>
-        </div>
-        <div 
-          className="w-full bg-gray-100 h-1 rounded-full relative cursor-pointer"
-          onClick={(e) => {
-            const audio = (e.currentTarget.parentElement?.querySelector('audio')) as HTMLAudioElement;
-            const rect = e.currentTarget.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const progress = (x / rect.width) * 100;
-            if (audio) audio.currentTime = (progress / 100) * audio.duration;
-          }}
-        >
-          <div className="progress-bar absolute left-0 h-1 bg-blue-500 rounded-full" />
-          <div className="progress-thumb absolute -left-1.5 h-3 w-3 bg-blue-500 rounded-full top-1/2 -translate-y-1/2" />
-        </div>
-        <div className="flex justify-between text-sm text-gray-500">
-          <span className="current-time">0:00</span>
-          <span className="duration">0:00</span>
-        </div>
-      </div>
-    </PopoverContent>
-  </Popover>
-
-<Popover>
-    <PopoverTrigger asChild>
-      <Button variant="outline" className="w-full">
-        View Details <ChevronRight className="ml-2 h-4 w-4" />
-      </Button>
-    </PopoverTrigger>
-    <PopoverContent className="w-[300px] p-4 bg-white shadow-md rounded-md border" sideOffset={5}>
-      <div className="space-y-4">
-        <h3 className="text-lg font-semibold">Call Details</h3>
-        <div className="text-sm text-slate-600">
-          {call.call_details}
-        </div>
-      </div>
-    </PopoverContent>
-  </Popover>
-</div>
-  </div>                  
-
-{/* Scores Grid */}
-<div className="md:w-2/3">
-  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-    {scoreCategories.map(({ key, label }) => (
-      <Popover key={key}>
-        <PopoverTrigger asChild>
-          <button 
-            className="bg-white p-6 rounded-3xl shadow-lg hover:shadow-xl transition-shadow w-full h-48 relative"
-          >
-            <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-full">
-              <div className="text-base font-medium text-slate-600 text-center">
-                {label}
-              </div>
-            </div>
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 w-full">
-              <div className="flex items-baseline justify-center">
-                <span 
-                  className="text-5xl font-bold" 
-                  style={{ color: getScoreColor(call.scores[key as keyof typeof call.scores]) }}
-                >
-                  {call.scores[key as keyof typeof call.scores]}
-                </span>
-                <span className="text-xl text-slate-600 ml-1">/100</span>
-              </div>
-            </div>
-          </button>
-        </PopoverTrigger>
-        <PopoverContent className="w-[600px] bg-white p-6 rounded-xl shadow-xl">
-          <div className="space-y-6">
-            <h3 className="text-xl font-bold text-slate-900">{label}</h3>
-            
-            {/* Score Display */}
-            <div className="text-6xl font-bold text-center" style={{ color: getScoreColor(call.scores[key as keyof typeof call.scores]) }}>
-              {call.scores[key as keyof typeof call.scores]}
-              <span className="text-2xl text-slate-600">/100</span>
-            </div>
-
-            {/* Feedback Text */}
-            <p className="text-slate-600 whitespace-pre-line">
-              {call.feedback[key as keyof typeof call.feedback]}
-            </p>
-          </div>
-        </PopoverContent>
-      </Popover>
-    ))}
-  </div>
-</div>
+                  </div>
+                  <div className="ml-auto text-right">
+                    <p className="text-sm text-slate-600">
+                      {new Date(call.created_at).toLocaleString('en-US', { 
+                        year: 'numeric', 
+                        month: 'short', 
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      })}
+                    </p>
+                    <p className="text-sm font-medium text-slate-700 mt-1">
+                      Call duration: {call.duration} minutes
+                    </p>
+                  </div>
                 </div>
+
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                  {scoreCategories.map((category) => {
+                    const score = call[category.key]
+                    const color = getColorByScore(score)
+                    return (
+                      <Popover key={category.key}>
+                        <PopoverTrigger asChild>
+                          <div className="relative overflow-hidden rounded-xl cursor-pointer" style={{ backgroundColor: `${color}20` }}>
+                            <div className="px-4 py-3 text-sm font-medium flex flex-col justify-between h-full items-center text-center">
+                              <span className="text-slate-600">{category.label}</span>
+                              <div className="text-2xl font-bold" style={{ color: getColorByScore(score) }}>
+                                {score}/100
+                              </div>
+                            </div>
+                            <div 
+                              className="absolute bottom-0 left-0 h-1 transition-all duration-300"
+                              style={{ 
+                                width: `${score}%`,
+                                backgroundColor: color
+                              }}
+                            />
+                          </div>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-80 rounded-[20px] p-4">
+                          <h3 className="text-lg font-semibold mb-2">{category.label}</h3>
+                          <p className="text-sm text-slate-600">{category.description}</p>
+                        </PopoverContent>
+                      </Popover>
+                    )
+                  })}
+                </div>
+
+                <Button
+                  variant="ghost"
+                  className="text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-100 w-full mt-4 rounded-xl"
+                  onClick={() => toggleExpandCard(call.id)}
+                >
+                  {expandedCards[call.id] ? (
+                    <>
+                      Hide Details <ChevronUp className="ml-2 h-4 w-4" />
+                    </>
+                  ) : (
+                    <>
+                      Call Details <ChevronDown className="ml-2 h-4 w-4" />
+                    </>
+                  )}
+                </Button>
+
+                {expandedCards[call.id] && (
+                  <div className="mt-6 p-6 bg-white rounded-[32px] shadow-sm">
+                    <h3 className="text-2xl font-bold text-slate-900 mb-4">Call Details</h3>
+                    <div className="space-y-6">
+                      <div className="grid grid-cols-2 gap-4">
+                        <Card className="relative overflow-hidden border-0 bg-white rounded-[32px] shadow-lg">
+                          <CardContent className="p-6">
+                            <h3 className="text-lg font-semibold text-slate-900 mb-2">⚡ Power Moment!</h3>
+                            <p className="text-slate-900">
+                              "Perfect schedule accommodation at 5:30 - Working around student's classes"
+                            </p>
+                          </CardContent>
+                        </Card>
+                        <Card className="relative overflow-hidden border-0 bg-white rounded-[32px] shadow-lg">
+                          <CardContent className="p-6">
+                            <h3 className="text-lg font-semibold text-slate-900 mb-2">Call Notes</h3>
+                            <Textarea
+                              placeholder="Enter your notes here..."
+                              value={callNotes[call.id] || call.notes}
+                              onChange={(e) => handleNotesChange(call.id, e.target.value)}
+                              className="min-h-[100px] mb-2 rounded-[20px]"
+                            />
+                            <Button 
+                              onClick={() => saveNotes(call.id)}
+                              className="w-full rounded-[20px]"
+                            >
+                              Save Notes
+                            </Button>
+                          </CardContent>
+                        </Card>
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <Card className="relative overflow-hidden border-0 bg-white rounded-[32px] shadow-lg">
+                          <CardContent className="p-6">
+                            <div className="flex justify-between items-center mb-6">
+                              <span className="text-slate-900 text-xl font-semibold">Detailed Analysis</span>
+                            </div>
+                            <div className="space-y-4">
+                              <div className="flex justify-between items-center">
+                                <span className="font-medium text-slate-600">Overall Score</span>
+                                <span className="text-2xl font-bold" style={{ color: getColorByScore(call.overall_effectiveness) }}>
+                                  {call.overall_effectiveness}/100
+                                </span>
+                              </div>
+                              <div className="h-2 bg-slate-200 rounded-full overflow-hidden">
+                                <div 
+                                  className="h-full rounded-full"
+                                  style={{ 
+                                    width: `${call.overall_effectiveness}%`,
+                                    backgroundColor: getColorByScore(call.overall_effectiveness)
+                                  }}
+                                />
+                              </div>
+                              <p className="text-slate-600">
+                                Strong performance in information gathering and program explanation. 
+                                Areas for improvement include engagement and objection handling.
+                              </p>
+                            </div>
+                          </CardContent>
+                        </Card>
+                        <Card className="relative overflow-hidden border-0 bg-white rounded-[32px] shadow-lg">
+                          <CardContent className="p-6">
+                            <div className="flex justify-between items-center mb-6">
+                              <span className="text-slate-900 text-xl font-semibold">Level Up Plan</span>
+                            </div>
+                            <div className="space-y-4">
+                              <div className="bg-[#F5B971] text-white p-4 rounded-xl flex items-center gap-2">
+                                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                  <path d="M4 15L9 9L13 13L20 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                </svg>
+                                Investor should ask clearer questions on final terms and conditions
+                              </div>
+                              <div className="bg-[#66C6BA] text-white p-4 rounded-xl flex items-center gap-2">
+                                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                  <path d="M4 15L9 9L13 13L20 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                </svg>
+                                Clarify lease terms better with detailed explanations
+                              </div>
+                              <div className="bg-[#556bc7] text-white p-4 rounded-xl flex items-center gap-2">
+                                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                  <path d="M4 15L9 9L13 13L20 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                </svg>
+                                Set a specific follow-up plan to keep hold times low and maintain engagement
+                              </div>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      </div>
+                      <Card className="relative overflow-hidden border-0 bg-white rounded-[32px] shadow-lg w-full">
+                        <CardContent className="p-6">
+                          <div className="flex justify-between items-center mb-4">
+                            <span className="text-slate-900 text-xl font-semibold">Call Recording</span>
+                          </div>
+                          <AudioPlayer src="/example-call.mp3" />
+                        </CardContent>
+                      </Card>
+                      <Card className="relative overflow-hidden border-0 bg-white rounded-[32px] shadow-lg w-full">
+                        <CardContent className="p-6">
+                          <div className="flex justify-between items-center mb-6">
+                            <span className="text-slate-900 text-xl font-semibold">Call Transcript</span>
+                          </div>
+                          <div className="space-y-4 max-h-[400px] overflow-y-auto">
+                            <div className="bg-slate-100 p-3 rounded-lg">
+                              <div className="flex items-center gap-2 mb-2">
+                                <div className="w-6 h-6">
+                                  <img
+                                    src="/placeholder.svg?height=24&width=24"
+                                    alt="AI Assistant"
+                                    className="w-full h-full rounded-[20px]"
+                                  />
+                                </div>
+                                <span className="text-sm text-slate-600">AI Assistant</span>
+                              </div>
+                              <p className="text-sm text-slate-700">Hey there. My name is Megan. I'll be waiting for your opening pitch.</p>
+                            </div>
+                            <div className="bg-slate-200 p-3 rounded-lg">
+                              <div className="flex items-center gap-2 mb-2">
+                                <div className="w-6 h-6">
+                                  <img
+                                    src="/placeholder.svg?height=24&width=24"
+                                    alt="Agent"
+                                    className="w-full h-full rounded-[20px] bg-slate-300"
+                                  />
+                                </div>
+                                <span className="text-sm text-slate-600">Agent</span>
+                              </div>
+                              <p className="text-sm text-slate-800">Hey, Megan. We're looking to buy your house.</p>
+                            </div>
+                            <div className="bg-slate-100 p-3 rounded-lg">
+                              <div className="flex items-center gap-2 mb-2">
+                                <div className="w-6 h-6">
+                                  <img
+                                    src="/placeholder.svg?height=24&width=24"
+                                    alt="AI Assistant"
+                                    className="w-full h-full rounded-[20px]"
+                                  />
+                                </div>
+                                <span className="text-sm text-slate-600">AI Assistant</span>
+                              </div>
+                              <p className="text-sm text-slate-700">Oh, wow. That's actually perfect timing. I've been wondering what to do with the house. How exactly does that work?</p>
+                            </div>
+                            <div className="bg-slate-200 p-3 rounded-lg">
+                              <div className="flex items-center gap-2 mb-2">
+                                <div className="w-6 h-6">
+                                  <img
+                                    src="/placeholder.svg?height=24&width=24"
+                                    alt="Agent"
+                                    className="w-full h-full rounded-[20px] bg-slate-300"
+                                  />
+                                </div>
+                                <span className="text-sm text-slate-600">Agent</span>
+                              </div>
+                              <p className="text-sm text-slate-800">Well, We'll essentially send the notary you. And, uh, yeah, we'll go from there.</p>
+                            </div>
+                            {/* Additional transcript messages */}
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </div>
+                  </div>
+                )}
               </CardContent>
             </Card>
           ))}
-{/* Pagination */}
-          <div className="flex items-center justify-center gap-2 mt-8">
-            <Button
-              variant="ghost"
-              onClick={() => setCurrentPage(currentPage - 1)}
-              disabled={currentPage === 1}
-              className="h-10 w-10 p-0"
-            >
-              <ChevronLeft className="h-4 w-4" />
-            </Button>
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-              <Button
-                key={page}
-                variant={currentPage === page ? "default" : "ghost"}
-                onClick={() => setCurrentPage(page)}
-                className="h-10 w-10 p-0"
-              >
-                {page}
-              </Button>
-            ))}
-            <Button
-              variant="ghost"
-              onClick={() => setCurrentPage(currentPage + 1)}
-              disabled={currentPage === totalPages}
-              className="h-10 w-10 p-0"
-            >
-              <ChevronRight className="h-4 w-4" />
-            </Button>
-            </div>
         </div>
+
+        <div className="flex items-center justify-center gap-2 p-6 mt-8">
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+            disabled={currentPage === 1}
+            className="h-10 w-10 rounded-full"
+          >
+            <ChevronLeft className="h-4w-4" />
+            <span className="sr-only">Previous page</span>
+          </Button>
+          {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+            <Button
+              key={page}
+              variant={currentPage === page ? "default" : "outline"}
+              onClick={() => setCurrentPage(page)}
+              className={`h-10 w-10 rounded-full ${
+                currentPage === page
+                  ? "bg-slate-900 text-white hover:bg-slate-800"
+                  : "text-slate-900 hover:bg-slate-100"
+              }`}
+            >
+              {page}
+            </Button>
+          ))}
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+            disabled={currentPage === totalPages}
+            className="h-10 w-10 rounded-full"
+          >
+            <ChevronRight className="h-4 w-4" />
+            <span className="sr-only">Next page</span>
+          </Button>
+        </div>
+
+        <Dialog open={detailsModal.isOpen} onOpenChange={(isOpen) => setDetailsModal({ ...detailsModal, isOpen })}>
+          <DialogContent className="bg-white text-slate-900 border-0 rounded-3xl">
+            <DialogHeader>
+              <DialogTitle className="text-2xl font-bold text-slate-900 text-center">
+                Call Details
+              </DialogTitle>
+              <DialogDescription className="text-slate-600 text-center">
+                {detailsModal.call && new Date(detailsModal.call.created_at).toLocaleDateString('en-US', { 
+                  year: 'numeric', 
+                  month: 'long', 
+                  day: 'numeric',
+                  hour: '2-digit',
+                  minute: '2-digit'
+                })}
+              </DialogDescription>
+            </DialogHeader>
+            <div className="p-6">
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  {detailsModal.call && Object.entries(detailsModal.call)
+                    .filter(([key]) => !['id', 'created_at'].includes(key))
+                    .map(([key, value]) => (
+                      <div key={key} className="space-y-1">
+                        <h3 className="text-sm font-medium text-slate-900 capitalize">
+                          {key.replace(/_/g, ' ')}
+                        </h3>
+                        <p className="text-sm text-slate-600">{value}</p>
+                      </div>
+                    ))}
+                </div>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
-  );
-}
-
-// Export the wrapped version
-export default function Page() {
-  return (
-    <Suspense fallback={
-      <div className="flex items-center justify-center min-h-screen bg-slate-50">
-        <div className="animate-spin h-8 w-8 border-4 border-blue-500 rounded-full border-t-transparent"></div>
-      </div>
-    }>
-      <DashboardComponent />
-    </Suspense>
-  );
+  )
 }
