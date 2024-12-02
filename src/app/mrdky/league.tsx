@@ -99,7 +99,7 @@ function League({ activeCategory, setActiveLeagueCategory }: LeagueProps) {
   const [apiData, setApiData] = useState<LeagueApiResponse | null>(null);
 
 
-  const getBadgeImages = (unlocked_badges: string | null | undefined): string[] => {
+const getBadgeImages = (unlocked_badges: string | null | undefined): string[] => {
     if (!unlocked_badges) return [];
     try {
       const allAchievements = [
@@ -109,13 +109,12 @@ function League({ activeCategory, setActiveLeagueCategory }: LeagueProps) {
         ...ACHIEVEMENTS.league
       ];
 
-      // Use Set to remove duplicates
-      return [...new Set(
-        allAchievements
-          .filter(badge => unlocked_badges.includes(badge.id))
-          .map(badge => badge.image)
-          .filter(Boolean)
-      )];
+      // Filter duplicates using array methods instead of Set
+      return allAchievements
+        .filter(badge => unlocked_badges.includes(badge.id))
+        .map(badge => badge.image)
+        .filter(Boolean)
+        .filter((value, index, self) => self.indexOf(value) === index);
     } catch (error) {
       console.error('Error processing badges:', error);
       return [];
