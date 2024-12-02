@@ -21,7 +21,6 @@ type CallLog = {
   created_at: string;
   duration: number;
   call_notes: string;
-  } & Record<CategoryKey, number>;
   engagement: number;
   objection_handling: number;
   information_gathering: number;
