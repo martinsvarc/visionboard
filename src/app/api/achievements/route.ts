@@ -69,7 +69,7 @@ const total_points = (existingUser?.total_points || 0) + points;
 
 const current_daily_points = {
     ...existingUser?.daily_points,
-    [todayKey]: ((existingUser?.daily_points || {})[todayKey] || 0) + points
+    [todayKey]: parseFloat((existingUser?.daily_points || {})[todayKey] || 0) + parseFloat(points)
 };
 
     // Session counts
