@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useCallback, useRef, useEffect } from 'react'
+import { Suspense } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
@@ -411,7 +412,7 @@ const DatePicker = ({ onChange }: { onChange: (range: DateRange) => void }) => {
   )
 }
 
-export default function Component() {
+function DashboardContent() {
   const searchParams = useSearchParams()
   const [dateRange, setDateRange] = useState<DateRange>(null)
   const [expandedCards, setExpandedCards] = useState<Record<number, boolean>>({})
@@ -922,5 +923,13 @@ export default function Component() {
         </Dialog>
       </div>
   </div>
+  )
+}
+
+export default function Dashboard() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <DashboardContent />
+    </Suspense>
   )
 }
