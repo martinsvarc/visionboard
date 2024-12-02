@@ -795,7 +795,7 @@ function DashboardContent() {
                           <div className="flex justify-between items-center mb-4">
                             <span className="text-slate-900 text-xl font-semibold">Call Recording</span>
                           </div>
-                          <AudioPlayer src="/example-call.mp3" />
+                          <AudioPlayer src={call.call_recording_url} />
                         </CardContent>
                       </Card>
                       <Card className="relative overflow-hidden border-0 bg-white rounded-[32px] shadow-lg w-full">
