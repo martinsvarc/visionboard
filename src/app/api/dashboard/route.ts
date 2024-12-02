@@ -12,16 +12,6 @@ interface CategoryScores {
   average_success: number;
 }
 
-interface CategoryDescriptions {
-  engagement?: string;
-  objection_handling?: string;
-  information_gathering?: string;
-  program_explanation?: string;
-  closing_skills?: string;
-  overall_effectiveness?: string;
-  overall_performance?: string;
-}
-
 interface CategoryFeedback {
   engagement: string;
   objection_handling: string;
@@ -38,9 +28,17 @@ interface CallData {
   agent_picture_url: string;
   call_recording_url: string;
   call_details: string;
+  call_duration: number;
+  power_moment: string;
+  call_notes: string;
+  level_up_1: string;
+  level_up_2: string;
+  level_up_3: string;
+  call_transcript: string;
+  strong_points: string;
+  areas_for_improvement: string;
   scores: CategoryScores;
   feedback: CategoryFeedback;
-  descriptions?: CategoryDescriptions;
 }
 
 export const GET = async (request: Request) => {
@@ -77,43 +75,44 @@ export const GET = async (request: Request) => {
 
     const { rows } = query;
 
-    const transformedRows = rows.map(row => ({
-      id: row.id,
-      call_number: row.call_number,
-      user_name: row.user_name,
-      agent_name: row.agent_name,
-      agent_picture_url: row.agent_picture_url,
-      call_date: row.call_date,
-      call_recording_url: row.call_recording_url,
-      call_details: row.call_details,
-      scores: {
-        engagement: parseFloat(row.engagement_score),
-        objection_handling: parseFloat(row.objection_handling_score),
-        information_gathering: parseFloat(row.information_gathering_score),
-        program_explanation: parseFloat(row.program_explanation_score),
-        closing_skills: parseFloat(row.closing_skills_score),
-        overall_effectiveness: parseFloat(row.overall_effectiveness_score),
-        overall_performance: parseFloat(row.overall_performance),
-        average_success: parseFloat(row.average_success_score)
-      },
-      feedback: {
-        engagement: row.engagement_feedback,
-        objection_handling: row.objection_handling_feedback,
-        information_gathering: row.information_gathering_feedback,
-        program_explanation: row.program_explanation_feedback,
-        closing_skills: row.closing_skills_feedback,
-        overall_effectiveness: row.overall_effectiveness_feedback
-      },
-      descriptions: {
-        engagement: row.engagement_description,
-        objection_handling: row.objection_handling_description,
-        information_gathering: row.information_gathering_description,
-        program_explanation: row.program_explanation_description,
-        closing_skills: row.closing_skills_description,
-        overall_effectiveness: row.overall_effectiveness_description,
-        overall_performance: row.overall_performance_description
-      }
-    }));
+const transformedRows = rows.map(row => ({
+  id: row.id,
+  call_number: row.call_number,
+  user_name: row.user_name,
+  agent_name: row.agent_name,
+  agent_picture_url: row.agent_picture_url,
+  call_date: row.call_date,
+  call_recording_url: row.call_recording_url,
+  call_details: row.call_details,
+  call_duration: row.call_duration,
+  power_moment: row.power_moment,
+  call_notes: row.call_notes,
+  level_up_1: row.level_up_1,
+  level_up_2: row.level_up_2,
+  level_up_3: row.level_up_3,
+  call_transcript: row.call_transcript,
+  strong_points: row.strong_points,
+  areas_for_improvement: row.areas_for_improvement,
+  scores: {
+    engagement: parseFloat(row.engagement_score),
+    objection_handling: parseFloat(row.objection_handling_score),
+    information_gathering: parseFloat(row.information_gathering_score),
+    program_explanation: parseFloat(row.program_explanation_score),
+    closing_skills: parseFloat(row.closing_skills_score),
+    overall_effectiveness: parseFloat(row.overall_effectiveness_score),
+    overall_performance: parseFloat(row.overall_performance),
+    average_success: parseFloat(row.average_success_score)
+  },
+  feedback: {
+    engagement: row.engagement_feedback,
+    objection_handling: row.objection_handling_feedback,
+    information_gathering: row.information_gathering_feedback,
+    program_explanation: row.program_explanation_feedback,
+    closing_skills: row.closing_skills_feedback,
+    overall_effectiveness: row.overall_effectiveness_feedback
+  }
+}));
+
 
     return NextResponse.json(transformedRows);
   } catch (error) {
@@ -142,70 +141,74 @@ export const POST = async (request: Request) => {
 
     const nextCallNumber = parseInt(existingCalls[0].max_call_number) + 1;
 
-    const { rows } = await pool.sql`
-      INSERT INTO call_logs (
-        member_id,
-        call_number,
-        user_name,
-        user_picture_url,
-        agent_name,
-        agent_picture_url,
-        call_recording_url,
-        call_details,
-        engagement_score,
-        objection_handling_score,
-        information_gathering_score,
-        program_explanation_score,
-        closing_skills_score,
-        overall_effectiveness_score,
-        overall_performance,
-        average_success_score,
-        engagement_feedback,
-        objection_handling_feedback,
-        information_gathering_feedback,
-        program_explanation_feedback,
-        closing_skills_feedback,
-        overall_effectiveness_feedback,
-        engagement_description,
-        objection_handling_description,
-        information_gathering_description,
-        program_explanation_description,
-        closing_skills_description,
-        overall_effectiveness_description,
-        overall_performance_description
-      ) VALUES (
-        ${memberId},
-        ${nextCallNumber},
-        ${callData.user_name},
-        ${callData.user_picture_url},
-        ${callData.agent_name},
-        ${callData.agent_picture_url},
-        ${callData.call_recording_url},
-        ${callData.call_details},
-        ${callData.scores.engagement},
-        ${callData.scores.objection_handling},
-        ${callData.scores.information_gathering},
-        ${callData.scores.program_explanation},
-        ${callData.scores.closing_skills},
-        ${callData.scores.overall_effectiveness},
-        ${callData.scores.overall_performance ?? null},
-        ${callData.scores.average_success},
-        ${callData.feedback.engagement},
-        ${callData.feedback.objection_handling},
-        ${callData.feedback.information_gathering},
-        ${callData.feedback.program_explanation},
-        ${callData.feedback.closing_skills},
-        ${callData.feedback.overall_effectiveness},
-        ${callData.descriptions?.engagement ?? null},
-        ${callData.descriptions?.objection_handling ?? null},
-        ${callData.descriptions?.information_gathering ?? null},
-        ${callData.descriptions?.program_explanation ?? null},
-        ${callData.descriptions?.closing_skills ?? null},
-        ${callData.descriptions?.overall_effectiveness ?? null},
-        ${callData.descriptions?.overall_performance ?? null}
-      )
-      RETURNING *;
-    `;
+const { rows } = await pool.sql`
+  INSERT INTO call_logs (
+    member_id,
+    call_number,
+    user_name,
+    user_picture_url,
+    agent_name,
+    agent_picture_url,
+    call_recording_url,
+    call_details,
+    call_duration,
+    power_moment,
+    call_notes,
+    level_up_1,
+    level_up_2,
+    level_up_3,
+    call_transcript,
+    strong_points,
+    areas_for_improvement,
+    engagement_score,
+    objection_handling_score,
+    information_gathering_score,
+    program_explanation_score,
+    closing_skills_score,
+    overall_effectiveness_score,
+    overall_performance,
+    average_success_score,
+    engagement_feedback,
+    objection_handling_feedback,
+    information_gathering_feedback,
+    program_explanation_feedback,
+    closing_skills_feedback,
+    overall_effectiveness_feedback
+  ) VALUES (
+    ${memberId},
+    ${nextCallNumber},
+    ${callData.user_name},
+    ${callData.user_picture_url},
+    ${callData.agent_name},
+    ${callData.agent_picture_url},
+    ${callData.call_recording_url},
+    ${callData.call_details},
+    ${callData.call_duration},
+    ${callData.power_moment},
+    ${callData.call_notes},
+    ${callData.level_up_1},
+    ${callData.level_up_2},
+    ${callData.level_up_3},
+    ${callData.call_transcript},
+    ${callData.strong_points},
+    ${callData.areas_for_improvement},
+    ${callData.scores.engagement},
+    ${callData.scores.objection_handling},
+    ${callData.scores.information_gathering},
+    ${callData.scores.program_explanation},
+    ${callData.scores.closing_skills},
+    ${callData.scores.overall_effectiveness},
+    ${callData.scores.overall_performance ?? null},
+    ${callData.scores.average_success},
+    ${callData.feedback.engagement},
+    ${callData.feedback.objection_handling},
+    ${callData.feedback.information_gathering},
+    ${callData.feedback.program_explanation},
+    ${callData.feedback.closing_skills},
+    ${callData.feedback.overall_effectiveness}
+  )
+  RETURNING *;
+`;
 
     return NextResponse.json(rows[0]);
   } catch (error) {
