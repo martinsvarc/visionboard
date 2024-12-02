@@ -5,13 +5,11 @@ import { ACHIEVEMENTS } from '@/lib/achievement-data';
 const getNextSunday = (date: Date = new Date()) => {
   const newDate = new Date(date);
   newDate.setHours(0, 0, 0, 0);
-  
-  let daysUntilNextSunday = 7 - newDate.getDay(); // 0 if today is Sunday
-  if (daysUntilNextSunday === 0) { // if today is Sunday
-    daysUntilNextSunday = 7; // go to next Sunday
-  }
-  
-  newDate.setDate(newDate.getDate() + daysUntilNextSunday);
+  // Get the current day (0 = Sunday, 1 = Monday, etc.)
+  const currentDay = newDate.getDay();
+  // Calculate days until next Sunday (if today is Sunday, add 7)
+  const daysToAdd = currentDay === 0 ? 7 : 7 - currentDay;
+  newDate.setDate(newDate.getDate() + daysToAdd);
   return newDate;
 };
 
@@ -179,8 +177,11 @@ console.log({
         user_name = EXCLUDED.user_name,
         user_picture = ${userPicture || 'https://res.cloudinary.com/dmbzcxhjn/image/upload/v1732590120/WhatsApp_Image_2024-11-26_at_04.00.13_58e32347_owfpnt.jpg'},
         team_id = EXCLUDED.team_id,
-        points = user_achievements.points + ${points},
-        total_points = user_achievements.total_points + ${points},
+        points = CASE 
+  WHEN ${shouldResetWeek} THEN ${points}
+  ELSE user_achievements.points + ${points}
+END,
+total_points = user_achievements.total_points + ${points},
         total_sessions = user_achievements.total_sessions + 1,
         sessions_today = CASE 
           WHEN user_achievements.last_session_date = ${todayStr} THEN user_achievements.sessions_today + 1
