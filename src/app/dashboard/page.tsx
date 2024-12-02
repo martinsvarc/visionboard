@@ -541,17 +541,6 @@ function DashboardContent() {
 
   return (
     <div className="min-h-screen p-8 bg-slate-50">
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-slate-900" />
-      </div>
-    ) : error ? (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-red-500 text-center">
-          <p className="text-xl font-semibold mb-2">Error Loading Data</p>
-          <p>{error}</p>
-        </div>
-      </div>
-    ) : (
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-end mb-4">
           <Popover>
