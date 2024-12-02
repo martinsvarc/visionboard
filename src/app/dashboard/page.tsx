@@ -13,6 +13,20 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { useSearchParams } from 'next/navigation'
 import getColorByScore from '../../../utils/colors'
 
+type CallLog = {
+  id: number;
+  agent_name: string;
+  created_at: string;
+  duration: number;
+  call_notes: string;
+  engagement: number;
+  objection_handling: number;
+  information_gathering: number;
+  program_explanation: number;
+  closing_skills: number;
+  overall_effectiveness: number;
+}
+
 type DateRange = {
   from: Date;
   to: Date;
