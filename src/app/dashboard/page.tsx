@@ -541,7 +541,6 @@ function DashboardContent() {
 
   return (
     <div className="min-h-screen p-8 bg-slate-50">
-      {isLoading ? (
       <div className="flex items-center justify-center min-h-screen">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-slate-900" />
       </div>
@@ -916,16 +915,16 @@ function DashboardContent() {
                           {key.replace(/_/g, ' ')}
                         </h3>
                         <p className="text-sm text-slate-600">{value}</p>
-                      </div>
-                    ))}
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>
           </DialogContent>
         </Dialog>
       </div>
-  </div>
-  )
+    </div>
+  );
 }
 
 export default function Dashboard() {
@@ -933,5 +932,5 @@ export default function Dashboard() {
     <Suspense fallback={<div>Loading...</div>}>
       <DashboardContent />
     </Suspense>
-  )
+  );
 }
