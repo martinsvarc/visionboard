@@ -74,8 +74,7 @@ const getImageUrl = (url: string, memberId: string) => {
   return `${url}?userId=${memberId}&t=${timestamp}`;
 };
 
-function League() {
-  const [activeCategory, setActiveCategory] = useState<'weekly' | 'teamWeekly'>('weekly');
+function League({ activeCategory, setActiveLeagueCategory }: LeagueProps) {
   const [leagueData, setLeagueData] = useState<{ weekly: LeaguePlayer[]; teamWeekly: LeaguePlayer[] }>({
     weekly: [],
     teamWeekly: []
@@ -187,7 +186,7 @@ function League() {
       
       <div className="flex gap-2 mb-6">
         <Button 
-          onClick={() => setActiveCategory('weekly')}
+         onClick={() => setActiveLeagueCategory('weekly')}
           aria-label="Weekly League"
           className={cn(
             "flex-1 px-4 py-2 text-base font-medium transition-colors rounded-full",
@@ -199,7 +198,7 @@ function League() {
           Weekly League
         </Button>
         <Button 
-          onClick={() => setActiveCategory('teamWeekly')}
+          onClick={() => setActiveLeagueCategory('teamWeekly')}
           aria-label="Team Weekly"
           className={cn(
             "flex-1 px-4 py-2 text-base font-medium transition-colors rounded-full",
