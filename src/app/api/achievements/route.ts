@@ -15,8 +15,8 @@ const getNextSunday = (date: Date = new Date()) => {
 
 function isNewWeek(lastResetDate: Date) {
   const now = new Date();
-  const nextReset = getNextSunday(lastResetDate);
-  return now >= nextReset;
+  // If we're past the last reset date, it's a new week
+  return now > lastResetDate;
 }
 
 function isNewMonth(lastDate: Date, currentDate: Date = new Date()) {
