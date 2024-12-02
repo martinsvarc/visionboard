@@ -768,7 +768,6 @@ function DashboardContent() {
                               <span className="text-slate-900 text-xl font-semibold">Level Up Plan</span>
                             </div>
                             <div className="space-y-4">
-                              <div className="space-y-4">
   {call.level_up_1 && (
     <div className="bg-[#F5B971] text-white p-4 rounded-xl flex items-center gap-2">
       <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -794,6 +793,7 @@ function DashboardContent() {
     </div>
   )}
 </div>
+                            </div>
                           </CardContent>
                         </Card>
                       </div>
