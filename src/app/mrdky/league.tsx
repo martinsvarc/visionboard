@@ -53,6 +53,12 @@ interface LeagueProps {
   setActiveLeagueCategory: (category: 'weekly' | 'teamWeekly') => void;
 }
 
+interface DayData {
+  day: string
+  you: number
+  topPlayer: number
+}
+
 const getMemberId = async () => {
   try {
     const memberstack = (window as any).memberstack;
