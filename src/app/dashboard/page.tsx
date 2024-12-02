@@ -13,12 +13,15 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { useSearchParams } from 'next/navigation'
 import getColorByScore from '../../../utils/colors'
 
+type CategoryKey = 'engagement' | 'objection_handling' | 'information_gathering' | 'program_explanation' | 'closing_skills' | 'overall_effectiveness';
+
 type CallLog = {
   id: number;
   agent_name: string;
   created_at: string;
   duration: number;
   call_notes: string;
+  } & Record<CategoryKey, number>;
   engagement: number;
   objection_handling: number;
   information_gathering: number;
@@ -33,7 +36,7 @@ type DateRange = {
 } | null;
 
 type Category = {
-  key: string;
+  key: CategoryKey;
   label: string;
   description?: string;
 }
