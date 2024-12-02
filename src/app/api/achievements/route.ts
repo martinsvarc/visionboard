@@ -67,6 +67,10 @@ export async function POST(request: Request) {
 const current_points = (existingUser?.points || 0) + points;
 const total_points = (existingUser?.total_points || 0) + points;
 
+const current_daily_points = {
+    [todayKey]: points
+};
+
     // Session counts
     const shouldResetMonth = !existingUser?.last_session_date ? 
       true : 
@@ -208,13 +212,16 @@ export async function GET(request: Request) {
       SELECT * FROM user_achievements WHERE member_id = ${memberId};
     `;
 
-    // Transform daily points for the chart
-    const dailyPointsData = userData?.daily_points || {};
-    const chartData = Object.entries(dailyPointsData).map(([date, points]) => ({
+// Transform daily points for the chart
+const dailyPointsData = userData?.daily_points || {};
+const chartData = Object.entries(dailyPointsData)
+    .filter(([date]) => new Date(date) >= new Date().setHours(0,0,0,0)) // Only show from today
+    .map(([date, points]) => ({
       day: new Date(date).toLocaleDateString('en-US', { weekday: 'long' }),
       date,
       you: points
-    })).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+    }))
+    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
     const achievementsData = {
       streakAchievements: ACHIEVEMENTS.streak.map(badge => ({
