@@ -68,7 +68,8 @@ const current_points = (existingUser?.points || 0) + points;
 const total_points = (existingUser?.total_points || 0) + points;
 
 const current_daily_points = {
-    [todayKey]: points
+    ...existingUser?.daily_points,
+    [todayKey]: ((existingUser?.daily_points || {})[todayKey] || 0) + points
 };
 
     // Session counts
@@ -214,8 +215,11 @@ export async function GET(request: Request) {
 
 // Transform daily points for the chart
 const dailyPointsData = userData?.daily_points || {};
+const today = new Date();
+today.setHours(0, 0, 0, 0);
+
 const chartData = Object.entries(dailyPointsData)
-    .filter(([date]) => new Date(date) >= new Date().setHours(0,0,0,0)) // Only show from today
+    .filter(([date]) => new Date(date) >= today) // Compare Date with Date
     .map(([date, points]) => ({
       day: new Date(date).toLocaleDateString('en-US', { weekday: 'long' }),
       date,
