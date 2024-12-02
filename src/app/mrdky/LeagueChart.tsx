@@ -1,6 +1,6 @@
 import { Line, LineChart, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts"
 
-interface DayData {
+export interface DayData {
   day: string
   you: number
   topPlayer: number
