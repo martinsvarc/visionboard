@@ -649,7 +649,7 @@ function DashboardContent() {
                       })}
                     </p>
                     <p className="text-sm font-medium text-slate-700 mt-1">
-                      Call duration: {call.duration} minutes
+                      Call duration: {call.call_duration} minutes
                     </p>
                   </div>
                 </div>
