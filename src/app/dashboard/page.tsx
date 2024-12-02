@@ -921,7 +921,6 @@ export default function Component() {
           </DialogContent>
         </Dialog>
       </div>
-    )}
   </div>
   )
 }
