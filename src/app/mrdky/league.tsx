@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { cn } from "@/lib/utils"
-import { Line, LineChart, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts"
+import { LeagueChart } from '@/components/LeagueChart'
 import { Badge } from "./Badge"
 import { ACHIEVEMENTS } from '@/lib/achievement-data';
 
@@ -179,6 +179,8 @@ function League({ activeCategory, setActiveLeagueCategory }: LeagueProps) {
   }
 
   const categoryData = leagueData[activeCategory === 'weekly' ? 'weekly' : 'teamWeekly'];
+  const topPlayerScore = categoryData[0]?.points || 0;
+  const currentUserScore = currentUser?.points || 0;
 
   return (
     <Card className="p-3 bg-white rounded-[20px] shadow-lg h-full">
@@ -186,7 +188,7 @@ function League({ activeCategory, setActiveLeagueCategory }: LeagueProps) {
       
       <div className="flex gap-2 mb-6">
         <Button 
-         onClick={() => setActiveLeagueCategory('weekly')}
+          onClick={() => setActiveLeagueCategory('weekly')}
           aria-label="Weekly League"
           className={cn(
             "flex-1 px-4 py-2 text-base font-medium transition-colors rounded-full",
@@ -218,6 +220,13 @@ function League({ activeCategory, setActiveLeagueCategory }: LeagueProps) {
         </div>
       ) : (
         <>
+          <div className="mb-6">
+            <LeagueChart 
+              currentUserScore={currentUserScore}
+              topPlayerScore={topPlayerScore}
+            />
+          </div>
+
           {currentUser && (
             <div className="bg-[#51c1a9] text-white p-2 rounded-[20px] flex items-center gap-2 text-sm mb-6">
               <span className="text-white/90 font-medium">#{currentUser.rank}</span>
