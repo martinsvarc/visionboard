@@ -10,6 +10,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Slider } from "@/components/ui/slider"
 import { format, subDays, startOfWeek, endOfWeek, startOfMonth, endOfMonth } from "date-fns"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
+import { useSearchParams } from 'next/navigation'
 
 type DateRange = {
   from: Date;
@@ -417,57 +418,25 @@ const DatePicker = ({ onChange }: { onChange: (range: DateRange) => void }) => {
 }
 
 export default function Component() {
+  const searchParams = useSearchParams()
   const [dateRange, setDateRange] = useState<DateRange>(null)
   const [expandedCards, setExpandedCards] = useState<Record<number, boolean>>({})
   const [currentPage, setCurrentPage] = useState(1)
   const recordsPerPage = 5
   const [playCallModal, setPlayCallModal] = useState<{ isOpen: boolean; callId: number | null }>({ isOpen: false, callId: null })
   const [detailsModal, setDetailsModal] = useState<{ 
-  isOpen: boolean; 
-  call: CallLog | null 
-}>({ isOpen: false, call: null })
+    isOpen: boolean; 
+    call: CallLog | null 
+  }>({ isOpen: false, call: null })
   const [callNotes, setCallNotes] = useState<Record<number, string>>({})
-  const [callLogs, setCallLogs] = useState<{
-  id: number;
-  call_duration: number;
-  power_moment: string;
-  call_notes: string;
-  level_up_1: string; 
-  level_up_2: string;
-  level_up_3: string;
-  call_transcript: string;
-  strong_points: string;
-  areas_for_improvement: string;
-  engagement: number;
-  objection_handling: number;
-  information_gathering: number;
-  program_explanation: number;
-  closing_skills: number;
-  overall_effectiveness: number;
-  agent_name: string;
-  created_at: string;
-}[]>([])
+  const [callLogs, setCallLogs] = useState<CallLog[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-const handleError = (error: unknown) => {
-  setError(error instanceof Error ? error.message : 'An error occurred')
-  setIsLoading(false)
-}
-
-const scoreCategories: Category[] = [
-  { key: 'engagement', label: 'Engagement', description: 'Measures how well the agent connects with the customer.' },
-  { key: 'objection_handling', label: 'Objection Handling', description: 'Evaluates the agent\'s ability to address concerns.' },
-  { key: 'information_gathering', label: 'Information Gathering', description: 'Assesses information collection effectiveness.' },
-  { key: 'program_explanation', label: 'Program Explanation', description: 'Rates explanation clarity.' },
-  { key: 'closing_skills', label: 'Closing Skills', description: 'Measures conversation conclusion effectiveness.' },
-  { key: 'overall_effectiveness', label: 'Overall Effectiveness', description: 'Overall performance score.' },
-]
-
-const getDashboardUrl = (memberId: string | null, options?: { latest?: boolean }) => {
-  const baseUrl = `/api/dashboard?memberId=${memberId}`
-  return options?.latest ? `${baseUrl}&latest=true` : baseUrl
-}
+  const handleError = (error: unknown) => {
+    setError(error instanceof Error ? error.message : 'An error occurred')
+    setIsLoading(false)
+  }
 
 if (error) {
   return (
@@ -484,19 +453,28 @@ if (isLoading) {
 useEffect(() => {
   const fetchCalls = async () => {
     const memberId = searchParams.get('memberId')
-    if (!memberId) return
+    if (!memberId) {
+      setError('No member ID provided')
+      setIsLoading(false)
+      return
+    }
     
+    setIsLoading(true)
     try {
-      setIsLoading(true)
-      const response = await fetch(getDashboardUrl(memberId))
+      const response = await fetch(`/api/dashboard?memberId=${memberId}`)
+      if (!response.ok) {
+        throw new Error('Failed to fetch calls')
+      }
       const data = await response.json()
       setCallLogs(data)
+      setError(null)
     } catch (error) {
-      handleError(error)
+      setError(error instanceof Error ? error.message : 'Failed to load calls')
     } finally {
       setIsLoading(false)
     }
   }
+
   fetchCalls()
 }, [searchParams])
 
@@ -561,7 +539,7 @@ useEffect(() => {
   fetchCalls()
 }, [searchParams])
 
-  // Replace/update this section
+
 const chartData = React.useMemo(() => callLogs.map((call, index) => ({
   name: `${index + 1}`,
   date: call.created_at,
@@ -616,7 +594,19 @@ const totalPages = Math.ceil(callLogs.length / recordsPerPage)
 }
 
   return (
-    <div className="min-h-screen p-8 bg-slate-50">
+  <div className="min-h-screen p-8 bg-slate-50">
+    {isLoading ? (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-slate-900" />
+      </div>
+    ) : error ? (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-red-500 text-center">
+          <p className="text-xl font-semibold mb-2">Error Loading Data</p>
+          <p>{error}</p>
+        </div>
+      </div>
+    ) : (
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-end mb-4">
           <Popover>
@@ -988,6 +978,7 @@ const totalPages = Math.ceil(callLogs.length / recordsPerPage)
           </DialogContent>
         </Dialog>
       </div>
-    </div>
+    )}
+  </div>
   )
 }
