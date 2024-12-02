@@ -53,6 +53,13 @@ interface LeagueProps {
   setActiveLeagueCategory: (category: 'weekly' | 'teamWeekly') => void;
 }
 
+interface ChartDataPoint {
+  day: string;
+  date: string;
+  you: number;
+  topPlayer?: number;
+}
+
 const getMemberId = async () => {
   try {
     const memberstack = (window as any).memberstack;
@@ -89,6 +96,7 @@ function League({ activeCategory, setActiveLeagueCategory }: LeagueProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isNewUser, setIsNewUser] = useState(false);
+  const [apiData, setApiData] = useState<LeagueApiResponse | null>(null);
 
 
   const getBadgeImages = (unlocked_badges: string | null | undefined): string[] => {
@@ -123,6 +131,7 @@ function League({ activeCategory, setActiveLeagueCategory }: LeagueProps) {
         }
         
         const data = await response.json() as LeagueApiResponse;
+        setApiData(data);
         
         if (!data.userData) {
           setIsNewUser(true);
@@ -221,18 +230,18 @@ function League({ activeCategory, setActiveLeagueCategory }: LeagueProps) {
       </div>
 
       {isNewUser ? (
-        <div className="bg-[#51c1a9]/10 p-4 rounded-[20px] mb-6 text-center">
-          <p className="text-[#51c1a9] font-medium mb-2">Welcome to the League! 🎉</p>
-          <p className="text-gray-600">Start sessions to earn points and compete with others</p>
-        </div>
-      ) : (
-        <>
-         <div className="mb-6">
-  <LeagueChart 
-    currentUserScore={currentUserScore}
-    topPlayerScore={topPlayerScore}
-  />
-</div>
+  <div className="bg-[#51c1a9]/10 p-4 rounded-[20px] mb-6 text-center">
+    <p className="text-[#51c1a9] font-medium mb-2">Welcome to the League! 🎉</p>
+    <p className="text-gray-600">Start sessions to earn points and compete with others</p>
+  </div>
+) : (
+  <>
+    <div className="mb-6">
+      <LeagueChart 
+  chartData={apiData?.chartData || []}
+  topPlayerScore={topPlayerScore}
+/>
+    </div>
 
           {currentUser && (
             <div className="bg-[#51c1a9] text-white p-2 rounded-[20px] flex items-center gap-2 text-sm mb-6">
