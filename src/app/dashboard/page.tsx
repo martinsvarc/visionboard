@@ -14,6 +14,48 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { useSearchParams } from 'next/navigation'
 import getColorByScore from '../../../utils/colors'
 
+interface CategoryScores {
+  engagement: number;
+  objection_handling: number;
+  information_gathering: number;
+  program_explanation: number;
+  closing_skills: number;
+  overall_effectiveness: number;
+  overall_performance?: number;
+  average_success: number;
+}
+
+interface CategoryFeedback {
+  engagement: string;
+  objection_handling: string;
+  information_gathering: string;
+  program_explanation: string;
+  closing_skills: string;
+  overall_effectiveness: string;
+}
+
+interface CallLog {
+  id: number;
+  call_number: number;
+  user_name: string;
+  agent_name: string;
+  agent_picture_url: string;
+  call_date: string;
+  call_recording_url: string;
+  call_details: string;
+  call_duration: number;
+  power_moment: string;
+  call_notes: string;
+  level_up_1: string;
+  level_up_2: string;
+  level_up_3: string;
+  call_transcript: string;
+  strong_points: string;
+  areas_for_improvement: string;
+  scores: CategoryScores;
+  feedback: CategoryFeedback;
+}
+
 type CategoryKey = 'engagement' | 'objection_handling' | 'information_gathering' | 'program_explanation' | 'closing_skills' | 'overall_effectiveness';
 
 type CallLog = {
@@ -476,21 +518,21 @@ function DashboardContent() {
   ]
 
   const chartData = React.useMemo(() => callLogs.map((call, index) => ({
-    name: `${index + 1}`,
-    date: call.created_at,
-    engagement: call.engagement,
-    objection_handling: call.objection_handling,
-    information_gathering: call.information_gathering,
-    program_explanation: call.program_explanation,
-    closing_skills: call.closing_skills,
-    overall_effectiveness: call.overall_effectiveness
-  })), [callLogs])
+  name: `${index + 1}`,
+  date: call.call_date,
+  engagement: call.scores.engagement,
+  objection_handling: call.scores.objection_handling,
+  information_gathering: call.scores.information_gathering,
+  program_explanation: call.scores.program_explanation,
+  closing_skills: call.scores.closing_skills,
+  overall_effectiveness: call.scores.overall_effectiveness
+})), [callLogs]);
 
-  const averageSuccessData = React.useMemo(() => callLogs.map((call, index) => ({
-    name: `${index + 1}`,
-    date: call.created_at,
-    value: call.overall_effectiveness
-  })), [callLogs])
+ const averageSuccessData = React.useMemo(() => callLogs.map((call, index) => ({
+  name: `${index + 1}`,
+  date: call.call_date,
+  value: call.scores.overall_effectiveness
+})), [callLogs]);
 
   const toggleExpandCard = useCallback((id: number) => {
     setExpandedCards(prev => ({
@@ -628,7 +670,7 @@ function DashboardContent() {
 
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
                   {scoreCategories.map((category) => {
-                    const score = call[category.key]
+                    const score = call.scores[category.key];
                     const color = getColorByScore(score)
                     return (
                       <Popover key={category.key}>
