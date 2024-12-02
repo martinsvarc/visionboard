@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { cn } from "@/lib/utils"
-import { LeagueChart } from '@/components/LeagueChart'
+import { LeagueChart } from "./LeagueChart"
 import { Badge } from "./Badge"
 import { ACHIEVEMENTS } from '@/lib/achievement-data';
 
