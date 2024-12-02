@@ -16,7 +16,6 @@ const getNextSunday = (date: Date = new Date()) => {
   return newDate;
 };
 
-// Updated weekly reset logic to use Sunday as reset day
 function isNewWeek(lastResetDate: Date) {
   const now = new Date();
   const lastReset = new Date(lastResetDate);
@@ -24,16 +23,19 @@ function isNewWeek(lastResetDate: Date) {
   return daysSinceLastReset >= 7;
 }
 
-// Add the new function here
 function isNewMonth(lastDate: Date, currentDate: Date = new Date()) {
   return lastDate.getMonth() !== currentDate.getMonth() || 
          lastDate.getFullYear() !== currentDate.getFullYear();
 }
 
+function getDayKey(date: Date) {
+  return date.toISOString().split('T')[0];  // Returns YYYY-MM-DD format
+}
+
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-const { memberId, userName, userPicture, teamId, points } = body;
+    const { memberId, userName, userPicture, teamId, points } = body;
     
     if (!memberId || !userName) {
       return NextResponse.json({ error: 'Member ID and username required' }, { status: 400 });
@@ -44,18 +46,14 @@ const { memberId, userName, userPicture, teamId, points } = body;
     });
 
     const today = new Date();
-today.setHours(0, 0, 0, 0);  // Reset time part to midnight
-const todayStr = today.toISOString();
+    today.setHours(0, 0, 0, 0);
+    const todayStr = today.toISOString();
+    const todayKey = getDayKey(today);
 
     const { rows: [existingUser] } = await pool.sql`
       SELECT * FROM user_achievements 
       WHERE member_id = ${memberId};
     `;
-
-    // Set default values for new users
-    if (!existingUser) {
-      console.log('New user detected:', memberId);
-    }
 
     const shouldResetWeek = !existingUser?.weekly_reset_at || 
                            isNewWeek(new Date(existingUser?.weekly_reset_at || new Date()));
@@ -64,7 +62,7 @@ const todayStr = today.toISOString();
     yesterday.setDate(yesterday.getDate() - 1);
     const yesterdayStr = yesterday.toISOString().split('T')[0];
 
-    // Calculate new values
+    // Calculate streaks and sessions
     const current_streak = existingUser?.last_session_date === todayStr ? 
       (existingUser.current_streak || 1) : 
       (existingUser?.last_session_date === yesterdayStr ? (existingUser.current_streak || 0) + 1 : 1);
@@ -72,62 +70,67 @@ const todayStr = today.toISOString();
     const longest_streak = Math.max(current_streak, existingUser?.longest_streak || 0);
     const total_sessions = (existingUser?.total_sessions || 0) + 1;
     
-    // Updated points calculations
+    // Points calculations
     const current_points = shouldResetWeek ? points : (existingUser?.points || 0) + points;
     const total_points = (existingUser?.total_points || 0) + points;
+
+    // Daily points tracking
+    let current_daily_points = existingUser?.daily_points || {};
     
-    const isNewDay = !existingUser?.last_session_date || 
-                    existingUser.last_session_date !== todayStr;
+    if (shouldResetWeek) {
+      // Reset daily points if it's a new week
+      current_daily_points = {};
+    }
+    
+    // Update today's points (cumulative)
+    current_daily_points[todayKey] = (current_daily_points[todayKey] || 0) + points;
+    
+    // Session counts
+    const shouldResetMonth = !existingUser?.last_session_date ? 
+      true : 
+      isNewMonth(new Date(existingUser.last_session_date));
 
-   // Calculate session counts
-const shouldResetMonth = !existingUser?.last_session_date ? 
-  true : 
-  isNewMonth(new Date(existingUser.last_session_date));
+    const lastSessionDate = existingUser?.last_session_date ? new Date(existingUser.last_session_date) : null;
+    if (lastSessionDate) {
+      lastSessionDate.setHours(0, 0, 0, 0);
+    }
 
-const lastSessionDate = existingUser?.last_session_date ? new Date(existingUser.last_session_date) : null;
-if (lastSessionDate) {
-    lastSessionDate.setHours(0, 0, 0, 0);
-}
+    const sessions_today = lastSessionDate && lastSessionDate.getTime() === today.getTime() ? 
+      (existingUser?.sessions_today || 0) + 1 : 1;
 
-const sessions_today = lastSessionDate && lastSessionDate.getTime() === today.getTime() ? 
-    (existingUser?.sessions_today || 0) + 1 : 1;
+    const sessions_this_week = shouldResetWeek ? 
+      1 : 
+      (existingUser?.sessions_this_week || 0) + 1;
 
-const sessions_this_week = shouldResetWeek ? 
-    1 : 
-    (existingUser?.sessions_this_week || 0) + 1;
+    const sessions_this_month = shouldResetMonth ? 
+      1 : 
+      (existingUser?.sessions_this_month || 0) + 1;
 
-const sessions_this_month = shouldResetMonth ? 
-    1 : 
-    (existingUser?.sessions_this_month || 0) + 1;
+    // Badge handling
+    let unlocked_badges = Array.isArray(existingUser?.unlocked_badges) 
+      ? [...existingUser.unlocked_badges] 
+      : [];
 
-    // First, ensure unlocked_badges is an array
-let unlocked_badges = Array.isArray(existingUser?.unlocked_badges) 
-    ? [...existingUser.unlocked_badges] 
-    : [];
-console.log('Initial unlocked_badges:', unlocked_badges);
+    // Unlock streak badges
+    if (current_streak >= 5) unlocked_badges = addBadge(unlocked_badges, 'streak_5');
+    if (current_streak >= 10) unlocked_badges = addBadge(unlocked_badges, 'streak_10');
+    if (current_streak >= 30) unlocked_badges = addBadge(unlocked_badges, 'streak_30');
+    if (current_streak >= 90) unlocked_badges = addBadge(unlocked_badges, 'streak_90');
+    if (current_streak >= 180) unlocked_badges = addBadge(unlocked_badges, 'streak_180');
+    if (current_streak >= 365) unlocked_badges = addBadge(unlocked_badges, 'streak_365');
 
-// Unlock streak badges
-if (current_streak >= 5) unlocked_badges = addBadge(unlocked_badges, 'streak_5');
-if (current_streak >= 10) unlocked_badges = addBadge(unlocked_badges, 'streak_10');
-if (current_streak >= 30) unlocked_badges = addBadge(unlocked_badges, 'streak_30');
-if (current_streak >= 90) unlocked_badges = addBadge(unlocked_badges, 'streak_90');
-if (current_streak >= 180) unlocked_badges = addBadge(unlocked_badges, 'streak_180');
-if (current_streak >= 365) unlocked_badges = addBadge(unlocked_badges, 'streak_365');
+    // Unlock call badges
+    if (total_sessions >= 10) unlocked_badges = addBadge(unlocked_badges, 'calls_10');
+    if (total_sessions >= 25) unlocked_badges = addBadge(unlocked_badges, 'calls_25');
+    if (total_sessions >= 50) unlocked_badges = addBadge(unlocked_badges, 'calls_50');
+    if (total_sessions >= 100) unlocked_badges = addBadge(unlocked_badges, 'calls_100');
 
-// Unlock call badges
-if (total_sessions >= 10) unlocked_badges = addBadge(unlocked_badges, 'calls_10');
-if (total_sessions >= 25) unlocked_badges = addBadge(unlocked_badges, 'calls_25');
-if (total_sessions >= 50) unlocked_badges = addBadge(unlocked_badges, 'calls_50');
-if (total_sessions >= 100) unlocked_badges = addBadge(unlocked_badges, 'calls_100');
+    // Activity badges
+    if (sessions_today >= 10) unlocked_badges = addBadge(unlocked_badges, 'daily_10');
+    if (sessions_this_week >= 50) unlocked_badges = addBadge(unlocked_badges, 'weekly_50');
+    if (sessions_this_month >= 100) unlocked_badges = addBadge(unlocked_badges, 'monthly_100');
 
-console.log('Before activity check:', { sessions_today, unlocked_badges });
-// Activity badges check based on sessions
-if (sessions_today >= 10) unlocked_badges = addBadge(unlocked_badges, 'daily_10');
-if (sessions_this_week >= 50) unlocked_badges = addBadge(unlocked_badges, 'weekly_50');
-if (sessions_this_month >= 100) unlocked_badges = addBadge(unlocked_badges, 'monthly_100');
-console.log('After activity check:', { sessions_today, unlocked_badges });
-
-   const { rows: [updated] } = await pool.sql`
+    const { rows: [updated] } = await pool.sql`
       INSERT INTO user_achievements (
         member_id, 
         user_name, 
@@ -143,7 +146,8 @@ console.log('After activity check:', { sessions_today, unlocked_badges });
         sessions_this_month,
         last_session_date,
         unlocked_badges,
-        weekly_reset_at
+        weekly_reset_at,
+        daily_points
       ) VALUES (
         ${memberId},
         ${userName},
@@ -159,36 +163,44 @@ console.log('After activity check:', { sessions_today, unlocked_badges });
         ${sessions_this_month},
         ${todayStr},
         ${JSON.stringify(unlocked_badges)},
-        ${getNextSunday().toISOString()}
+        ${getNextSunday().toISOString()},
+        ${JSON.stringify(current_daily_points)}
       )
       ON CONFLICT (member_id) DO UPDATE SET
-  user_name = EXCLUDED.user_name,
-  user_picture = ${userPicture || 'https://res.cloudinary.com/dmbzcxhjn/image/upload/v1732590120/WhatsApp_Image_2024-11-26_at_04.00.13_58e32347_owfpnt.jpg'},
-  team_id = EXCLUDED.team_id,
+        user_name = EXCLUDED.user_name,
+        user_picture = ${userPicture || 'https://res.cloudinary.com/dmbzcxhjn/image/upload/v1732590120/WhatsApp_Image_2024-11-26_at_04.00.13_58e32347_owfpnt.jpg'},
+        team_id = EXCLUDED.team_id,
         points = user_achievements.points + ${points},
         total_points = user_achievements.total_points + ${points},
         total_sessions = user_achievements.total_sessions + 1,
         sessions_today = CASE 
-            WHEN user_achievements.last_session_date = ${todayStr} THEN user_achievements.sessions_today + 1
-            ELSE 1
+          WHEN user_achievements.last_session_date = ${todayStr} THEN user_achievements.sessions_today + 1
+          ELSE 1
         END,
         sessions_this_week = CASE 
-    WHEN ${shouldResetWeek} THEN 1
-    ELSE user_achievements.sessions_this_week + 1
-END,
-sessions_this_month = CASE 
-    WHEN TO_CHAR(user_achievements.last_session_date::date, 'YYYY-MM') != TO_CHAR(CURRENT_DATE, 'YYYY-MM') THEN 1
-    ELSE user_achievements.sessions_this_month + 1
-END,
+          WHEN ${shouldResetWeek} THEN 1
+          ELSE user_achievements.sessions_this_week + 1
+        END,
+        sessions_this_month = CASE 
+          WHEN TO_CHAR(user_achievements.last_session_date::date, 'YYYY-MM') != TO_CHAR(CURRENT_DATE, 'YYYY-MM') THEN 1
+          ELSE user_achievements.sessions_this_month + 1
+        END,
         last_session_date = ${today.toISOString()},
         unlocked_badges = ${JSON.stringify(unlocked_badges)},
         weekly_reset_at = ${shouldResetWeek ? getNextSunday().toISOString() : existingUser?.weekly_reset_at || getNextSunday().toISOString()},
+        daily_points = CASE 
+          WHEN ${shouldResetWeek} THEN ${JSON.stringify(current_daily_points)}
+          ELSE jsonb_set(
+            COALESCE(user_achievements.daily_points, '{}'::jsonb),
+            '{' || ${todayKey} || '}',
+            to_jsonb(COALESCE((user_achievements.daily_points->>${todayKey})::numeric, 0) + ${points})
+          )
+        END,
         updated_at = CURRENT_TIMESTAMP
       RETURNING *;
     `;
 
     if (shouldResetWeek) {
-      // Get current rankings right before reset
       const { rows: finalRankings } = await pool.sql`
         WITH Rankings AS (
           SELECT 
@@ -206,7 +218,6 @@ END,
 
       const userFinalRank = finalRankings.find(r => r.member_id === memberId)?.rank;
       
-      // Only award league badges if user has points and is in top 3
       if (userFinalRank && finalRankings.length >= 3) {
         if (userFinalRank === 1) unlocked_badges = addBadge(unlocked_badges, 'league_first');
         if (userFinalRank === 2) unlocked_badges = addBadge(unlocked_badges, 'league_second');
@@ -220,7 +231,6 @@ END,
       }
     }
 
-// Add this section right here
     const { rows: currentRankings } = await pool.sql`
       SELECT 
         member_id,
@@ -242,7 +252,6 @@ END,
   }
 }
 
-// GET endpoint remains exactly the same
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
@@ -260,6 +269,14 @@ export async function GET(request: Request) {
       SELECT * FROM user_achievements WHERE member_id = ${memberId};
     `;
 
+    // Transform daily points for the chart
+    const dailyPointsData = userData?.daily_points || {};
+    const chartData = Object.entries(dailyPointsData).map(([date, points]) => ({
+      day: new Date(date).toLocaleDateString('en-US', { weekday: 'long' }),
+      date,
+      you: points
+    })).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+
     const achievementsData = {
       streakAchievements: ACHIEVEMENTS.streak.map(badge => ({
         ...badge,
@@ -273,11 +290,6 @@ export async function GET(request: Request) {
       
       activityAchievements: ACHIEVEMENTS.activity.map(badge => {
         const isUnlocked = userData?.unlocked_badges?.includes(badge.id);
-        console.log('Activity badge check:', {
-          badgeId: badge.id,
-          unlocked_badges: userData?.unlocked_badges,
-          isUnlocked
-        });
         return {
           ...badge,
           unlocked: isUnlocked || false
@@ -299,7 +311,7 @@ export async function GET(request: Request) {
           unlocked: userData?.unlocked_badges?.includes(badge.id) || false
         };
       })
-    };  // Add this closing brace and semicolon
+    };
 
     const { rows: weeklyRankings } = await pool.sql`
       SELECT 
@@ -312,19 +324,6 @@ export async function GET(request: Request) {
       FROM user_achievements 
       WHERE weekly_reset_at = ${userData?.weekly_reset_at}
       ORDER BY points DESC 
-      LIMIT 10;
-    `;
-
-    const { rows: allTimeRankings } = await pool.sql`
-      SELECT 
-        member_id, 
-        user_name, 
-        user_picture, 
-        total_points as points, 
-        unlocked_badges,
-        RANK() OVER (ORDER BY total_points DESC) as rank
-      FROM user_achievements 
-      ORDER BY total_points DESC 
       LIMIT 10;
     `;
 
@@ -346,8 +345,8 @@ export async function GET(request: Request) {
       ...achievementsData,
       userData,
       weeklyRankings,
-      allTimeRankings,
-      teamRankings
+      teamRankings,
+      chartData
     });
 
   } catch (error) {
