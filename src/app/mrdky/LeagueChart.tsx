@@ -6,12 +6,6 @@ export interface DayData {
   topPlayer: number
 }
 
-export type DayData = {
-  day: string
-  you: number
-  topPlayer: number
-}
-
 interface LeagueChartProps {
   data: DayData[]
 }
