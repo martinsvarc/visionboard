@@ -32,43 +32,17 @@ type CategoryScore = {
   overall_effectiveness: number;
 }
 
+type ChartData = {
+  name: string;
+  date: string;
+  value?: number;
+} & Partial<CategoryScore>
+
 type ChartProps = {
-  data: Array<{
-    name: string;
-    date: string;
-  } & Partial<CategoryScore>>;
+  data: Array<ChartData>;
   category?: Category;
   dateRange: DateRange;
   setDateRange: (range: DateRange) => void;
-}
-
-interface CallLog {
-  id: number;
-  created_at: string;
-  call_duration: number;
-  power_moment: string;
-  call_notes: string;
-  level_up_1: string;
-  level_up_2: string;
-  level_up_3: string;
-  call_transcript: string;
-  strong_points: string;
-  areas_for_improvement: string;
-  engagement: number;
-  objection_handling: number;
-  information_gathering: number;
-  program_explanation: number;
-  closing_skills: number;
-  overall_effectiveness: number;
-  duration: number;
-  agent_name: string;
-}
-
-const getColorByScore = (score: number) => {
-  if (score >= 90) return '#51c1a9'  // Success green
-  if (score >= 75) return '#556bc7'  // Progress blue
-  if (score >= 60) return '#ffb367'  // Warning orange
-  return '#ff5656'                   // Alert red
 }
 
 const Chart = ({ data, category, dateRange, setDateRange }: ChartProps) => {
@@ -93,7 +67,7 @@ const Chart = ({ data, category, dateRange, setDateRange }: ChartProps) => {
       .filter(item => filterByDateRange(item.date))
       .map(item => ({
         name: item.name,
-        value: category ? item[category.key] : item.value
+        value: category ? (item[category.key as keyof CategoryScore] ?? 0) : (item.value ?? 0)
       }));
   }, [data, dateRange, category]);
 
