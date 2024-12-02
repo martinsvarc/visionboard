@@ -3,12 +3,12 @@ import { NextResponse } from 'next/server';
 import { ACHIEVEMENTS } from '@/lib/achievement-data';
 
 const getNextSunday = (date: Date = new Date()) => {
-  const newDate = new Date(date);
-  newDate.setHours(0, 0, 0, 0);
-  // Get the current day (0 = Sunday, 1 = Monday, etc.)
-  const currentDay = newDate.getDay();
-  // Calculate days until next Sunday (if today is Sunday, add 7)
-  const daysToAdd = currentDay === 0 ? 7 : 7 - currentDay;
+  // Create date in local time
+  const newDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  // Get days until next Sunday (0 = Sunday, 1 = Monday, etc)
+  const dayOfWeek = newDate.getDay();
+  // If it's Sunday, add 7 days, otherwise add days until next Sunday
+  const daysToAdd = dayOfWeek === 0 ? 7 : 7 - dayOfWeek;
   newDate.setDate(newDate.getDate() + daysToAdd);
   return newDate;
 };
