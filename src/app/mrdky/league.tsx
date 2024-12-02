@@ -109,12 +109,17 @@ const getBadgeImages = (unlocked_badges: string | null | undefined): string[] =>
         ...ACHIEVEMENTS.league
       ];
 
-      // Filter duplicates using array methods instead of Set
-      return allAchievements
+      const images: string[] = [];
+      
+      allAchievements
         .filter(badge => unlocked_badges.includes(badge.id))
-        .map(badge => badge.image)
-        .filter(Boolean)
-        .filter((value, index, self) => self.indexOf(value) === index);
+        .forEach(badge => {
+          if (badge.image && !images.includes(badge.image)) {
+            images.push(badge.image);
+          }
+        });
+
+      return images;
     } catch (error) {
       console.error('Error processing badges:', error);
       return [];
