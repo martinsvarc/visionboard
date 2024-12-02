@@ -496,19 +496,6 @@ const totalPages = Math.ceil(callLogs.length / recordsPerPage)
     { key: 'closing_skills', label: 'Closing Skills', description: 'Measures the agent\'s ability to guide the conversation towards a successful conclusion or sale.' },
     { key: 'overall_effectiveness', label: 'Overall Effectiveness', description: 'A comprehensive score reflecting the agent\'s overall performance during the call.' },
   ]
-    
-    try {
-      const response = await fetch(`/api/dashboard?memberId=${memberId}`)
-      const data = await response.json()
-      setCallLogs(data)
-    } catch (error) {
-      console.error('Error fetching calls:', error)
-    }
-  }
-
-  fetchCalls()
-}, [searchParams])
-
 
 const chartData = React.useMemo(() => callLogs.map((call, index) => ({
   name: `${index + 1}`,
