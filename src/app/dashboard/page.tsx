@@ -11,6 +11,7 @@ import { Slider } from "@/components/ui/slider"
 import { format, subDays, startOfWeek, endOfWeek, startOfMonth, endOfMonth } from "date-fns"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { useSearchParams } from 'next/navigation'
+import getColorByScore from '../../../utils/colors'
 
 type DateRange = {
   from: Date;
