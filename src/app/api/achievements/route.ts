@@ -51,9 +51,6 @@ export async function POST(request: Request) {
       WHERE member_id = ${memberId};
     `;
 
-    const shouldResetWeek = !existingUser?.weekly_reset_at || 
-                           isNewWeek(new Date(existingUser?.weekly_reset_at || new Date()));
-
 console.log({
     lastResetDate: existingUser?.weekly_reset_at,
     nextSunday: getNextSunday().toISOString(),
@@ -73,8 +70,8 @@ console.log({
     const total_sessions = (existingUser?.total_sessions || 0) + 1;
     
     // Points calculations
-    const current_points = shouldResetWeek ? points : (existingUser?.points || 0) + points;
-    const total_points = (existingUser?.total_points || 0) + points;
+const current_points = (existingUser?.points || 0) + points;
+const total_points = (existingUser?.total_points || 0) + points;
 
     // Session counts
     const shouldResetMonth = !existingUser?.last_session_date ? 
@@ -121,22 +118,6 @@ console.log({
     if (sessions_this_week >= 50) unlocked_badges = addBadge(unlocked_badges, 'weekly_50');
     if (sessions_this_month >= 100) unlocked_badges = addBadge(unlocked_badges, 'monthly_100');
 
-const current_daily_points = shouldResetWeek ? 
-  { [todayKey]: points } : 
-  {
-    ...(existingUser?.daily_points || {}),
-    [todayKey]: ((existingUser?.daily_points || {})[todayKey] || 0) + points
-  };
-
-console.log({
-    existingDailyPoints: existingUser?.daily_points,
-    todayKey,
-    existingTodayPoints: ((existingUser?.daily_points || {})[todayKey] || 0),
-    newPoints: points,
-    calculatedPoints: ((existingUser?.daily_points || {})[todayKey] || 0) + points,
-    current_daily_points
-});
-
     const { rows: [updated] } = await pool.sql`
       INSERT INTO user_achievements (
         member_id, 
@@ -178,26 +159,21 @@ console.log({
         user_picture = ${userPicture || 'https://res.cloudinary.com/dmbzcxhjn/image/upload/v1732590120/WhatsApp_Image_2024-11-26_at_04.00.13_58e32347_owfpnt.jpg'},
         team_id = EXCLUDED.team_id,
         points = CASE 
-  WHEN ${shouldResetWeek} THEN ${points}
-  ELSE user_achievements.points + ${points}
-END,
+  user_achievements.points + ${points},
 total_points = user_achievements.total_points + ${points},
         total_sessions = user_achievements.total_sessions + 1,
         sessions_today = CASE 
           WHEN user_achievements.last_session_date = ${todayStr} THEN user_achievements.sessions_today + 1
           ELSE 1
         END,
-        sessions_this_week = CASE 
-          WHEN ${shouldResetWeek} THEN 1
-          ELSE user_achievements.sessions_this_week + 1
-        END,
+        sessions_this_week = user_achievements.sessions_this_week + 1,
         sessions_this_month = CASE 
           WHEN TO_CHAR(user_achievements.last_session_date::date, 'YYYY-MM') != TO_CHAR(CURRENT_DATE, 'YYYY-MM') THEN 1
           ELSE user_achievements.sessions_this_month + 1
         END,
         last_session_date = ${today.toISOString()},
         unlocked_badges = ${JSON.stringify(unlocked_badges)},
-        weekly_reset_at = ${shouldResetWeek ? getNextSunday().toISOString() : existingUser?.weekly_reset_at || getNextSunday().toISOString()},
+        weekly_reset_at = COALESCE(user_achievements.weekly_reset_at, ${getNextSunday().toISOString()}),
         daily_points = ${JSON.stringify(current_daily_points)},
         updated_at = CURRENT_TIMESTAMP
       RETURNING *;
