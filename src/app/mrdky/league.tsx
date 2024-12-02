@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { cn } from "@/lib/utils"
-import { LeagueChart } from '@/components/LeagueChart'
+import { LeagueChart, type DayData } from '@/components/LeagueChart'
 import { Badge } from "./Badge"
 import { ACHIEVEMENTS } from '@/lib/achievement-data';
 
@@ -89,7 +89,7 @@ function League({ activeCategory, setActiveLeagueCategory }: LeagueProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isNewUser, setIsNewUser] = useState(false);
-  const [chartData, setChartData] = useState<any[]>([]);
+  const [chartData, setChartData] = useState<DayData[]>([]);
 
 
   const getBadgeImages = (unlocked_badges: string | null | undefined): string[] => {
@@ -112,13 +112,14 @@ function League({ activeCategory, setActiveLeagueCategory }: LeagueProps) {
     }
   };
 
-const transformChartData = (data: LeagueApiResponse) => {
-    const topPlayer = data.weeklyRankings[0];
-    return data.chartData.map(item => ({
-      ...item,
-      topPlayer: Math.min(item.you, topPlayer?.points || 0)
-    }));
-  };
+const transformChartData = (data: LeagueApiResponse): DayData[] => {
+  const topPlayer = data.weeklyRankings[0];
+  return data.chartData.map(item => ({
+    day: item.day,
+    you: item.you,
+    topPlayer: topPlayer?.points || 0
+  }));
+};
 
   useEffect(() => {
     const fetchLeagueData = async () => {
