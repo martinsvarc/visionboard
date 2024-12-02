@@ -51,12 +51,6 @@ export async function POST(request: Request) {
       WHERE member_id = ${memberId};
     `;
 
-console.log({
-    lastResetDate: existingUser?.weekly_reset_at,
-    nextSunday: getNextSunday().toISOString(),
-    isNewWeekResult: shouldResetWeek
-});
-
     const yesterday = new Date();
     yesterday.setDate(yesterday.getDate() - 1);
     const yesterdayStr = yesterday.toISOString().split('T')[0];
@@ -86,9 +80,7 @@ const total_points = (existingUser?.total_points || 0) + points;
     const sessions_today = lastSessionDate && lastSessionDate.getTime() === today.getTime() ? 
       (existingUser?.sessions_today || 0) + 1 : 1;
 
-    const sessions_this_week = shouldResetWeek ? 
-      1 : 
-      (existingUser?.sessions_this_week || 0) + 1;
+    const sessions_this_week = (existingUser?.sessions_this_week || 0) + 1;
 
     const sessions_this_month = shouldResetMonth ? 
       1 : 
@@ -158,8 +150,7 @@ const total_points = (existingUser?.total_points || 0) + points;
         user_name = EXCLUDED.user_name,
         user_picture = ${userPicture || 'https://res.cloudinary.com/dmbzcxhjn/image/upload/v1732590120/WhatsApp_Image_2024-11-26_at_04.00.13_58e32347_owfpnt.jpg'},
         team_id = EXCLUDED.team_id,
-        points = CASE 
-  user_achievements.points + ${points},
+        points = user_achievements.points + ${points},
 total_points = user_achievements.total_points + ${points},
         total_sessions = user_achievements.total_sessions + 1,
         sessions_today = CASE 
@@ -178,37 +169,6 @@ total_points = user_achievements.total_points + ${points},
         updated_at = CURRENT_TIMESTAMP
       RETURNING *;
     `;
-
-    if (shouldResetWeek) {
-      const { rows: finalRankings } = await pool.sql`
-        WITH Rankings AS (
-          SELECT 
-            member_id,
-            points,
-            DENSE_RANK() OVER (ORDER BY points DESC) as rank
-          FROM user_achievements
-          WHERE weekly_reset_at = ${updated.weekly_reset_at}
-        )
-        SELECT *
-        FROM Rankings
-        WHERE points > 0
-        ORDER BY points DESC;
-      `;
-
-      const userFinalRank = finalRankings.find(r => r.member_id === memberId)?.rank;
-      
-      if (userFinalRank && finalRankings.length >= 3) {
-        if (userFinalRank === 1) unlocked_badges = addBadge(unlocked_badges, 'league_first');
-        if (userFinalRank === 2) unlocked_badges = addBadge(unlocked_badges, 'league_second');
-        if (userFinalRank === 3) unlocked_badges = addBadge(unlocked_badges, 'league_third');
-
-        await pool.sql`
-          UPDATE user_achievements 
-          SET unlocked_badges = ${JSON.stringify(unlocked_badges)}
-          WHERE member_id = ${memberId};
-        `;
-      }
-    }
 
     const { rows: currentRankings } = await pool.sql`
       SELECT 
