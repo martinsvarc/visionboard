@@ -438,54 +438,38 @@ export default function Component() {
     setIsLoading(false)
   }
 
-if (error) {
-  return (
-    <div className="flex items-center justify-center min-h-screen text-red-500">
-      {error}
-    </div>
-  )
-}
-
-if (isLoading) {
-  return <div className="flex items-center justify-center min-h-screen">Loading...</div>
-}
-
-useEffect(() => {
-  const fetchCalls = async () => {
-    const memberId = searchParams.get('memberId')
-    if (!memberId) {
-      setError('No member ID provided')
-      setIsLoading(false)
-      return
-    }
-    
-    setIsLoading(true)
-    try {
-      const response = await fetch(`/api/dashboard?memberId=${memberId}`)
-      if (!response.ok) {
-        throw new Error('Failed to fetch calls')
+  useEffect(() => {
+    const fetchCalls = async () => {
+      const memberId = searchParams.get('memberId')
+      if (!memberId) {
+        setError('No member ID provided')
+        setIsLoading(false)
+        return
       }
-      const data = await response.json()
-      setCallLogs(data)
-      setError(null)
-    } catch (error) {
-      setError(error instanceof Error ? error.message : 'Failed to load calls')
-    } finally {
-      setIsLoading(false)
+      
+      setIsLoading(true)
+      try {
+        const response = await fetch(`/api/dashboard?memberId=${memberId}`)
+        if (!response.ok) {
+          throw new Error('Failed to fetch calls')
+        }
+        const data = await response.json()
+        setCallLogs(data)
+        setError(null)
+      } catch (error) {
+        setError(error instanceof Error ? error.message : 'Failed to load calls')
+      } finally {
+        setIsLoading(false)
+      }
     }
-  }
 
-  fetchCalls()
-}, [searchParams])
+    fetchCalls()
+  }, [searchParams])
 
-const indexOfLastRecord = currentPage * recordsPerPage
-const indexOfFirstRecord = indexOfLastRecord - recordsPerPage
-const currentRecords = callLogs.slice(indexOfFirstRecord, indexOfLastRecord)
-const totalPages = Math.ceil(callLogs.length / recordsPerPage)
-
-  if (!callLogs.length) {
-    return <div className="flex items-center justify-center min-h-screen">No call data found</div>
-  }
+  const indexOfLastRecord = currentPage * recordsPerPage
+  const indexOfFirstRecord = indexOfLastRecord - recordsPerPage
+  const currentRecords = callLogs.slice(indexOfFirstRecord, indexOfLastRecord)
+  const totalPages = Math.ceil(callLogs.length / recordsPerPage)
 
   const scoreCategories: Category[] = [
     { key: 'engagement', label: 'Engagement', description: 'Measures how well the agent connects with the customer and keeps them interested throughout the call.' },
@@ -496,22 +480,22 @@ const totalPages = Math.ceil(callLogs.length / recordsPerPage)
     { key: 'overall_effectiveness', label: 'Overall Effectiveness', description: 'A comprehensive score reflecting the agent\'s overall performance during the call.' },
   ]
 
-const chartData = React.useMemo(() => callLogs.map((call, index) => ({
-  name: `${index + 1}`,
-  date: call.created_at,
-  engagement: call.engagement,
-  objection_handling: call.objection_handling,
-  information_gathering: call.information_gathering,
-  program_explanation: call.program_explanation,
-  closing_skills: call.closing_skills,
-  overall_effectiveness: call.overall_effectiveness
-})), [callLogs])
+  const chartData = React.useMemo(() => callLogs.map((call, index) => ({
+    name: `${index + 1}`,
+    date: call.created_at,
+    engagement: call.engagement,
+    objection_handling: call.objection_handling,
+    information_gathering: call.information_gathering,
+    program_explanation: call.program_explanation,
+    closing_skills: call.closing_skills,
+    overall_effectiveness: call.overall_effectiveness
+  })), [callLogs])
 
-const averageSuccessData = React.useMemo(() => callLogs.map((call, index) => ({
-  name: `${index + 1}`,
-  date: call.created_at,
-  value: call.overall_effectiveness
-})), [callLogs])
+  const averageSuccessData = React.useMemo(() => callLogs.map((call, index) => ({
+    name: `${index + 1}`,
+    date: call.created_at,
+    value: call.overall_effectiveness
+  })), [callLogs])
 
   const toggleExpandCard = useCallback((id: number) => {
     setExpandedCards(prev => ({
@@ -528,21 +512,37 @@ const averageSuccessData = React.useMemo(() => callLogs.map((call, index) => ({
   }
 
   const saveNotes = async (id: number) => {
-  try {
-    const response = await fetch(`/api/dashboard?id=${id}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        call_notes: callNotes[id]
-      })
-    });
-    if (!response.ok) throw new Error('Failed to save notes');
-  } catch (error) {
-    console.error('Error saving notes:', error);
+    try {
+      const response = await fetch(`/api/dashboard?id=${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          call_notes: callNotes[id]
+        })
+      });
+      if (!response.ok) throw new Error('Failed to save notes');
+    } catch (error) {
+      console.error('Error saving notes:', error);
+    }
   }
-}
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center min-h-screen text-red-500">
+        {error}
+      </div>
+    )
+  }
+
+  if (isLoading) {
+    return <div className="flex items-center justify-center min-h-screen">Loading...</div>
+  }
+
+  if (!callLogs.length) {
+    return <div className="flex items-center justify-center min-h-screen">No call data found</div>
+  }
 
   return (
   <div className="min-h-screen p-8 bg-slate-50">
