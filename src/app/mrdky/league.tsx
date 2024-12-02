@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils"
 import { LeagueChart } from "./LeagueChart"
 import { Badge } from "./Badge"
 import { ACHIEVEMENTS } from '@/lib/achievement-data';
-import { LeagueLoading } from './LeagueLoading';
+import LeagueLoading from './LeagueLoading';
 
 interface LeaguePlayer {
   rank: number;
