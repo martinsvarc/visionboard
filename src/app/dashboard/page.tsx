@@ -58,20 +58,6 @@ interface CallLog {
 
 type CategoryKey = 'engagement' | 'objection_handling' | 'information_gathering' | 'program_explanation' | 'closing_skills' | 'overall_effectiveness';
 
-type CallLog = {
-  id: number;
-  agent_name: string;
-  created_at: string;
-  duration: number;
-  call_notes: string;
-  engagement: number;
-  objection_handling: number;
-  information_gathering: number;
-  program_explanation: number;
-  closing_skills: number;
-  overall_effectiveness: number;
-}
-
 type DateRange = {
   from: Date;
   to: Date;
