@@ -640,7 +640,7 @@ function DashboardContent() {
                   </div>
                   <div className="ml-auto text-right">
                     <p className="text-sm text-slate-600">
-                      {new Date(call.created_at).toLocaleString('en-US', { 
+                      {new Date(call.call_date).toLocaleString('en-US', {
                         year: 'numeric', 
                         month: 'short', 
                         day: 'numeric',
@@ -912,7 +912,7 @@ function DashboardContent() {
                 Call Details
               </DialogTitle>
               <DialogDescription className="text-slate-600 text-center">
-                {detailsModal.call && new Date(detailsModal.call.created_at).toLocaleDateString('en-US', { 
+                {detailsModal.call && new Date(detailsModal.call.call_date).toLocaleDateString('en-US', {
                   year: 'numeric', 
                   month: 'long', 
                   day: 'numeric',
