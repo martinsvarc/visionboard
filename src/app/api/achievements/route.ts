@@ -278,18 +278,19 @@ const chartData = Object.entries(dailyPointsData)
     `;
 
     const { rows: teamRankings } = await pool.sql`
-      SELECT 
-        member_id, 
-        user_name, 
-        user_picture, 
-        total_points as points, 
-        unlocked_badges,
-        RANK() OVER (ORDER BY total_points DESC) as rank
-      FROM user_achievements 
-      WHERE team_id = ${userData?.team_id}
-      ORDER BY total_points DESC 
-      LIMIT 10;
-    `;
+  SELECT 
+    member_id, 
+    user_name, 
+    user_picture, 
+    points,
+    unlocked_badges,
+    RANK() OVER (ORDER BY points DESC) as rank
+  FROM user_achievements 
+  WHERE team_id = ${userData?.team_id}
+  AND weekly_reset_at = ${userData?.weekly_reset_at}
+  ORDER BY points DESC 
+  LIMIT 10;
+`;
 
     return NextResponse.json({
       ...achievementsData,
