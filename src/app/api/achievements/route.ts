@@ -5,22 +5,18 @@ import { ACHIEVEMENTS } from '@/lib/achievement-data';
 const getNextSunday = (date: Date = new Date()) => {
   const newDate = new Date(date);
   newDate.setHours(0, 0, 0, 0);
-  // Add days until we reach Sunday
-  while (newDate.getDay() !== 0) {
-    newDate.setDate(newDate.getDate() + 1);
-  }
-  // If the date is today and it's Sunday, add 7 days to get next Sunday
-  if (newDate.getDay() === 0 && newDate.getDate() === new Date().getDate()) {
-    newDate.setDate(newDate.getDate() + 7);
-  }
+  
+  // Always get next Sunday, even if today is Sunday
+  const daysUntilNextSunday = 7 - newDate.getDay();
+  newDate.setDate(newDate.getDate() + daysUntilNextSunday);
+  
   return newDate;
 };
 
 function isNewWeek(lastResetDate: Date) {
   const now = new Date();
-  const lastReset = new Date(lastResetDate);
-  const daysSinceLastReset = (now.getDay() + 7 - lastReset.getDay()) % 7;
-  return daysSinceLastReset >= 7;
+  const nextReset = getNextSunday(lastResetDate);
+  return now >= nextReset;
 }
 
 function isNewMonth(lastDate: Date, currentDate: Date = new Date()) {
@@ -119,6 +115,13 @@ export async function POST(request: Request) {
     if (sessions_this_week >= 50) unlocked_badges = addBadge(unlocked_badges, 'weekly_50');
     if (sessions_this_month >= 100) unlocked_badges = addBadge(unlocked_badges, 'monthly_100');
 
+const current_daily_points = shouldResetWeek ? 
+  { [todayKey]: points } : 
+  {
+    ...(existingUser?.daily_points || {}),
+    [todayKey]: ((existingUser?.daily_points || {})[todayKey] || 0) + points
+  };
+
     const { rows: [updated] } = await pool.sql`
       INSERT INTO user_achievements (
         member_id, 
@@ -135,7 +138,8 @@ export async function POST(request: Request) {
         sessions_this_month,
         last_session_date,
         unlocked_badges,
-        weekly_reset_at
+        weekly_reset_at,
+        daily_points
       ) VALUES (
         ${memberId},
         ${userName},
@@ -151,7 +155,8 @@ export async function POST(request: Request) {
         ${sessions_this_month},
         ${todayStr},
         ${JSON.stringify(unlocked_badges)},
-        ${getNextSunday().toISOString()}
+        ${getNextSunday().toISOString()},
+        ${JSON.stringify(current_daily_points)}
       )
       ON CONFLICT (member_id) DO UPDATE SET
         user_name = EXCLUDED.user_name,
@@ -175,6 +180,14 @@ export async function POST(request: Request) {
         last_session_date = ${today.toISOString()},
         unlocked_badges = ${JSON.stringify(unlocked_badges)},
         weekly_reset_at = ${shouldResetWeek ? getNextSunday().toISOString() : existingUser?.weekly_reset_at || getNextSunday().toISOString()},
+daily_points = CASE 
+  WHEN ${shouldResetWeek} THEN ${JSON.stringify({ [todayKey]: points })}
+  ELSE jsonb_set(
+    COALESCE(user_achievements.daily_points, '{}'::jsonb),
+    '{' || ${todayKey} || '}',
+    to_jsonb(COALESCE((user_achievements.daily_points->>${todayKey})::numeric, 0) + ${points})
+  )
+END,
         updated_at = CURRENT_TIMESTAMP
       RETURNING *;
     `;
