@@ -29,7 +29,7 @@ function isNewMonth(lastDate: Date, currentDate: Date = new Date()) {
 }
 
 function getDayKey(date: Date) {
-  return date.toISOString().split('T')[0];  // Returns YYYY-MM-DD format
+  return date.toISOString().split('T')[0];
 }
 
 export async function POST(request: Request) {
@@ -74,17 +74,6 @@ export async function POST(request: Request) {
     const current_points = shouldResetWeek ? points : (existingUser?.points || 0) + points;
     const total_points = (existingUser?.total_points || 0) + points;
 
-    // Daily points tracking
-    let current_daily_points = existingUser?.daily_points || {};
-    
-    if (shouldResetWeek) {
-      // Reset daily points if it's a new week
-      current_daily_points = {};
-    }
-    
-    // Update today's points (cumulative)
-    current_daily_points[todayKey] = (current_daily_points[todayKey] || 0) + points;
-    
     // Session counts
     const shouldResetMonth = !existingUser?.last_session_date ? 
       true : 
@@ -131,74 +120,64 @@ export async function POST(request: Request) {
     if (sessions_this_month >= 100) unlocked_badges = addBadge(unlocked_badges, 'monthly_100');
 
     const { rows: [updated] } = await pool.sql`
-  INSERT INTO user_achievements (
-    member_id, 
-    user_name, 
-    user_picture, 
-    team_id,
-    points,
-    total_points,
-    current_streak,
-    longest_streak,
-    total_sessions,
-    sessions_today,
-    sessions_this_week,
-    sessions_this_month,
-    last_session_date,
-    unlocked_badges,
-    weekly_reset_at,
-    daily_points
-  ) VALUES (
-    ${memberId},
-    ${userName},
-    ${userPicture},
-    ${teamId},
-    ${points},
-    ${points},
-    1,
-    1,
-    1,
-    ${sessions_today},
-    ${sessions_this_week},
-    ${sessions_this_month},
-    ${todayStr},
-    ${JSON.stringify(unlocked_badges)},
-    ${getNextSunday().toISOString()},
-    ${JSON.stringify({ [todayKey]: points })}
-  )
-  ON CONFLICT (member_id) DO UPDATE SET
-    user_name = EXCLUDED.user_name,
-    user_picture = ${userPicture || 'https://res.cloudinary.com/dmbzcxhjn/image/upload/v1732590120/WhatsApp_Image_2024-11-26_at_04.00.13_58e32347_owfpnt.jpg'},
-    team_id = EXCLUDED.team_id,
-    points = user_achievements.points + ${points},
-    total_points = user_achievements.total_points + ${points},
-    total_sessions = user_achievements.total_sessions + 1,
-    sessions_today = CASE 
-      WHEN user_achievements.last_session_date = ${todayStr} THEN user_achievements.sessions_today + 1
-      ELSE 1
-    END,
-    sessions_this_week = CASE 
-      WHEN ${shouldResetWeek} THEN 1
-      ELSE user_achievements.sessions_this_week + 1
-    END,
-    sessions_this_month = CASE 
-      WHEN TO_CHAR(user_achievements.last_session_date::date, 'YYYY-MM') != TO_CHAR(CURRENT_DATE, 'YYYY-MM') THEN 1
-      ELSE user_achievements.sessions_this_month + 1
-    END,
-    last_session_date = ${today.toISOString()},
-    unlocked_badges = ${JSON.stringify(unlocked_badges)},
-    weekly_reset_at = ${shouldResetWeek ? getNextSunday().toISOString() : existingUser?.weekly_reset_at || getNextSunday().toISOString()},
-    daily_points = CASE 
-      WHEN ${shouldResetWeek} THEN jsonb_build_object(${todayKey}, ${points})
-      ELSE jsonb_set(
-        COALESCE(user_achievements.daily_points, '{}'::jsonb),
-        '{' || ${todayKey} || '}',
-        to_jsonb(COALESCE((user_achievements.daily_points->>${todayKey})::numeric, 0) + ${points})
+      INSERT INTO user_achievements (
+        member_id, 
+        user_name, 
+        user_picture, 
+        team_id,
+        points,
+        total_points,
+        current_streak,
+        longest_streak,
+        total_sessions,
+        sessions_today,
+        sessions_this_week,
+        sessions_this_month,
+        last_session_date,
+        unlocked_badges,
+        weekly_reset_at
+      ) VALUES (
+        ${memberId},
+        ${userName},
+        ${userPicture},
+        ${teamId},
+        ${points},
+        ${points},
+        1,
+        1,
+        1,
+        ${sessions_today},
+        ${sessions_this_week},
+        ${sessions_this_month},
+        ${todayStr},
+        ${JSON.stringify(unlocked_badges)},
+        ${getNextSunday().toISOString()}
       )
-    END,
-    updated_at = CURRENT_TIMESTAMP
-  RETURNING *;
-`;
+      ON CONFLICT (member_id) DO UPDATE SET
+        user_name = EXCLUDED.user_name,
+        user_picture = ${userPicture || 'https://res.cloudinary.com/dmbzcxhjn/image/upload/v1732590120/WhatsApp_Image_2024-11-26_at_04.00.13_58e32347_owfpnt.jpg'},
+        team_id = EXCLUDED.team_id,
+        points = user_achievements.points + ${points},
+        total_points = user_achievements.total_points + ${points},
+        total_sessions = user_achievements.total_sessions + 1,
+        sessions_today = CASE 
+          WHEN user_achievements.last_session_date = ${todayStr} THEN user_achievements.sessions_today + 1
+          ELSE 1
+        END,
+        sessions_this_week = CASE 
+          WHEN ${shouldResetWeek} THEN 1
+          ELSE user_achievements.sessions_this_week + 1
+        END,
+        sessions_this_month = CASE 
+          WHEN TO_CHAR(user_achievements.last_session_date::date, 'YYYY-MM') != TO_CHAR(CURRENT_DATE, 'YYYY-MM') THEN 1
+          ELSE user_achievements.sessions_this_month + 1
+        END,
+        last_session_date = ${today.toISOString()},
+        unlocked_badges = ${JSON.stringify(unlocked_badges)},
+        weekly_reset_at = ${shouldResetWeek ? getNextSunday().toISOString() : existingUser?.weekly_reset_at || getNextSunday().toISOString()},
+        updated_at = CURRENT_TIMESTAMP
+      RETURNING *;
+    `;
 
     if (shouldResetWeek) {
       const { rows: finalRankings } = await pool.sql`
