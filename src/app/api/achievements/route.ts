@@ -180,14 +180,7 @@ const current_daily_points = shouldResetWeek ?
         last_session_date = ${today.toISOString()},
         unlocked_badges = ${JSON.stringify(unlocked_badges)},
         weekly_reset_at = ${shouldResetWeek ? getNextSunday().toISOString() : existingUser?.weekly_reset_at || getNextSunday().toISOString()},
-daily_points = CASE 
-  WHEN ${shouldResetWeek} THEN ${JSON.stringify({ [todayKey]: points })}
-  ELSE jsonb_set(
-    COALESCE(user_achievements.daily_points, '{}'::jsonb),
-    '{' || ${todayKey} || '}',
-    to_jsonb(COALESCE((user_achievements.daily_points->>${todayKey})::numeric, 0) + ${points})
-  )
-END,
+        daily_points = ${JSON.stringify(current_daily_points)},
         updated_at = CURRENT_TIMESTAMP
       RETURNING *;
     `;
