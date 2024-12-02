@@ -1,7 +1,8 @@
 'use client'
 
 import React, { useState, useCallback, useRef, useEffect } from 'react'
-import { Card, CardContent } from "@/components/ui/card"
+import { Card } from "@/components/ui/card"
+import { CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Play, Pause, ChevronRight, ChevronLeft, Calendar, ChevronDown, ChevronUp } from 'lucide-react'
@@ -483,10 +484,6 @@ const indexOfFirstRecord = indexOfLastRecord - recordsPerPage
 const currentRecords = callLogs.slice(indexOfFirstRecord, indexOfLastRecord)
 const totalPages = Math.ceil(callLogs.length / recordsPerPage)
 
-  if (isLoading) {
-    return <div className="flex items-center justify-center min-h-screen">Loading...</div>
-  }
-
   if (!callLogs.length) {
     return <div className="flex items-center justify-center min-h-screen">No call data found</div>
   }
@@ -499,33 +496,6 @@ const totalPages = Math.ceil(callLogs.length / recordsPerPage)
     { key: 'closing_skills', label: 'Closing Skills', description: 'Measures the agent\'s ability to guide the conversation towards a successful conclusion or sale.' },
     { key: 'overall_effectiveness', label: 'Overall Effectiveness', description: 'A comprehensive score reflecting the agent\'s overall performance during the call.' },
   ]
-
-  // Mock data with proper typing
- const [callLogs, setCallLogs] = useState<{
-  id: number;
-  call_duration: number;
-  power_moment: string;
-  call_notes: string;
-  level_up_1: string; 
-  level_up_2: string;
-  level_up_3: string;
-  call_transcript: string;
-  strong_points: string;
-  areas_for_improvement: string;
-  engagement: number;
-  objection_handling: number;
-  information_gathering: number;
-  program_explanation: number;
-  closing_skills: number;
-  overall_effectiveness: number;
-  agent_name: string;
-  created_at: string;
-}[]>([])
-
-useEffect(() => {
-  const fetchCalls = async () => {
-    const memberId = searchParams.get('memberId')
-    if (!memberId) return
     
     try {
       const response = await fetch(`/api/dashboard?memberId=${memberId}`)
@@ -556,11 +526,6 @@ const averageSuccessData = React.useMemo(() => callLogs.map((call, index) => ({
   date: call.created_at,
   value: call.overall_effectiveness
 })), [callLogs])
-
-  const indexOfLastRecord = currentPage * recordsPerPage
-  const indexOfFirstRecord = indexOfLastRecord - recordsPerPage
-  const currentRecords = callLogs.slice(indexOfFirstRecord, indexOfLastRecord)
-const totalPages = Math.ceil(callLogs.length / recordsPerPage)
 
   const toggleExpandCard = useCallback((id: number) => {
     setExpandedCards(prev => ({
@@ -758,7 +723,7 @@ const totalPages = Math.ceil(callLogs.length / recordsPerPage)
                             <h3 className="text-lg font-semibold text-slate-900 mb-2">Call Notes</h3>
                             <Textarea
                               placeholder="Enter your notes here..."
-                              value={callNotes[call.id] || call.notes}
+                              value={callNotes[call.id] || call.call_notes}
                               onChange={(e) => handleNotesChange(call.id, e.target.value)}
                               className="min-h-[100px] mb-2 rounded-[20px]"
                             />
