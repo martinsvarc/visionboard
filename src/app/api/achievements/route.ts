@@ -56,6 +56,12 @@ export async function POST(request: Request) {
     const shouldResetWeek = !existingUser?.weekly_reset_at || 
                            isNewWeek(new Date(existingUser?.weekly_reset_at || new Date()));
 
+console.log({
+    lastResetDate: existingUser?.weekly_reset_at,
+    nextSunday: getNextSunday().toISOString(),
+    isNewWeekResult: shouldResetWeek
+});
+
     const yesterday = new Date();
     yesterday.setDate(yesterday.getDate() - 1);
     const yesterdayStr = yesterday.toISOString().split('T')[0];
@@ -123,6 +129,15 @@ const current_daily_points = shouldResetWeek ?
     ...(existingUser?.daily_points || {}),
     [todayKey]: ((existingUser?.daily_points || {})[todayKey] || 0) + points
   };
+
+console.log({
+    existingDailyPoints: existingUser?.daily_points,
+    todayKey,
+    existingTodayPoints: ((existingUser?.daily_points || {})[todayKey] || 0),
+    newPoints: points,
+    calculatedPoints: ((existingUser?.daily_points || {})[todayKey] || 0) + points,
+    current_daily_points
+});
 
     const { rows: [updated] } = await pool.sql`
       INSERT INTO user_achievements (
