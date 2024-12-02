@@ -102,22 +102,23 @@ function League({ activeCategory, setActiveLeagueCategory }: LeagueProps) {
   const getBadgeImages = (unlocked_badges: string | null | undefined): string[] => {
     if (!unlocked_badges) return [];
     try {
-      const badgeIds = unlocked_badges.split(',');
-      return badgeIds.map(badgeId => {
-        const allAchievements = [
-          ...ACHIEVEMENTS.streak,
-          ...ACHIEVEMENTS.calls,
-          ...ACHIEVEMENTS.activity,
-          ...ACHIEVEMENTS.league
-        ];
-        const badge = allAchievements.find(b => b.id === badgeId);
-        return badge?.image || '';
-      }).filter(Boolean);
+      // Use the same pattern as achievement-showcase
+      const allAchievements = [
+        ...ACHIEVEMENTS.streak,
+        ...ACHIEVEMENTS.calls,
+        ...ACHIEVEMENTS.activity,
+        ...ACHIEVEMENTS.league
+      ];
+
+      return allAchievements
+        .filter(badge => unlocked_badges.includes(badge.id))
+        .map(badge => badge.image)
+        .filter(Boolean);
     } catch (error) {
       console.error('Error processing badges:', error);
       return [];
     }
-  };
+};
 
   useEffect(() => {
     const fetchLeagueData = async () => {
