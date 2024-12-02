@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils"
 import { LeagueChart } from "./LeagueChart"
 import { Badge } from "./Badge"
 import { ACHIEVEMENTS } from '@/lib/achievement-data';
+import { LeagueLoading } from './LeagueLoading';
 
 interface LeaguePlayer {
   rank: number;
@@ -191,9 +192,13 @@ const getBadgeImages = (unlocked_badges: string | null | undefined): string[] =>
     fetchLeagueData();
   }, [activeCategory]);
 
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
+ if (isLoading) {
+  return (
+    <Card className="p-3 bg-white rounded-[20px] shadow-lg h-full">
+      <LeagueLoading />
+    </Card>
+  );
+}
 
   if (error) {
     return (
