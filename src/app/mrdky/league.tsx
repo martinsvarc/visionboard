@@ -53,12 +53,6 @@ interface LeagueProps {
   setActiveLeagueCategory: (category: 'weekly' | 'teamWeekly') => void;
 }
 
-interface DayData {
-  day: string
-  you: number
-  topPlayer: number
-}
-
 const getMemberId = async () => {
   try {
     const memberstack = (window as any).memberstack;
@@ -95,7 +89,6 @@ function League({ activeCategory, setActiveLeagueCategory }: LeagueProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isNewUser, setIsNewUser] = useState(false);
-  const [chartData, setChartData] = useState<DayData[]>([]);
 
 
   const getBadgeImages = (unlocked_badges: string | null | undefined): string[] => {
@@ -117,15 +110,6 @@ function League({ activeCategory, setActiveLeagueCategory }: LeagueProps) {
       return [];
     }
   };
-
-const transformChartData = (data: LeagueApiResponse): DayData[] => {
-  const topPlayer = data.weeklyRankings[0];
-  return data.chartData.map(item => ({
-    day: item.day,
-    you: item.you,
-    topPlayer: topPlayer?.points || 0
-  }));
-};
 
   useEffect(() => {
     const fetchLeagueData = async () => {
@@ -177,8 +161,6 @@ const transformChartData = (data: LeagueApiResponse): DayData[] => {
         setCurrentUser(findUserInRankings(
           activeCategory === 'weekly' ? weeklyPlayers : teamPlayers
         ));
-
-        setChartData(transformChartData(data));
 
       } catch (error) {
         console.error('Error fetching league data:', error);
@@ -245,9 +227,10 @@ const transformChartData = (data: LeagueApiResponse): DayData[] => {
         </div>
       ) : (
         <>
-          <div className="mb-6">
+         <div className="mb-6">
   <LeagueChart 
-    data={chartData}
+    currentUserScore={currentUserScore}
+    topPlayerScore={topPlayerScore}
   />
 </div>
 
