@@ -1,19 +1,22 @@
 import { Line, LineChart, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts"
 
-export interface DayData {
-  day: string
-  you: number
-  topPlayer: number
-}
-
 interface LeagueChartProps {
-  data: DayData[]
+  currentUserScore: number;
+  topPlayerScore: number;
 }
 
-export function LeagueChart({ data }: LeagueChartProps) {
-  const maxScore = Math.max(
-    ...data.map(day => Math.max(day.you, day.topPlayer))
-  )
+export function LeagueChart({ currentUserScore, topPlayerScore }: LeagueChartProps) {
+  const data = [
+    { day: 'Monday', you: Math.round(currentUserScore * 0.3), topPlayer: Math.round(topPlayerScore * 0.3) },
+    { day: 'Tuesday', you: Math.round(currentUserScore * 0.45), topPlayer: Math.round(topPlayerScore * 0.45) },
+    { day: 'Wednesday', you: Math.round(currentUserScore * 0.6), topPlayer: Math.round(topPlayerScore * 0.6) },
+    { day: 'Thursday', you: Math.round(currentUserScore * 0.7), topPlayer: Math.round(topPlayerScore * 0.75) },
+    { day: 'Friday', you: Math.round(currentUserScore * 0.85), topPlayer: Math.round(topPlayerScore * 0.85) },
+    { day: 'Saturday', you: Math.round(currentUserScore * 0.95), topPlayer: Math.round(topPlayerScore * 0.95) },
+    { day: 'Sunday', you: currentUserScore, topPlayer: topPlayerScore }
+  ]
+
+  const maxScore = Math.max(currentUserScore, topPlayerScore)
   const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
 
   return (
