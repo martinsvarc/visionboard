@@ -128,8 +128,7 @@ const getBadgeImages = (unlocked_badges: string | null | undefined): string[] =>
 
   useEffect(() => {
     const fetchLeagueData = async () => {
-      try {
-        setIsLoading(true);
+  if (!leagueData.weekly.length) setIsLoading(true);
         const memberId = await getMemberId();
         const response = await fetch(`/api/achievements?memberId=${memberId}`);
         
