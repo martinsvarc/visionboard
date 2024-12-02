@@ -39,7 +39,13 @@ interface LeagueApiResponse {
     points: number;
     unlocked_badges: string;
     team_id?: string;
+    daily_points?: Record<string, number>;
   } | null;
+  chartData: {
+    day: string;
+    date: string;
+    you: number;
+  }[];
 }
 
 interface LeagueProps {
@@ -83,6 +89,8 @@ function League({ activeCategory, setActiveLeagueCategory }: LeagueProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isNewUser, setIsNewUser] = useState(false);
+  const [chartData, setChartData] = useState<any[]>([]);
+
 
   const getBadgeImages = (unlocked_badges: string | null | undefined): string[] => {
     if (!unlocked_badges) return [];
@@ -102,6 +110,14 @@ function League({ activeCategory, setActiveLeagueCategory }: LeagueProps) {
       console.error('Error processing badges:', error);
       return [];
     }
+  };
+
+const transformChartData = (data: LeagueApiResponse) => {
+    const topPlayer = data.weeklyRankings[0];
+    return data.chartData.map(item => ({
+      ...item,
+      topPlayer: Math.min(item.you, topPlayer?.points || 0)
+    }));
   };
 
   useEffect(() => {
@@ -154,6 +170,8 @@ function League({ activeCategory, setActiveLeagueCategory }: LeagueProps) {
         setCurrentUser(findUserInRankings(
           activeCategory === 'weekly' ? weeklyPlayers : teamPlayers
         ));
+
+        setChartData(transformChartData(data));
 
       } catch (error) {
         console.error('Error fetching league data:', error);
@@ -221,11 +239,10 @@ function League({ activeCategory, setActiveLeagueCategory }: LeagueProps) {
       ) : (
         <>
           <div className="mb-6">
-            <LeagueChart 
-              currentUserScore={currentUserScore}
-              topPlayerScore={topPlayerScore}
-            />
-          </div>
+  <LeagueChart 
+    data={chartData}
+  />
+</div>
 
           {currentUser && (
             <div className="bg-[#51c1a9] text-white p-2 rounded-[20px] flex items-center gap-2 text-sm mb-6">
