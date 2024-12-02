@@ -23,22 +23,21 @@ interface CategoryFeedback {
 
 interface CallData {
   user_name: string;
-  user_picture_url: string;
   agent_name: string;
   agent_picture_url: string;
   call_recording_url: string;
   call_details: string;
+  scores: CategoryScores;
+  feedback: CategoryFeedback;
   call_duration: number;
   power_moment: string;
   call_notes: string;
   level_up_1: string;
   level_up_2: string;
-  level_up_3: string;
+  level_up_3: string; 
   call_transcript: string;
   strong_points: string;
   areas_for_improvement: string;
-  scores: CategoryScores;
-  feedback: CategoryFeedback;
 }
 
 export const GET = async (request: Request) => {
@@ -146,7 +145,6 @@ const { rows } = await pool.sql`
     member_id,
     call_number,
     user_name,
-    user_picture_url,
     agent_name,
     agent_picture_url,
     call_recording_url,
@@ -178,7 +176,6 @@ const { rows } = await pool.sql`
     ${memberId},
     ${nextCallNumber},
     ${callData.user_name},
-    ${callData.user_picture_url},
     ${callData.agent_name},
     ${callData.agent_picture_url},
     ${callData.call_recording_url},
