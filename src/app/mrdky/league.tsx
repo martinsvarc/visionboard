@@ -42,6 +42,11 @@ interface LeagueApiResponse {
   } | null;
 }
 
+interface LeagueProps {
+  activeCategory: 'weekly' | 'teamWeekly';
+  setActiveLeagueCategory: (category: 'weekly' | 'teamWeekly') => void;
+}
+
 const getMemberId = async () => {
   try {
     const memberstack = (window as any).memberstack;
