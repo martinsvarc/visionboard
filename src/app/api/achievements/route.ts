@@ -6,10 +6,12 @@ const getNextSunday = (date: Date = new Date()) => {
   const newDate = new Date(date);
   newDate.setHours(0, 0, 0, 0);
   
-  // Always get next Sunday, even if today is Sunday
-  const daysUntilNextSunday = 7 - newDate.getDay();
-  newDate.setDate(newDate.getDate() + daysUntilNextSunday);
+  let daysUntilNextSunday = 7 - newDate.getDay(); // 0 if today is Sunday
+  if (daysUntilNextSunday === 0) { // if today is Sunday
+    daysUntilNextSunday = 7; // go to next Sunday
+  }
   
+  newDate.setDate(newDate.getDate() + daysUntilNextSunday);
   return newDate;
 };
 
