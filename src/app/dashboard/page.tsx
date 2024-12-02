@@ -750,8 +750,8 @@ function DashboardContent() {
                                 <div 
                                   className="h-full rounded-full"
                                   style={{ 
-                                    width: `${call.overall_effectiveness}%`,
-                                    backgroundColor: getColorByScore(call.overall_effectiveness)
+                                    width: `${call.scores.overall_effectiveness}%`,
+                                    backgroundColor: getColorByScore(call.scores.overall_effectiveness)
                                   }}
                                 />
                               </div>
