@@ -102,7 +102,6 @@ function League({ activeCategory, setActiveLeagueCategory }: LeagueProps) {
   const getBadgeImages = (unlocked_badges: string | null | undefined): string[] => {
     if (!unlocked_badges) return [];
     try {
-      // Use the same pattern as achievement-showcase
       const allAchievements = [
         ...ACHIEVEMENTS.streak,
         ...ACHIEVEMENTS.calls,
@@ -110,10 +109,13 @@ function League({ activeCategory, setActiveLeagueCategory }: LeagueProps) {
         ...ACHIEVEMENTS.league
       ];
 
-      return allAchievements
-        .filter(badge => unlocked_badges.includes(badge.id))
-        .map(badge => badge.image)
-        .filter(Boolean);
+      // Use Set to remove duplicates
+      return [...new Set(
+        allAchievements
+          .filter(badge => unlocked_badges.includes(badge.id))
+          .map(badge => badge.image)
+          .filter(Boolean)
+      )];
     } catch (error) {
       console.error('Error processing badges:', error);
       return [];
