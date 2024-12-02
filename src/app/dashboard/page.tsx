@@ -742,8 +742,8 @@ function DashboardContent() {
                             <div className="space-y-4">
                               <div className="flex justify-between items-center">
                                 <span className="font-medium text-slate-600">Overall Score</span>
-                                <span className="text-2xl font-bold" style={{ color: getColorByScore(call.overall_effectiveness) }}>
-                                  {call.overall_effectiveness}/100
+                                <span className="text-2xl font-bold" style={{ color: getColorByScore(call.scores.overall_effectiveness) }}>
+                                {call.scores.overall_effectiveness}/100
                                 </span>
                               </div>
                               <div className="h-2 bg-slate-200 rounded-full overflow-hidden">
