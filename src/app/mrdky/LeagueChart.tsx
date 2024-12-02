@@ -1,23 +1,33 @@
 import { Line, LineChart, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts"
 
+interface ChartDataPoint {
+  day: string;
+  date: string;
+  you: number;
+  topPlayer?: number;
+}
+
 interface LeagueChartProps {
-  currentUserScore: number;
+  chartData: ChartDataPoint[];
   topPlayerScore: number;
 }
 
-export function LeagueChart({ currentUserScore, topPlayerScore }: LeagueChartProps) {
-  const data = [
-    { day: 'Monday', you: Math.round(currentUserScore * 0.3), topPlayer: Math.round(topPlayerScore * 0.3) },
-    { day: 'Tuesday', you: Math.round(currentUserScore * 0.45), topPlayer: Math.round(topPlayerScore * 0.45) },
-    { day: 'Wednesday', you: Math.round(currentUserScore * 0.6), topPlayer: Math.round(topPlayerScore * 0.6) },
-    { day: 'Thursday', you: Math.round(currentUserScore * 0.7), topPlayer: Math.round(topPlayerScore * 0.75) },
-    { day: 'Friday', you: Math.round(currentUserScore * 0.85), topPlayer: Math.round(topPlayerScore * 0.85) },
-    { day: 'Saturday', you: Math.round(currentUserScore * 0.95), topPlayer: Math.round(topPlayerScore * 0.95) },
-    { day: 'Sunday', you: currentUserScore, topPlayer: topPlayerScore }
-  ]
+export function LeagueChart({ chartData, topPlayerScore }: LeagueChartProps) {
+  // Get current day of week 
+  const today = new Date();
+  const currentDayIndex = today.getDay() === 0 ? 6 : today.getDay() - 1;
+  const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
-  const maxScore = Math.max(currentUserScore, topPlayerScore)
-  const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+  // Calculate running totals for top player based on the same ratio as user
+  const data = chartData.map((point, index) => {
+    const topPlayerPoint = (point.you / chartData[chartData.length - 1].you) * topPlayerScore;
+    return {
+      ...point,
+      topPlayer: Math.round(topPlayerPoint)
+    };
+  });
+
+  const maxScore = Math.max(topPlayerScore, data[data.length - 1]?.you || 0);
 
   return (
     <div className="bg-white rounded-[15px] p-3">
@@ -38,7 +48,7 @@ export function LeagueChart({ currentUserScore, topPlayerScore }: LeagueChartPro
             tick={{ fill: '#556bc7', fontSize: 10 }}
             dy={10}
             interval={0}
-            ticks={days}
+            ticks={days.slice(0, currentDayIndex + 1)}
             angle={-20}
             textAnchor="end"
             height={60}
@@ -81,5 +91,5 @@ export function LeagueChart({ currentUserScore, topPlayerScore }: LeagueChartPro
         </LineChart>
       </ResponsiveContainer>
     </div>
-  )
+  );
 }
