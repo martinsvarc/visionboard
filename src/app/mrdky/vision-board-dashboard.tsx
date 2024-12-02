@@ -372,7 +372,7 @@ export default function VisionBoardDashboardClient() {
   const [memberId, setMemberId] = useState<string | null>(null);
   const [currentActivityIndex, setCurrentActivityIndex] = useState(0)
   const [activeAchievementCategory, setActiveAchievementCategory] = useState('practice-streak')
-  const [activeLeagueCategory, setActiveLeagueCategory] = useState<'weekly' | 'allTime' | 'allTimeTeam'>('weekly')
+  const [activeLeagueCategory, setActiveLeagueCategory] = useState<'weekly' | 'teamWeekly'>('weekly')
   const [visionItems, setVisionItems] = useState<VisionItem[]>([])
   const [maxZIndex, setMaxZIndex] = useState(0)
   const [activeItem, setActiveItem] = useState<string | null>(null)
