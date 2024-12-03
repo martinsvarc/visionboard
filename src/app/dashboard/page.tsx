@@ -711,7 +711,7 @@ function DashboardContent() {
   <CardContent className="p-6">
     <h3 className="text-lg font-semibold text-slate-900 mb-2">⚡ Power Moment!</h3>
     <p className="text-slate-900">
-      "Perfect schedule accommodation at 5:30 - Working around student's classes"
+      {call.power_moment}
     </p>
   </CardContent>
 </Card>
@@ -803,15 +803,7 @@ function DashboardContent() {
     <AudioPlayer src={call.call_recording_url} />
   </CardContent>
 </Card>
-                      </div>
-                      <Card className="relative overflow-hidden border-0 bg-white rounded-[32px] shadow-lg w-full">
-                        <CardContent className="p-6">
-                          <div className="flex justify-between items-center mb-4">
-                            <span className="text-slate-900 text-xl font-semibold">Call Recording</span>
-                          </div>
-                          <AudioPlayer src={call.call_recording_url} />
-                        </CardContent>
-                      </Card>
+</div>
                       <Card className="relative overflow-hidden border-0 bg-white rounded-[32px] shadow-lg w-full">
                         <CardContent className="p-6">
                           <div className="flex justify-between items-center mb-6">
