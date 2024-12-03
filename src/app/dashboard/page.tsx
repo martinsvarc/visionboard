@@ -795,9 +795,7 @@ function DashboardContent() {
     </div>
   </CardContent>
 </Card>
-</CardContent>
-</Card>
-<Card className="relative overflow-hidden border-0 bg-white rounded-[32px] shadow-lg w-full">
+                      <Card className="relative overflow-hidden border-0 bg-white rounded-[32px] shadow-lg w-full">
   <CardContent className="p-6">
     <div className="flex justify-between items-center mb-4">
       <span className="text-slate-900 text-xl font-semibold">Call Recording</span>
@@ -805,9 +803,6 @@ function DashboardContent() {
     <AudioPlayer src={call.call_recording_url} />
   </CardContent>
 </Card>
-</div>
-                      <Card className="relative overflow-hidden border-0 bg-white rounded-[32px] shadow-lg w-full">
-                        <CardContent className="p-6">
                           <div className="flex justify-between items-center mb-6">
                             <span className="text-slate-900 text-xl font-semibold">Call Transcript</span>
                           </div>
