@@ -819,8 +819,8 @@ function DashboardContent() {
            className="p-3 rounded-lg"
            style={{ 
              backgroundColor: isBot 
-              ? 'rgba(248, 185, 34, 0.9)'  // Changed to 0.9 opacity (10% transparent)
-               : 'rgba(91, 6, 190, 0.9)'    // Changed to 0.9 opacity (10% transparent)  
+               ? 'rgba(248, 185, 34, 0.9)'  // Changed to 0.9 opacity (10% transparent)
+               : 'rgba(91, 6, 190, 0.9)'    // Changed to 0.9 opacity (10% transparent)
            }}
          >
            <div className="flex items-center gap-2 mb-2">
