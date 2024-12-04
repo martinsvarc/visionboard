@@ -798,75 +798,43 @@ function DashboardContent() {
                         </Card>
                       </div>
                       <Card className="relative overflow-hidden border-0 bg-white rounded-[32px] shadow-lg w-full">
-                        <CardContent className="p-6">
-                          <div className="flex justify-between items-center mb-4">
-                            <span className="text-slate-900 text-xl font-semibold">Call Recording</span>
-                          </div>
-                          <AudioPlayer src={call.call_recording_url} />
-                        </CardContent>
-                      </Card>
-                      <Card className="relative overflow-hidden border-0 bg-white rounded-[32px] shadow-lg w-full">
-                        <CardContent className="p-6">
-                          <div className="flex justify-between items-center mb-6">
-                            <span className="text-slate-900 text-xl font-semibold">Call Transcript</span>
-                          </div>
-                          <div className="space-y-4 max-h-[400px] overflow-y-auto">
-                            <div className="bg-slate-100 p-3 rounded-lg">
-                              <div className="flex items-center gap-2 mb-2">
-                                <div className="w-6 h-6">
-                                  <img
-                                    src="/placeholder.svg?height=24&width=24"
-                                    alt="AI Assistant"
-                                    className="w-full h-full rounded-[20px]"
-                                  />
-                                </div>
-                                <span className="text-sm text-slate-600">AI Assistant</span>
-                              </div>
-                              <p className="text-sm text-slate-700">Hey there. My name is Megan. I'll be waiting for your opening pitch.</p>
-                            </div>
-                            <div className="bg-slate-200 p-3 rounded-lg">
-                              <div className="flex items-center gap-2 mb-2">
-                                <div className="w-6 h-6">
-                                  <img
-                                    src="/placeholder.svg?height=24&width=24"
-                                    alt="Agent"
-                                    className="w-full h-full rounded-[20px] bg-slate-300"
-                                  />
-                                </div>
-                                <span className="text-sm text-slate-600">Agent</span>
-                              </div>
-                              <p className="text-sm text-slate-800">Hey, Megan. We're looking to buy your house.</p>
-                            </div>
-                            <div className="bg-slate-100 p-3 rounded-lg">
-                              <div className="flex items-center gap-2 mb-2">
-                                <div className="w-6 h-6">
-                                  <img
-                                    src="/placeholder.svg?height=24&width=24"
-                                    alt="AI Assistant"
-                                    className="w-full h-full rounded-[20px]"
-                                  />
-                                </div>
-                                <span className="text-sm text-slate-600">AI Assistant</span>
-                              </div>
-                              <p className="text-sm text-slate-700">Oh, wow. That's actually perfect timing. I've been wondering what to do with the house. How exactly does that work?</p>
-                            </div>
-                            <div className="bg-slate-200 p-3 rounded-lg">
-                              <div className="flex items-center gap-2 mb-2">
-                                <div className="w-6 h-6">
-                                  <img
-                                    src="/placeholder.svg?height=24&width=24"
-                                    alt="Agent"
-                                    className="w-full h-full rounded-[20px] bg-slate-300"
-                                  />
-                                </div>
-                                <span className="text-sm text-slate-600">Agent</span>
-                              </div>
-                              <p className="text-sm text-slate-800">Well, We'll essentially send the notary you. And, uh, yeah, we'll go from there.</p>
-                            </div>
-                            {/* Additional transcript messages */}
-                          </div>
-                        </CardContent>
-                      </Card>
+  <CardContent className="p-6">
+    <div className="flex justify-between items-center mb-6">
+      <span className="text-slate-900 text-xl font-semibold">Call Transcript</span>
+    </div>
+    <div className="space-y-4 max-h-[400px] overflow-y-auto">
+      {call.call_transcript.split('\n').map((line, index) => {
+        const [role, message] = line.split('message: ');
+        const isAgent = role.includes('bot');
+        const speakerName = isAgent ? call.agent_name : call.user_name;
+        const speakerImage = isAgent ? call.agent_picture_url : '/placeholder.svg?height=24&width=24';
+
+        if (!message) return null;
+
+        return (
+          <div 
+            key={index}
+            className={`p-3 rounded-lg ${isAgent ? 'bg-slate-100' : 'bg-slate-200'}`}
+          >
+            <div className="flex items-center gap-2 mb-2">
+              <div className="w-6 h-6">
+                <img
+                  src={speakerImage}
+                  alt={`${speakerName}'s avatar`}
+                  className="w-full h-full rounded-[20px]"
+                />
+              </div>
+              <span className="text-sm text-slate-600">{speakerName}</span>
+            </div>
+            <p className="text-sm text-slate-700">
+              {message.trim()}
+            </p>
+          </div>
+        );
+      })}
+    </div>
+  </CardContent>
+</Card>
                     </div>
                   </div>
                 )}
