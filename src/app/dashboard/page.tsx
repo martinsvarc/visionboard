@@ -5,7 +5,7 @@ import { Suspense } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
-import { Play, Pause, ChevronRight, ChevronLeft, Calendar, ChevronDown, ChevronUp } from 'lucide-react'
+import { Play, Pause, ChevronRight, ChevronLeft, Calendar, ChevronDown, ChevronUp, Info } from 'lucide-react'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Cell, ReferenceLine, Area, AreaChart } from 'recharts'
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Slider } from "@/components/ui/slider"
@@ -678,19 +678,31 @@ const saveNotes = async (id: number) => {
                 </div>
 
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-                  {scoreCategories.map((category) => {
-                    const score = call.scores[category.key];
-                    const color = getColorByScore(score)
-                    return (
-                      <Popover key={category.key}>
-  <PopoverTrigger asChild>
-    <div className="relative overflow-hidden rounded-xl cursor-pointer" style={{ backgroundColor: `${color}20` }}>
-      <div className="px-4 py-3 text-sm font-medium flex flex-col justify-between h-full items-center text-center">
-        <span className="text-slate-600">{category.label}</span>
-        <div className="text-2xl font-bold" style={{ color: getColorByScore(score) }}>
-          {score}/100
-        </div>
-      </div>
+  {scoreCategories.map((category) => {
+    const score = call.scores[category.key];
+    const color = getColorByScore(score)
+    return (
+      <Popover key={category.key}>
+        <PopoverTrigger asChild>
+          <div className="relative overflow-hidden rounded-xl cursor-pointer" style={{ backgroundColor: `${color}20` }}>
+            <div className="px-4 py-3 text-sm font-medium flex flex-col justify-between h-full items-center text-center">
+              <div className="flex items-center gap-1">
+                <span className="text-slate-600">{category.label}</span>
+                <Info className="h-3.5 w-3.5 text-slate-400" />
+              </div>
+              <div className="text-2xl font-bold" style={{ color: getColorByScore(score) }}>
+                {score}/100
+              </div>
+            </div>
+            <div 
+              className="absolute bottom-0 left-0 h-1 transition-all duration-300"
+              style={{ 
+                width: `${score}%`,
+                backgroundColor: color
+              }}
+            />
+          </div>
+        </PopoverTrigger>
       <div 
         className="absolute bottom-0 left-0 h-1 transition-all duration-300"
         style={{ 
