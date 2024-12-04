@@ -804,10 +804,8 @@ function DashboardContent() {
     </div>
     <div className="space-y-4 max-h-[400px] overflow-y-auto">
       {call.call_transcript.split('role:').map((segment, index) => {
-        // Skip empty segments
         if (!segment.trim()) return null;
         
-        // Parse the role and message
         const [roleType, ...messageParts] = segment.split('message:');
         if (!messageParts.length) return null;
 
@@ -819,13 +817,13 @@ function DashboardContent() {
             key={index}
             className="p-3 rounded-lg"
             style={{ 
-              backgroundColor: isBot ? '#f4c659' : '#7e4262'
+              backgroundColor: isBot ? '#f8b922' : '#5b06be'
             }}
           >
             <div className="flex items-center gap-2 mb-2">
               <div className="w-6 h-6">
                 <img
-                  src={isBot ? call.agent_picture_url : '/placeholder.svg?height=24&width=24'}
+                  src={isBot ? call.agent_picture_url : call.profile_picture_url || '/placeholder.svg?height=24&width=24'}
                   alt={`${isBot ? call.agent_name : call.user_name}'s avatar`}
                   className="w-full h-full rounded-[20px]"
                 />
