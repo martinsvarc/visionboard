@@ -711,8 +711,8 @@ function DashboardContent() {
                           <CardContent className="p-6">
                             <h3 className="text-lg font-semibold text-slate-900 mb-2">⚡ Power Moment!</h3>
                             <p className="text-slate-900">
-                              "Perfect schedule accommodation at 5:30 - Working around student's classes"
-                            </p>
+  {call.power_moment || "No power moment recorded"}
+</p>
                           </CardContent>
                         </Card>
                         <Card className="relative overflow-hidden border-0 bg-white rounded-[32px] shadow-lg">
@@ -768,25 +768,31 @@ function DashboardContent() {
                               <span className="text-slate-900 text-xl font-semibold">Level Up Plan</span>
                             </div>
                             <div className="space-y-4">
-                              <div className="bg-[#F5B971] text-white p-4 rounded-xl flex items-center gap-2">
-                                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                  <path d="M4 15L9 9L13 13L20 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                                </svg>
-                                Investor should ask clearer questions on final terms and conditions
-                              </div>
-                              <div className="bg-[#66C6BA] text-white p-4 rounded-xl flex items-center gap-2">
-                                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                  <path d="M4 15L9 9L13 13L20 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                                </svg>
-                                Clarify lease terms better with detailed explanations
-                              </div>
-                              <div className="bg-[#556bc7] text-white p-4 rounded-xl flex items-center gap-2">
-                                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                  <path d="M4 15L9 9L13 13L20 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                                </svg>
-                                Set a specific follow-up plan to keep hold times low and maintain engagement
-                              </div>
-                            </div>
+  {call.level_up_1 && (
+    <div className="bg-[#F5B971] text-white p-4 rounded-xl flex items-center gap-2">
+      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M4 15L9 9L13 13L20 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+      </svg>
+      {call.level_up_1}
+    </div>
+  )}
+  {call.level_up_2 && (
+    <div className="bg-[#66C6BA] text-white p-4 rounded-xl flex items-center gap-2">
+      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M4 15L9 9L13 13L20 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+      </svg>
+      {call.level_up_2}
+    </div>
+  )}
+  {call.level_up_3 && (
+    <div className="bg-[#556bc7] text-white p-4 rounded-xl flex items-center gap-2">
+      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M4 15L9 9L13 13L20 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+      </svg>
+      {call.level_up_3}
+    </div>
+  )}
+</div>
                           </CardContent>
                         </Card>
                       </div>
