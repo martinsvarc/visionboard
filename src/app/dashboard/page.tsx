@@ -764,7 +764,6 @@ const saveNotes = async (id: number) => {
       </div>
     </div>
   </div>
-</div>
                       </div>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <Card className="relative overflow-hidden border-0 bg-white rounded-[32px] shadow-lg">
