@@ -738,10 +738,10 @@ const saveNotes = async (id: number) => {
       <div className="grid grid-cols-2 gap-4">
         <Card className="relative overflow-hidden border-0 bg-white rounded-[32px] shadow-lg">
           <CardContent className="p-6">
-    <h3 className="text-lg font-semibold text-slate-900 mb-2">⚡ Power Moment!</h3>
-    <p className="text-white p-4 rounded-xl" style={{ backgroundColor: 'rgba(91, 6, 190, 0.5)' }}>
-      {call.power_moment || "No power moment recorded"}
-    </p>
+            <h3 className="text-lg font-semibold text-slate-900 mb-2">⚡ Power Moment!</h3>
+            <p className="text-white p-4 rounded-xl" style={{ backgroundColor: 'rgba(91, 6, 190, 0.5)' }}>
+              {call.power_moment || "No power moment recorded"}
+            </p>
                           </CardContent>
                         </Card>
                         <Card className="relative overflow-hidden border-0 bg-white rounded-[32px] shadow-lg">
