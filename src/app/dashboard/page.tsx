@@ -688,16 +688,16 @@ const saveNotes = async (id: number) => {
   const color = getColorByScore(score);
   return (
     <Popover key={category.key}>
-      <PopoverTrigger asChild>
-        <Button
+      <PopoverTrigger>
+        <Button 
           variant="ghost" 
-          className="w-full p-0 h-auto hover:bg-transparent"
+          className="w-full p-0 h-auto block hover:bg-transparent"
         >
-          <div className="relative overflow-hidden rounded-xl w-full" style={{ backgroundColor: `${color}20` }}>
+          <div className="relative overflow-hidden rounded-xl w-full text-start" style={{ backgroundColor: `${color}20` }}>
             <div className="px-4 py-3 text-sm font-medium flex flex-col justify-between h-full items-center text-center">
               <span className="text-slate-600">{category.label}</span>
               <div className="flex items-center gap-1">
-                <div className="text-2xl font-bold" style={{ color: getColorByScore(score) }}>
+                <div className="text-2xl font-bold" style={{ color }}>
                   {score}/100
                 </div>
                 <Info className="h-3.5 w-3.5 text-slate-400" />
@@ -720,10 +720,7 @@ const saveNotes = async (id: number) => {
             </div>
             <div 
               className="absolute bottom-0 left-0 h-1 transition-all duration-300"
-              style={{ 
-                width: `${score}%`,
-                backgroundColor: color
-              }}
+              style={{ width: `${score}%`, backgroundColor: color }}
             />
           </div>
         </Button>
