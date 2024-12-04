@@ -13,6 +13,8 @@ import { format, subDays, startOfWeek, endOfWeek, startOfMonth, endOfMonth } fro
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { useSearchParams } from 'next/navigation'
 import getColorByScore from '../../../utils/colors'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
+import { ChevronDown } from 'lucide-react'
 
 interface CategoryScores {
   engagement: number;
@@ -101,6 +103,8 @@ const Chart = ({ data, category, dateRange, setDateRange }: ChartProps) => {
     );
   }
 
+const [showDetails, setShowDetails] = React.useState(false);
+
   const filterByDateRange = (date: string) => {
     if (!dateRange) return true;
     const itemDate = new Date(date);
@@ -131,10 +135,17 @@ const Chart = ({ data, category, dateRange, setDateRange }: ChartProps) => {
   return (
     <Card className="relative overflow-hidden border-0 bg-white rounded-[32px] shadow-lg [&>*:last-child]:overflow-visible">
       <div className="flex justify-between items-center p-6">
-        <span className="text-slate-900 text-xl font-semibold">
-          {category ? category.label : 'Average Success'}
-        </span>
-      </div>
+  <span className="text-slate-900 text-xl font-semibold">
+    {category ? category.label : 'Average Success'}
+  </span>
+  <Button
+    variant="ghost"
+    className="text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-xl"
+    onClick={() => setShowDetails(true)}
+  >
+    Details <ChevronDown className="ml-2 h-4 w-4" />
+  </Button>
+</div>
       <CardContent className="p-0">
         {chartData.length === 0 ? noDataContent : (
           <div className="h-[320px] relative -mx-8 -mb-8 overflow-visible">
@@ -206,6 +217,73 @@ const Chart = ({ data, category, dateRange, setDateRange }: ChartProps) => {
           </div>
         )}
       </CardContent>
+      <Dialog open={showDetails} onOpenChange={setShowDetails}>
+  <DialogContent className="bg-white text-slate-900 border-0 rounded-3xl max-w-4xl">
+    <DialogHeader>
+      <DialogTitle className="text-2xl font-bold text-slate-900 text-center">
+        {category ? category.label : 'Average Success'} Details
+      </DialogTitle>
+      <DialogDescription className="text-slate-600 text-center">
+        Performance analysis over time
+      </DialogDescription>
+    </DialogHeader>
+    
+    <div className="p-6">
+      <div className="space-y-6">
+        <div className="h-[400px]">
+          <ResponsiveContainer width="100%" height="100%">
+            <AreaChart data={chartData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis 
+                dataKey="name"
+                tickFormatter={(value, index) => {
+                  const item = chartData[index];
+                  return item ? new Date(item.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '';
+                }}
+              />
+              <YAxis domain={[0, 100]} />
+              <Tooltip />
+              <Area 
+                type="monotone"
+                dataKey="value"
+                stroke={color}
+                fill={`url(#colorGradient-${category ? category.key : 'overall'})`}
+              />
+            </AreaChart>
+          </ResponsiveContainer>
+        </div>
+
+        <div className="grid grid-cols-3 gap-4">
+          <Card className="p-4">
+            <h3 className="text-sm font-medium text-slate-600">Average</h3>
+            <p className="text-2xl font-bold mt-1" style={{ color }}>
+              {Math.round(chartData.reduce((acc, item) => acc + item.value, 0) / chartData.length)}/100
+            </p>
+          </Card>
+          <Card className="p-4">
+            <h3 className="text-sm font-medium text-slate-600">Highest</h3>
+            <p className="text-2xl font-bold mt-1" style={{ color: getColorByScore(Math.max(...chartData.map(item => item.value))) }}>
+              {Math.round(Math.max(...chartData.map(item => item.value)))}/100
+            </p>
+          </Card>
+          <Card className="p-4">
+            <h3 className="text-sm font-medium text-slate-600">Lowest</h3>
+            <p className="text-2xl font-bold mt-1" style={{ color: getColorByScore(Math.min(...chartData.map(item => item.value))) }}>
+              {Math.round(Math.min(...chartData.map(item => item.value)))}/100
+            </p>
+          </Card>
+        </div>
+
+        {category?.description && (
+          <Card className="p-4">
+            <h3 className="text-sm font-medium text-slate-600 mb-2">About this metric</h3>
+            <p className="text-sm text-slate-600">{category.description}</p>
+          </Card>
+        )}
+      </div>
+    </div>
+  </DialogContent>
+</Dialog>
     </Card>
   );
 };
