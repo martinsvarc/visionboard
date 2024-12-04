@@ -715,8 +715,6 @@ function DashboardContent() {
     <p className="text-white p-4 rounded-xl" style={{ backgroundColor: 'rgba(91, 6, 190, 0.5)' }}>
       {call.power_moment || "No power moment recorded"}
     </p>
-  </CardContent>
-</Card>
                           </CardContent>
                         </Card>
                         <Card className="relative overflow-hidden border-0 bg-white rounded-[32px] shadow-lg">
