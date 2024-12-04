@@ -627,10 +627,10 @@ function DashboardContent() {
                 <div className="flex items-center justify-start mb-6 gap-4">
                   <div className="flex items-center gap-4">
                     <img
-                      src="/placeholder.svg?height=48&width=48"
-                      alt="Profile"
-                      className="rounded-full w-12 h-12 bg-slate-100"
-                    />
+  src={call.agent_picture_url || "/placeholder.svg?height=48&width=48"}
+  alt={`${call.agent_name}'s profile`}
+  className="rounded-full w-12 h-12 bg-slate-100"
+/>
                     <div>
                       <p className="text-sm font-medium text-slate-700">{call.agent_name}</p>
                       <h2 className="text-2xl font-bold text-slate-900">
