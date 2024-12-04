@@ -758,9 +758,8 @@ function DashboardContent() {
                                 />
                               </div>
                               <p className="text-slate-600">
-                                Strong performance in information gathering and program explanation. 
-                                Areas for improvement include engagement and objection handling.
-                              </p>
+  {call.call_details || "No detailed analysis available"}
+</p>
                             </div>
                           </CardContent>
                         </Card>
