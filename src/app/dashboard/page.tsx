@@ -804,30 +804,36 @@ function DashboardContent() {
     </div>
     <div className="space-y-4 max-h-[400px] overflow-y-auto">
       {call.call_transcript.split('\n').map((line, index) => {
-        const [role, message] = line.split('message: ');
-        const isAgent = role.includes('bot');
-        const speakerName = isAgent ? call.agent_name : call.user_name;
-        const speakerImage = isAgent ? call.agent_picture_url : '/placeholder.svg?height=24&width=24';
+        if (!line.trim()) return null;
+        
+        const [rolepart, messagepart] = line.split('message:');
+        if (!messagepart) return null;
 
-        if (!message) return null;
-
+        const isBot = rolepart.includes('bot');
+        const message = messagepart.trim();
+        
         return (
           <div 
             key={index}
-            className={`p-3 rounded-lg ${isAgent ? 'bg-slate-100' : 'bg-slate-200'}`}
+            className="p-3 rounded-lg"
+            style={{ 
+              backgroundColor: isBot ? '#f4c659' : '#7e4262'
+            }}
           >
             <div className="flex items-center gap-2 mb-2">
               <div className="w-6 h-6">
                 <img
-                  src={speakerImage}
-                  alt={`${speakerName}'s avatar`}
+                  src={isBot ? call.agent_picture_url : '/placeholder.svg?height=24&width=24'}
+                  alt={isBot ? `${call.agent_name}'s avatar` : `${call.user_name}'s avatar`}
                   className="w-full h-full rounded-[20px]"
                 />
               </div>
-              <span className="text-sm text-slate-600">{speakerName}</span>
+              <span className="text-sm" style={{ color: isBot ? '#000' : '#fff' }}>
+                {isBot ? call.agent_name : call.user_name}
+              </span>
             </div>
-            <p className="text-sm text-slate-700">
-              {message.trim()}
+            <p className="text-sm" style={{ color: isBot ? '#000' : '#fff' }}>
+              {message}
             </p>
           </div>
         );
