@@ -449,6 +449,12 @@ function DashboardContent() {
   const [savedStates, setSavedStates] = useState<Record<number, boolean>>({});
   const recordsPerPage = 5
   const [playCallModal, setPlayCallModal] = useState<{ isOpen: boolean; callId: number | null }>({ isOpen: false, callId: null })
+const [metricsDialog, setMetricsDialog] = useState<{
+  isOpen: boolean;
+  title: string;
+  description: string;
+}>({ isOpen: false, title: '', description: '' });
+const [detailsModal, setDetailsModal] = useState<{
   const [detailsModal, setDetailsModal] = useState<{ 
     isOpen: boolean; 
     call: CallLog | null 
@@ -685,14 +691,27 @@ const saveNotes = async (id: number) => {
       <Popover key={category.key}>
         <PopoverTrigger asChild>
           <div className="relative overflow-hidden rounded-xl cursor-pointer" style={{ backgroundColor: `${color}20` }}>
-            <div className="px-4 py-3 text-sm font-medium flex flex-col justify-between h-full items-center text-center">
-              <span className="text-slate-600">{category.label}</span>
-              <div className="flex items-center gap-1">
-                <div className="text-2xl font-bold" style={{ color: getColorByScore(score) }}>
-                  {score}/100
-                </div>
-                <Info className="h-3.5 w-3.5 text-slate-400" />
-              </div>
+           <div className="px-4 py-3 text-sm font-medium flex flex-col justify-between h-full items-center text-center">
+  <span className="text-slate-600">{category.label}</span>
+  <div className="flex items-center gap-1">
+    <div className="text-2xl font-bold" style={{ color: getColorByScore(score) }}>
+      {score}/100
+    </div>
+    <Info className="h-3.5 w-3.5 text-slate-400" />
+  </div>
+  <Button 
+    variant="outline" 
+    size="sm"
+    className="mt-2"
+    onClick={() => setMetricsDialog({
+      isOpen: true,
+      title: category.label,
+      description: category.description || ''
+    })}
+  >
+    Show Chart
+  </Button>
+</div>
             </div>
             <div 
               className="absolute bottom-0 left-0 h-1 transition-all duration-300"
@@ -959,3 +978,41 @@ export default function Dashboard() {
     </Suspense>
   );
 }
+<Dialog 
+  open={metricsDialog.isOpen} 
+  onOpenChange={(open) => setMetricsDialog(prev => ({ ...prev, isOpen: open }))}
+>
+  <DialogContent className="bg-white p-6 rounded-2xl max-w-lg">
+    <DialogHeader>
+      <DialogTitle className="text-xl font-semibold">
+        {metricsDialog.title}
+      </DialogTitle>
+    </DialogHeader>
+    <div className="mt-4">
+      <div className="flex flex-col gap-4">
+        <div className="bg-slate-50 p-4 rounded-xl">
+          <h3 className="font-semibold mb-3">Strong Points</h3>
+          <ul className="space-y-2">
+            <li className="flex items-center gap-2">
+              <svg className="w-5 h-5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+              <span>Builds rapport</span>
+            </li>
+          </ul>
+        </div>
+        <div className="bg-slate-50 p-4 rounded-xl">
+          <h3 className="font-semibold mb-3">Areas for Improvement</h3>
+          <ul className="space-y-2">
+            <li className="flex items-center gap-2 text-red-500">
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+              <span>Can be time-consuming</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </DialogContent>
+</Dialog>
