@@ -819,12 +819,21 @@ const saveNotes = async (id: number) => {
 </div>
                           </CardContent>
                         </Card>
-                      </div>
-                     <Card className="relative overflow-hidden border-0 bg-white rounded-[32px] shadow-lg w-full">
- <CardContent className="p-6">
-   <div className="flex justify-between items-center mb-6">
-     <span className="text-slate-900 text-xl font-semibold">Call Transcript</span>
-   </div>
+
+<Card className="relative overflow-hidden border-0 bg-white rounded-[32px] shadow-lg w-full">
+  <CardContent className="p-6">
+    <div className="flex justify-between items-center mb-4">
+      <span className="text-slate-900 text-xl font-semibold">Call Recording</span>
+    </div>
+    <AudioPlayer src={call.call_recording_url} />
+  </CardContent>
+</Card>
+
+<Card className="relative overflow-hidden border-0 bg-white rounded-[32px] shadow-lg w-full">
+  <CardContent className="p-6">
+    <div className="flex justify-between items-center mb-6">
+      <span className="text-slate-900 text-xl font-semibold">Call Transcript</span>
+    </div>
    <div className="space-y-4 max-h-[400px] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent hover:scrollbar-thumb-gray-400">
      {call.call_transcript.split('role:').map((segment, index) => {
        if (!segment.trim()) return null;
