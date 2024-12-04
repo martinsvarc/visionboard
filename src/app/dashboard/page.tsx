@@ -455,7 +455,6 @@ const [metricsDialog, setMetricsDialog] = useState<{
   description: string;
 }>({ isOpen: false, title: '', description: '' });
 const [detailsModal, setDetailsModal] = useState<{
-  const [detailsModal, setDetailsModal] = useState<{ 
     isOpen: boolean; 
     call: CallLog | null 
   }>({ isOpen: false, call: null })
