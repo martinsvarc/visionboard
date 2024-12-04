@@ -799,50 +799,50 @@ function DashboardContent() {
                         </Card>
                       </div>
                      <Card className="relative overflow-hidden border-0 bg-white rounded-[32px] shadow-lg w-full">
-  <CardContent className="p-6">
-    <div className="flex justify-between items-center mb-6">
-      <span className="text-slate-900 text-xl font-semibold">Call Transcript</span>
-    </div>
-    <div className="space-y-4 max-h-[400px] overflow-y-auto">
-      {call.call_transcript.split('role:').map((segment, index) => {
-        if (!segment.trim()) return null;
-        
-        const [roleType, ...messageParts] = segment.split('message:');
-        if (!messageParts.length) return null;
+ <CardContent className="p-6">
+   <div className="flex justify-between items-center mb-6">
+     <span className="text-slate-900 text-xl font-semibold">Call Transcript</span>
+   </div>
+   <div className="space-y-4 max-h-[400px] overflow-y-auto">
+     {call.call_transcript.split('role:').map((segment, index) => {
+       if (!segment.trim()) return null;
+       
+       const [roleType, ...messageParts] = segment.split('message:');
+       if (!messageParts.length) return null;
 
-        const isBot = roleType.trim() === 'bot';
-        const message = messageParts.join('message:').trim();
-        
-        return (
-          <div 
-            key={index}
-            className="p-3 rounded-lg"
-            style={{ 
-              backgroundColor: isBot 
-                ? 'rgba(248, 185, 34, 0.5)'  // #f8b922 with 50% opacity
-                : 'rgba(91, 6, 190, 0.5)'    // #5b06be with 50% opacity
-            }}
-          >
-            <div className="flex items-center gap-2 mb-2">
-              <div className="w-6 h-6">
-                <img
-                  src={isBot ? call.agent_picture_url : call.user_picture_url || '/placeholder.svg?height=24&width=24'}
-                  alt={`${isBot ? call.agent_name : call.user_name}'s avatar`}
-                  className="w-full h-full rounded-[20px]"
-                />
-              </div>
-              <span className="text-sm" style={{ color: isBot ? '#000' : '#fff' }}>
-                {isBot ? call.agent_name : call.user_name}
-              </span>
-            </div>
-            <p className="text-sm" style={{ color: isBot ? '#000' : '#fff' }}>
-              {message}
-            </p>
-          </div>
-        );
-      })}
-    </div>
-  </CardContent>
+       const isBot = roleType.trim() === 'bot';
+       const message = messageParts.join('message:').trim();
+       
+       return (
+         <div 
+           key={index}
+           className="p-3 rounded-lg"
+           style={{ 
+             backgroundColor: isBot 
+               ? 'rgba(248, 185, 34, 0.5)'  
+               : 'rgba(91, 6, 190, 0.5)'    
+           }}
+         >
+           <div className="flex items-center gap-2 mb-2">
+             <div className="w-6 h-6">
+               <img
+                 src={isBot ? call.agent_picture_url : call.user_picture_url || '/placeholder.svg?height=24&width=24'}
+                 alt={`${isBot ? call.agent_name : call.user_name}'s avatar`}
+                 className="w-full h-full rounded-[20px]"
+               />
+             </div>
+             <span className="text-sm" style={{ color: '#000' }}>
+               {isBot ? call.agent_name : call.user_name}
+             </span>
+           </div>
+           <p className="text-sm" style={{ color: '#000' }}>
+             {message}
+           </p>
+         </div>
+       );
+     })}
+   </div>
+ </CardContent>
 </Card>
                     </div>
                   </div>
