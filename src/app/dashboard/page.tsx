@@ -803,18 +803,16 @@ function DashboardContent() {
       <span className="text-slate-900 text-xl font-semibold">Call Transcript</span>
     </div>
     <div className="space-y-4 max-h-[400px] overflow-y-auto">
-      {call.call_transcript.split('\n').map((line, index) => {
-        // Skip empty lines
-        if (!line.trim()) return null;
+      {call.call_transcript.split('role:').map((segment, index) => {
+        // Skip empty segments
+        if (!segment.trim()) return null;
         
-        // Split the line into role and message parts
-        const [role, messagepart] = line.split('message:');
-        if (!messagepart) return null;
+        // Parse the role and message
+        const [roleType, ...messageParts] = segment.split('message:');
+        if (!messageParts.length) return null;
 
-        // Clean up the role text and check if it's bot
-        const cleanRole = role.trim().replace('role: ', '');
-        const isBot = cleanRole === 'bot';
-        const message = messagepart.trim();
+        const isBot = roleType.trim() === 'bot';
+        const message = messageParts.join('message:').trim();
         
         return (
           <div 
