@@ -711,7 +711,8 @@ const saveNotes = async (id: number) => {
                   })}
                 </div>
 
-                <Button
+                {/* Toggle Button */}
+<Button
   variant="ghost"
   className="text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-100 w-full mt-4 rounded-xl"
   onClick={() => toggleExpandCard(call.id)}
@@ -727,6 +728,7 @@ const saveNotes = async (id: number) => {
   )}
 </Button>
 
+{/* Expandable Content */}
 <div className={`transition-all duration-300 ease-in-out overflow-hidden ${
   expandedCards[call.id] 
     ? 'max-h-[5000px] opacity-100 mt-6' 
@@ -735,6 +737,7 @@ const saveNotes = async (id: number) => {
   <div className="p-6 bg-white rounded-[32px] shadow-sm">
     <h3 className="text-2xl font-bold text-slate-900 mb-4">Call Details</h3>
     <div className="space-y-6">
+      {/* Power Moment and Notes Section */}
       <div className="grid grid-cols-2 gap-4">
         <Card className="relative overflow-hidden border-0 bg-white rounded-[32px] shadow-lg">
           <CardContent className="p-6">
@@ -744,6 +747,7 @@ const saveNotes = async (id: number) => {
             </p>
           </CardContent>
         </Card>
+
         <Card className="relative overflow-hidden border-0 bg-white rounded-[32px] shadow-lg">
           <CardContent className="p-6">
             <h3 className="text-lg font-semibold text-slate-900 mb-2">Call Notes</h3>
@@ -762,143 +766,148 @@ const saveNotes = async (id: number) => {
           </CardContent>
         </Card>
       </div>
+
+      {/* Analysis and Level Up Section */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Analysis Card */}
+        <Card className="relative overflow-hidden border-0 bg-white rounded-[32px] shadow-lg">
+          <CardContent className="p-6">
+            <div className="flex justify-between items-center mb-6">
+              <span className="text-slate-900 text-xl font-semibold">Detailed Analysis</span>
+            </div>
+            <div className="space-y-4">
+              <div className="flex justify-between items-center">
+                <span className="font-medium text-slate-600">Overall Score</span>
+                <span className="text-2xl font-bold" style={{ color: getColorByScore(call.scores.average_success) }}>
+                  {call.scores.average_success}/100
+                </span>
+              </div>
+              <div className="h-2 bg-slate-200 rounded-full overflow-hidden">
+                <div 
+                  className="h-full rounded-full"
+                  style={{ 
+                    width: `${call.scores.average_success}%`,
+                    backgroundColor: getColorByScore(call.scores.average_success)
+                  }}
+                />
+              </div>
+              <p className="text-slate-600">
+                {call.call_details || "No detailed analysis available"}
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Level Up Plan Card */}
+        <Card className="relative overflow-hidden border-0 bg-white rounded-[32px] shadow-lg">
+          <CardContent className="p-6">
+            <div className="flex justify-between items-center mb-6">
+              <span className="text-slate-900 text-xl font-semibold">Level Up Plan</span>
+            </div>
+            <div className="space-y-4">
+              {(!call.level_up_1 && !call.level_up_2 && !call.level_up_3) ? (
+                <div className="bg-[#fef8e8] text-slate-800 p-4 rounded-xl flex items-center gap-2">
+                  No Plan
+                </div>
+              ) : (
+                <>
+                  {call.level_up_1 && (
+                    <div className="bg-[#fef8e8] text-slate-800 p-4 rounded-xl flex items-center gap-2">
+                      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M4 15L9 9L13 13L20 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                      {call.level_up_1}
+                    </div>
+                  )}
+                  {call.level_up_2 && (
+                    <div className="bg-[#fef8e8] text-slate-800 p-4 rounded-xl flex items-center gap-2">
+                      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M4 15L9 9L13 13L20 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                      {call.level_up_2}
+                    </div>
+                  )}
+                  {call.level_up_3 && (
+                    <div className="bg-[#fef8e8] text-slate-800 p-4 rounded-xl flex items-center gap-2">
+                      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M4 15L9 9L13 13L20 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                      {call.level_up_3}
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Call Recording Section */}
+      <Card className="relative overflow-hidden border-0 bg-white rounded-[32px] shadow-lg w-full">
+        <CardContent className="p-6">
+          <div className="flex justify-between items-center mb-4">
+            <span className="text-slate-900 text-xl font-semibold">Call Recording</span>
+          </div>
+          <AudioPlayer src={call.call_recording_url} />
+        </CardContent>
+      </Card>
+
+      {/* Call Transcript Section */}
+      <Card className="relative overflow-hidden border-0 bg-white rounded-[32px] shadow-lg w-full">
+        <CardContent className="p-6">
+          <div className="flex justify-between items-center mb-6">
+            <span className="text-slate-900 text-xl font-semibold">Call Transcript</span>
+          </div>
+          <div className="space-y-4 max-h-[400px] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent hover:scrollbar-thumb-gray-400">
+            {call.call_transcript.split('role:').map((segment, index) => {
+              if (!segment.trim()) return null;
+              
+              const [roleType, ...messageParts] = segment.split('message:');
+              if (!messageParts.length) return null;
+
+              const isBot = roleType.trim() === 'bot';
+              const message = messageParts.join('message:').trim();
+              
+              return (
+                <div 
+                  key={index}
+                  className="p-3 rounded-lg"
+                  style={{ 
+                    backgroundColor: isBot 
+                      ? 'rgba(248, 185, 34, 0.1)'
+                      : 'rgba(91, 6, 190, 0.1)'
+                  }}
+                >
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="w-6 h-6">
+                      <img
+                        src={isBot ? call.agent_picture_url : call.user_picture_url || '/placeholder.svg?height=24&width=24'}
+                        alt={`${isBot ? call.agent_name : call.user_name}'s avatar`}
+                        className="w-full h-full rounded-[20px]"
+                      />
+                    </div>
+                    <span className="text-sm" style={{ color: '#000' }}>
+                      {isBot ? call.agent_name : call.user_name}
+                    </span>
+                  </div>
+                  <p className="text-sm" style={{ color: '#000' }}>
+                    {message}
+                  </p>
+                </div>
+              );
+            })}
+          </div>
+        </CardContent>
+      </Card>
     </div>
   </div>
-                      </div>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <Card className="relative overflow-hidden border-0 bg-white rounded-[32px] shadow-lg">
-                          <CardContent className="p-6">
-                            <div className="flex justify-between items-center mb-6">
-                              <span className="text-slate-900 text-xl font-semibold">Detailed Analysis</span>
-                            </div>
-                            <div className="space-y-4">
-                              <div className="flex justify-between items-center">
-  <span className="font-medium text-slate-600">Overall Score</span>
-  <span className="text-2xl font-bold" style={{ color: getColorByScore(call.scores.average_success) }}>
-    {call.scores.average_success}/100
-  </span>
 </div>
-<div className="h-2 bg-slate-200 rounded-full overflow-hidden">
-  <div 
-    className="h-full rounded-full"
-    style={{ 
-      width: `${call.scores.average_success}%`,
-      backgroundColor: getColorByScore(call.scores.average_success)
-    }}
-  />
-</div>
-                              <p className="text-slate-600">
-  {call.call_details || "No detailed analysis available"}
-</p>
-                            </div>
-                          </CardContent>
-                        </Card>
-                        <Card className="relative overflow-hidden border-0 bg-white rounded-[32px] shadow-lg">
-  <CardContent className="p-6">
-    <div className="flex justify-between items-center mb-6">
-      <span className="text-slate-900 text-xl font-semibold">Level Up Plan</span>
-    </div>
-    <div className="space-y-4">
-      {(!call.level_up_1 && !call.level_up_2 && !call.level_up_3) ? (
-        <div className="bg-[#fef8e8] text-slate-800 p-4 rounded-xl flex items-center gap-2">
-          No Plan
-        </div>
-      ) : (
-        <>
-          {call.level_up_1 && (
-            <div className="bg-[#fef8e8] text-slate-800 p-4 rounded-xl flex items-center gap-2">
-              <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M4 15L9 9L13 13L20 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-              {call.level_up_1}
-            </div>
-          )}
-          {call.level_up_2 && (
-            <div className="bg-[#fef8e8] text-slate-800 p-4 rounded-xl flex items-center gap-2">
-              <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M4 15L9 9L13 13L20 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-              {call.level_up_2}
-            </div>
-          )}
-          {call.level_up_3 && (
-            <div className="bg-[#fef8e8] text-slate-800 p-4 rounded-xl flex items-center gap-2">
-              <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M4 15L9 9L13 13L20 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-              {call.level_up_3}
-            </div>
-          )}
-        </>
-      )}
-    </div>
-  </CardContent>
-</Card>
-</div>
-
-<Card className="relative overflow-hidden border-0 bg-white rounded-[32px] shadow-lg w-full">
-  <CardContent className="p-6">
-    <div className="flex justify-between items-center mb-4">
-      <span className="text-slate-900 text-xl font-semibold">Call Recording</span>
-    </div>
-    <AudioPlayer src={call.call_recording_url} />
-  </CardContent>
-</Card>
-
-<Card className="relative overflow-hidden border-0 bg-white rounded-[32px] shadow-lg w-full">
-  <CardContent className="p-6">
-    <div className="flex justify-between items-center mb-6">
-      <span className="text-slate-900 text-xl font-semibold">Call Transcript</span>
-    </div>
-   <div className="space-y-4 max-h-[400px] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent hover:scrollbar-thumb-gray-400">
-     {call.call_transcript.split('role:').map((segment, index) => {
-       if (!segment.trim()) return null;
-       
-       const [roleType, ...messageParts] = segment.split('message:');
-       if (!messageParts.length) return null;
-
-       const isBot = roleType.trim() === 'bot';
-       const message = messageParts.join('message:').trim();
-       
-       return (
-         <div 
-           key={index}
-           className="p-3 rounded-lg"
-           style={{ 
-             backgroundColor: isBot 
-               ? 'rgba(248, 185, 34, 0.1)'  // Changed to 0.1 opacity (90% transparent)
-               : 'rgba(91, 6, 190, 0.1)'    // Changed to 0.1 opacity (90% transparent)
-           }}
-         >
-           <div className="flex items-center gap-2 mb-2">
-             <div className="w-6 h-6">
-               <img
-                 src={isBot ? call.agent_picture_url : call.user_picture_url || '/placeholder.svg?height=24&width=24'}
-                 alt={`${isBot ? call.agent_name : call.user_name}'s avatar`}
-                 className="w-full h-full rounded-[20px]"
-               />
-             </div>
-             <span className="text-sm" style={{ color: '#000' }}>
-               {isBot ? call.agent_name : call.user_name}
-             </span>
-           </div>
-           <p className="text-sm" style={{ color: '#000' }}>
-             {message}
-           </p>
-         </div>
-       );
-     })}
-   </div>
- </CardContent>
-</Card>
-                    </div>
-                  </div>
-                )}
               </CardContent>
             </Card>
           ))}
         </div>
 
+        {/* Pagination */}
         <div className="flex items-center justify-center gap-2 p-6 mt-8">
           <Button
             variant="outline"
@@ -907,7 +916,7 @@ const saveNotes = async (id: number) => {
             disabled={currentPage === 1}
             className="h-10 w-10 rounded-full"
           >
-            <ChevronLeft className="h-4w-4" />
+            <ChevronLeft className="h-4 w-4" />
             <span className="sr-only">Previous page</span>
           </Button>
           {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
@@ -935,41 +944,6 @@ const saveNotes = async (id: number) => {
             <span className="sr-only">Next page</span>
           </Button>
         </div>
-
-        <Dialog open={detailsModal.isOpen} onOpenChange={(isOpen) => setDetailsModal({ ...detailsModal, isOpen })}>
-          <DialogContent className="bg-white text-slate-900 border-0 rounded-3xl">
-            <DialogHeader>
-              <DialogTitle className="text-2xl font-bold text-slate-900 text-center">
-                Call Details
-              </DialogTitle>
-              <DialogDescription className="text-slate-600 text-center">
-                {detailsModal.call && new Date(detailsModal.call.call_date).toLocaleDateString('en-US', {
-                  year: 'numeric', 
-                  month: 'long', 
-                  day: 'numeric',
-                  hour: '2-digit',
-                  minute: '2-digit'
-                })}
-              </DialogDescription>
-            </DialogHeader>
-            <div className="p-6">
-              <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  {detailsModal.call && Object.entries(detailsModal.call)
-                    .filter(([key]) => !['id', 'created_at'].includes(key))
-                    .map(([key, value]) => (
-                      <div key={key} className="space-y-1">
-                        <h3 className="text-sm font-medium text-slate-900 capitalize">
-                          {key.replace(/_/g, ' ')}
-                        </h3>
-                        <p className="text-sm text-slate-600">{value}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </DialogContent>
-        </Dialog>
       </div>
     </div>
   );
