@@ -449,12 +449,7 @@ function DashboardContent() {
   const [savedStates, setSavedStates] = useState<Record<number, boolean>>({});
   const recordsPerPage = 5
   const [playCallModal, setPlayCallModal] = useState<{ isOpen: boolean; callId: number | null }>({ isOpen: false, callId: null })
-const [metricsDialog, setMetricsDialog] = useState<{
-  isOpen: boolean;
-  title: string;
-  description: string;
-}>({ isOpen: false, title: '', description: '' });
-const [detailsModal, setDetailsModal] = useState<{
+  const [detailsModal, setDetailsModal] = useState<{ 
     isOpen: boolean; 
     call: CallLog | null 
   }>({ isOpen: false, call: null })
@@ -651,288 +646,267 @@ const saveNotes = async (id: number) => {
         <div className="space-y-6">
           {currentRecords.map((call, index) => (
             <Card key={call.id} className="bg-white shadow-lg rounded-[32px] overflow-hidden border-0">
-  <CardContent className="p-6">
-    {/* Header with Agent Info */}
-    <div className="flex items-center justify-start mb-6 gap-4">
-      <div className="flex items-center gap-4">
-        <img
-          src={call.agent_picture_url || "/placeholder.svg?height=48&width=48"}
-          alt={`${call.agent_name}'s profile`}
-          className="rounded-full w-12 h-12 bg-slate-100"
-        />
-        <div>
-          <p className="text-sm font-medium text-slate-700">{call.agent_name}</p>
-          <h2 className="text-2xl font-bold text-slate-900">
-            Call {indexOfFirstRecord + index + 1}
-          </h2>
-        </div>
-      </div>
-      <div className="ml-auto text-right">
-        <p className="text-sm text-slate-600">
-          {new Date(call.call_date).toLocaleString('en-US', {
-            year: 'numeric', 
-            month: 'short', 
-            day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit'
-          })}
-        </p>
-        <p className="text-sm font-medium text-slate-700 mt-1">
-          Call duration: {call.call_duration} minutes
-        </p>
-      </div>
-    </div>
-
-    {/* First section - Score Categories Grid */}
-    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-4">
-      {scoreCategories.map((category) => {
-        const score = call.scores[category.key];
-        const color = getColorByScore(score);
-        return (
-          <Popover key={category.key}>
-            <PopoverTrigger>
-              <Button 
-                variant="ghost" 
-                className="w-full p-0 h-auto block hover:bg-transparent"
-              >
-                <div className="relative overflow-hidden rounded-xl w-full text-start" style={{ backgroundColor: `${color}20` }}>
-                  <div className="px-4 py-3 text-sm font-medium flex flex-col justify-between h-full items-center text-center">
-                    <span className="text-slate-600">{category.label}</span>
-                    <div className="flex items-center gap-1">
-                      <div className="text-2xl font-bold" style={{ color }}>
-                        {score}/100
-                      </div>
-                      <Info className="h-3.5 w-3.5 text-slate-400" />
+              <CardContent className="p-6">
+                <div className="flex items-center justify-start mb-6 gap-4">
+                  <div className="flex items-center gap-4">
+                    <img
+  src={call.agent_picture_url || "/placeholder.svg?height=48&width=48"}
+  alt={`${call.agent_name}'s profile`}
+  className="rounded-full w-12 h-12 bg-slate-100"
+/>
+                    <div>
+                      <p className="text-sm font-medium text-slate-700">{call.agent_name}</p>
+                      <h2 className="text-2xl font-bold text-slate-900">
+                        Call {indexOfFirstRecord + index + 1}
+                      </h2>
                     </div>
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      className="mt-2"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setMetricsDialog({
-                          isOpen: true,
-                          title: category.label,
-                          description: category.description || ''
-                        });
-                      }}
-                    >
-                      Show Chart
-                    </Button>
                   </div>
-                  <div 
-                    className="absolute bottom-0 left-0 h-1 transition-all duration-300"
-                    style={{ width: `${score}%`, backgroundColor: color }}
-                  />
+                  <div className="ml-auto text-right">
+                    <p className="text-sm text-slate-600">
+                      {new Date(call.call_date).toLocaleString('en-US', {
+                        year: 'numeric', 
+                        month: 'short', 
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      })}
+                    </p>
+                    <p className="text-sm font-medium text-slate-700 mt-1">
+                      Call duration: {call.call_duration} minutes
+                    </p>
+                  </div>
                 </div>
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-80 rounded-[20px] p-4 bg-white border shadow-lg">
-              <h3 className="text-lg font-semibold mb-2">{category.label}</h3>
-              <p className="text-sm text-slate-600">
-                {call.feedback[category.key] || category.description || 'No feedback available'}
-              </p>
-            </PopoverContent>
-          </Popover>
-        );
-      })}
-    </div>
 
-    {/* Second section - Toggle Button */}
-    <div>
-      <Button
-        variant="ghost"
-        className="text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-100 w-full mt-4 rounded-xl"
-        onClick={() => toggleExpandCard(call.id)}
-      >
-        {expandedCards[call.id] ? (
-          <>
-            Hide Details <ChevronUp className="ml-2 h-4 w-4" />
-          </>
-        ) : (
-          <>
-            Call Details <ChevronDown className="ml-2 h-4 w-4" />
-          </>
-        )}
-      </Button>
-    </div>
-
-    {/* Third section - Expandable Content */}
-    <div className={`transition-all duration-300 ease-in-out overflow-hidden ${
-      expandedCards[call.id] 
-        ? 'max-h-[5000px] opacity-100 mt-6' 
-        : 'max-h-0 opacity-0 mt-0'
-    }`}>
-      <div className="p-6 bg-white rounded-[32px] shadow-sm">
-        <h3 className="text-2xl font-bold text-slate-900 mb-4">Call Details</h3>
-        <div className="space-y-6">
-          {/* Power Moment and Notes Section */}
-          <div className="grid grid-cols-2 gap-4">
-            <Card className="relative overflow-hidden border-0 bg-white rounded-[32px] shadow-lg">
-              <CardContent className="p-6">
-                <h3 className="text-lg font-semibold text-slate-900 mb-2">⚡ Power Moment!</h3>
-                <p className="text-white p-4 rounded-xl" style={{ backgroundColor: 'rgba(91, 6, 190, 0.5)' }}>
-                  {call.power_moment || "No power moment recorded"}
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card className="relative overflow-hidden border-0 bg-white rounded-[32px] shadow-lg">
-              <CardContent className="p-6">
-                <h3 className="text-lg font-semibold text-slate-900 mb-2">Call Notes</h3>
-                <Textarea
-                  placeholder="Enter your notes here..."
-                  value={callNotes[call.id] ?? call.call_notes}
-                  onChange={(e) => handleNotesChange(call.id, e.target.value)}
-                  className="min-h-[100px] mb-2 rounded-[20px]"
-                />
-                <Button 
-                  onClick={() => saveNotes(call.id)}
-                  className="w-full rounded-[20px]"
-                >
-                  {savedStates[call.id] ? "Saved!" : "Save Notes"}
-                </Button>
-              </CardContent>
-            </Card>
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+  {scoreCategories.map((category) => {
+    const score = call.scores[category.key];
+    const color = getColorByScore(score);
+    return (
+      <Popover key={category.key}>
+        <PopoverTrigger asChild>
+          <div className="relative overflow-hidden rounded-xl cursor-pointer" style={{ backgroundColor: `${color}20` }}>
+            <div className="px-4 py-3 text-sm font-medium flex flex-col justify-between h-full items-center text-center">
+              <span className="text-slate-600">{category.label}</span>
+              <div className="flex items-center gap-1">
+                <div className="text-2xl font-bold" style={{ color: getColorByScore(score) }}>
+                  {score}/100
+                </div>
+                <Info className="h-3.5 w-3.5 text-slate-400" />
+              </div>
+            </div>
+            <div 
+              className="absolute bottom-0 left-0 h-1 transition-all duration-300"
+              style={{ 
+                width: `${score}%`,
+                backgroundColor: color
+              }}
+            />
           </div>
+        </PopoverTrigger>
+        <PopoverContent className="w-80 rounded-[20px] p-4 bg-white border shadow-lg">
+          <h3 className="text-lg font-semibold mb-2">{category.label}</h3>
+          <p className="text-sm text-slate-600">
+            {call.feedback[category.key] || category.description || 'No feedback available'}
+          </p>
+        </PopoverContent>
+      </Popover>
+    );
+  })}
+</div>
 
-          {/* Analysis and Level Up Section */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Analysis Card */}
-            <Card className="relative overflow-hidden border-0 bg-white rounded-[32px] shadow-lg">
-              <CardContent className="p-6">
-                <div className="flex justify-between items-center mb-6">
-                  <span className="text-slate-900 text-xl font-semibold">Detailed Analysis</span>
+                {/* Toggle Button */}
+<Button
+  variant="ghost"
+  className="text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-100 w-full mt-4 rounded-xl"
+  onClick={() => toggleExpandCard(call.id)}
+>
+  {expandedCards[call.id] ? (
+    <>
+      Hide Details <ChevronUp className="ml-2 h-4 w-4" />
+    </>
+  ) : (
+    <>
+      Call Details <ChevronDown className="ml-2 h-4 w-4" />
+    </>
+  )}
+</Button>
+
+{/* Expandable Content */}
+<div className={`transition-all duration-300 ease-in-out overflow-hidden ${
+  expandedCards[call.id] 
+    ? 'max-h-[5000px] opacity-100 mt-6' 
+    : 'max-h-0 opacity-0 mt-0'
+}`}>
+  <div className="p-6 bg-white rounded-[32px] shadow-sm">
+    <h3 className="text-2xl font-bold text-slate-900 mb-4">Call Details</h3>
+    <div className="space-y-6">
+      {/* Power Moment and Notes Section */}
+      <div className="grid grid-cols-2 gap-4">
+        <Card className="relative overflow-hidden border-0 bg-white rounded-[32px] shadow-lg">
+          <CardContent className="p-6">
+            <h3 className="text-lg font-semibold text-slate-900 mb-2">⚡ Power Moment!</h3>
+            <p className="text-white p-4 rounded-xl" style={{ backgroundColor: 'rgba(91, 6, 190, 0.5)' }}>
+              {call.power_moment || "No power moment recorded"}
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card className="relative overflow-hidden border-0 bg-white rounded-[32px] shadow-lg">
+          <CardContent className="p-6">
+            <h3 className="text-lg font-semibold text-slate-900 mb-2">Call Notes</h3>
+            <Textarea
+              placeholder="Enter your notes here..."
+              value={callNotes[call.id] ?? call.call_notes}
+              onChange={(e) => handleNotesChange(call.id, e.target.value)}
+              className="min-h-[100px] mb-2 rounded-[20px]"
+            />
+            <Button 
+              onClick={() => saveNotes(call.id)}
+              className="w-full rounded-[20px]"
+            >
+              {savedStates[call.id] ? "Saved!" : "Save Notes"}
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Analysis and Level Up Section */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Analysis Card */}
+        <Card className="relative overflow-hidden border-0 bg-white rounded-[32px] shadow-lg">
+          <CardContent className="p-6">
+            <div className="flex justify-between items-center mb-6">
+              <span className="text-slate-900 text-xl font-semibold">Detailed Analysis</span>
+            </div>
+            <div className="space-y-4">
+              <div className="flex justify-between items-center">
+                <span className="font-medium text-slate-600">Overall Score</span>
+                <span className="text-2xl font-bold" style={{ color: getColorByScore(call.scores.average_success) }}>
+                  {call.scores.average_success}/100
+                </span>
+              </div>
+              <div className="h-2 bg-slate-200 rounded-full overflow-hidden">
+                <div 
+                  className="h-full rounded-full"
+                  style={{ 
+                    width: `${call.scores.average_success}%`,
+                    backgroundColor: getColorByScore(call.scores.average_success)
+                  }}
+                />
+              </div>
+              <p className="text-slate-600">
+                {call.call_details || "No detailed analysis available"}
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Level Up Plan Card */}
+        <Card className="relative overflow-hidden border-0 bg-white rounded-[32px] shadow-lg">
+          <CardContent className="p-6">
+            <div className="flex justify-between items-center mb-6">
+              <span className="text-slate-900 text-xl font-semibold">Level Up Plan</span>
+            </div>
+            <div className="space-y-4">
+              {(!call.level_up_1 && !call.level_up_2 && !call.level_up_3) ? (
+                <div className="bg-[#fef8e8] text-slate-800 p-4 rounded-xl flex items-center gap-2">
+                  No Plan
                 </div>
-                <div className="space-y-4">
-                  <div className="flex justify-between items-center">
-                    <span className="font-medium text-slate-600">Overall Score</span>
-                    <span className="text-2xl font-bold" style={{ color: getColorByScore(call.scores.average_success) }}>
-                      {call.scores.average_success}/100
+              ) : (
+                <>
+                  {call.level_up_1 && (
+                    <div className="bg-[#fef8e8] text-slate-800 p-4 rounded-xl flex items-center gap-2">
+                      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M4 15L9 9L13 13L20 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                      {call.level_up_1}
+                    </div>
+                  )}
+                  {call.level_up_2 && (
+                    <div className="bg-[#fef8e8] text-slate-800 p-4 rounded-xl flex items-center gap-2">
+                      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M4 15L9 9L13 13L20 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                      {call.level_up_2}
+                    </div>
+                  )}
+                  {call.level_up_3 && (
+                    <div className="bg-[#fef8e8] text-slate-800 p-4 rounded-xl flex items-center gap-2">
+                      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M4 15L9 9L13 13L20 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                      {call.level_up_3}
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Call Recording Section */}
+      <Card className="relative overflow-hidden border-0 bg-white rounded-[32px] shadow-lg w-full">
+        <CardContent className="p-6">
+          <div className="flex justify-between items-center mb-4">
+            <span className="text-slate-900 text-xl font-semibold">Call Recording</span>
+          </div>
+          <AudioPlayer src={call.call_recording_url} />
+        </CardContent>
+      </Card>
+
+      {/* Call Transcript Section */}
+      <Card className="relative overflow-hidden border-0 bg-white rounded-[32px] shadow-lg w-full">
+        <CardContent className="p-6">
+          <div className="flex justify-between items-center mb-6">
+            <span className="text-slate-900 text-xl font-semibold">Call Transcript</span>
+          </div>
+          <div className="space-y-4 max-h-[400px] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent hover:scrollbar-thumb-gray-400">
+            {call.call_transcript.split('role:').map((segment, index) => {
+              if (!segment.trim()) return null;
+              
+              const [roleType, ...messageParts] = segment.split('message:');
+              if (!messageParts.length) return null;
+
+              const isBot = roleType.trim() === 'bot';
+              const message = messageParts.join('message:').trim();
+              
+              return (
+                <div 
+                  key={index}
+                  className="p-3 rounded-lg"
+                  style={{ 
+                    backgroundColor: isBot 
+                      ? 'rgba(248, 185, 34, 0.1)'
+                      : 'rgba(91, 6, 190, 0.1)'
+                  }}
+                >
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="w-6 h-6">
+                      <img
+                        src={isBot ? call.agent_picture_url : call.user_picture_url || '/placeholder.svg?height=24&width=24'}
+                        alt={`${isBot ? call.agent_name : call.user_name}'s avatar`}
+                        className="w-full h-full rounded-[20px]"
+                      />
+                    </div>
+                    <span className="text-sm" style={{ color: '#000' }}>
+                      {isBot ? call.agent_name : call.user_name}
                     </span>
                   </div>
-                  <div className="h-2 bg-slate-200 rounded-full overflow-hidden">
-                    <div 
-                      className="h-full rounded-full"
-                      style={{ 
-                        width: `${call.scores.average_success}%`,
-                        backgroundColor: getColorByScore(call.scores.average_success)
-                      }}
-                    />
-                  </div>
-                  <p className="text-slate-600">
-                    {call.call_details || "No detailed analysis available"}
+                  <p className="text-sm" style={{ color: '#000' }}>
+                    {message}
                   </p>
                 </div>
-              </CardContent>
-            </Card>
-
-            {/* Level Up Plan Card */}
-            <Card className="relative overflow-hidden border-0 bg-white rounded-[32px] shadow-lg">
-              <CardContent className="p-6">
-                <div className="flex justify-between items-center mb-6">
-                  <span className="text-slate-900 text-xl font-semibold">Level Up Plan</span>
-                </div>
-                <div className="space-y-4">
-                  {(!call.level_up_1 && !call.level_up_2 && !call.level_up_3) ? (
-                    <div className="bg-[#fef8e8] text-slate-800 p-4 rounded-xl flex items-center gap-2">
-                      No Plan
-                    </div>
-                  ) : (
-                    <>
-                      {call.level_up_1 && (
-                        <div className="bg-[#fef8e8] text-slate-800 p-4 rounded-xl flex items-center gap-2">
-                          <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M4 15L9 9L13 13L20 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                          </svg>
-                          {call.level_up_1}
-                        </div>
-                      )}
-                      {call.level_up_2 && (
-                        <div className="bg-[#fef8e8] text-slate-800 p-4 rounded-xl flex items-center gap-2">
-                          <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M4 15L9 9L13 13L20 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                          </svg>
-                          {call.level_up_2}
-                        </div>
-                      )}
-                      {call.level_up_3 && (
-                        <div className="bg-[#fef8e8] text-slate-800 p-4 rounded-xl flex items-center gap-2">
-                          <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M4 15L9 9L13 13L20 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                          </svg>
-                          {call.level_up_3}
-                        </div>
-                      )}
-                    </>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
+              );
+            })}
           </div>
-
-          {/* Call Recording Section */}
-          <Card className="relative overflow-hidden border-0 bg-white rounded-[32px] shadow-lg w-full">
-            <CardContent className="p-6">
-              <div className="flex justify-between items-center mb-4">
-                <span className="text-slate-900 text-xl font-semibold">Call Recording</span>
-              </div>
-              <AudioPlayer src={call.call_recording_url} />
-            </CardContent>
-          </Card>
-
-          {/* Call Transcript Section */}
-          <Card className="relative overflow-hidden border-0 bg-white rounded-[32px] shadow-lg w-full">
-            <CardContent className="p-6">
-              <div className="flex justify-between items-center mb-6">
-                <span className="text-slate-900 text-xl font-semibold">Call Transcript</span>
-              </div>
-              <div className="space-y-4 max-h-[400px] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent hover:scrollbar-thumb-gray-400">
-                {call.call_transcript.split('role:').map((segment, index) => {
-                  if (!segment.trim()) return null;
-                  
-                  const [roleType, ...messageParts] = segment.split('message:');
-                  if (!messageParts.length) return null;
-
-                  const isBot = roleType.trim() === 'bot';
-                  const message = messageParts.join('message:').trim();
-                  
-                  return (
-                    <div 
-                      key={index}
-                      className="p-3 rounded-lg"
-                      style={{ 
-                        backgroundColor: isBot 
-                          ? 'rgba(248, 185, 34, 0.1)'
-                          : 'rgba(91, 6, 190, 0.1)'
-                      }}
-                    >
-                      <div className="flex items-center gap-2 mb-2">
-                        <div className="w-6 h-6">
-                          <img
-                            src={isBot ? call.agent_picture_url : call.user_picture_url || '/placeholder.svg?height=24&width=24'}
-                            alt={`${isBot ? call.agent_name : call.user_name}'s avatar`}
-                            className="w-full h-full rounded-[20px]"
-                          />
-                        </div>
-                        <span className="text-sm" style={{ color: '#000' }}>
-                          {isBot ? call.agent_name : call.user_name}
-                        </span>
-                      </div>
-                      <p className="text-sm" style={{ color: '#000' }}>
-                        {message}
-                      </p>
-                    </div>
-                  );
-                })}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
     </div>
-  </CardContent>
-</Card>
+  </div>
+</div>
+              </CardContent>
+            </Card>
           ))}
         </div>
 
@@ -973,46 +947,6 @@ const saveNotes = async (id: number) => {
             <span className="sr-only">Next page</span>
           </Button>
         </div>
-
-        {/* Metrics Dialog */}
-        <Dialog 
-          open={metricsDialog.isOpen} 
-          onOpenChange={(open) => setMetricsDialog(prev => ({ ...prev, isOpen: open }))}
-        >
-          <DialogContent className="bg-white p-6 rounded-2xl max-w-lg">
-            <DialogHeader>
-              <DialogTitle className="text-xl font-semibold">
-                {metricsDialog.title}
-              </DialogTitle>
-            </DialogHeader>
-            <div className="mt-4">
-              <div className="flex flex-col gap-4">
-                <div className="bg-slate-50 p-4 rounded-xl">
-                  <h3 className="font-semibold mb-3">Strong Points</h3>
-                  <ul className="space-y-2">
-                    <li className="flex items-center gap-2">
-                      <svg className="w-5 h-5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                      </svg>
-                      <span>Builds rapport</span>
-                    </li>
-                  </ul>
-                </div>
-                <div className="bg-slate-50 p-4 rounded-xl">
-                  <h3 className="font-semibold mb-3">Areas for Improvement</h3>
-                  <ul className="space-y-2">
-                    <li className="flex items-center gap-2 text-red-500">
-                      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                      </svg>
-                      <span>Can be time-consuming</span>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-          </DialogContent>
-        </Dialog>
       </div>
     </div>
   );
@@ -1020,7 +954,7 @@ const saveNotes = async (id: number) => {
 
 export default function Dashboard() {
   return (
-    <Suspense fallback={null}>
+    <Suspense fallback={<div>Loading...</div>}>
       <DashboardContent />
     </Suspense>
   );
