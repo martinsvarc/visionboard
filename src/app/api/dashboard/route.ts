@@ -23,6 +23,7 @@ interface CategoryFeedback {
 
 interface CallData {
   user_name: string;
+  user_picture_url: string;
   agent_name: string;
   agent_picture_url: string;
   call_recording_url: string;
@@ -78,6 +79,7 @@ const transformedRows = rows.map(row => ({
   id: row.id,
   call_number: row.call_number,
   user_name: row.user_name,
+  user_picture_url: row.user_picture_url,
   agent_name: row.agent_name,
   agent_picture_url: row.agent_picture_url,
   call_date: row.call_date,
