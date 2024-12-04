@@ -680,7 +680,7 @@ const saveNotes = async (id: number) => {
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
   {scoreCategories.map((category) => {
     const score = call.scores[category.key];
-    const color = getColorByScore(score)
+    const color = getColorByScore(score);
     return (
       <Popover key={category.key}>
         <PopoverTrigger asChild>
@@ -703,25 +703,16 @@ const saveNotes = async (id: number) => {
             />
           </div>
         </PopoverTrigger>
-      <div 
-        className="absolute bottom-0 left-0 h-1 transition-all duration-300"
-        style={{ 
-          width: `${score}%`,
-          backgroundColor: color
-        }}
-      />
-    </div>
-  </PopoverTrigger>
-  <PopoverContent className="w-80 rounded-[20px] p-4 bg-white border shadow-lg">
-    <h3 className="text-lg font-semibold mb-2">{category.label}</h3>
-    <p className="text-sm text-slate-600">
-      {call.feedback[category.key] || category.description || 'No feedback available'}
-    </p>
-  </PopoverContent>
-</Popover>
-                    )
-                  })}
-                </div>
+        <PopoverContent className="w-80 rounded-[20px] p-4 bg-white border shadow-lg">
+          <h3 className="text-lg font-semibold mb-2">{category.label}</h3>
+          <p className="text-sm text-slate-600">
+            {call.feedback[category.key] || category.description || 'No feedback available'}
+          </p>
+        </PopoverContent>
+      </Popover>
+    );
+  })}
+</div>
 
                 {/* Toggle Button */}
 <Button
