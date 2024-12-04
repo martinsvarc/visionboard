@@ -965,6 +965,46 @@ const saveNotes = async (id: number) => {
             <span className="sr-only">Next page</span>
           </Button>
         </div>
+
+        {/* Metrics Dialog */}
+        <Dialog 
+          open={metricsDialog.isOpen} 
+          onOpenChange={(open) => setMetricsDialog(prev => ({ ...prev, isOpen: open }))}
+        >
+          <DialogContent className="bg-white p-6 rounded-2xl max-w-lg">
+            <DialogHeader>
+              <DialogTitle className="text-xl font-semibold">
+                {metricsDialog.title}
+              </DialogTitle>
+            </DialogHeader>
+            <div className="mt-4">
+              <div className="flex flex-col gap-4">
+                <div className="bg-slate-50 p-4 rounded-xl">
+                  <h3 className="font-semibold mb-3">Strong Points</h3>
+                  <ul className="space-y-2">
+                    <li className="flex items-center gap-2">
+                      <svg className="w-5 h-5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                      <span>Builds rapport</span>
+                    </li>
+                  </ul>
+                </div>
+                <div className="bg-slate-50 p-4 rounded-xl">
+                  <h3 className="font-semibold mb-3">Areas for Improvement</h3>
+                  <ul className="space-y-2">
+                    <li className="flex items-center gap-2 text-red-500">
+                      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                      <span>Can be time-consuming</span>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );
@@ -977,41 +1017,3 @@ export default function Dashboard() {
     </Suspense>
   );
 }
-<Dialog 
-  open={metricsDialog.isOpen} 
-  onOpenChange={(open) => setMetricsDialog(prev => ({ ...prev, isOpen: open }))}
->
-  <DialogContent className="bg-white p-6 rounded-2xl max-w-lg">
-    <DialogHeader>
-      <DialogTitle className="text-xl font-semibold">
-        {metricsDialog.title}
-      </DialogTitle>
-    </DialogHeader>
-    <div className="mt-4">
-      <div className="flex flex-col gap-4">
-        <div className="bg-slate-50 p-4 rounded-xl">
-          <h3 className="font-semibold mb-3">Strong Points</h3>
-          <ul className="space-y-2">
-            <li className="flex items-center gap-2">
-              <svg className="w-5 h-5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-              </svg>
-              <span>Builds rapport</span>
-            </li>
-          </ul>
-        </div>
-        <div className="bg-slate-50 p-4 rounded-xl">
-          <h3 className="font-semibold mb-3">Areas for Improvement</h3>
-          <ul className="space-y-2">
-            <li className="flex items-center gap-2 text-red-500">
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-              <span>Can be time-consuming</span>
-            </li>
-          </ul>
-        </div>
-      </div>
-    </div>
-  </DialogContent>
-</Dialog>
