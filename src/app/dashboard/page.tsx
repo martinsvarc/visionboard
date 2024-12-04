@@ -528,29 +528,42 @@ function DashboardContent() {
     }))
   }, [])
 
-  const handleNotesChange = (id: number, notes: string) => {
-    setCallNotes(prev => ({
-      ...prev,
-      [id]: notes
-    }))
-  }
+  // With these:
+const handleNotesChange = (id: number, notes: string) => {
+  setCallNotes(prev => ({
+    ...prev,
+    [id]: notes
+  }))
+}
 
-  const saveNotes = async (id: number) => {
-    try {
-      const response = await fetch(`/api/dashboard?id=${id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          call_notes: callNotes[id]
-        })
-      });
-      if (!response.ok) throw new Error('Failed to save notes');
-    } catch (error) {
-      console.error('Error saving notes:', error);
+const saveNotes = async (id: number) => {
+  try {
+    const response = await fetch(`/api/dashboard?id=${id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        call_notes: callNotes[id]
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to save notes');
     }
+
+    setCallLogs(prevLogs => 
+      prevLogs.map(log => 
+        log.id === id 
+          ? { ...log, call_notes: callNotes[id] } 
+          : log
+      )
+    );
+
+  } catch (error) {
+    console.error('Error saving notes:', error);
   }
+}
 
   if (error) {
     return (
@@ -719,22 +732,22 @@ function DashboardContent() {
                           </CardContent>
                         </Card>
                         <Card className="relative overflow-hidden border-0 bg-white rounded-[32px] shadow-lg">
-                          <CardContent className="p-6">
-                            <h3 className="text-lg font-semibold text-slate-900 mb-2">Call Notes</h3>
-                            <Textarea
-                              placeholder="Enter your notes here..."
-                              value={callNotes[call.id] || call.call_notes}
-                              onChange={(e) => handleNotesChange(call.id, e.target.value)}
-                              className="min-h-[100px] mb-2 rounded-[20px]"
-                            />
-                            <Button 
-                              onClick={() => saveNotes(call.id)}
-                              className="w-full rounded-[20px]"
-                            >
-                              Save Notes
-                            </Button>
-                          </CardContent>
-                        </Card>
+  <CardContent className="p-6">
+    <h3 className="text-lg font-semibold text-slate-900 mb-2">Call Notes</h3>
+    <Textarea
+      placeholder="Enter your notes here..."
+      value={callNotes[call.id] ?? call.call_notes}
+      onChange={(e) => handleNotesChange(call.id, e.target.value)}
+      className="min-h-[100px] mb-2 rounded-[20px]"
+    />
+    <Button 
+      onClick={() => saveNotes(call.id)}
+      className="w-full rounded-[20px]"
+    >
+      Save Notes
+    </Button>
+  </CardContent>
+</Card>
                       </div>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <Card className="relative overflow-hidden border-0 bg-white rounded-[32px] shadow-lg">
