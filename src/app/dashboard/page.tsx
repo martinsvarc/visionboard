@@ -446,6 +446,7 @@ function DashboardContent() {
   const [dateRange, setDateRange] = useState<DateRange>(null)
   const [expandedCards, setExpandedCards] = useState<Record<number, boolean>>({})
   const [currentPage, setCurrentPage] = useState(1)
+  const [savedStates, setSavedStates] = useState<Record<number, boolean>>({});
   const recordsPerPage = 5
   const [playCallModal, setPlayCallModal] = useState<{ isOpen: boolean; callId: number | null }>({ isOpen: false, callId: null })
   const [detailsModal, setDetailsModal] = useState<{ 
@@ -559,6 +560,14 @@ const saveNotes = async (id: number) => {
           : log
       )
     );
+
+    // Set saved state for this specific note
+    setSavedStates(prev => ({ ...prev, [id]: true }));
+
+    // Reset after 3 seconds
+    setTimeout(() => {
+      setSavedStates(prev => ({ ...prev, [id]: false }));
+    }, 3000);
 
   } catch (error) {
     console.error('Error saving notes:', error);
@@ -741,11 +750,11 @@ const saveNotes = async (id: number) => {
       className="min-h-[100px] mb-2 rounded-[20px]"
     />
     <Button 
-      onClick={() => saveNotes(call.id)}
-      className="w-full rounded-[20px]"
-    >
-      Save Notes
-    </Button>
+  onClick={() => saveNotes(call.id)}
+  className="w-full rounded-[20px]"
+>
+  {savedStates[call.id] ? "Saved!" : "Save Notes"}
+</Button>
   </CardContent>
 </Card>
                       </div>
