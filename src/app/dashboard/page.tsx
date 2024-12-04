@@ -742,25 +742,29 @@ const saveNotes = async (id: number) => {
             <p className="text-white p-4 rounded-xl" style={{ backgroundColor: 'rgba(91, 6, 190, 0.5)' }}>
               {call.power_moment || "No power moment recorded"}
             </p>
-                          </CardContent>
-                        </Card>
-                        <Card className="relative overflow-hidden border-0 bg-white rounded-[32px] shadow-lg">
-  <CardContent className="p-6">
-    <h3 className="text-lg font-semibold text-slate-900 mb-2">Call Notes</h3>
-    <Textarea
-      placeholder="Enter your notes here..."
-      value={callNotes[call.id] ?? call.call_notes}
-      onChange={(e) => handleNotesChange(call.id, e.target.value)}
-      className="min-h-[100px] mb-2 rounded-[20px]"
-    />
-    <Button 
-  onClick={() => saveNotes(call.id)}
-  className="w-full rounded-[20px]"
->
-  {savedStates[call.id] ? "Saved!" : "Save Notes"}
-</Button>
-  </CardContent>
-</Card>
+          </CardContent>
+        </Card>
+        <Card className="relative overflow-hidden border-0 bg-white rounded-[32px] shadow-lg">
+          <CardContent className="p-6">
+            <h3 className="text-lg font-semibold text-slate-900 mb-2">Call Notes</h3>
+            <Textarea
+              placeholder="Enter your notes here..."
+              value={callNotes[call.id] ?? call.call_notes}
+              onChange={(e) => handleNotesChange(call.id, e.target.value)}
+              className="min-h-[100px] mb-2 rounded-[20px]"
+            />
+            <Button 
+              onClick={() => saveNotes(call.id)}
+              className="w-full rounded-[20px]"
+            >
+              {savedStates[call.id] ? "Saved!" : "Save Notes"}
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  </div>
+</div>
                       </div>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <Card className="relative overflow-hidden border-0 bg-white rounded-[32px] shadow-lg">
