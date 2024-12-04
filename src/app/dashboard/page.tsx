@@ -792,29 +792,37 @@ const saveNotes = async (id: number) => {
       <span className="text-slate-900 text-xl font-semibold">Level Up Plan</span>
     </div>
     <div className="space-y-4">
-      {call.level_up_1 && (
-        <div className="bg-[#F5B971] text-white p-4 rounded-xl flex items-center gap-2">
-          <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M4 15L9 9L13 13L20 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
-          {call.level_up_1}
+      {(!call.level_up_1 && !call.level_up_2 && !call.level_up_3) ? (
+        <div className="bg-[#fef8e8] text-slate-800 p-4 rounded-xl flex items-center gap-2">
+          No Plan
         </div>
-      )}
-      {call.level_up_2 && (
-        <div className="bg-[#66C6BA] text-white p-4 rounded-xl flex items-center gap-2">
-          <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M4 15L9 9L13 13L20 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
-          {call.level_up_2}
-        </div>
-      )}
-      {call.level_up_3 && (
-        <div className="bg-[#556bc7] text-white p-4 rounded-xl flex items-center gap-2">
-          <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M4 15L9 9L13 13L20 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
-          {call.level_up_3}
-        </div>
+      ) : (
+        <>
+          {call.level_up_1 && (
+            <div className="bg-[#fef8e8] text-slate-800 p-4 rounded-xl flex items-center gap-2">
+              <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M4 15L9 9L13 13L20 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+              {call.level_up_1}
+            </div>
+          )}
+          {call.level_up_2 && (
+            <div className="bg-[#fef8e8] text-slate-800 p-4 rounded-xl flex items-center gap-2">
+              <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M4 15L9 9L13 13L20 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+              {call.level_up_2}
+            </div>
+          )}
+          {call.level_up_3 && (
+            <div className="bg-[#fef8e8] text-slate-800 p-4 rounded-xl flex items-center gap-2">
+              <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M4 15L9 9L13 13L20 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+              {call.level_up_3}
+            </div>
+          )}
+        </>
       )}
     </div>
   </CardContent>
