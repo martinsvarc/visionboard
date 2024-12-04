@@ -804,12 +804,16 @@ function DashboardContent() {
     </div>
     <div className="space-y-4 max-h-[400px] overflow-y-auto">
       {call.call_transcript.split('\n').map((line, index) => {
+        // Skip empty lines
         if (!line.trim()) return null;
         
-        const [rolepart, messagepart] = line.split('message:');
+        // Split the line into role and message parts
+        const [role, messagepart] = line.split('message:');
         if (!messagepart) return null;
 
-        const isBot = rolepart.includes('bot');
+        // Clean up the role text and check if it's bot
+        const cleanRole = role.trim().replace('role: ', '');
+        const isBot = cleanRole === 'bot';
         const message = messagepart.trim();
         
         return (
@@ -824,7 +828,7 @@ function DashboardContent() {
               <div className="w-6 h-6">
                 <img
                   src={isBot ? call.agent_picture_url : '/placeholder.svg?height=24&width=24'}
-                  alt={isBot ? `${call.agent_name}'s avatar` : `${call.user_name}'s avatar`}
+                  alt={`${isBot ? call.agent_name : call.user_name}'s avatar`}
                   className="w-full h-full rounded-[20px]"
                 />
               </div>
