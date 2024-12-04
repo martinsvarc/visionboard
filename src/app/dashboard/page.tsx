@@ -712,28 +712,32 @@ const saveNotes = async (id: number) => {
                 </div>
 
                 <Button
-                  variant="ghost"
-                  className="text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-100 w-full mt-4 rounded-xl"
-                  onClick={() => toggleExpandCard(call.id)}
-                >
-                  {expandedCards[call.id] ? (
-                    <>
-                      Hide Details <ChevronUp className="ml-2 h-4 w-4" />
-                    </>
-                  ) : (
-                    <>
-                      Call Details <ChevronDown className="ml-2 h-4 w-4" />
-                    </>
-                  )}
-                </Button>
+  variant="ghost"
+  className="text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-100 w-full mt-4 rounded-xl"
+  onClick={() => toggleExpandCard(call.id)}
+>
+  {expandedCards[call.id] ? (
+    <>
+      Hide Details <ChevronUp className="ml-2 h-4 w-4" />
+    </>
+  ) : (
+    <>
+      Call Details <ChevronDown className="ml-2 h-4 w-4" />
+    </>
+  )}
+</Button>
 
-                {expandedCards[call.id] && (
-                  <div className="mt-6 p-6 bg-white rounded-[32px] shadow-sm">
-                    <h3 className="text-2xl font-bold text-slate-900 mb-4">Call Details</h3>
-                    <div className="space-y-6">
-                      <div className="grid grid-cols-2 gap-4">
-                        <Card className="relative overflow-hidden border-0 bg-white rounded-[32px] shadow-lg">
-  <CardContent className="p-6">
+<div className={`transition-all duration-300 ease-in-out overflow-hidden ${
+  expandedCards[call.id] 
+    ? 'max-h-[5000px] opacity-100 mt-6' 
+    : 'max-h-0 opacity-0 mt-0'
+}`}>
+  <div className="p-6 bg-white rounded-[32px] shadow-sm">
+    <h3 className="text-2xl font-bold text-slate-900 mb-4">Call Details</h3>
+    <div className="space-y-6">
+      <div className="grid grid-cols-2 gap-4">
+        <Card className="relative overflow-hidden border-0 bg-white rounded-[32px] shadow-lg">
+          <CardContent className="p-6">
     <h3 className="text-lg font-semibold text-slate-900 mb-2">⚡ Power Moment!</h3>
     <p className="text-white p-4 rounded-xl" style={{ backgroundColor: 'rgba(91, 6, 190, 0.5)' }}>
       {call.power_moment || "No power moment recorded"}
