@@ -743,20 +743,20 @@ function DashboardContent() {
                             </div>
                             <div className="space-y-4">
                               <div className="flex justify-between items-center">
-                                <span className="font-medium text-slate-600">Overall Score</span>
-                                <span className="text-2xl font-bold" style={{ color: getColorByScore(call.scores.overall_effectiveness) }}>
-                                {call.scores.overall_effectiveness}/100
-                                </span>
-                              </div>
-                              <div className="h-2 bg-slate-200 rounded-full overflow-hidden">
-                                <div 
-                                  className="h-full rounded-full"
-                                  style={{ 
-                                    width: `${call.scores.overall_effectiveness}%`,
-                                    backgroundColor: getColorByScore(call.scores.overall_effectiveness)
-                                  }}
-                                />
-                              </div>
+  <span className="font-medium text-slate-600">Overall Score</span>
+  <span className="text-2xl font-bold" style={{ color: getColorByScore(call.scores.average_success) }}>
+    {call.scores.average_success}/100
+  </span>
+</div>
+<div className="h-2 bg-slate-200 rounded-full overflow-hidden">
+  <div 
+    className="h-full rounded-full"
+    style={{ 
+      width: `${call.scores.average_success}%`,
+      backgroundColor: getColorByScore(call.scores.average_success)
+    }}
+  />
+</div>
                               <p className="text-slate-600">
   {call.call_details || "No detailed analysis available"}
 </p>
