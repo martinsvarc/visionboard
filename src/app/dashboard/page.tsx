@@ -1012,7 +1012,7 @@ const saveNotes = async (id: number) => {
 
 export default function Dashboard() {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense fallback={null}>
       <DashboardContent />
     </Suspense>
   );
