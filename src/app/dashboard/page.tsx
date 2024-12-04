@@ -797,7 +797,7 @@ function DashboardContent() {
                           </CardContent>
                         </Card>
                       </div>
-                      <Card className="relative overflow-hidden border-0 bg-white rounded-[32px] shadow-lg w-full">
+                     <Card className="relative overflow-hidden border-0 bg-white rounded-[32px] shadow-lg w-full">
   <CardContent className="p-6">
     <div className="flex justify-between items-center mb-6">
       <span className="text-slate-900 text-xl font-semibold">Call Transcript</span>
@@ -823,7 +823,7 @@ function DashboardContent() {
             <div className="flex items-center gap-2 mb-2">
               <div className="w-6 h-6">
                 <img
-                  src={isBot ? call.agent_picture_url : call.profile_picture_url || '/placeholder.svg?height=24&width=24'}
+                  src={isBot ? call.agent_picture_url : call.user_picture_url || '/placeholder.svg?height=24&width=24'}
                   alt={`${isBot ? call.agent_name : call.user_name}'s avatar`}
                   className="w-full h-full rounded-[20px]"
                 />
