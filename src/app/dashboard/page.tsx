@@ -686,12 +686,12 @@ const saveNotes = async (id: number) => {
         <PopoverTrigger asChild>
           <div className="relative overflow-hidden rounded-xl cursor-pointer" style={{ backgroundColor: `${color}20` }}>
             <div className="px-4 py-3 text-sm font-medium flex flex-col justify-between h-full items-center text-center">
+              <span className="text-slate-600">{category.label}</span>
               <div className="flex items-center gap-1">
-                <span className="text-slate-600">{category.label}</span>
+                <div className="text-2xl font-bold" style={{ color: getColorByScore(score) }}>
+                  {score}/100
+                </div>
                 <Info className="h-3.5 w-3.5 text-slate-400" />
-              </div>
-              <div className="text-2xl font-bold" style={{ color: getColorByScore(score) }}>
-                {score}/100
               </div>
             </div>
             <div 
