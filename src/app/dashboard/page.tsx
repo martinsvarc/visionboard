@@ -111,14 +111,15 @@ const [showDetails, setShowDetails] = React.useState(false);
     return itemDate >= fromDate && itemDate <= toDate;
   };
 
-  const chartData = React.useMemo(() => {
-    return data
-      .filter(item => filterByDateRange(item.date))
-      .map(item => ({
-        name: item.name,
-        value: category ? (item[category.key as keyof CategoryScore] ?? 0) : (item.value ?? 0)
-      }));
-  }, [data, dateRange, category]);
+const chartData = React.useMemo(() => {
+  return data
+    .filter(item => filterByDateRange(item.date))
+    .map(item => ({
+      name: item.name,
+      value: category ? (item[category.key as keyof CategoryScore] ?? 0) : (item.value ?? 0),
+      date: item.date
+    }));
+}, [data, dateRange, category]);
 
   const latestValue = chartData.length > 0 ? chartData[chartData.length - 1].value : 0;
   const color = getColorByScore(latestValue || 0);
