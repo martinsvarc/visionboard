@@ -683,34 +683,40 @@ const saveNotes = async (id: number) => {
                 </div>
 
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-  {scoreCategories.map((category) => {
-    const score = call.scores[category.key];
-    const color = getColorByScore(score);
-    return (
-      <Popover key={category.key}>
-        <PopoverTrigger asChild>
-          <div className="relative overflow-hidden rounded-xl cursor-pointer" style={{ backgroundColor: `${color}20` }}>
-           <div className="px-4 py-3 text-sm font-medium flex flex-col justify-between h-full items-center text-center">
-  <span className="text-slate-600">{category.label}</span>
-  <div className="flex items-center gap-1">
-    <div className="text-2xl font-bold" style={{ color: getColorByScore(score) }}>
-      {score}/100
-    </div>
-    <Info className="h-3.5 w-3.5 text-slate-400" />
-  </div>
-  <Button 
-    variant="outline" 
-    size="sm"
-    className="mt-2"
-    onClick={() => setMetricsDialog({
-      isOpen: true,
-      title: category.label,
-      description: category.description || ''
-    })}
-  >
-    Show Chart
-  </Button>
-</div>
+{scoreCategories.map((category) => {
+  const score = call.scores[category.key];
+  const color = getColorByScore(score);
+  return (
+    <Popover key={category.key}>
+      <PopoverTrigger asChild>
+        <Button
+          variant="ghost" 
+          className="w-full p-0 h-auto hover:bg-transparent"
+        >
+          <div className="relative overflow-hidden rounded-xl w-full" style={{ backgroundColor: `${color}20` }}>
+            <div className="px-4 py-3 text-sm font-medium flex flex-col justify-between h-full items-center text-center">
+              <span className="text-slate-600">{category.label}</span>
+              <div className="flex items-center gap-1">
+                <div className="text-2xl font-bold" style={{ color: getColorByScore(score) }}>
+                  {score}/100
+                </div>
+                <Info className="h-3.5 w-3.5 text-slate-400" />
+              </div>
+              <Button 
+                variant="outline" 
+                size="sm"
+                className="mt-2"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setMetricsDialog({
+                    isOpen: true,
+                    title: category.label,
+                    description: category.description || ''
+                  });
+                }}
+              >
+                Show Chart
+              </Button>
             </div>
             <div 
               className="absolute bottom-0 left-0 h-1 transition-all duration-300"
@@ -720,17 +726,17 @@ const saveNotes = async (id: number) => {
               }}
             />
           </div>
-        </PopoverTrigger>
-        <PopoverContent className="w-80 rounded-[20px] p-4 bg-white border shadow-lg">
-          <h3 className="text-lg font-semibold mb-2">{category.label}</h3>
-          <p className="text-sm text-slate-600">
-            {call.feedback[category.key] || category.description || 'No feedback available'}
-          </p>
-        </PopoverContent>
-      </Popover>
-    );
-  })}
-</div>
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-80 rounded-[20px] p-4 bg-white border shadow-lg">
+        <h3 className="text-lg font-semibold mb-2">{category.label}</h3>
+        <p className="text-sm text-slate-600">
+          {call.feedback[category.key] || category.description || 'No feedback available'}
+        </p>
+      </PopoverContent>
+    </Popover>
+  );
+})}
 
                 {/* Toggle Button */}
 <Button
