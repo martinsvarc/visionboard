@@ -234,24 +234,25 @@ export const PUT = async (request: Request) => {
     });
 
     const { rows } = await pool.sql`
-      UPDATE call_logs
-      SET 
-        engagement_score = COALESCE(${updateData.scores?.engagement}, engagement_score),
-        objection_handling_score = COALESCE(${updateData.scores?.objection_handling}, objection_handling_score),
-        information_gathering_score = COALESCE(${updateData.scores?.information_gathering}, information_gathering_score),
-        program_explanation_score = COALESCE(${updateData.scores?.program_explanation}, program_explanation_score),
-        closing_skills_score = COALESCE(${updateData.scores?.closing_skills}, closing_skills_score),
-        overall_effectiveness_score = COALESCE(${updateData.scores?.overall_effectiveness}, overall_effectiveness_score),
-        average_success_score = COALESCE(${updateData.scores?.average_success}, average_success_score),
-        engagement_feedback = COALESCE(${updateData.feedback?.engagement}, engagement_feedback),
-        objection_handling_feedback = COALESCE(${updateData.feedback?.objection_handling}, objection_handling_feedback),
-        information_gathering_feedback = COALESCE(${updateData.feedback?.information_gathering}, information_gathering_feedback),
-        program_explanation_feedback = COALESCE(${updateData.feedback?.program_explanation}, program_explanation_feedback),
-        closing_skills_feedback = COALESCE(${updateData.feedback?.closing_skills}, closing_skills_feedback),
-        overall_effectiveness_feedback = COALESCE(${updateData.feedback?.overall_effectiveness}, overall_effectiveness_feedback)
-      WHERE id = ${callId}
-      RETURNING *;
-    `;
+  UPDATE call_logs
+  SET 
+    engagement_score = COALESCE(${updateData.scores?.engagement}, engagement_score),
+    objection_handling_score = COALESCE(${updateData.scores?.objection_handling}, objection_handling_score),
+    information_gathering_score = COALESCE(${updateData.scores?.information_gathering}, information_gathering_score),
+    program_explanation_score = COALESCE(${updateData.scores?.program_explanation}, program_explanation_score),
+    closing_skills_score = COALESCE(${updateData.scores?.closing_skills}, closing_skills_score),
+    overall_effectiveness_score = COALESCE(${updateData.scores?.overall_effectiveness}, overall_effectiveness_score),
+    average_success_score = COALESCE(${updateData.scores?.average_success}, average_success_score),
+    engagement_feedback = COALESCE(${updateData.feedback?.engagement}, engagement_feedback),
+    objection_handling_feedback = COALESCE(${updateData.feedback?.objection_handling}, objection_handling_feedback),
+    information_gathering_feedback = COALESCE(${updateData.feedback?.information_gathering}, information_gathering_feedback),
+    program_explanation_feedback = COALESCE(${updateData.feedback?.program_explanation}, program_explanation_feedback),
+    closing_skills_feedback = COALESCE(${updateData.feedback?.closing_skills}, closing_skills_feedback),
+    overall_effectiveness_feedback = COALESCE(${updateData.feedback?.overall_effectiveness}, overall_effectiveness_feedback),
+    call_notes = COALESCE(${updateData.call_notes}, call_notes)
+  WHERE id = ${callId}
+  RETURNING *;
+`;
 
     if (rows.length === 0) {
       return NextResponse.json({ error: 'Call log not found' }, { status: 404 });
