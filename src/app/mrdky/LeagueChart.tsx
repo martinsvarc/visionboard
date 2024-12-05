@@ -44,7 +44,7 @@ export function LeagueChart({ chartData, topPlayerScore }: LeagueChartProps) {
               dataKey="day" 
               axisLine={false}
               tickLine={false}
-              tick={{ fill: '#5b06be', fontSize: '0.625rem' }}
+              tick={{ fill: '#DAF0F2', fontSize: '0.625rem' }}
               dy={5}
               interval={0}
               ticks={days.slice(0, currentDayIndex + 1)}
@@ -55,7 +55,7 @@ export function LeagueChart({ chartData, topPlayerScore }: LeagueChartProps) {
             <YAxis 
               axisLine={false}
               tickLine={false}
-              tick={{ fill: '#5b06be', fontSize: '0.625rem' }}
+              tick={{ fill: '#DAF0F2', fontSize: '0.625rem' }}
               domain={[0, maxScore]}
               allowDecimals={false}
               width={25}
@@ -75,7 +75,7 @@ export function LeagueChart({ chartData, topPlayerScore }: LeagueChartProps) {
               type="monotone" 
               dataKey="you" 
               name="You"
-              stroke="#ce00cb" 
+              stroke="#5b06be" 
               strokeWidth={2}
               dot={false}
             />
