@@ -112,7 +112,7 @@ const [isMobile, setIsMobile] = useState(false);
   return (
     <div>
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-2xl font-semibold text-[#5b06be]">Interactive Vision Board</h2>
+        <h2 className="text-2xl font-semibold text-[#000000]">Interactive Vision Board</h2>
         <div className="flex gap-2">
           <Popover>
             <PopoverTrigger>
@@ -483,9 +483,9 @@ useEffect(() => {
       if (response.ok) {
         const data = await response.json();
         setImprovements([
-          { text: data.improvement_1, color: 'bg-[#5b06be]' },
-          { text: data.improvement_2, color: 'bg-[#5b06be]' },
-          { text: data.improvement_3, color: 'bg-[#5b06be]' },
+          { text: data.improvement_1, color: 'bg-[#ffffff]' },
+          { text: data.improvement_2, color: 'bg-[#ffffff]' },
+          { text: data.improvement_3, color: 'bg-[#ffffff]' },
         ]);
       }
     } catch (error) {
@@ -1006,7 +1006,7 @@ return (
               <Card className="p-3 bg-white rounded-[20px] shadow-lg flex-1">
                 <div className="space-y-4">
                   <div className="flex justify-between items-center">
-                    <h2 className="text-2xl font-semibold text-[#5b06be]">Daily Personalized Plan</h2>
+                    <h2 className="text-2xl font-semibold text-[#000000]">Daily Personalized Plan</h2>
                     <Button variant="ghost" size="icon" className="hover:bg-transparent">
                       <RefreshCcw className="w-4 h-4 text-gray-400" />
                     </Button>
@@ -1030,7 +1030,7 @@ return (
               <Card className="p-3 bg-white rounded-[20px] shadow-lg flex-1">
                 <div className="space-y-4">
                   <div className="flex justify-between items-center">
-                    <h2 className="text-2xl font-semibold text-[#5b06be]">Areas of Improvement</h2>
+                    <h2 className="text-2xl font-semibold text-[#000000]">Areas of Improvement</h2>
                     <Button variant="ghost" size="icon" className="hover:bg-transparent">
                       <RefreshCcw className="w-4 h-4 text-gray-400" />
                     </Button>
@@ -1050,7 +1050,7 @@ return (
             <AchievementContent achievements={achievementData} />
 
             <Card className="p-2 bg-white rounded-[20px] shadow-lg h-[280px]">
-              <h2 className="text-2xl font-semibold text-[#5b06be] mb-6">Activity Circles</h2>
+              <h2 className="text-2xl font-semibold text-[#000000] mb-6">Activity Circles</h2>
               <div className="relative flex justify-center items-center mb-2">
                 <Button
                   variant="ghost"
@@ -1074,7 +1074,7 @@ return (
                   </div>
 
                   <div className="absolute -top-1 -right-1 bg-white rounded-[20px] p-2 shadow-lg">
-                    <Clock className="w-3 h-3 text-[#5b06be]" />
+                    <Clock className="w-3 h-3 text-[#000000]" />
                   </div>
                 </div>
 
