@@ -44,7 +44,7 @@ export interface AchievementContentProps {
 }
 
 const getProgressBarColor = (progress: number) => {
-  if (progress === 100) return 'bg-[#5b06be]' // Blue Diamond
+  if (progress === 100) return 'bg-[#DAF0F2]' // Blue Diamond
   if (progress >= 70) return 'bg-[#ce00cb]'   // Green
   if (progress >= 40) return 'bg-[#f8b922]'   // Orange
   return 'bg-[#ef4444]'                       // Red
@@ -187,7 +187,7 @@ const AchievementContentInner = ({ achievements }: AchievementContentProps) => {
 
   return (
     <Card className="p-4 bg-white rounded-[20px] shadow-lg md:col-span-2 h-[280px] flex flex-col">
-      <h2 className="text-xl md:text-2xl font-semibold text-[#ffffff] mb-4">Achievement Showcase</h2>
+      <h2 className="text-xl md:text-2xl font-semibold text-[#000000] mb-4">Achievement Showcase</h2>
       
       <div className="flex gap-2 mb-4 overflow-x-auto pb-2 -mx-2 px-2 no-scrollbar">
         {Object.keys(categories).map((category) => (
