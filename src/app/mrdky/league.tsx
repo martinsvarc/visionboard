@@ -214,7 +214,7 @@ const getBadgeImages = (unlocked_badges: string | null | undefined): string[] =>
 
   return (
     <Card className="p-3 bg-white rounded-[20px] shadow-lg h-full">
-      <h2 className="text-2xl font-semibold text-[#556bc7] mb-4">League</h2>
+      <h2 className="text-2xl font-semibold text-[#5b06be] mb-4">League</h2>
       
       <div className="flex gap-2 mb-6">
         <Button 
@@ -223,7 +223,7 @@ const getBadgeImages = (unlocked_badges: string | null | undefined): string[] =>
           className={cn(
             "flex-1 px-4 py-2 text-base font-medium transition-colors rounded-full",
             activeCategory === 'weekly' 
-              ? "bg-[#fbb350] text-white hover:bg-[#fbb350]/90" 
+              ? "bg-[#f8b922] text-white hover:bg-[#f8b922]/90" 
               : "bg-transparent text-gray-500 hover:bg-gray-100"
           )}
         >
@@ -235,7 +235,7 @@ const getBadgeImages = (unlocked_badges: string | null | undefined): string[] =>
           className={cn(
             "flex-1 px-4 py-2 text-base font-medium transition-colors rounded-full",
             activeCategory === 'teamWeekly' 
-              ? "bg-[#fbb350] text-white hover:bg-[#fbb350]/90" 
+              ? "bg-[#f8b922] text-white hover:bg-[#f8b922]/90" 
               : "bg-transparent text-gray-500 hover:bg-gray-100"
           )}
         >
@@ -244,8 +244,8 @@ const getBadgeImages = (unlocked_badges: string | null | undefined): string[] =>
       </div>
 
       {isNewUser ? (
-  <div className="bg-[#51c1a9]/10 p-4 rounded-[20px] mb-6 text-center">
-    <p className="text-[#51c1a9] font-medium mb-2">Welcome to the League! 🎉</p>
+  <div className="bg-[#ce00cb]/10 p-4 rounded-[20px] mb-6 text-center">
+    <p className="text-[#ce00cb] font-medium mb-2">Welcome to the League! 🎉</p>
     <p className="text-gray-600">Start sessions to earn points and compete with others</p>
   </div>
 ) : (
@@ -258,7 +258,7 @@ const getBadgeImages = (unlocked_badges: string | null | undefined): string[] =>
     </div>
 
           {currentUser && (
-            <div className="bg-[#51c1a9] text-white p-2 rounded-[20px] flex items-center gap-2 text-sm mb-6">
+            <div className="bg-[#ce00cb] text-white p-2 rounded-[20px] flex items-center gap-2 text-sm mb-6">
               <span className="text-white/90 font-medium">#{currentUser.rank}</span>
               <img 
                 src={currentUser.avatar} 
@@ -276,15 +276,15 @@ const getBadgeImages = (unlocked_badges: string | null | undefined): string[] =>
             </div>
           )}
 
-          <h3 className="text-base font-semibold text-[#556bc7] mt-4 mb-2">Top 3 places</h3>
+          <h3 className="text-base font-semibold text-[#5b06be] mt-4 mb-2">Top 3 places</h3>
 
           {categoryData.slice(0, 3).map((player, index) => (
             <div 
               key={player.memberId} 
               className={cn(
                 "p-2 rounded-[20px] flex items-center gap-2 text-sm border mb-2",
-                index === 0 ? "border-[#fbb350] text-[#fbb350]" :
-                index === 1 ? "border-[#556bc7] text-[#556bc7]" :
+                index === 0 ? "border-[#f8b922] text-[#f8b922]" :
+                index === 1 ? "border-[#5b06be] text-[#5b06be]" :
                 "border-[#f97316] text-[#f97316]"
               )}
             >
