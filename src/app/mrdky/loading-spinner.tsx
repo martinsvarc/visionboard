@@ -22,7 +22,7 @@ const LoadingSpinner = () => {
             cx="50"
             cy="50"
             r="40"
-            stroke="#556bc7"
+            stroke="#5b06be"
             strokeWidth="12"
             fill="none"
             strokeDasharray="30 95 30 95"
