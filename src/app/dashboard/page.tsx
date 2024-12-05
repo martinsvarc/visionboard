@@ -101,8 +101,6 @@ const Chart = ({ data, category, dateRange, setDateRange }: ChartProps) => {
     );
   }
 
-const [showDetails, setShowDetails] = useState(false);
-
   const filterByDateRange = (date: string) => {
     if (!dateRange) return true;
     const itemDate = new Date(date);
@@ -136,96 +134,81 @@ const [showDetails, setShowDetails] = useState(false);
         <span className="text-slate-900 text-xl font-semibold">
           {category ? category.label : 'Average Success'}
         </span>
-<Button
-    variant="outline"
-    className="text-xs sm:text-sm text-slate-600 hover:text-slate-900 border rounded-xl px-2 sm:px-6"
-    onClick={() => setShowDetails(!showDetails)}
-  >
-    {showDetails ? 'Show Chart' : 'Details'}
-<CardContent className="p-0">
-  {!showDetails ? (
-    <>
-      {chartData.length === 0 ? noDataContent : (
-        <div className="h-[320px] relative -mx-8 -mb-8 overflow-visible">
-          <ResponsiveContainer width="100%" height="100%">
-            <AreaChart 
-              data={chartData} 
-              margin={{ top: 16, right: 16, bottom: -48, left: -48 }}
-            >
-              <defs>
-                <linearGradient id={`colorGradient-${category ? category.key : 'overall'}`} x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor={color} stopOpacity={0.4}/>
-                  <stop offset="95%" stopColor={color} stopOpacity={0.1}/>
-                </linearGradient>
-              </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
-              <XAxis 
-                dataKey="name" 
-                axisLine={false} 
-                tickLine={false}
-                tick={false}
-              />
-              <YAxis 
-                axisLine={false} 
-                tickLine={false}
-                tick={false}
-                domain={[0, 100]} 
-              />
-              <Tooltip 
-                contentStyle={{ 
-                  backgroundColor: '#1c1c1c',
-                  color: '#fff',
-                  border: 'none',
-                  borderRadius: '12px',
-                  padding: '12px',
-                  boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
-                  fontSize: '16px',
-                  fontWeight: 500
-                }}
-                formatter={(value) => [`Average Success: ${value}`, '']}
-                cursor={{
-                  stroke: '#666',
-                  strokeWidth: 1,
-                  strokeDasharray: '4 4'
-                }}
-              />
-              <Area 
-                type="monotone" 
-                dataKey="value" 
-                stroke={color}
-                strokeWidth={2}
-                fill={`url(#colorGradient-${category ? category.key : 'overall'})`}
-                dot={false}
-                activeDot={{
-                  r: 6,
-                  fill: color,
-                  stroke: "white",
-                  strokeWidth: 2,
-                  className: "drop-shadow-md"
-                }}
-              />
-            </AreaChart>
-          </ResponsiveContainer>
-          <div className="absolute inset-0 flex flex-col items-center justify-center">
-            <div className="text-[64px] font-bold tracking-tight" style={{ color: getColorByScore(latestValue || 0) }}>
-              {Math.round(latestValue || 0)}/100
+      </div>
+      <CardContent className="p-0">
+        {chartData.length === 0 ? noDataContent : (
+          <div className="h-[320px] relative -mx-8 -mb-8 overflow-visible">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart 
+                data={chartData} 
+                margin={{ top: 16, right: 16, bottom: -48, left: -48 }}
+              >
+                <defs>
+                  <linearGradient id={`colorGradient-${category ? category.key : 'overall'}`} x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor={color} stopOpacity={0.4}/>
+                    <stop offset="95%" stopColor={color} stopOpacity={0.1}/>
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
+                <XAxis 
+                  dataKey="name" 
+                  axisLine={false} 
+                  tickLine={false}
+                  tick={false}
+                />
+                <YAxis 
+                  axisLine={false} 
+                  tickLine={false}
+                  tick={false}
+                  domain={[0, 100]} 
+                />
+                <Tooltip 
+                  contentStyle={{ 
+                    backgroundColor: '#1c1c1c',
+                    color: '#fff',
+                    border: 'none',
+                    borderRadius: '12px',
+                    padding: '12px',
+                    boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
+                    fontSize: '16px',
+                    fontWeight: 500
+                  }}
+                  formatter={(value) => [`Average Success: ${value}`, '']}
+                  cursor={{
+                    stroke: '#666',
+                    strokeWidth: 1,
+                    strokeDasharray: '4 4'
+                  }}
+                />
+                <Area 
+                  type="monotone" 
+                  dataKey="value" 
+                  stroke={color}
+                  strokeWidth={2}
+                  fill={`url(#colorGradient-${category ? category.key : 'overall'})`}
+                  dot={false}
+                  activeDot={{
+                    r: 6,
+                    fill: color,
+                    stroke: "white",
+                    strokeWidth: 2,
+                    className: "drop-shadow-md"
+                  }}
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+            <div className="absolute inset-0 flex flex-col items-center justify-center">
+              <div className="text-[64px] font-bold tracking-tight" style={{ color: getColorByScore(latestValue || 0) }}>
+                {Math.round(latestValue || 0)}/100
+              </div>
+              <div className="text-lg text-slate-600 mt-1">Average Score</div>
             </div>
-            <div className="text-lg text-slate-600 mt-1">Average Score</div>
           </div>
-        </div>
-      )}
-    </>
-  ) : (
-    <div className="p-6 space-y-4">
-      <p className="text-slate-700">
-        {category?.description || 'Evaluates the agent\'s ability to address and overcome customer concerns or objections.'}
-      </p>
-      <p className="text-slate-700 italic">
-        Insights from the last 10 calls.
-      </p>
-    </div>
-  )}
-</CardContent>
+        )}
+      </CardContent>
+    </Card>
+  );
+};
 
 const AudioPlayer = ({ src }: { src: string }) => {
   const [isPlaying, setIsPlaying] = useState(false)
