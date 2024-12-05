@@ -19,8 +19,8 @@ import LoadingSpinner from './loading-spinner'
 const MobileNotice = () => (
   <Card className="p-6 bg-white rounded-[20px] shadow-lg text-center">
     <div className="flex flex-col items-center gap-4">
-      <Lock className="w-12 h-12 text-[#556bc7]" />
-      <h2 className="text-xl font-semibold text-[#556bc7]">Desktop Experience Only</h2>
+      <Lock className="w-12 h-12 text-[#5b06be]" />
+      <h2 className="text-xl font-semibold text-[#5b06be]">Desktop Experience Only</h2>
       <p className="text-gray-600">The Interactive Vision Board is optimized for desktop viewing. Please access this feature from a larger screen for the best experience.</p>
     </div>
   </Card>
@@ -112,14 +112,14 @@ const [isMobile, setIsMobile] = useState(false);
   return (
     <div>
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-2xl font-semibold text-[#556bc7]">Interactive Vision Board</h2>
+        <h2 className="text-2xl font-semibold text-[#5b06be]">Interactive Vision Board</h2>
         <div className="flex gap-2">
           <Popover>
             <PopoverTrigger>
               <Button
                 variant="outline" 
                 size="sm"
-                className="bg-[#fbb350] hover:bg-[#f9a238] text-white border-[#fbb350] gap-2 rounded-xl"
+                className="bg-[#f8b922] hover:bg-[#f9a238] text-white border-[#f8b922] gap-2 rounded-xl"
               >
                 <Palette />
                 Color
@@ -150,7 +150,7 @@ const [isMobile, setIsMobile] = useState(false);
           <Button
             variant="outline"
             size="sm"
-            className="bg-[#51c1a9] hover:bg-[#45a892] text-white border-[#51c1a9] gap-2 rounded-xl"
+            className="bg-[#ce00cb] hover:bg-[#ce00cb] text-white border-[#ce00cb] gap-2 rounded-xl"
             onClick={() => fileInputRef.current?.click()}
           >
             <Upload />
@@ -159,7 +159,7 @@ const [isMobile, setIsMobile] = useState(false);
           <Button
             variant="outline"
             size="sm"
-            className="bg-[#556bc7] hover:bg-[#4a5eb3] text-white border-[#556bc7] gap-2 rounded-xl"
+            className="bg-[#5b06be] hover:bg-[#4a5eb3] text-white border-[#5b06be] gap-2 rounded-xl"
             onClick={toggleFullScreen}
           >
             <Maximize2 />
@@ -210,7 +210,7 @@ const [isMobile, setIsMobile] = useState(false);
                 <Button
                   variant="destructive"
                   size="icon"
-                  className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-[#fbb350] hover:bg-[#f9a238] text-white"
+                  className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-[#f8b922] hover:bg-[#f9a238] text-white"
                   onClick={() => deleteItem(item.id)}
                 >
                   <X />
@@ -435,9 +435,9 @@ useEffect(() => {
       if (response.ok) {
         const data = await response.json();
         setDailyTasks([
-          { text: data.task_1, color: 'bg-[#fbb350]' },
-          { text: data.task_2, color: 'bg-[#51c1a9]' },
-          { text: data.task_3, color: 'bg-[#556bc7]' },
+          { text: data.task_1, color: 'bg-[#f8b922]' },
+          { text: data.task_2, color: 'bg-[#ce00cb]' },
+          { text: data.task_3, color: 'bg-[#5b06be]' },
         ]);
       }
     } catch (error) {
@@ -483,9 +483,9 @@ useEffect(() => {
       if (response.ok) {
         const data = await response.json();
         setImprovements([
-          { text: data.improvement_1, color: 'bg-[#fbb350]' },
-          { text: data.improvement_2, color: 'bg-[#51c1a9]' },
-          { text: data.improvement_3, color: 'bg-[#556bc7]' },
+          { text: data.improvement_1, color: 'bg-[#f8b922]' },
+          { text: data.improvement_2, color: 'bg-[#ce00cb]' },
+          { text: data.improvement_3, color: 'bg-[#5b06be]' },
         ]);
       }
     } catch (error) {
@@ -505,10 +505,10 @@ useEffect(() => {
         const data = await response.json();
         
         setActivities([
-          { value: data.today, label: 'TODAY', progress: (data.today / 10) * 100, color: '#556bc7', icon: 'clock', max: 10 },
-          { value: data.week, label: 'THIS WEEK', progress: (data.week / 50) * 100, color: '#51c1a9', icon: 'calendar', max: 50 },
-          { value: data.month, label: 'THIS MONTH', progress: (data.month / 100) * 100, color: '#fbb350', icon: 'calendar', max: 100 },
-          { value: data.year, label: 'THIS YEAR', progress: (data.year / 1000) * 100, color: '#fbb350', icon: 'calendar', max: 1000 }
+          { value: data.today, label: 'TODAY', progress: (data.today / 10) * 100, color: '#5b06be', icon: 'clock', max: 10 },
+          { value: data.week, label: 'THIS WEEK', progress: (data.week / 50) * 100, color: '#ce00cb', icon: 'calendar', max: 50 },
+          { value: data.month, label: 'THIS MONTH', progress: (data.month / 100) * 100, color: '#f8b922', icon: 'calendar', max: 100 },
+          { value: data.year, label: 'THIS YEAR', progress: (data.year / 1000) * 100, color: '#f8b922', icon: 'calendar', max: 1000 }
         ]);
       }
     } catch (error) {
@@ -542,22 +542,22 @@ useEffect(() => {
 }, []);
 
   const [dailyTasks, setDailyTasks] = useState([
-  { text: 'Loading...', color: 'bg-[#fbb350]' },
-  { text: 'Loading...', color: 'bg-[#51c1a9]' },
-  { text: 'Loading...', color: 'bg-[#556bc7]' },
+  { text: 'Loading...', color: 'bg-[#f8b922]' },
+  { text: 'Loading...', color: 'bg-[#ce00cb]' },
+  { text: 'Loading...', color: 'bg-[#5b06be]' },
 ]);
 
   const [improvements, setImprovements] = useState([
-  { text: 'Loading...', color: 'bg-[#fbb350]' },
-  { text: 'Loading...', color: 'bg-[#51c1a9]' },
-  { text: 'Loading...', color: 'bg-[#556bc7]' },
+  { text: 'Loading...', color: 'bg-[#f8b922]' },
+  { text: 'Loading...', color: 'bg-[#ce00cb]' },
+  { text: 'Loading...', color: 'bg-[#5b06be]' },
 ]);
 
   const [activities, setActivities] = useState<ActivityCircle[]>([
-    { value: 0, label: 'TODAY', progress: 0, color: '#556bc7', icon: 'clock', max: 10 },
-    { value: 0, label: 'THIS WEEK', progress: 0, color: '#51c1a9', icon: 'calendar', max: 50 },
-    { value: 0, label: 'THIS MONTH', progress: 0, color: '#fbb350', icon: 'calendar', max: 100 },
-    { value: 0, label: 'THIS YEAR', progress: 0, color: '#fbb350', icon: 'calendar', max: 1000 },
+    { value: 0, label: 'TODAY', progress: 0, color: '#5b06be', icon: 'clock', max: 10 },
+    { value: 0, label: 'THIS WEEK', progress: 0, color: '#ce00cb', icon: 'calendar', max: 50 },
+    { value: 0, label: 'THIS MONTH', progress: 0, color: '#f8b922', icon: 'calendar', max: 100 },
+    { value: 0, label: 'THIS YEAR', progress: 0, color: '#f8b922', icon: 'calendar', max: 1000 },
 ]);
 
 const [achievementData, setAchievementData] = useState<AchievementContentProps['achievements']>({
@@ -576,9 +576,9 @@ const [achievementData, setAchievementData] = useState<AchievementContentProps['
   }
 
   const getProgressBarColor = (progress: number) => {
-    if (progress === 100) return 'bg-[#556bc7]' // Blue Diamond
-    if (progress >= 70) return 'bg-[#51c1a9]'   // Green
-    if (progress >= 40) return 'bg-[#fbb350]'   // Orange
+    if (progress === 100) return 'bg-[#5b06be]' // Blue Diamond
+    if (progress >= 70) return 'bg-[#ce00cb]'   // Green
+    if (progress >= 40) return 'bg-[#f8b922]'   // Orange
     return 'bg-[#ef4444]'                       // Red
   }
 
@@ -1006,7 +1006,7 @@ return (
               <Card className="p-3 bg-white rounded-[20px] shadow-lg flex-1">
                 <div className="space-y-4">
                   <div className="flex justify-between items-center">
-                    <h2 className="text-2xl font-semibold text-[#556bc7]">Daily Personalized Plan</h2>
+                    <h2 className="text-2xl font-semibold text-[#5b06be]">Daily Personalized Plan</h2>
                     <Button variant="ghost" size="icon" className="hover:bg-transparent">
                       <RefreshCcw className="w-4 h-4 text-gray-400" />
                     </Button>
@@ -1030,7 +1030,7 @@ return (
               <Card className="p-3 bg-white rounded-[20px] shadow-lg flex-1">
                 <div className="space-y-4">
                   <div className="flex justify-between items-center">
-                    <h2 className="text-2xl font-semibold text-[#556bc7]">Areas of Improvement</h2>
+                    <h2 className="text-2xl font-semibold text-[#5b06be]">Areas of Improvement</h2>
                     <Button variant="ghost" size="icon" className="hover:bg-transparent">
                       <RefreshCcw className="w-4 h-4 text-gray-400" />
                     </Button>
@@ -1050,7 +1050,7 @@ return (
             <AchievementContent achievements={achievementData} />
 
             <Card className="p-2 bg-white rounded-[20px] shadow-lg h-[280px]">
-              <h2 className="text-2xl font-semibold text-[#556bc7] mb-6">Activity Circles</h2>
+              <h2 className="text-2xl font-semibold text-[#5b06be] mb-6">Activity Circles</h2>
               <div className="relative flex justify-center items-center mb-2">
                 <Button
                   variant="ghost"
@@ -1074,7 +1074,7 @@ return (
                   </div>
 
                   <div className="absolute -top-1 -right-1 bg-white rounded-[20px] p-2 shadow-lg">
-                    <Clock className="w-3 h-3 text-[#556bc7]" />
+                    <Clock className="w-3 h-3 text-[#5b06be]" />
                   </div>
                 </div>
 
@@ -1133,7 +1133,7 @@ return (
   .resize-handle-bl { bottom: -5px; left: -5px; cursor: nesw-resize; }
   .resize-handle-br { bottom: -5px; right: -5px; cursor: nwse-resize; }
   .color-slider {
-    background: linear-gradient(to right, #fbb350 0%, #51c1a9 50%, #556bc7 100%);
+    background: linear-gradient(to right, #f8b922 0%, #ce00cb 50%, #5b06be 100%);
   }
 `}</style>
         </div>
