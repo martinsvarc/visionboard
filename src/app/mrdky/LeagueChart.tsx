@@ -68,8 +68,8 @@ export function LeagueChart({ chartData, topPlayerScore }: LeagueChartProps) {
                 boxShadow: '0 2px 4px -1px rgb(0 0 0 / 0.1)',
                 padding: '0.5rem'
               }}
-              itemStyle={{ color: '#5b06be', fontSize: '0.625rem' }}
-              labelStyle={{ color: '#5b06be', fontWeight: 600, marginBottom: '0.125rem', fontSize: '0.625rem' }}
+              itemStyle={{ color: '#000000', fontSize: '0.625rem' }}
+              labelStyle={{ color: '#000000', fontWeight: 600, marginBottom: '0.125rem', fontSize: '0.625rem' }}
             />
             <Line 
               type="monotone" 
