@@ -44,9 +44,9 @@ export interface AchievementContentProps {
 }
 
 const getProgressBarColor = (progress: number) => {
-  if (progress === 100) return 'bg-[#556bc7]' // Blue Diamond
-  if (progress >= 70) return 'bg-[#51c1a9]'   // Green
-  if (progress >= 40) return 'bg-[#fbb350]'   // Orange
+  if (progress === 100) return 'bg-[#5b06be]' // Blue Diamond
+  if (progress >= 70) return 'bg-[#ce00cb]'   // Green
+  if (progress >= 40) return 'bg-[#f8b922]'   // Orange
   return 'bg-[#ef4444]'                       // Red
 }
 
@@ -187,7 +187,7 @@ const AchievementContentInner = ({ achievements }: AchievementContentProps) => {
 
   return (
     <Card className="p-4 bg-white rounded-[20px] shadow-lg md:col-span-2 h-[280px] flex flex-col">
-      <h2 className="text-xl md:text-2xl font-semibold text-[#556bc7] mb-4">Achievement Showcase</h2>
+      <h2 className="text-xl md:text-2xl font-semibold text-[#5b06be] mb-4">Achievement Showcase</h2>
       
       <div className="flex gap-2 mb-4 overflow-x-auto pb-2 -mx-2 px-2 no-scrollbar">
         {Object.keys(categories).map((category) => (
@@ -197,7 +197,7 @@ const AchievementContentInner = ({ achievements }: AchievementContentProps) => {
             className={cn(
               "px-3 sm:px-4 py-2 rounded-full whitespace-nowrap text-xs sm:text-sm",
               activeCategory === category 
-                ? 'bg-[#fbb350] text-white hover:bg-[#fbb350]/90' 
+                ? 'bg-[#f8b922] text-white hover:bg-[#f8b922]/90' 
                 : 'text-gray-500 hover:text-gray-700'
             )}
             onClick={() => setActiveCategory(category)}
