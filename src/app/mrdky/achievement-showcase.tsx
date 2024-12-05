@@ -44,8 +44,8 @@ export interface AchievementContentProps {
 }
 
 const getProgressBarColor = (progress: number) => {
-  if (progress === 100) return 'bg-[#DAF0F2]' // Blue Diamond
-  if (progress >= 70) return 'bg-[#ce00cb]'   // Green
+  if (progress === 100) return 'bg-[#00b54b]' // Green
+  if (progress >= 70) return 'bg-[#05b4ff]'   // Diamond BLue
   if (progress >= 40) return 'bg-[#f8b922]'   // Orange
   return 'bg-[#ef4444]'                       // Red
 }
