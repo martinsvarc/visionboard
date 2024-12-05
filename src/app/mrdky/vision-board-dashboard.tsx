@@ -436,8 +436,8 @@ useEffect(() => {
         const data = await response.json();
         setDailyTasks([
           { text: data.task_1, color: 'bg-[#f8b922]' },
-          { text: data.task_2, color: 'bg-[#ce00cb]' },
-          { text: data.task_3, color: 'bg-[#5b06be]' },
+          { text: data.task_2, color: 'bg-[#f8b922]' },
+          { text: data.task_3, color: 'bg-[#f8b922]' },
         ]);
       }
     } catch (error) {
@@ -483,8 +483,8 @@ useEffect(() => {
       if (response.ok) {
         const data = await response.json();
         setImprovements([
-          { text: data.improvement_1, color: 'bg-[#f8b922]' },
-          { text: data.improvement_2, color: 'bg-[#ce00cb]' },
+          { text: data.improvement_1, color: 'bg-[#5b06be]' },
+          { text: data.improvement_2, color: 'bg-[#5b06be]' },
           { text: data.improvement_3, color: 'bg-[#5b06be]' },
         ]);
       }
@@ -543,21 +543,21 @@ useEffect(() => {
 
   const [dailyTasks, setDailyTasks] = useState([
   { text: 'Loading...', color: 'bg-[#f8b922]' },
-  { text: 'Loading...', color: 'bg-[#ce00cb]' },
-  { text: 'Loading...', color: 'bg-[#5b06be]' },
+  { text: 'Loading...', color: 'bg-[#f8b922]' },
+  { text: 'Loading...', color: 'bg-[#f8b922]' },
 ]);
 
   const [improvements, setImprovements] = useState([
-  { text: 'Loading...', color: 'bg-[#f8b922]' },
-  { text: 'Loading...', color: 'bg-[#ce00cb]' },
+  { text: 'Loading...', color: 'bg-[#5b06be]' },
+  { text: 'Loading...', color: 'bg-[#5b06be]' },
   { text: 'Loading...', color: 'bg-[#5b06be]' },
 ]);
 
   const [activities, setActivities] = useState<ActivityCircle[]>([
     { value: 0, label: 'TODAY', progress: 0, color: '#5b06be', icon: 'clock', max: 10 },
-    { value: 0, label: 'THIS WEEK', progress: 0, color: '#ce00cb', icon: 'calendar', max: 50 },
-    { value: 0, label: 'THIS MONTH', progress: 0, color: '#f8b922', icon: 'calendar', max: 100 },
-    { value: 0, label: 'THIS YEAR', progress: 0, color: '#f8b922', icon: 'calendar', max: 1000 },
+    { value: 0, label: 'THIS WEEK', progress: 0, color: '#f8b922', icon: 'calendar', max: 50 },
+    { value: 0, label: 'THIS MONTH', progress: 0, color: '#5b06be', icon: 'calendar', max: 100 },
+    { value: 0, label: 'THIS YEAR', progress: 0, color: '#ce00cb', icon: 'calendar', max: 1000 },
 ]);
 
 const [achievementData, setAchievementData] = useState<AchievementContentProps['achievements']>({
@@ -576,8 +576,8 @@ const [achievementData, setAchievementData] = useState<AchievementContentProps['
   }
 
   const getProgressBarColor = (progress: number) => {
-    if (progress === 100) return 'bg-[#5b06be]' // Blue Diamond
-    if (progress >= 70) return 'bg-[#ce00cb]'   // Green
+    if (progress === 100) return 'bg-[#DAF0F2]' // Blue Diamond
+    if (progress >= 70) return 'bg-[#00c157]'   // Green
     if (progress >= 40) return 'bg-[#f8b922]'   // Orange
     return 'bg-[#ef4444]'                       // Red
   }
