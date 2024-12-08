@@ -179,6 +179,12 @@ return (
         alt="Engagement Icon" 
         className="h-10 w-10"
       />
+    ) : category.key === 'information_gathering' ? (
+      <img 
+        src="https://res.cloudinary.com/dmbzcxhjn/image/upload/Information_Gathering_kqxbio.png" 
+        alt="Information Gathering Icon" 
+        className="h-10 w-10"
+      />
     ) : (
       <MessageSquare className="h-5 w-5" />
     )
