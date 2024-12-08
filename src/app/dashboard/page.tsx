@@ -170,11 +170,18 @@ const Chart = ({ data, category, dateRange, setDateRange, setExpandedCards, setC
       </div>
       <CardContent className="p-0">
         {chartData.length === 0 ? (
-          <div className="absolute inset-0 flex flex-col items-center justify-center text-slate-500">
-            <div className="text-lg">No data</div>
-            <div className="text-sm mt-1">for selected time period</div>
-          </div>
-        ) : (
+  <div className="absolute inset-0 flex flex-col items-center justify-center">
+    <Button 
+      variant="outline" 
+      className="text-slate-600 hover:text-slate-900 hover:bg-slate-50 gap-2"
+      onClick={() => setDateRange(null)}
+    >
+      <span>No data available for this period</span>
+      <span className="text-slate-400">•</span>
+      <span className="text-slate-900 font-medium">View all time</span>
+    </Button>
+  </div>
+) : (
           <div className="h-[320px] relative -mx-8 -mb-8 overflow-visible">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart 
