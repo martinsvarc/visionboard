@@ -474,19 +474,35 @@ function DashboardContent() {
     
     setIsLoading(true)
     try {
+      console.log('Fetching data for memberId:', memberId);
       const response = await fetch(`/api/dashboard?memberId=${memberId}`)
+      
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}))
-        throw new Error(errorData.error || `HTTP error! status: ${response.status}`)
+        const errorData = await response.json();
+        console.error('API Error Response:', errorData);
+        throw new Error(errorData.details || errorData.error || `HTTP error! status: ${response.status}`);
       }
+      
       const data = await response.json()
+      console.log('Received data:', {
+        count: data.length,
+        sample: data[0] ? { ...data[0], call_transcript: '[truncated]' } : 'No data'
+      });
+      
       if (!Array.isArray(data)) {
-        throw new Error('Invalid data format received from server')
+        console.error('Invalid data format:', data);
+        throw new Error('Invalid data format received from server');
       }
+      
       setCallLogs(data)
       setError(null)
     } catch (error) {
-      console.error('Dashboard Error:', error)
+      console.error('Dashboard Error:', {
+        error,
+        message: error instanceof Error ? error.message : 'Unknown error',
+        stack: error instanceof Error ? error.stack : 'No stack trace'
+      });
+      
       setError(error instanceof Error ? error.message : 'Failed to load calls')
     } finally {
       setIsLoading(false)
