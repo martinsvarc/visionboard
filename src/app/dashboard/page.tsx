@@ -13,6 +13,12 @@ import { format, subDays, startOfWeek, endOfWeek, startOfMonth, endOfMonth } fro
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { useSearchParams } from 'next/navigation'
 import getColorByScore from '../../../utils/colors'
+import { Montserrat } from 'next/font/google';
+
+const montserrat = Montserrat({
+  subsets: ['latin'],
+  weight: ['600'],
+});
 
 interface CategoryScores {
   engagement: number;
@@ -650,13 +656,13 @@ const saveNotes = async (id: number) => {
   return (
     <div className="min-h-screen p-8 bg-slate-50">
       <div className="max-w-7xl mx-auto">
-        <h2 className="text-3xl font-['Montserrat'] font-[600] mb-6 text-slate-900 text-center flex items-center justify-center gap-2">
+        <h2 className={`${montserrat.className} text-3xl mb-6 text-slate-900 text-center flex items-center justify-center gap-2`}>
           <img 
             src="https://cdn.prod.website-files.com/6715d8211d464cb83a0c72a1/67528b819edc014ecbcce383_Purple%20increase%20icon.png" 
             alt="Charts icon" 
             className="w-8 h-8"
           />
-          CHARTS
+          Charts
         </h2>
         <div className="flex justify-end mb-4">
           <Popover>
