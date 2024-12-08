@@ -118,8 +118,13 @@ const Chart = ({ data, category, dateRange, setDateRange }: ChartProps) => {
       }));
   }, [data, dateRange, category]);
 
-  const latestValue = chartData.length > 0 ? chartData[chartData.length - 1].value : 0;
-  const color = getColorByScore(latestValue || 0);
+  const average = React.useMemo(() => {
+    if (chartData.length === 0) return 0;
+    const sum = chartData.reduce((acc, item) => acc + (item.value || 0), 0);
+    return sum / chartData.length;
+  }, [chartData]);
+
+  const color = getColorByScore(average);
 
   const noDataContent = (
     <div className="absolute inset-0 flex flex-col items-center justify-center text-slate-500">
@@ -173,7 +178,7 @@ const Chart = ({ data, category, dateRange, setDateRange }: ChartProps) => {
                     fontSize: '16px',
                     fontWeight: 500
                   }}
-                  formatter={(value) => [`Average Success: ${value}`, '']}
+                  formatter={(value) => [`${category ? category.label : 'Average Success'}: ${value}`, '']}
                   cursor={{
                     stroke: '#666',
                     strokeWidth: 1,
@@ -198,8 +203,8 @@ const Chart = ({ data, category, dateRange, setDateRange }: ChartProps) => {
               </AreaChart>
             </ResponsiveContainer>
             <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <div className="text-[64px] font-bold tracking-tight" style={{ color: getColorByScore(latestValue || 0) }}>
-                {Math.round(latestValue || 0)}/100
+              <div className="text-[64px] font-bold tracking-tight" style={{ color: getColorByScore(average) }}>
+                {Math.round(average)}/100
               </div>
               <div className="text-lg text-slate-600 mt-1">Average Score</div>
             </div>
