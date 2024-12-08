@@ -57,7 +57,10 @@ export const GET = async (request: Request) => {
     const memberId = searchParams.get('memberId');
     const latest = searchParams.get('latest');
     
+    console.log('Request parameters:', { memberId, latest });
+
     if (!memberId) {
+      console.log('Missing memberId');
       return NextResponse.json({ 
         error: 'Member ID required' 
       }, { 
@@ -69,91 +72,30 @@ export const GET = async (request: Request) => {
       });
     }
 
+    console.log('Creating database pool...');
     const pool = createPool({
       connectionString: process.env.POSTGRES_URL || process.env.visionboard_PRISMA_URL,
       max: 1
     });
 
+    console.log('Executing database query...');
     const query = latest 
-  ? await pool.sql`
-      SELECT 
-        id,
-        call_number,
-        user_name,
-        user_picture_url,
-        agent_name,
-        agent_picture_url,
-        call_date,
-        call_recording_url,
-        call_details,
-        COALESCE(NULLIF(call_duration, 'N/A')::numeric, 0) as call_duration,
-        power_moment,
-        call_notes,
-        level_up_1,
-        level_up_2,
-        level_up_3,
-        call_transcript,
-        strong_points,
-        areas_for_improvement,
-        COALESCE(NULLIF(engagement_score, 'N/A')::numeric, 0) as engagement_score,
-        COALESCE(NULLIF(objection_handling_score, 'N/A')::numeric, 0) as objection_handling_score,
-        COALESCE(NULLIF(information_gathering_score, 'N/A')::numeric, 0) as information_gathering_score,
-        COALESCE(NULLIF(program_explanation_score, 'N/A')::numeric, 0) as program_explanation_score,
-        COALESCE(NULLIF(closing_skills_score, 'N/A')::numeric, 0) as closing_skills_score,
-        COALESCE(NULLIF(overall_effectiveness_score, 'N/A')::numeric, 0) as overall_effectiveness_score,
-        COALESCE(NULLIF(overall_performance, 'N/A')::numeric, 0) as overall_performance,
-        COALESCE(NULLIF(average_success_score, 'N/A')::numeric, 0) as average_success_score,
-        engagement_feedback,
-        objection_handling_feedback,
-        information_gathering_feedback,
-        program_explanation_feedback,
-        closing_skills_feedback,
-        overall_effectiveness_feedback
-      FROM call_logs 
-      WHERE member_id = ${memberId}
-      ORDER BY call_date DESC
-      LIMIT 10
-    `
-  : await pool.sql`
-      SELECT 
-        id,
-        call_number,
-        user_name,
-        user_picture_url,
-        agent_name,
-        agent_picture_url,
-        call_date,
-        call_recording_url,
-        call_details,
-        COALESCE(NULLIF(call_duration, 'N/A')::numeric, 0) as call_duration,
-        power_moment,
-        call_notes,
-        level_up_1,
-        level_up_2,
-        level_up_3,
-        call_transcript,
-        strong_points,
-        areas_for_improvement,
-        COALESCE(NULLIF(engagement_score, 'N/A')::numeric, 0) as engagement_score,
-        COALESCE(NULLIF(objection_handling_score, 'N/A')::numeric, 0) as objection_handling_score,
-        COALESCE(NULLIF(information_gathering_score, 'N/A')::numeric, 0) as information_gathering_score,
-        COALESCE(NULLIF(program_explanation_score, 'N/A')::numeric, 0) as program_explanation_score,
-        COALESCE(NULLIF(closing_skills_score, 'N/A')::numeric, 0) as closing_skills_score,
-        COALESCE(NULLIF(overall_effectiveness_score, 'N/A')::numeric, 0) as overall_effectiveness_score,
-        COALESCE(NULLIF(overall_performance, 'N/A')::numeric, 0) as overall_performance,
-        COALESCE(NULLIF(average_success_score, 'N/A')::numeric, 0) as average_success_score,
-        engagement_feedback,
-        objection_handling_feedback,
-        information_gathering_feedback,
-        program_explanation_feedback,
-        closing_skills_feedback,
-        overall_effectiveness_feedback
-      FROM call_logs 
-      WHERE member_id = ${memberId}
-      ORDER BY call_date ASC
-    `;
+      ? await pool.sql`
+          SELECT * FROM call_logs 
+          WHERE member_id = ${memberId}
+          ORDER BY call_date DESC
+          LIMIT 10
+        `
+      : await pool.sql`
+          SELECT * FROM call_logs 
+          WHERE member_id = ${memberId}
+          ORDER BY call_date ASC
+        `;
+
+    console.log('Query completed. Row count:', query.rows.length);
 
     const { rows } = query;
+    console.log('First row sample:', rows[0] ? { ...rows[0], call_transcript: '[truncated]' } : 'No rows');
 
     const transformedRows = rows.map(row => ({
       id: row.id,
@@ -194,17 +136,29 @@ export const GET = async (request: Request) => {
       }
     }));
 
+    console.log('Response transformed. Sending response...');
+
     return NextResponse.json(transformedRows, {
       headers: {
         'Access-Control-Allow-Origin': '*',
         'Content-Type': 'application/json'
       }
     });
+
   } catch (error) {
-    console.error('Error getting call logs:', error);
+    console.error('Detailed error:', {
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : 'No stack trace',
+      error: error
+    });
+
     return NextResponse.json({ 
       error: 'Failed to get call logs',
-      details: error instanceof Error ? error.message : 'Unknown error'
+      details: error instanceof Error ? error.message : 'Unknown error',
+      env: {
+        hasPostgresUrl: !!process.env.POSTGRES_URL,
+        hasVisionboardUrl: !!process.env.visionboard_PRISMA_URL
+      }
     }, { 
       status: 500,
       headers: {
