@@ -169,19 +169,53 @@ const Chart = ({ data, category, dateRange, setDateRange, setExpandedCards, setC
         </span>
       </div>
       <CardContent className="p-0">
-        {chartData.length === 0 ? (
-  <div className="absolute inset-0 flex flex-col items-center justify-center">
-    <Button 
-      variant="outline" 
-      className="text-slate-600 hover:text-slate-900 hover:bg-slate-50 gap-2"
-      onClick={() => setDateRange(null)}
-    >
-      <span>No data available for this period</span>
-      <span className="text-slate-400">•</span>
-      <span className="text-slate-900 font-medium">View all time</span>
-    </Button>
-  </div>
+        {/* Charts Section */}
+{chartData.length === 0 ? (
+  // Single no-data message for all charts
+  <Card className="relative overflow-hidden border-0 bg-white rounded-[32px] shadow-lg h-[400px] mb-12">
+    <div className="absolute inset-0 flex flex-col items-center justify-center">
+      <Button 
+        variant="outline" 
+        className="text-slate-600 hover:text-slate-900 hover:bg-slate-50 gap-2"
+        onClick={() => setDateRange(null)}
+      >
+        <span>No data available for this period</span>
+        <span className="text-slate-400">•</span>
+        <span className="text-slate-900 font-medium">View all time</span>
+      </Button>
+    </div>
+  </Card>
 ) : (
+  // All charts when data is available
+  <>
+    <div className="mb-8">
+      <Chart 
+        data={averageSuccessData} 
+        dateRange={dateRange} 
+        setDateRange={setDateRange}
+        setExpandedCards={setExpandedCards}
+        setCurrentPage={setCurrentPage}
+        recordsPerPage={recordsPerPage}
+      />
+    </div>
+
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+      {scoreCategories.map((category) => (
+        <div key={category.key}>
+          <Chart 
+            data={chartData} 
+            category={category} 
+            dateRange={dateRange} 
+            setDateRange={setDateRange}
+            setExpandedCards={setExpandedCards}
+            setCurrentPage={setCurrentPage}
+            recordsPerPage={recordsPerPage}
+          />
+        </div>
+      ))}
+    </div>
+  </>
+)}
           <div className="h-[320px] relative -mx-8 -mb-8 overflow-visible">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart 
