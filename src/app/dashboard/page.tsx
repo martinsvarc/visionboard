@@ -33,9 +33,11 @@ const CustomTooltip = ({
   setExpandedCards: React.Dispatch<React.SetStateAction<Record<number, boolean>>>;
   recordsPerPage: number;
 }) => {
+  console.log('Tooltip triggered:', { active, payload });
   if (active && payload && payload.length) {
     const data = payload[0].payload;
     const callNumber = parseInt(data.name) + 1;
+    console.log('Showing tooltip for call:', callNumber);
     return (
       <div 
         onClick={() => {
