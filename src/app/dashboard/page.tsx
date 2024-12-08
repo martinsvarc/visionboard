@@ -595,105 +595,101 @@ function DashboardContent() {
   const containerRef = useRef<HTMLDivElement>(null)
   const resizeObserver = useRef<ResizeObserver>()
 
-const sendHeightToParent = useCallback(() => {
-  if (containerRef.current) {
-    const height = containerRef.current.scrollHeight
-    // Only send message if we're in an iframe
-    if (window !== window.parent) {
-      window.parent.postMessage({
-        type: 'setHeight',
-        height: height + 32  // Adding small padding
-      }, 'https://app.trainedbyai.com')  // 
+  const sendHeightToParent = useCallback(() => {
+    if (containerRef.current) {
+      const height = containerRef.current.scrollHeight
+      if (window !== window.parent) {
+        window.parent.postMessage({
+          type: 'setHeight',
+          height: height + 32
+        }, 'https://app.trainedbyai.com')
+      }
     }
-  }
-}, [])
+  }, [])
 
-useEffect(() => {
-  if (!containerRef.current) return
-
-  // Debounce function to prevent too frequent updates
-  let timeout: NodeJS.Timeout
-  const debouncedSendHeight = () => {
-    clearTimeout(timeout)
-    timeout = setTimeout(sendHeightToParent, 100)
-  }
-
-  resizeObserver.current = new ResizeObserver(debouncedSendHeight)
-  resizeObserver.current.observe(containerRef.current)
-
-  return () => {
-    if (resizeObserver.current) {
-      resizeObserver.current.disconnect()
-    }
-    clearTimeout(timeout)
-  }
-}, [sendHeightToParent])
-
-  const handleError = (error: unknown) => {
-    setError(error instanceof Error ? error.message : 'An error occurred')
-    setIsLoading(false)
-  }
-
+  // Height observer effect
   useEffect(() => {
-  const fetchCalls = async () => {
-    const memberId = searchParams.get('memberId')
-    if (!memberId) {
-      setError('No member ID provided')
-      setIsLoading(false)
-      return
+    if (!containerRef.current) return
+
+    let timeout: NodeJS.Timeout
+    const debouncedSendHeight = () => {
+      clearTimeout(timeout)
+      timeout = setTimeout(sendHeightToParent, 100)
     }
 
-useEffect(() => {
-  sendHeightToParent()
-}, [
-  dateRange, 
-  expandedCards, 
-  currentPage,
-  callLogs,
-  isLoading,
-  error,
-  sendHeightToParent
-])
-    
-    setIsLoading(true)
-    try {
-      console.log('Fetching data for memberId:', memberId);
-      const response = await fetch(`/api/dashboard?memberId=${memberId}`)
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.error('API Error Response:', errorData);
-        throw new Error(errorData.details || errorData.error || `HTTP error! status: ${response.status}`);
-      }
-      
-      const data = await response.json()
-      console.log('Received data:', {
-        count: data.length,
-        sample: data[0] ? { ...data[0], call_transcript: '[truncated]' } : 'No data'
-      });
-      
-      if (!Array.isArray(data)) {
-        console.error('Invalid data format:', data);
-        throw new Error('Invalid data format received from server');
-      }
-      
-      setCallLogs(data)
-      setError(null)
-    } catch (error) {
-      console.error('Dashboard Error:', {
-        error,
-        message: error instanceof Error ? error.message : 'Unknown error',
-        stack: error instanceof Error ? error.stack : 'No stack trace'
-      });
-      
-      setError(error instanceof Error ? error.message : 'Failed to load calls')
-    } finally {
-      setIsLoading(false)
-    }
-  }
+    resizeObserver.current = new ResizeObserver(debouncedSendHeight)
+    resizeObserver.current.observe(containerRef.current)
 
-  fetchCalls()
-}, [searchParams])
+    return () => {
+      if (resizeObserver.current) {
+        resizeObserver.current.disconnect()
+      }
+      clearTimeout(timeout)
+    }
+  }, [sendHeightToParent])
+
+  // State changes height update effect
+  useEffect(() => {
+    sendHeightToParent()
+  }, [
+    dateRange, 
+    expandedCards, 
+    currentPage,
+    callLogs,
+    isLoading,
+    error,
+    sendHeightToParent
+  ])
+
+  // Fetch calls effect
+  useEffect(() => {
+    const fetchCalls = async () => {
+      const memberId = searchParams.get('memberId')
+      if (!memberId) {
+        setError('No member ID provided')
+        setIsLoading(false)
+        return
+      }
+      
+      setIsLoading(true)
+      try {
+        console.log('Fetching data for memberId:', memberId);
+        const response = await fetch(`/api/dashboard?memberId=${memberId}`)
+        
+        if (!response.ok) {
+          const errorData = await response.json();
+          console.error('API Error Response:', errorData);
+          throw new Error(errorData.details || errorData.error || `HTTP error! status: ${response.status}`);
+        }
+        
+        const data = await response.json()
+        console.log('Received data:', {
+          count: data.length,
+          sample: data[0] ? { ...data[0], call_transcript: '[truncated]' } : 'No data'
+        });
+        
+        if (!Array.isArray(data)) {
+          console.error('Invalid data format:', data);
+          throw new Error('Invalid data format received from server');
+        }
+        
+        setCallLogs(data)
+        setError(null)
+      } catch (error) {
+        console.error('Dashboard Error:', {
+          error,
+          message: error instanceof Error ? error.message : 'Unknown error',
+          stack: error instanceof Error ? error.stack : 'No stack trace'
+        });
+        
+        setError(error instanceof Error ? error.message : 'Failed to load calls')
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchCalls()
+  }, [searchParams])
 
   const indexOfLastRecord = currentPage * recordsPerPage
   const indexOfFirstRecord = indexOfLastRecord - recordsPerPage
@@ -822,7 +818,7 @@ const saveNotes = async (id: number) => {
 
   if (isLoading) {
   return (
-    <div className="min-h-screen p-8 bg-slate-50">
+    <div ref={containerRef} className="min-h-screen p-8 bg-slate-50">
       <div className="max-w-7xl mx-auto">
         <div className="animate-pulse space-y-6">
           <div className="h-[400px] bg-white rounded-[32px] shadow-lg" />
@@ -839,7 +835,7 @@ const saveNotes = async (id: number) => {
 
   if (!callLogs.length) {
   return (
-    <div className="min-h-screen p-8 bg-slate-50">
+    <div ref={containerRef} className="min-h-screen p-8 bg-slate-50">
   <div className="max-w-7xl mx-auto">
     <div className="flex justify-between items-center mb-6">
       <h2 className={`${montserrat.className} text-3xl text-slate-900 flex items-center gap-2`}>
@@ -931,7 +927,7 @@ const saveNotes = async (id: number) => {
 }
 
   return (
-    <div className="min-h-screen p-8 bg-slate-50">
+    <div ref={containerRef} className="min-h-screen p-8 bg-slate-50">
   <div className="max-w-7xl mx-auto">
     <div className="flex justify-between items-center mb-6">
       <h2 className={`${montserrat.className} text-3xl text-slate-900 flex items-center gap-2`}>
