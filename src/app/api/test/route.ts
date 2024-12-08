@@ -1,17 +1,20 @@
-import { sql } from '@vercel/postgres';
+import { createClient } from '@vercel/postgres';
 import { NextResponse } from 'next/server';
 
 export const GET = async () => {
+  const client = createClient();
+  
   try {
-    const result = await sql`SELECT NOW();`;
-    console.log('Database connection test:', result);
+    await client.connect();
+    const result = await client.query('SELECT NOW();');
+    await client.end();
     
     return NextResponse.json({ 
       success: true, 
       message: 'Database connected',
       timestamp: result.rows[0]
     });
-  } catch (error: any) {  // Type as 'any' for now
+  } catch (error: any) {
     console.error('Database connection error:', {
       message: error?.message || 'Unknown error',
       name: error?.name,
