@@ -307,7 +307,8 @@ return (
       )}
     </CardContent>
   </Card>
-);
+  );
+};
 
 const AudioPlayer = ({ src }: { src: string }) => {
   const [isPlaying, setIsPlaying] = useState(false)
