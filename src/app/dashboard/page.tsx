@@ -771,6 +771,15 @@ const saveNotes = async (id: number) => {
                       </h2>
                     </div>
                   </div>
+
+                  {/* Overall Score */}
+                  <div className="flex-1 text-center">
+                    <p className="text-slate-700 text-sm mb-1">Overall Score - League Points</p>
+                    <p className="text-[#4B76E5] text-3xl font-bold">
+                      {Math.round(call.scores.average_success)}/100
+                    </p>
+                  </div>
+
                   <div className="ml-auto text-right">
                     <p className="text-sm text-slate-600">
                       {new Date(call.call_date).toLocaleString('en-US', {
