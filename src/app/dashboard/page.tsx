@@ -337,10 +337,43 @@ const AudioPlayer = ({ src }: { src: string }) => {
 
 const DatePicker = ({ onChange }: { onChange: (range: DateRange) => void }) => {
   const [currentDate, setCurrentDate] = React.useState(new Date())
+  const [selectedRange, setSelectedRange] = React.useState<{
+    from?: Date;
+    to?: Date;
+  }>({})
   
   const firstMonth = currentDate
   const secondMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1)
   
+  const handleDateClick = (clickedDate: Date) => {
+    if (!selectedRange.from) {
+      // First click - set start date
+      setSelectedRange({ from: clickedDate })
+    } else if (!selectedRange.to && clickedDate >= selectedRange.from) {
+      // Second click - set end date and trigger onChange
+      const newRange = {
+        from: selectedRange.from,
+        to: clickedDate
+      }
+      setSelectedRange(newRange)
+      onChange(newRange)
+    } else {
+      // Reset and start new selection
+      setSelectedRange({ from: clickedDate })
+    }
+  }
+
+  const isDateSelected = (date: Date) => {
+    if (!selectedRange.from) return false
+    if (!selectedRange.to) return date.getTime() === selectedRange.from.getTime()
+    return date >= selectedRange.from && date <= selectedRange.to
+  }
+
+  const isDateInRange = (date: Date) => {
+    if (!selectedRange.from || !selectedRange.to) return false
+    return date > selectedRange.from && date < selectedRange.to
+  }
+
   const renderMonth = (date: Date) => {
     const daysInMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate()
     const firstDayOfMonth = new Date(date.getFullYear(), date.getMonth(), 1).getDay()
@@ -358,32 +391,34 @@ const DatePicker = ({ onChange }: { onChange: (range: DateRange) => void }) => {
               {day}
             </div>
           ))}
-          {[...paddingDays, ...days].map((day, index) => (
-            <Button
-              key={index}
-              variant="ghost"
-              className={`h-9 w-9 p-0 font-normal ${
-                day === null
-                  ? "invisible"
-                  : "text-slate-900"
-              } ${
-                day === new Date().getDate() && date.getMonth() === new Date().getMonth() && date.getFullYear() === new Date().getFullYear()
-                  ? "border border-slate-200"
-                  : ""
-              }`}
-              onClick={() => {
-                if (day !== null) {
-                  const selectedDate = new Date(date.getFullYear(), date.getMonth(), day)
-                  onChange({
-                    from: selectedDate,
-                    to: selectedDate
-                  })
-                }
-              }}
-            >
-              {day}
-            </Button>
-          ))}
+          {[...paddingDays, ...days].map((day, index) => {
+            if (day === null) {
+              return <div key={index} className="invisible" />
+            }
+            
+            const currentDate = new Date(date.getFullYear(), date.getMonth(), day)
+            const isSelected = isDateSelected(currentDate)
+            const isInRange = isDateInRange(currentDate)
+            
+            return (
+              <Button
+                key={index}
+                variant="ghost"
+                className={`h-9 w-9 p-0 font-normal 
+                  ${isSelected ? 'bg-slate-900 text-white hover:bg-slate-800' : 'text-slate-900'}
+                  ${isInRange ? 'bg-slate-100' : ''}
+                  ${day === new Date().getDate() && 
+                    date.getMonth() === new Date().getMonth() && 
+                    date.getFullYear() === new Date().getFullYear()
+                    ? "border border-slate-200"
+                    : ""
+                  }`}
+                onClick={() => handleDateClick(currentDate)}
+              >
+                {day}
+              </Button>
+            )
+          })}
         </div>
       </div>
     )
