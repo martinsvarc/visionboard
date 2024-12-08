@@ -592,9 +592,23 @@ function DashboardContent() {
   const indexOfLastRecord = currentPage * recordsPerPage
   const indexOfFirstRecord = indexOfLastRecord - recordsPerPage
   const currentRecords = [...callLogs]
+    .filter(call => {
+      if (!dateRange) return true;
+      const callDate = new Date(call.call_date);
+      const fromDate = new Date(dateRange.from.setHours(0, 0, 0, 0));
+      const toDate = new Date(dateRange.to.setHours(23, 59, 59, 999));
+      return callDate >= fromDate && callDate <= toDate;
+    })
     .reverse()
     .slice(indexOfFirstRecord, indexOfLastRecord)
-  const totalPages = Math.ceil(callLogs.length / recordsPerPage)
+  const filteredCallLogs = dateRange ? callLogs.filter(call => {
+  const callDate = new Date(call.call_date);
+  const fromDate = new Date(dateRange.from.setHours(0, 0, 0, 0));
+  const toDate = new Date(dateRange.to.setHours(23, 59, 59, 999));
+  return callDate >= fromDate && callDate <= toDate;
+}) : callLogs;
+
+const totalPages = Math.ceil(filteredCallLogs.length / recordsPerPage)
 
   const scoreCategories: Category[] = [
     { key: 'engagement', label: 'Engagement', description: 'Measures how well the agent connects with the customer and keeps them interested throughout the call.' },
