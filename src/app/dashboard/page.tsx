@@ -163,7 +163,7 @@ const Chart = ({ data, category, dateRange, setDateRange, setExpandedCards, setC
   }
 
 return (
-  <Card className="relative overflow-hidden border-0 bg-white rounded-[32px] shadow-lg [&>*:last-child]:overflow-visible h-[400px] lg:h-[450px]">
+  <Card className="relative overflow-hidden border-0 bg-white rounded-[32px] shadow-lg [&>*:last-child]:overflow-visible h-[400px]">
     <div className="flex justify-between items-center p-6">
       <div className="flex items-center gap-2">
         {category && <MessageSquare className="h-5 w-5" />}
@@ -181,7 +181,7 @@ return (
     </div>
     <CardContent className="p-0">
       {showDetails ? (
-  <div className="px-6 pb-6 space-y-6 overflow-y-auto scrollbar-thin scrollbar-thumb-slate-200 scrollbar-track-transparent hover:scrollbar-thumb-slate-300" style={{ height: 'calc(100% - 80px)' }}>
+  <div className="px-6 pb-6 space-y-6 max-h-[320px] overflow-y-auto scrollbar-thin scrollbar-thumb-slate-200 scrollbar-track-transparent hover:scrollbar-thumb-slate-300">
     <p className="text-slate-600">
       {category?.description || 'Evaluates the agent\'s performance trends over time.'}
     </p>
@@ -194,11 +194,11 @@ return (
         <h3 className="text-green-700 font-semibold">Strong Points</h3>
         <ul className="space-y-2">
           <li className="flex items-start gap-2">
-            <CheckCircle2 className="h-5 w-5 text-green-500 mt-0.5" />
+            <CheckCircle2 className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
             <span className="text-slate-700">Increases conversion rates</span>
           </li>
           <li className="flex items-start gap-2">
-            <CheckCircle2 className="h-5 w-5 text-green-500 mt-0.5" />
+            <CheckCircle2 className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
             <span className="text-slate-700">Builds trust with customers</span>
           </li>
         </ul>
@@ -209,11 +209,11 @@ return (
         <h3 className="text-red-700 font-semibold">Areas for Improvement</h3>
         <ul className="space-y-2">
           <li className="flex items-start gap-2">
-            <XCircle className="h-5 w-5 text-red-500 mt-0.5" />
+            <XCircle className="h-5 w-5 text-red-500 mt-0.5 flex-shrink-0" />
             <span className="text-slate-700">Can be challenging for new agents</span>
           </li>
           <li className="flex items-start gap-2">
-            <XCircle className="h-5 w-5 text-red-500 mt-0.5" />
+            <XCircle className="h-5 w-5 text-red-500 mt-0.5 flex-shrink-0" />
             <span className="text-slate-700">Requires quick thinking</span>
           </li>
         </ul>
@@ -239,8 +239,62 @@ return (
               data={chartData} 
               margin={{ top: 16, right: 16, bottom: -48, left: -48 }}
             >
-              {/* Rest of your chart code stays exactly the same */}
-              {/* ... */}
+              <defs>
+                <linearGradient id={`colorGradient-${category ? category.key : 'overall'}`} x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor={color} stopOpacity={0.4}/>
+                  <stop offset="95%" stopColor={color} stopOpacity={0.1}/>
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
+              <XAxis 
+                dataKey="name" 
+                axisLine={false} 
+                tickLine={false}
+                tick={false}
+              />
+              <YAxis 
+                axisLine={false} 
+                tickLine={false}
+                tick={false}
+                domain={[0, 100]} 
+              />
+              <Tooltip 
+                content={({ active, payload }) => {
+                  if (active && payload && payload.length) {
+                    const data = payload[0].payload;
+                    const callNumber = parseInt(data.name) + 1;
+                    return (
+                      <div className="bg-[#1c1c1c] p-3 rounded-lg shadow-lg min-w-[140px]">
+                        <p className="text-white text-lg">
+                          Call #{callNumber} - {Number(payload[0].value).toFixed(1)}/100
+                        </p>
+                      </div>
+                    );
+                  }
+                  return null;
+                }}
+                cursor={false}
+              />
+              <Area 
+                type="monotone" 
+                dataKey="value" 
+                stroke={color}
+                strokeWidth={2}
+                fill={`url(#colorGradient-${category ? category.key : 'overall'})`}
+                dot={{
+                  r: 4,
+                  strokeWidth: 2,
+                  fill: "white",
+                  stroke: color,
+                }}
+                activeDot={{
+                  r: 8,
+                  fill: color,
+                  stroke: "white",
+                  strokeWidth: 2,
+                  className: "drop-shadow-md cursor-pointer"
+                }}
+              />
             </AreaChart>
           </ResponsiveContainer>
           <div className="absolute inset-0 flex flex-col items-center justify-center">
