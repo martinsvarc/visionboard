@@ -584,7 +584,7 @@ function DashboardContent() {
  const averageSuccessData = React.useMemo(() => callLogs.map((call, index) => ({
   name: `${index + 1}`,
   date: call.call_date,
-  value: call.scores.overall_effectiveness
+  value: call.scores.average_success
 })), [callLogs]);
 
   const toggleExpandCard = useCallback((id: number) => {
