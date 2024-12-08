@@ -596,59 +596,37 @@ function DashboardContent() {
   const resizeObserver = useRef<ResizeObserver>()
 
  const sendHeightToParent = useCallback(() => {
-  if (containerRef.current) {
-    // Get the actual content height without padding
-    const height = containerRef.current.scrollHeight
-    const computedStyle = window.getComputedStyle(containerRef.current)
-    const paddingTop = parseInt(computedStyle.paddingTop, 10)
-    const paddingBottom = parseInt(computedStyle.paddingBottom, 10)
-    
-    // Calculate actual content height and add a buffer
-    const actualHeight = height - paddingTop - paddingBottom
-    const buffer = 100 // Adding 100px buffer to ensure content fits
-    
-    if (window !== window.parent) {
-      window.parent.postMessage({
-        type: 'setHeight',
-        height: actualHeight + buffer // Send content height plus buffer
-      }, 'https://app.trainedbyai.com')
-    }
+  if (!containerRef.current) return;
+  
+  // Get all expandable sections
+  const expandedSections = Object.values(expandedCards).filter(Boolean).length;
+  
+  // Base height for the dashboard
+  let totalHeight = containerRef.current.scrollHeight;
+  
+  // Add fixed amount per expanded card
+  if (expandedSections > 0) {
+    totalHeight += (expandedSections * 800); // Approximate height for expanded content
   }
-}, [])
+  
+  if (window !== window.parent) {
+    window.parent.postMessage({
+      type: 'setHeight',
+      height: totalHeight + 100 // Fixed buffer
+    }, 'https://app.trainedbyai.com');
+  }
+}, [expandedCards]); // Only depend on expandedCards
 
-  // Height observer effect
-  useEffect(() => {
-    if (!containerRef.current) return
-
-    let timeout: NodeJS.Timeout
-    const debouncedSendHeight = () => {
-  clearTimeout(timeout)
-  timeout = setTimeout(sendHeightToParent, 250) // Increased from 100ms to 250ms
-}
-
-    resizeObserver.current = new ResizeObserver(debouncedSendHeight)
-    resizeObserver.current.observe(containerRef.current)
-
-    return () => {
-      if (resizeObserver.current) {
-        resizeObserver.current.disconnect()
-      }
-      clearTimeout(timeout)
-    }
-  }, [sendHeightToParent])
-
-  // State changes height update effect
-  useEffect(() => {
-    sendHeightToParent()
-  }, [
-    dateRange, 
-    expandedCards, 
-    currentPage,
-    callLogs,
-    isLoading,
-    error,
-    sendHeightToParent
-  ])
+// Only update height when specific things change
+useEffect(() => {
+  sendHeightToParent();
+}, [
+  expandedCards, // When cards expand/collapse
+  currentPage,   // When page changes
+  dateRange,     // When date filter changes
+  callLogs.length, // When data loads
+  sendHeightToParent
+]);
 
   // Fetch calls effect
   useEffect(() => {
