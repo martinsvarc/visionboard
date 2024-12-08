@@ -525,7 +525,9 @@ function DashboardContent() {
 
   const indexOfLastRecord = currentPage * recordsPerPage
   const indexOfFirstRecord = indexOfLastRecord - recordsPerPage
-  const currentRecords = callLogs.slice(indexOfFirstRecord, indexOfLastRecord)
+  const currentRecords = [...callLogs]
+    .reverse()
+    .slice(indexOfFirstRecord, indexOfLastRecord)
   const totalPages = Math.ceil(callLogs.length / recordsPerPage)
 
   const scoreCategories: Category[] = [
@@ -728,7 +730,7 @@ const saveNotes = async (id: number) => {
                     <div>
                       <p className="text-sm font-medium text-slate-700">{call.agent_name}</p>
                       <h2 className="text-2xl font-bold text-slate-900">
-                        Call {indexOfFirstRecord + index + 1}
+                        Call #{callLogs.length - (indexOfFirstRecord + index)}
                       </h2>
                     </div>
                   </div>
