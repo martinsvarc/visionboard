@@ -603,13 +603,14 @@ function DashboardContent() {
     const paddingTop = parseInt(computedStyle.paddingTop, 10)
     const paddingBottom = parseInt(computedStyle.paddingBottom, 10)
     
-    // Calculate actual content height
+    // Calculate actual content height and add a buffer
     const actualHeight = height - paddingTop - paddingBottom
+    const buffer = 100 // Adding 100px buffer to ensure content fits
     
     if (window !== window.parent) {
       window.parent.postMessage({
         type: 'setHeight',
-        height: actualHeight // Send just the content height
+        height: actualHeight + buffer // Send content height plus buffer
       }, 'https://app.trainedbyai.com')
     }
   }
