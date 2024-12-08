@@ -790,8 +790,89 @@ const saveNotes = async (id: number) => {
 }
 
   if (!callLogs.length) {
-    return <div className="flex items-center justify-center min-h-screen">No call data found</div>
-  }
+  return (
+    <div className="min-h-screen p-8 bg-slate-50">
+      <div className="max-w-7xl mx-auto">
+        <h2 className={`${montserrat.className} text-3xl mb-6 text-slate-900 text-center flex items-center justify-center gap-2`}>
+          <img 
+            src="https://cdn.prod.website-files.com/6715d8211d464cb83a0c72a1/67528b819edc014ecbcce383_Purple%20increase%20icon.png" 
+            alt="Charts icon" 
+            className="w-8 h-8"
+          />
+          Charts
+        </h2>
+        <div className="flex justify-end mb-4">
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button 
+                variant="outline" 
+                className="bg-white border-slate-200 text-slate-900 hover:bg-slate-50 h-9 px-4 py-2 text-sm font-medium rounded-full shadow-sm"
+              >
+                <Calendar className="mr-2 h-4 w-4" />
+                <span>Pick a date range</span>
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent 
+              className="bg-white border border-slate-200 p-0 shadow-lg rounded-xl w-auto" 
+              align="end" 
+              sideOffset={8}
+            >
+              <DatePicker onChange={setDateRange} />
+            </PopoverContent>
+          </Popover>
+        </div>
+
+        {/* Empty State for Charts */}
+        <div className="mb-8">
+          <Card className="relative overflow-hidden border-0 bg-white rounded-[32px] shadow-lg h-[400px] flex items-center justify-center">
+            <div className="text-center p-6">
+              <MessageSquare className="h-12 w-12 text-slate-400 mx-auto mb-4" />
+              <h3 className="text-xl font-semibold text-slate-900 mb-2">No Calls Recorded Yet</h3>
+              <p className="text-slate-600 max-w-sm mx-auto">
+                Your performance metrics and analytics will appear here after your first call is recorded.
+              </p>
+            </div>
+          </Card>
+        </div>
+
+        {/* Empty State for Categories */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+          {scoreCategories.map((category) => (
+            <Card key={category.key} className="relative overflow-hidden border-0 bg-white rounded-[32px] shadow-lg h-[400px] flex items-center justify-center">
+              <div className="text-center p-6">
+                <div className="flex items-center justify-center gap-2 mb-4">
+                  <MessageSquare className="h-5 w-5 text-slate-400" />
+                  <span className="text-slate-900 text-xl font-semibold">
+                    {category.label}
+                  </span>
+                </div>
+                <p className="text-slate-600 text-sm">
+                  {category.description}
+                </p>
+              </div>
+            </Card>
+          ))}
+        </div>
+
+        {/* Empty State for Call Records */}
+        <h2 className="text-3xl font-bold mb-6 text-slate-900 text-center">
+          Call Records
+        </h2>
+        <Card className="bg-white shadow-lg rounded-[32px] overflow-hidden border-0">
+          <CardContent className="p-12 text-center">
+            <div className="max-w-sm mx-auto">
+              <MessageSquare className="h-12 w-12 text-slate-400 mx-auto mb-4" />
+              <h3 className="text-xl font-semibold text-slate-900 mb-2">No Call History</h3>
+              <p className="text-slate-600 mb-6">
+                Your call records will appear here after your first call is completed.
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+}
 
   return (
     <div className="min-h-screen p-8 bg-slate-50">
