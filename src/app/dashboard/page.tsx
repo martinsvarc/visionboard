@@ -596,16 +596,24 @@ function DashboardContent() {
   const resizeObserver = useRef<ResizeObserver>()
 
   const sendHeightToParent = useCallback(() => {
-    if (containerRef.current) {
-      const height = containerRef.current.scrollHeight
-      if (window !== window.parent) {
-        window.parent.postMessage({
-          type: 'setHeight',
-          height: height + 32
-        }, 'https://app.trainedbyai.com')
-      }
+  if (containerRef.current) {
+    // Get the actual content height without padding
+    const height = containerRef.current.scrollHeight
+    const computedStyle = window.getComputedStyle(containerRef.current)
+    const paddingTop = parseInt(computedStyle.paddingTop, 10)
+    const paddingBottom = parseInt(computedStyle.paddingBottom, 10)
+    
+    // Calculate actual content height
+    const actualHeight = height - paddingTop - paddingBottom
+    
+    if (window !== window.parent) {
+      window.parent.postMessage({
+        type: 'setHeight',
+        height: actualHeight // Send just the content height
+      }, 'https://app.trainedbyai.com')
     }
-  }, [])
+  }
+}, [])
 
   // Height observer effect
   useEffect(() => {
@@ -613,9 +621,9 @@ function DashboardContent() {
 
     let timeout: NodeJS.Timeout
     const debouncedSendHeight = () => {
-      clearTimeout(timeout)
-      timeout = setTimeout(sendHeightToParent, 100)
-    }
+  clearTimeout(timeout)
+  timeout = setTimeout(sendHeightToParent, 250) // Increased from 100ms to 250ms
+}
 
     resizeObserver.current = new ResizeObserver(debouncedSendHeight)
     resizeObserver.current.observe(containerRef.current)
