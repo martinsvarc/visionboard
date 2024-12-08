@@ -20,14 +20,25 @@ const montserrat = Montserrat({
   weight: ['700'],
 });
 
-const CustomTooltip = ({ active, payload, setCurrentPage, setExpandedCards, recordsPerPage }: any) => {
+const CustomTooltip = ({ 
+  active, 
+  payload, 
+  setCurrentPage, 
+  setExpandedCards, 
+  recordsPerPage 
+}: { 
+  active?: boolean;
+  payload?: any[];
+  setCurrentPage: React.Dispatch<React.SetStateAction<number>>;
+  setExpandedCards: React.Dispatch<React.SetStateAction<Record<number, boolean>>>;
+  recordsPerPage: number;
+}) => {
   if (active && payload && payload.length) {
     const data = payload[0].payload;
     const callNumber = parseInt(data.name) + 1;
     return (
       <div 
         onClick={() => {
-          const callNumber = parseInt(data.name) + 1;
           const targetPage = Math.ceil(callNumber / recordsPerPage);
           setCurrentPage(targetPage);
 
@@ -35,7 +46,7 @@ const CustomTooltip = ({ active, payload, setCurrentPage, setExpandedCards, reco
             const element = document.getElementById(`call-${callNumber}`);
             if (element) {
               element.scrollIntoView({ behavior: 'smooth' });
-              setExpandedCards(prev => ({
+              setExpandedCards((prev: Record<number, boolean>) => ({
                 ...prev,
                 [callNumber]: true
               }));
