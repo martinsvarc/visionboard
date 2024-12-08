@@ -243,9 +243,11 @@ const Chart = ({ data, category, dateRange, setDateRange, setExpandedCards, setC
     stroke: "white",
     strokeWidth: 2,
     className: "drop-shadow-md cursor-pointer",
-    onClick: (props) => {
-      if (props.payload) {
-        const callNumber = parseInt(props.payload.name);
+    onClick: (props: any) => {  // Add type annotation here
+      // Cast props to include our expected properties
+      const point = props as { payload: { name: string } };
+      if (point.payload) {
+        const callNumber = parseInt(point.payload.name);
         const targetPage = Math.ceil(callNumber / recordsPerPage);
         setCurrentPage(targetPage);
         setExpandedCards(prev => ({
