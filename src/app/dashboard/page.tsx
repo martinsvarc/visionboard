@@ -748,7 +748,7 @@ const saveNotes = async (id: number) => {
 
   if (error) {
   return (
-    <div className="min-h-screen p-8 bg-slate-50">
+    <div className="h-full overflow-y-auto bg-slate-50 p-8 custom-scrollbar">
       <div className="max-w-7xl mx-auto">
         <Card className="bg-white shadow-lg rounded-[32px] overflow-hidden border-0">
           <CardContent className="p-6">
@@ -774,7 +774,7 @@ const saveNotes = async (id: number) => {
 
   if (isLoading) {
   return (
-    <div className="min-h-screen p-8 bg-slate-50">
+    <div className="h-full overflow-y-auto bg-slate-50 p-8 custom-scrollbar">
       <div className="max-w-7xl mx-auto">
         <div className="animate-pulse space-y-6">
           <div className="h-[400px] bg-white rounded-[32px] shadow-lg" />
@@ -791,7 +791,7 @@ const saveNotes = async (id: number) => {
 
   if (!callLogs.length) {
   return (
-    <div className="min-h-screen p-8 bg-slate-50">
+    <div className="h-full overflow-y-auto bg-slate-50 p-8 custom-scrollbar">
   <div className="max-w-7xl mx-auto">
     <div className="flex justify-between items-center mb-6">
       <h2 className={`${montserrat.className} text-3xl text-slate-900 flex items-center gap-2`}>
@@ -883,7 +883,7 @@ const saveNotes = async (id: number) => {
 }
 
   return (
-    <div className="min-h-screen p-8 bg-slate-50">
+    <div className="h-full overflow-y-auto bg-slate-50 p-8 custom-scrollbar">
   <div className="max-w-7xl mx-auto">
     <div className="flex justify-between items-center mb-6">
       <h2 className={`${montserrat.className} text-3xl text-slate-900 flex items-center gap-2`}>
