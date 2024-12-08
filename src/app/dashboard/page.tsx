@@ -939,7 +939,7 @@ const saveNotes = async (id: number) => {
         <div className="flex justify-between items-center mb-6">
   <h2 className={`${montserrat.className} text-3xl text-slate-900 flex items-center gap-2`}>
     <img 
-      src="https://cdn.prod.website-files.com/6715d8211d464cb83a0c72a1/67528b819edc014ecbcce383_Purple%20increase%20icon.png" 
+      src="https://res.cloudinary.com/dmbzcxhjn/image/upload/Call_Records_duha_ykcxfj.png" 
       alt="Charts icon" 
       className="w-8 h-8"
     />
