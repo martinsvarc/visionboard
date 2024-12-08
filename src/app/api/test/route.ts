@@ -11,17 +11,17 @@ export const GET = async () => {
       message: 'Database connected',
       timestamp: result.rows[0]
     });
-  } catch (error) {
+  } catch (error: any) {  // Type as 'any' for now
     console.error('Database connection error:', {
-      message: error.message,
-      name: error.name,
-      stack: error.stack
+      message: error?.message || 'Unknown error',
+      name: error?.name,
+      stack: error?.stack
     });
     
     return NextResponse.json({ 
       success: false, 
-      error: error.message,
-      type: error.name
+      error: error?.message || 'Unknown error',
+      type: error?.name || 'Unknown type'
     }, { status: 500 });
   }
 };
