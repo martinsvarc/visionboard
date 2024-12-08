@@ -13,10 +13,16 @@ export const GET = async () => {
       success: true, 
       schema: result.rows 
     });
-  } catch (error) {
+  } catch (error: any) {  // Type as 'any' for now
+    console.error('Schema fetch error:', {
+      message: error?.message || 'Unknown error',
+      name: error?.name,
+      stack: error?.stack
+    });
+
     return NextResponse.json({ 
       success: false, 
-      error: error.message 
+      error: error?.message || 'Unknown error'
     }, { status: 500 });
   }
 };
