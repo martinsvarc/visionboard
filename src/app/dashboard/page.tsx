@@ -592,6 +592,42 @@ function DashboardContent() {
   const [callLogs, setCallLogs] = useState<CallLog[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
+  const resizeObserver = useRef<ResizeObserver>()
+
+const sendHeightToParent = useCallback(() => {
+  if (containerRef.current) {
+    const height = containerRef.current.scrollHeight
+    // Only send message if we're in an iframe
+    if (window !== window.parent) {
+      window.parent.postMessage({
+        type: 'setHeight',
+        height: height + 32  // Adding small padding
+      }, 'https://app.trainedbyai.com')  // 
+    }
+  }
+}, [])
+
+useEffect(() => {
+  if (!containerRef.current) return
+
+  // Debounce function to prevent too frequent updates
+  let timeout: NodeJS.Timeout
+  const debouncedSendHeight = () => {
+    clearTimeout(timeout)
+    timeout = setTimeout(sendHeightToParent, 100)
+  }
+
+  resizeObserver.current = new ResizeObserver(debouncedSendHeight)
+  resizeObserver.current.observe(containerRef.current)
+
+  return () => {
+    if (resizeObserver.current) {
+      resizeObserver.current.disconnect()
+    }
+    clearTimeout(timeout)
+  }
+}, [sendHeightToParent])
 
   const handleError = (error: unknown) => {
     setError(error instanceof Error ? error.message : 'An error occurred')
@@ -606,6 +642,18 @@ function DashboardContent() {
       setIsLoading(false)
       return
     }
+
+useEffect(() => {
+  sendHeightToParent()
+}, [
+  dateRange, 
+  expandedCards, 
+  currentPage,
+  callLogs,
+  isLoading,
+  error,
+  sendHeightToParent
+])
     
     setIsLoading(true)
     try {
@@ -748,7 +796,7 @@ const saveNotes = async (id: number) => {
 
   if (error) {
   return (
-    <div className="min-h-screen p-8 bg-slate-50">
+    <div ref={containerRef} className="min-h-screen p-8 bg-slate-50">
       <div className="max-w-7xl mx-auto">
         <Card className="bg-white shadow-lg rounded-[32px] overflow-hidden border-0">
           <CardContent className="p-6">
