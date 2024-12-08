@@ -147,13 +147,14 @@ const Chart = ({ data, category, dateRange, setDateRange, setExpandedCards, setC
   };
 
   const chartData = React.useMemo(() => {
-    return data
-      .filter(item => filterByDateRange(item.date))
-      .map(item => ({
-        name: item.name,
-        value: category ? (item[category.key as keyof CategoryScore] ?? 0) : (item.value ?? 0)
-      }));
-  }, [data, dateRange, category]);
+  return data
+    .filter(item => filterByDateRange(item.date))
+    .map((item, index) => ({
+      name: item.name,
+      date: item.date,
+      value: category ? (item[category.key as keyof CategoryScore] ?? 0) : (item.value ?? 0)
+    }));
+}, [data, dateRange, category]);
 
   const average = React.useMemo(() => {
     if (chartData.length === 0) return 0;
@@ -212,12 +213,25 @@ const Chart = ({ data, category, dateRange, setDateRange, setExpandedCards, setC
                 />
                <Tooltip 
   wrapperStyle={{ zIndex: 100 }}
+  cursor={false}
   content={({ active, payload }) => {
     if (active && payload && payload[0]?.payload) {
+      const data = payload[0].payload;
+      const callNumber = parseInt(data.name) + 1;
       return (
-        <div className="bg-[#1c1c1c] p-3 rounded-lg shadow-lg min-w-[140px]">
+        <div 
+          className="bg-[#1c1c1c] p-3 rounded-lg shadow-lg min-w-[140px] cursor-pointer hover:bg-[#2c2c2c] transition-colors"
+          onClick={() => {
+            const targetPage = Math.ceil(callNumber / recordsPerPage);
+            setCurrentPage(targetPage);
+            setExpandedCards(prev => ({
+              ...prev,
+              [callNumber]: true
+            }));
+          }}
+        >
           <p className="text-white text-lg">
-            Call #{payload[0].payload.name} - {Number(payload[0].value || 0).toFixed(1)}/100
+            Call #{callNumber} - {Number(payload[0].value).toFixed(1)}/100
           </p>
         </div>
       );
@@ -243,11 +257,9 @@ const Chart = ({ data, category, dateRange, setDateRange, setExpandedCards, setC
     stroke: "white",
     strokeWidth: 2,
     className: "drop-shadow-md cursor-pointer",
-    onClick: (props: any) => {  // Add type annotation here
-      // Cast props to include our expected properties
-      const point = props as { payload: { name: string } };
-      if (point.payload) {
-        const callNumber = parseInt(point.payload.name);
+    onClick: (props: any) => {
+      if (props.payload) {
+        const callNumber = parseInt(props.payload.name);
         const targetPage = Math.ceil(callNumber / recordsPerPage);
         setCurrentPage(targetPage);
         setExpandedCards(prev => ({
