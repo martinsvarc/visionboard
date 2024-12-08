@@ -221,8 +221,6 @@ const Chart = ({ data, category, dateRange, setDateRange, setExpandedCards, setC
         </div>
       </div>
     ) : (
-      // Your existing chart code here
-      <div className="h-[320px] relative -mx-8 -mb-8 overflow-visible">
         {chartData.length === 0 ? (
   <div className="absolute inset-0 flex flex-col items-center justify-center">
     <Button 
