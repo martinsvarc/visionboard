@@ -129,7 +129,7 @@ type ChartProps = {
 }
 
 const Chart = ({ data, category, dateRange, setDateRange, setExpandedCards, setCurrentPage, recordsPerPage }: ChartProps) => {
-  const [activeTooltip, setActiveTooltip] = useState<number | null>(null);
+  const [activeTooltip, setActiveTooltip] = useState<{x: number, y: number} | null>(null);
   if (!data.length) {
     return (
       <Card className="relative overflow-hidden border-0 bg-white rounded-[32px] shadow-lg h-[400px] flex items-center justify-center">
@@ -185,12 +185,11 @@ const Chart = ({ data, category, dateRange, setDateRange, setExpandedCards, setC
   data={chartData} 
   margin={{ top: 16, right: 16, bottom: -48, left: -48 }}
   onMouseMove={(state) => {
-    if (state && state.isTooltipActive) {
-      const { chartX, chartY } = state;
-      setActiveTooltip({ x: chartX, y: chartY });
+    if (state?.activeTooltipIndex !== undefined) {
+      setActiveTooltipIndex(state.activeTooltipIndex);
     }
   }}
-  onMouseLeave={() => setActiveTooltip(null)}
+  onMouseLeave={() => setActiveTooltipIndex(null)}
 >
                 <defs>
                   <linearGradient id={`colorGradient-${category ? category.key : 'overall'}`} x1="0" y1="0" x2="0" y2="1">
@@ -214,13 +213,13 @@ const Chart = ({ data, category, dateRange, setDateRange, setExpandedCards, setC
                <Tooltip 
   wrapperStyle={{ zIndex: 100 }}
   content={({ active, payload }) => (
-    <CustomTooltip 
-      active={active} 
-      payload={payload}
-      setCurrentPage={setCurrentPage} 
-      setExpandedCards={setExpandedCards} 
-      recordsPerPage={recordsPerPage} 
-    />
+    <div className="bg-[#1c1c1c] p-3 rounded-lg shadow-lg min-w-[140px]">
+      {payload && payload[0] && (
+        <p className="text-white text-lg">
+          Call #{payload[0].payload.name} - {payload[0].value.toFixed(1)}/100
+        </p>
+      )}
+    </div>
   )}
 />
                 <Area 
