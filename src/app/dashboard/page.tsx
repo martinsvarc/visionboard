@@ -171,7 +171,7 @@ return (
       <img 
         src="https://res.cloudinary.com/dmbzcxhjn/image/upload/Closing_Skills_wydaya.png" 
         alt="Closing Skills Icon" 
-        className="h-5 w-5"
+        className="h-10 w-10"
       />
     ) : (
       <MessageSquare className="h-5 w-5" />
