@@ -173,6 +173,12 @@ return (
         alt="Closing Skills Icon" 
         className="h-10 w-10"
       />
+    ) : category.key === 'engagement' ? (
+      <img 
+        src="https://res.cloudinary.com/dmbzcxhjn/image/upload/Engagement_voxn3o.png" 
+        alt="Engagement Icon" 
+        className="h-10 w-10"
+      />
     ) : (
       <MessageSquare className="h-5 w-5" />
     )
