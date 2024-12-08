@@ -181,7 +181,7 @@ return (
     </div>
     <CardContent className="p-0">
       {showDetails ? (
-  <div className="px-6 pb-6 space-y-6">
+  <div className="px-6 pb-6 space-y-6 max-h-[320px] overflow-y-auto scrollbar-thin scrollbar-thumb-slate-200 scrollbar-track-transparent hover:scrollbar-thumb-slate-300">
     <p className="text-slate-600">
       {category?.description || 'Evaluates the agent\'s performance trends over time.'}
     </p>
@@ -194,11 +194,11 @@ return (
         <h3 className="text-green-700 font-semibold">Strong Points</h3>
         <ul className="space-y-2">
           <li className="flex items-start gap-2">
-            <CheckCircle2 className="h-5 w-5 text-green-500 mt-0.5" />
+            <CheckCircle2 className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
             <span className="text-slate-700">Increases conversion rates</span>
           </li>
           <li className="flex items-start gap-2">
-            <CheckCircle2 className="h-5 w-5 text-green-500 mt-0.5" />
+            <CheckCircle2 className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
             <span className="text-slate-700">Builds trust with customers</span>
           </li>
         </ul>
@@ -209,17 +209,18 @@ return (
         <h3 className="text-red-700 font-semibold">Areas for Improvement</h3>
         <ul className="space-y-2">
           <li className="flex items-start gap-2">
-            <XCircle className="h-5 w-5 text-red-500 mt-0.5" />
+            <XCircle className="h-5 w-5 text-red-500 mt-0.5 flex-shrink-0" />
             <span className="text-slate-700">Can be challenging for new agents</span>
           </li>
           <li className="flex items-start gap-2">
-            <XCircle className="h-5 w-5 text-red-500 mt-0.5" />
+            <XCircle className="h-5 w-5 text-red-500 mt-0.5 flex-shrink-0" />
             <span className="text-slate-700">Requires quick thinking</span>
           </li>
         </ul>
       </div>
     </div>
   </div>
+)
 ) : chartData.length === 0 ? (
   <div className="absolute inset-0 flex flex-col items-center justify-center">
     <Button 
