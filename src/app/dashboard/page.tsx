@@ -221,6 +221,7 @@ const Chart = ({ data, category, dateRange, setDateRange, setExpandedCards, setC
                 <Tooltip 
   content={<CustomTooltip setCurrentPage={setCurrentPage} setExpandedCards={setExpandedCards} recordsPerPage={recordsPerPage} />}
   cursor={false}
+  wrapperStyle={{ zIndex: 100 }}
 />
                 <Area 
                   type="monotone" 
