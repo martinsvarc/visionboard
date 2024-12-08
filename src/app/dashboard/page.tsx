@@ -185,8 +185,9 @@ const Chart = ({ data, category, dateRange, setDateRange, setExpandedCards, setC
   data={chartData} 
   margin={{ top: 16, right: 16, bottom: -48, left: -48 }}
   onMouseMove={(state) => {
-    if (state?.activeTooltipIndex !== undefined) {
-      setActiveTooltip(state.activeTooltipIndex);
+    if (state && state.isTooltipActive) {
+      const { chartX, chartY } = state;
+      setActiveTooltip({ x: chartX, y: chartY });
     }
   }}
   onMouseLeave={() => setActiveTooltip(null)}
@@ -228,13 +229,29 @@ const Chart = ({ data, category, dateRange, setDateRange, setExpandedCards, setC
   stroke={color}
   strokeWidth={2}
   fill={`url(#colorGradient-${category ? category.key : 'overall'})`}
-  dot={true}  // Changed to true
+  dot={{
+    r: 4,
+    strokeWidth: 2,
+    fill: "white",
+    stroke: color,
+  }}
   activeDot={{
-    r: 6,
+    r: 8,
     fill: color,
     stroke: "white",
     strokeWidth: 2,
-    className: "drop-shadow-md"
+    className: "drop-shadow-md cursor-pointer",
+    onClick: (props) => {
+      if (props.payload) {
+        const callNumber = parseInt(props.payload.name);
+        const targetPage = Math.ceil(callNumber / recordsPerPage);
+        setCurrentPage(targetPage);
+        setExpandedCards(prev => ({
+          ...prev,
+          [callNumber]: true
+        }));
+      }
+    }
   }}
 />
               </AreaChart>
