@@ -20,6 +20,37 @@ const montserrat = Montserrat({
   weight: ['700'],
 });
 
+const CustomTooltip = ({ active, payload, setCurrentPage, setExpandedCards, recordsPerPage }: any) => {
+  if (active && payload && payload.length) {
+    const data = payload[0].payload;
+    const callNumber = parseInt(data.name) + 1;
+    return (
+      <div 
+        onClick={() => {
+          const callNumber = parseInt(data.name) + 1;
+          const targetPage = Math.ceil(callNumber / recordsPerPage);
+          setCurrentPage(targetPage);
+
+          setTimeout(() => {
+            const element = document.getElementById(`call-${callNumber}`);
+            if (element) {
+              element.scrollIntoView({ behavior: 'smooth' });
+              setExpandedCards(prev => ({
+                ...prev,
+                [callNumber]: true
+              }));
+            }
+          }, 0);
+        }}
+        className="bg-[#1c1c1c] p-3 rounded-lg shadow-lg min-w-[140px] cursor-pointer hover:bg-[#2c2c2c] transition-colors"
+      >
+        <p className="text-white text-lg">Call {callNumber} - {data.value}/100</p>
+      </div>
+    );
+  }
+  return null;
+};
+
 interface CategoryScores {
   engagement: number;
   objection_handling: number;
@@ -96,6 +127,9 @@ type ChartProps = {
   category?: Category;
   dateRange: DateRange;
   setDateRange: (range: DateRange) => void;
+  setExpandedCards: React.Dispatch<React.SetStateAction<Record<number, boolean>>>;
+  setCurrentPage: React.Dispatch<React.SetStateAction<number>>;
+  recordsPerPage: number;
 }
 
 const Chart = ({ data, category, dateRange, setDateRange }: ChartProps) => {
@@ -174,23 +208,9 @@ const Chart = ({ data, category, dateRange, setDateRange }: ChartProps) => {
                   domain={[0, 100]} 
                 />
                 <Tooltip 
-                  contentStyle={{ 
-                    backgroundColor: '#1c1c1c',
-                    color: '#fff',
-                    border: 'none',
-                    borderRadius: '12px',
-                    padding: '12px',
-                    boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
-                    fontSize: '16px',
-                    fontWeight: 500
-                  }}
-                  formatter={(value) => [`${category ? category.label : 'Average Success'}: ${value}`, '']}
-                  cursor={{
-                    stroke: '#666',
-                    strokeWidth: 1,
-                    strokeDasharray: '4 4'
-                  }}
-                />
+  content={<CustomTooltip setCurrentPage={setCurrentPage} setExpandedCards={setExpandedCards} recordsPerPage={recordsPerPage} />}
+  cursor={false}
+/>
                 <Area 
                   type="monotone" 
                   dataKey="value" 
@@ -693,22 +713,28 @@ const saveNotes = async (id: number) => {
           </Popover>
         </div>
         <div className="mb-8">
-          <Chart 
-            data={averageSuccessData} 
-            dateRange={dateRange} 
-            setDateRange={setDateRange} 
-          />
-        </div>
+  <Chart 
+    data={averageSuccessData} 
+    dateRange={dateRange} 
+    setDateRange={setDateRange}
+    setExpandedCards={setExpandedCards}
+    setCurrentPage={setCurrentPage}
+    recordsPerPage={recordsPerPage}
+  />
+</div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
           {scoreCategories.map((category) => (
             <div key={category.key}>
               <Chart 
-                data={chartData} 
-                category={category} 
-                dateRange={dateRange} 
-                setDateRange={setDateRange} 
-              />
+  data={chartData} 
+  category={category} 
+  dateRange={dateRange} 
+  setDateRange={setDateRange}
+  setExpandedCards={setExpandedCards}
+  setCurrentPage={setCurrentPage}
+  recordsPerPage={recordsPerPage}
+/>
             </div>
           ))}
         </div>
