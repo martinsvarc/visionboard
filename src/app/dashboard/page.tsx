@@ -595,7 +595,7 @@ function DashboardContent() {
   const containerRef = useRef<HTMLDivElement>(null)
   const resizeObserver = useRef<ResizeObserver>()
 
-  const sendHeightToParent = useCallback(() => {
+ const sendHeightToParent = useCallback(() => {
   if (containerRef.current) {
     // Get the actual content height without padding
     const height = containerRef.current.scrollHeight
