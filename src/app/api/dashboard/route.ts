@@ -74,7 +74,8 @@ export const GET = async (request: Request) => {
       max: 1
     });
 
-    const query = await pool.sql`
+    const query = latest 
+  ? await pool.sql`
       SELECT 
         id,
         call_number,
@@ -110,7 +111,46 @@ export const GET = async (request: Request) => {
         overall_effectiveness_feedback
       FROM call_logs 
       WHERE member_id = ${memberId}
-      ORDER BY call_date ${latest ? sql`DESC LIMIT 10` : sql`ASC`}
+      ORDER BY call_date DESC
+      LIMIT 10
+    `
+  : await pool.sql`
+      SELECT 
+        id,
+        call_number,
+        user_name,
+        user_picture_url,
+        agent_name,
+        agent_picture_url,
+        call_date,
+        call_recording_url,
+        call_details,
+        COALESCE(NULLIF(call_duration, 'N/A')::numeric, 0) as call_duration,
+        power_moment,
+        call_notes,
+        level_up_1,
+        level_up_2,
+        level_up_3,
+        call_transcript,
+        strong_points,
+        areas_for_improvement,
+        COALESCE(NULLIF(engagement_score, 'N/A')::numeric, 0) as engagement_score,
+        COALESCE(NULLIF(objection_handling_score, 'N/A')::numeric, 0) as objection_handling_score,
+        COALESCE(NULLIF(information_gathering_score, 'N/A')::numeric, 0) as information_gathering_score,
+        COALESCE(NULLIF(program_explanation_score, 'N/A')::numeric, 0) as program_explanation_score,
+        COALESCE(NULLIF(closing_skills_score, 'N/A')::numeric, 0) as closing_skills_score,
+        COALESCE(NULLIF(overall_effectiveness_score, 'N/A')::numeric, 0) as overall_effectiveness_score,
+        COALESCE(NULLIF(overall_performance, 'N/A')::numeric, 0) as overall_performance,
+        COALESCE(NULLIF(average_success_score, 'N/A')::numeric, 0) as average_success_score,
+        engagement_feedback,
+        objection_handling_feedback,
+        information_gathering_feedback,
+        program_explanation_feedback,
+        closing_skills_feedback,
+        overall_effectiveness_feedback
+      FROM call_logs 
+      WHERE member_id = ${memberId}
+      ORDER BY call_date ASC
     `;
 
     const { rows } = query;
