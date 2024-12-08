@@ -143,7 +143,7 @@ type ChartProps = {
   recordsPerPage: number;
 }
 
-const Chart = ({ data, category, dateRange, setDateRange }: ChartProps) => {
+const Chart = ({ data, category, dateRange, setDateRange, setExpandedCards, setCurrentPage, recordsPerPage }: ChartProps) => {
   if (!data.length) {
     return (
       <Card className="relative overflow-hidden border-0 bg-white rounded-[32px] shadow-lg h-[400px] flex items-center justify-center">
