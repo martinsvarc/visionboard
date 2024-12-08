@@ -14,6 +14,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { useSearchParams } from 'next/navigation'
 import getColorByScore from '../../../utils/colors'
 import { Montserrat } from 'next/font/google';
+import { MessageSquare, CheckCircle2, XCircle } from 'lucide-react'
 
 const montserrat = Montserrat({
   subsets: ['latin'],
@@ -129,7 +130,7 @@ type ChartProps = {
 }
 
 const Chart = ({ data, category, dateRange, setDateRange, setExpandedCards, setCurrentPage, recordsPerPage }: ChartProps) => {
-  // Add this data processing code right here, after the component declaration
+  const [showDetails, setShowDetails] = useState(false);
   const chartData = React.useMemo(() => {
     return data
       .filter(item => {
@@ -163,59 +164,78 @@ const Chart = ({ data, category, dateRange, setDateRange, setExpandedCards, setC
 
   return (
     <Card className="relative overflow-hidden border-0 bg-white rounded-[32px] shadow-lg [&>*:last-child]:overflow-visible">
-      <div className="flex justify-between items-center p-6">
-        <span className="text-slate-900 text-xl font-semibold">
-          {category ? category.label : 'Average Success'}
-        </span>
-      </div>
-      <CardContent className="p-0">
-        {/* Charts Section */}
-{chartData.length === 0 ? (
-  // Single no-data message for all charts
-  <Card className="relative overflow-hidden border-0 bg-white rounded-[32px] shadow-lg h-[400px] mb-12">
-    <div className="absolute inset-0 flex flex-col items-center justify-center">
-      <Button 
-        variant="outline" 
-        className="text-slate-600 hover:text-slate-900 hover:bg-slate-50 gap-2"
-        onClick={() => setDateRange(null)}
-      >
-        <span>No data available for this period</span>
-        <span className="text-slate-400">•</span>
-        <span className="text-slate-900 font-medium">View all time</span>
-      </Button>
+  <div className="flex justify-between items-center p-6">
+    <div className="flex items-center gap-2">
+      {category && <MessageSquare className="h-5 w-5" />}
+      <span className="text-slate-900 text-xl font-semibold">
+        {category ? category.label : 'Average Success'}
+      </span>
     </div>
-  </Card>
-) : (
-  // All charts when data is available
-  <>
-    <div className="mb-8">
-      <Chart 
-        data={averageSuccessData} 
-        dateRange={dateRange} 
-        setDateRange={setDateRange}
-        setExpandedCards={setExpandedCards}
-        setCurrentPage={setCurrentPage}
-        recordsPerPage={recordsPerPage}
-      />
-    </div>
-
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-      {scoreCategories.map((category) => (
-        <div key={category.key}>
-          <Chart 
-            data={chartData} 
-            category={category} 
-            dateRange={dateRange} 
-            setDateRange={setDateRange}
-            setExpandedCards={setExpandedCards}
-            setCurrentPage={setCurrentPage}
-            recordsPerPage={recordsPerPage}
-          />
+    <Button
+      variant="outline"
+      className="rounded-full"
+      onClick={() => setShowDetails(!showDetails)}
+    >
+      {showDetails ? 'Show Chart' : 'Details'}
+    </Button>
+  </div>
+  <CardContent className="p-0">
+    {showDetails ? (
+      <div className="px-6 pb-6 space-y-6">
+        <p className="text-slate-600">
+          {category?.description || 'Evaluates the agent\'s performance trends over time.'}
+        </p>
+        
+        <p className="text-slate-700 font-medium">Insights from last 10 calls</p>
+        
+        <div className="grid grid-cols-2 gap-4">
+          {/* Strong Points */}
+          <div className="bg-green-50 p-4 rounded-xl space-y-3">
+            <h3 className="text-green-700 font-semibold">Strong Points</h3>
+            <ul className="space-y-2">
+              <li className="flex items-start gap-2">
+                <CheckCircle2 className="h-5 w-5 text-green-500 mt-0.5" />
+                <span className="text-slate-700">Increases conversion rates</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <CheckCircle2 className="h-5 w-5 text-green-500 mt-0.5" />
+                <span className="text-slate-700">Builds trust with customers</span>
+              </li>
+            </ul>
+          </div>
+          
+          {/* Areas for Improvement */}
+          <div className="bg-red-50 p-4 rounded-xl space-y-3">
+            <h3 className="text-red-700 font-semibold">Areas for Improvement</h3>
+            <ul className="space-y-2">
+              <li className="flex items-start gap-2">
+                <XCircle className="h-5 w-5 text-red-500 mt-0.5" />
+                <span className="text-slate-700">Can be challenging for new agents</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <XCircle className="h-5 w-5 text-red-500 mt-0.5" />
+                <span className="text-slate-700">Requires quick thinking</span>
+              </li>
+            </ul>
+          </div>
         </div>
-      ))}
-    </div>
-  </>
-)}
+      </div>
+    ) : (
+      // Your existing chart code here
+      <div className="h-[320px] relative -mx-8 -mb-8 overflow-visible">
+        {chartData.length === 0 ? (
+  <div className="absolute inset-0 flex flex-col items-center justify-center">
+    <Button 
+      variant="outline" 
+      className="text-slate-600 hover:text-slate-900 hover:bg-slate-50 gap-2"
+      onClick={() => setDateRange(null)}
+    >
+      <span>No data available for this period</span>
+      <span className="text-slate-400">•</span>
+      <span className="text-slate-900 font-medium">View all time</span>
+    </Button>
+  </div>
+) : (
           <div className="h-[320px] relative -mx-8 -mb-8 overflow-visible">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart 
@@ -841,7 +861,7 @@ const saveNotes = async (id: number) => {
         </div>
 
         <h2 className="text-3xl font-bold mb-6 text-slate-900 text-center">
-          CALL RECORDS
+          Call Records
         </h2>
         <div className="space-y-6">
           {currentRecords.map((call, index) => (
