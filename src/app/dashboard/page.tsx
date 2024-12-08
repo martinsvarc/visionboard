@@ -197,10 +197,13 @@ const Chart = ({ data, category, dateRange, setDateRange, setExpandedCards, setC
         {chartData.length === 0 ? noDataContent : (
           <div className="h-[320px] relative -mx-8 -mb-8 overflow-visible">
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart 
-                data={chartData} 
-                margin={{ top: 16, right: 16, bottom: -48, left: -48 }}
-              >
+             <AreaChart 
+  data={chartData} 
+  margin={{ top: 16, right: 16, bottom: -48, left: -48 }}
+  onMouseMove={(state) => {
+    console.log('Mouse move state:', state);
+  }}
+>
                 <defs>
                   <linearGradient id={`colorGradient-${category ? category.key : 'overall'}`} x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor={color} stopOpacity={0.4}/>
