@@ -33,31 +33,14 @@ const CustomTooltip = ({
   setExpandedCards: React.Dispatch<React.SetStateAction<Record<number, boolean>>>;
   recordsPerPage: number;
 }) => {
-  console.log('Tooltip triggered:', { active, payload });
   if (active && payload && payload.length) {
     const data = payload[0].payload;
-    const callNumber = parseInt(data.name) + 1;
-    console.log('Showing tooltip for call:', callNumber);
+    const callNumber = parseInt(data.name);
     return (
       <div 
-        onClick={() => {
-          const targetPage = Math.ceil(callNumber / recordsPerPage);
-          setCurrentPage(targetPage);
-
-          setTimeout(() => {
-            const element = document.getElementById(`call-${callNumber}`);
-            if (element) {
-              element.scrollIntoView({ behavior: 'smooth' });
-              setExpandedCards((prev: Record<number, boolean>) => ({
-                ...prev,
-                [callNumber]: true
-              }));
-            }
-          }, 0);
-        }}
         className="bg-[#1c1c1c] p-3 rounded-lg shadow-lg min-w-[140px] cursor-pointer hover:bg-[#2c2c2c] transition-colors"
       >
-        <p className="text-white text-lg">Call {callNumber} - {data.value}/100</p>
+        <p className="text-white text-lg">Call #{callNumber} - {data.value.toFixed(1)}/100</p>
       </div>
     );
   }
@@ -228,37 +211,32 @@ const Chart = ({ data, category, dateRange, setDateRange, setExpandedCards, setC
                   domain={[0, 100]} 
                 />
                <Tooltip 
-  active={true}
   wrapperStyle={{ zIndex: 100 }}
-  content={(props) => (
+  content={({ active, payload }) => (
     <CustomTooltip 
-      {...props} 
+      active={active} 
+      payload={payload}
       setCurrentPage={setCurrentPage} 
       setExpandedCards={setExpandedCards} 
       recordsPerPage={recordsPerPage} 
     />
   )}
-  cursor={{
-    stroke: '#666',
-    strokeWidth: 1,
-    strokeDasharray: '4 4'
-  }}
 />
                 <Area 
-                  type="monotone" 
-                  dataKey="value" 
-                  stroke={color}
-                  strokeWidth={2}
-                  fill={`url(#colorGradient-${category ? category.key : 'overall'})`}
-                  dot={false}
-                  activeDot={{
-                    r: 6,
-                    fill: color,
-                    stroke: "white",
-                    strokeWidth: 2,
-                    className: "drop-shadow-md"
-                  }}
-                />
+  type="monotone" 
+  dataKey="value" 
+  stroke={color}
+  strokeWidth={2}
+  fill={`url(#colorGradient-${category ? category.key : 'overall'})`}
+  dot={true}  // Changed to true
+  activeDot={{
+    r: 6,
+    fill: color,
+    stroke: "white",
+    strokeWidth: 2,
+    className: "drop-shadow-md"
+  }}
+/>
               </AreaChart>
             </ResponsiveContainer>
             <div className="absolute inset-0 flex flex-col items-center justify-center">
