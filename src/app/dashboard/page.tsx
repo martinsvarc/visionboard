@@ -212,15 +212,18 @@ const Chart = ({ data, category, dateRange, setDateRange, setExpandedCards, setC
                 />
                <Tooltip 
   wrapperStyle={{ zIndex: 100 }}
-  content={({ active, payload }) => (
-    <div className="bg-[#1c1c1c] p-3 rounded-lg shadow-lg min-w-[140px]">
-      {payload && payload[0] && (
-        <p className="text-white text-lg">
-          Call #{payload[0].payload.name} - {payload[0].value.toFixed(1)}/100
-        </p>
-      )}
-    </div>
-  )}
+  content={({ active, payload }) => {
+    if (active && payload && payload[0]?.payload) {
+      return (
+        <div className="bg-[#1c1c1c] p-3 rounded-lg shadow-lg min-w-[140px]">
+          <p className="text-white text-lg">
+            Call #{payload[0].payload.name} - {Number(payload[0].value || 0).toFixed(1)}/100
+          </p>
+        </div>
+      );
+    }
+    return null;
+  }}
 />
                 <Area 
   type="monotone" 
