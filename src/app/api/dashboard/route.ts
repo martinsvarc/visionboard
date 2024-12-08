@@ -1,4 +1,4 @@
-import { createPool, sql } from '@vercel/postgres';
+import { sql, createClient } from '@vercel/postgres';
 import { NextResponse } from 'next/server';
 
 interface CategoryScores {
@@ -52,6 +52,7 @@ export async function OPTIONS() {
 }
 
 export const GET = async (request: Request) => {
+  let client;
   try {
     const { searchParams } = new URL(request.url);
     const memberId = searchParams.get('memberId');
@@ -72,21 +73,23 @@ export const GET = async (request: Request) => {
       });
     }
 
-    console.log('Creating database pool...');
-    const pool = createPool({
-      connectionString: process.env.POSTGRES_URL || process.env.visionboard_PRISMA_URL,
-      max: 1
+    console.log('Creating database client...');
+    client = createClient({
+      connectionString: process.env.POSTGRES_URL || process.env.visionboard_PRISMA_URL
     });
+
+    await client.connect();
+    console.log('Connected to database');
 
     console.log('Executing database query...');
     const query = latest 
-      ? await pool.sql`
+      ? await sql`
           SELECT * FROM call_logs 
           WHERE member_id = ${memberId}
           ORDER BY call_date DESC
           LIMIT 10
         `
-      : await pool.sql`
+      : await sql`
           SELECT * FROM call_logs 
           WHERE member_id = ${memberId}
           ORDER BY call_date ASC
@@ -166,10 +169,15 @@ export const GET = async (request: Request) => {
         'Content-Type': 'application/json'
       }
     });
+  } finally {
+    if (client) {
+      await client.end();
+    }
   }
 }
 
 export const POST = async (request: Request) => {
+  let client;
   try {
     const { memberId, callData }: { memberId: string, callData: CallData } = await request.json();
     
@@ -185,20 +193,21 @@ export const POST = async (request: Request) => {
       });
     }
 
-    const pool = createPool({
-      connectionString: process.env.POSTGRES_URL || process.env.visionboard_PRISMA_URL,
-      max: 1
+    client = createClient({
+      connectionString: process.env.POSTGRES_URL || process.env.visionboard_PRISMA_URL
     });
 
-    const { rows: existingCalls } = await pool.sql`
+    await client.connect();
+
+    const { rows: existingCalls } = await sql`
       SELECT COALESCE(MAX(call_number), 0) as max_call_number
       FROM call_logs
-      WHERE member_id = ${memberId};
+      WHERE member_id = ${memberId}
     `;
 
     const nextCallNumber = parseInt(existingCalls[0].max_call_number) + 1;
 
-    const { rows } = await pool.sql`
+    const { rows } = await sql`
       INSERT INTO call_logs (
         member_id,
         call_number,
@@ -284,10 +293,15 @@ export const POST = async (request: Request) => {
         'Content-Type': 'application/json'
       }
     });
+  } finally {
+    if (client) {
+      await client.end();
+    }
   }
 }
 
 export const PUT = async (request: Request) => {
+  let client;
   try {
     const { searchParams } = new URL(request.url);
     const callId = searchParams.get('id');
@@ -305,12 +319,13 @@ export const PUT = async (request: Request) => {
       });
     }
 
-    const pool = createPool({
-      connectionString: process.env.POSTGRES_URL || process.env.visionboard_PRISMA_URL,
-      max: 1
+    client = createClient({
+      connectionString: process.env.POSTGRES_URL || process.env.visionboard_PRISMA_URL
     });
 
-    const { rows } = await pool.sql`
+    await client.connect();
+
+    const { rows } = await sql`
       UPDATE call_logs
       SET 
         engagement_score = COALESCE(${updateData.scores?.engagement}, engagement_score),
@@ -361,10 +376,15 @@ export const PUT = async (request: Request) => {
         'Content-Type': 'application/json'
       }
     });
+  } finally {
+    if (client) {
+      await client.end();
+    }
   }
 }
 
 export const DELETE = async (request: Request) => {
+  let client;
   try {
     const { searchParams } = new URL(request.url);
     const callId = searchParams.get('id');
@@ -381,12 +401,13 @@ export const DELETE = async (request: Request) => {
       });
     }
 
-    const pool = createPool({
-      connectionString: process.env.POSTGRES_URL || process.env.visionboard_PRISMA_URL,
-      max: 1
+    client = createClient({
+      connectionString: process.env.POSTGRES_URL || process.env.visionboard_PRISMA_URL
     });
 
-    const { rows } = await pool.sql`
+    await client.connect();
+
+    const { rows } = await sql`
       DELETE FROM call_logs 
       WHERE id = ${callId}
       RETURNING *;
@@ -414,16 +435,21 @@ export const DELETE = async (request: Request) => {
       }
     });
   } catch (error) {
-    console.error('Error deleting call log:', error);
-    return NextResponse.json({ 
-      error: 'Failed to delete call log',
-      details: error instanceof Error ? error.message : 'Unknown error'
-    }, { 
-      status: 500,
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Content-Type': 'application/json'
+      console.error('Error deleting call log:', error);
+      return NextResponse.json({ 
+        error: 'Failed to delete call log', 
+        details: error instanceof Error ? error.message : 'Unknown error' 
+      }, { 
+        status: 500, 
+        headers: { 
+          'Access-Control-Allow-Origin': '*', 
+          'Content-Type': 'application/json'
+        } 
+      });
+    } finally {
+      if (client) {
+        await client.end();
       }
-    });
+    }
   }
 }
