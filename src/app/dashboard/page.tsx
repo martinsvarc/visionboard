@@ -102,7 +102,6 @@ type Category = {
   key: CategoryKey;
   label: string;
   description?: string;
-  icon?: string;
 }
 
 type CategoryScore = {
@@ -167,11 +166,21 @@ return (
   <Card className="relative overflow-hidden border-0 bg-white rounded-[32px] shadow-lg [&>*:last-child]:overflow-visible h-[400px]">
     <div className="flex justify-between items-center p-6">
       <div className="flex items-center gap-2">
-        {category && <MessageSquare className="h-5 w-5" />}
-        <span className="text-slate-900 text-xl font-semibold">
-          {category ? category.label : 'Average Success'}
-        </span>
-      </div>
+  {category ? (
+    category.key === 'closing_skills' ? (
+      <img 
+        src="https://res.cloudinary.com/dmbzcxhjn/image/upload/Closing_Skills_wydaya.png" 
+        alt="Closing Skills Icon" 
+        className="h-5 w-5"
+      />
+    ) : (
+      <MessageSquare className="h-5 w-5" />
+    )
+  ) : null}
+  <span className="text-slate-900 text-xl font-semibold">
+    {category ? category.label : 'Average Success'}
+  </span>
+</div>
       <Button
         variant="outline"
         className="rounded-full"
@@ -705,7 +714,7 @@ const totalPages = Math.ceil(filteredCallLogs.length / recordsPerPage)
     { key: 'objection_handling', label: 'Objection Handling', description: 'Evaluates the agent\'s ability to address and overcome customer concerns or objections.' },
     { key: 'information_gathering', label: 'Information Gathering', description: 'Assesses how effectively the agent collects relevant information from the customer.' },
     { key: 'program_explanation', label: 'Program Explanation', description: 'Rates the clarity and completeness of the agent\'s explanation of products or services.' },
-    { key: 'closing_skills', label: 'Closing Skills', description: 'Measures the agent\'s ability to guide the conversation towards a successful conclusion or sale.', icon: 'https://res.cloudinary.com/dmbzcxhjn/image/upload/Closing_Skills_wydaya.png' },
+    { key: 'closing_skills', label: 'Closing Skills', description: 'Measures the agent\'s ability to guide the conversation towards a successful conclusion or sale.' },
     { key: 'overall_effectiveness', label: 'Overall Effectiveness', description: 'A comprehensive score reflecting the agent\'s overall performance during the call.' },
   ]
 
@@ -1041,11 +1050,6 @@ const saveNotes = async (id: number) => {
         <PopoverTrigger asChild>
           <div className="relative overflow-hidden rounded-xl cursor-pointer" style={{ backgroundColor: `${color}20` }}>
             <div className="px-4 py-3 text-sm font-medium flex flex-col justify-between h-full items-center text-center">
-              {category.icon ? (
-                <img src={category.icon} alt={category.label} className="h-5 w-5 mb-2" />
-              ) : (
-                <MessageSquare className="h-5 w-5 mb-2" />
-              )}
               <span className="text-slate-600">{category.label}</span>
               <div className="flex items-center gap-1">
                 <div className="text-2xl font-bold" style={{ color: getColorByScore(score) }}>
