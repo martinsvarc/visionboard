@@ -220,7 +220,6 @@ return (
       </div>
     </div>
   </div>
-)
 ) : chartData.length === 0 ? (
   <div className="absolute inset-0 flex flex-col items-center justify-center">
     <Button 
