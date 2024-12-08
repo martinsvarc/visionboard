@@ -163,8 +163,9 @@ const Chart = ({ data, category, dateRange, setDateRange, setExpandedCards, setC
   }
 
 return (
-  <Card className="relative overflow-hidden border-0 bg-white rounded-[32px] shadow-lg [&>*:last-child]:overflow-visible">
-    <div className="flex justify-between items-center p-6">
+  <Card className="relative overflow-hidden border-0 bg-white rounded-[32px] shadow-lg h-[400px] lg:h-[450px]">
+    {/* Fixed Header */}
+    <div className="flex justify-between items-center p-6 border-b border-slate-100 bg-white">
       <div className="flex items-center gap-2">
         {category && <MessageSquare className="h-5 w-5" />}
         <span className="text-slate-900 text-xl font-semibold">
@@ -179,65 +180,69 @@ return (
         {showDetails ? 'Show Chart' : 'Details'}
       </Button>
     </div>
-    <CardContent className="p-0">
+
+    {/* Content Area */}
+    <CardContent className="p-0 h-[calc(100%-88px)]"> {/* 88px accounts for header height + padding */}
       {showDetails ? (
-  <div className="px-6 pb-6 space-y-6 max-h-[320px] overflow-y-auto scrollbar-thin scrollbar-thumb-slate-200 scrollbar-track-transparent hover:scrollbar-thumb-slate-300">
-    <p className="text-slate-600">
-      {category?.description || 'Evaluates the agent\'s performance trends over time.'}
-    </p>
-    
-    <p className="text-slate-700 font-medium">Insights from last 10 calls</p>
-    
-    <div className="grid grid-cols-2 gap-4">
-      {/* Strong Points */}
-      <div className="bg-green-50 p-4 rounded-xl space-y-3">
-        <h3 className="text-green-700 font-semibold">Strong Points</h3>
-        <ul className="space-y-2">
-          <li className="flex items-start gap-2">
-            <CheckCircle2 className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
-            <span className="text-slate-700">Increases conversion rates</span>
-          </li>
-          <li className="flex items-start gap-2">
-            <CheckCircle2 className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
-            <span className="text-slate-700">Builds trust with customers</span>
-          </li>
-        </ul>
-      </div>
-      
-      {/* Areas for Improvement */}
-      <div className="bg-red-50 p-4 rounded-xl space-y-3">
-        <h3 className="text-red-700 font-semibold">Areas for Improvement</h3>
-        <ul className="space-y-2">
-          <li className="flex items-start gap-2">
-            <XCircle className="h-5 w-5 text-red-500 mt-0.5 flex-shrink-0" />
-            <span className="text-slate-700">Can be challenging for new agents</span>
-          </li>
-          <li className="flex items-start gap-2">
-            <XCircle className="h-5 w-5 text-red-500 mt-0.5 flex-shrink-0" />
-            <span className="text-slate-700">Requires quick thinking</span>
-          </li>
-        </ul>
-      </div>
-    </div>
-  </div>
-) : chartData.length === 0 ? (
-  <div className="absolute inset-0 flex flex-col items-center justify-center">
-    <Button 
-      variant="outline" 
-      className="text-slate-600 hover:text-slate-900 hover:bg-slate-50 gap-2"
-      onClick={() => setDateRange(null)}
-    >
-      <span>No data available for this period</span>
-      <span className="text-slate-400">•</span>
-      <span className="text-slate-900 font-medium">View all time</span>
-    </Button>
-  </div>
-) : (
-  <div className="h-[320px] relative -mx-8 -mb-8 overflow-visible">
+        <div className="h-full px-6 pb-6 overflow-y-auto scrollbar-thin scrollbar-thumb-slate-200 scrollbar-track-transparent hover:scrollbar-thumb-slate-300">
+          <div className="space-y-6">
+            <p className="text-slate-600">
+              {category?.description || 'Evaluates the agent\'s performance trends over time.'}
+            </p>
+            
+            <p className="text-slate-700 font-medium">Insights from last 10 calls</p>
+            
+            <div className="grid grid-cols-2 gap-4">
+              {/* Strong Points */}
+              <div className="bg-green-50 p-4 rounded-xl space-y-3">
+                <h3 className="text-green-700 font-semibold">Strong Points</h3>
+                <ul className="space-y-2">
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
+                    <span className="text-slate-700">Increases conversion rates</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
+                    <span className="text-slate-700">Builds trust with customers</span>
+                  </li>
+                </ul>
+              </div>
+              
+              {/* Areas for Improvement */}
+              <div className="bg-red-50 p-4 rounded-xl space-y-3">
+                <h3 className="text-red-700 font-semibold">Areas for Improvement</h3>
+                <ul className="space-y-2">
+                  <li className="flex items-start gap-2">
+                    <XCircle className="h-5 w-5 text-red-500 mt-0.5 flex-shrink-0" />
+                    <span className="text-slate-700">Can be challenging for new agents</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <XCircle className="h-5 w-5 text-red-500 mt-0.5 flex-shrink-0" />
+                    <span className="text-slate-700">Requires quick thinking</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : chartData.length === 0 ? (
+        <div className="h-full flex items-center justify-center">
+          <Button 
+            variant="outline" 
+            className="text-slate-600 hover:text-slate-900 hover:bg-slate-50 gap-2"
+            onClick={() => setDateRange(null)}
+          >
+            <span>No data available for this period</span>
+            <span className="text-slate-400">•</span>
+            <span className="text-slate-900 font-medium">View all time</span>
+          </Button>
+        </div>
+      ) : (
+        <div className="h-full relative">
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart 
               data={chartData} 
-              margin={{ top: 16, right: 16, bottom: -48, left: -48 }}
+              margin={{ top: 16, right: 16, bottom: 16, left: 16 }}
             >
               <defs>
                 <linearGradient id={`colorGradient-${category ? category.key : 'overall'}`} x1="0" y1="0" x2="0" y2="1">
