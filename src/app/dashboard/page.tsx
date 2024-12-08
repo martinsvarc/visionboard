@@ -854,7 +854,7 @@ const saveNotes = async (id: number) => {
   );
 }
 
-  if (isLoading) {
+ if (isLoading) {
   return (
     <div ref={containerRef} className="flex items-center justify-center w-full h-screen bg-transparent">
       <div className="relative w-24 h-24" role="status" aria-label="Loading">
@@ -892,10 +892,11 @@ const saveNotes = async (id: number) => {
           <Image 
             src="https://res.cloudinary.com/dmbzcxhjn/image/upload/Colors_logo_gawxfo_kvyozr.png"
             alt="AI Logo"
-            width={48}
-            height={48}
-            className="object-contain"
+            width={24}  // Reduced from 48
+            height={24} // Reduced from 48
+            className="object-contain w-6 h-6" // Added explicit width/height classes
             priority
+            unoptimized // Added this to bypass Next.js image optimization
           />
         </div>
       </div>
