@@ -5,7 +5,7 @@ import { Suspense } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
-import { Play, Pause, ChevronRight, ChevronLeft, Calendar, ChevronDown, ChevronUp } from 'lucide-react'
+import { Play, Pause, ChevronRight, ChevronLeft, Calendar, ChevronDown, ChevronUp, Info } from 'lucide-react'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Cell, ReferenceLine, Area, AreaChart } from 'recharts'
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Slider } from "@/components/ui/slider"
@@ -464,32 +464,53 @@ function DashboardContent() {
   }
 
   useEffect(() => {
-    const fetchCalls = async () => {
-      const memberId = searchParams.get('memberId')
-      if (!memberId) {
-        setError('No member ID provided')
-        setIsLoading(false)
-        return
+  const fetchCalls = async () => {
+    const memberId = searchParams.get('memberId')
+    if (!memberId) {
+      setError('No member ID provided')
+      setIsLoading(false)
+      return
+    }
+    
+    setIsLoading(true)
+    try {
+      console.log('Fetching data for memberId:', memberId);
+      const response = await fetch(`/api/dashboard?memberId=${memberId}`)
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('API Error Response:', errorData);
+        throw new Error(errorData.details || errorData.error || `HTTP error! status: ${response.status}`);
       }
       
-      setIsLoading(true)
-      try {
-        const response = await fetch(`/api/dashboard?memberId=${memberId}`)
-        if (!response.ok) {
-          throw new Error('Failed to fetch calls')
-        }
-        const data = await response.json()
-        setCallLogs(data)
-        setError(null)
-      } catch (error) {
-        setError(error instanceof Error ? error.message : 'Failed to load calls')
-      } finally {
-        setIsLoading(false)
+      const data = await response.json()
+      console.log('Received data:', {
+        count: data.length,
+        sample: data[0] ? { ...data[0], call_transcript: '[truncated]' } : 'No data'
+      });
+      
+      if (!Array.isArray(data)) {
+        console.error('Invalid data format:', data);
+        throw new Error('Invalid data format received from server');
       }
+      
+      setCallLogs(data)
+      setError(null)
+    } catch (error) {
+      console.error('Dashboard Error:', {
+        error,
+        message: error instanceof Error ? error.message : 'Unknown error',
+        stack: error instanceof Error ? error.stack : 'No stack trace'
+      });
+      
+      setError(error instanceof Error ? error.message : 'Failed to load calls')
+    } finally {
+      setIsLoading(false)
     }
+  }
 
-    fetchCalls()
-  }, [searchParams])
+  fetchCalls()
+}, [searchParams])
 
   const indexOfLastRecord = currentPage * recordsPerPage
   const indexOfFirstRecord = indexOfLastRecord - recordsPerPage
@@ -575,16 +596,47 @@ const saveNotes = async (id: number) => {
 }
 
   if (error) {
-    return (
-      <div className="flex items-center justify-center min-h-screen text-red-500">
-        {error}
+  return (
+    <div className="min-h-screen p-8 bg-slate-50">
+      <div className="max-w-7xl mx-auto">
+        <Card className="bg-white shadow-lg rounded-[32px] overflow-hidden border-0">
+          <CardContent className="p-6">
+            <h2 className="text-2xl font-bold text-red-500 mb-4">Error Loading Dashboard</h2>
+            <p className="text-slate-600 mb-4">{error}</p>
+            {process.env.NODE_ENV === 'development' && (
+              <pre className="bg-slate-100 p-4 rounded-xl overflow-auto text-sm">
+                {JSON.stringify(error, null, 2)}
+              </pre>
+            )}
+            <Button 
+              onClick={() => window.location.reload()}
+              className="mt-4"
+            >
+              Try Again
+            </Button>
+          </CardContent>
+        </Card>
       </div>
-    )
-  }
+    </div>
+  );
+}
 
   if (isLoading) {
-    return <div className="flex items-center justify-center min-h-screen">Loading...</div>
-  }
+  return (
+    <div className="min-h-screen p-8 bg-slate-50">
+      <div className="max-w-7xl mx-auto">
+        <div className="animate-pulse space-y-6">
+          <div className="h-[400px] bg-white rounded-[32px] shadow-lg" />
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[...Array(6)].map((_, i) => (
+              <div key={i} className="h-[300px] bg-white rounded-[32px] shadow-lg" />
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
 
   if (!callLogs.length) {
     return <div className="flex items-center justify-center min-h-screen">No call data found</div>
@@ -678,220 +730,239 @@ const saveNotes = async (id: number) => {
                 </div>
 
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-                  {scoreCategories.map((category) => {
-                    const score = call.scores[category.key];
-                    const color = getColorByScore(score)
-                    return (
-                      <Popover key={category.key}>
-  <PopoverTrigger asChild>
-    <div className="relative overflow-hidden rounded-xl cursor-pointer" style={{ backgroundColor: `${color}20` }}>
-      <div className="px-4 py-3 text-sm font-medium flex flex-col justify-between h-full items-center text-center">
-        <span className="text-slate-600">{category.label}</span>
-        <div className="text-2xl font-bold" style={{ color: getColorByScore(score) }}>
-          {score}/100
-        </div>
-      </div>
-      <div 
-        className="absolute bottom-0 left-0 h-1 transition-all duration-300"
-        style={{ 
-          width: `${score}%`,
-          backgroundColor: color
-        }}
-      />
-    </div>
-  </PopoverTrigger>
-  <PopoverContent className="w-80 rounded-[20px] p-4 bg-white border shadow-lg">
-    <h3 className="text-lg font-semibold mb-2">{category.label}</h3>
-    <p className="text-sm text-slate-600">
-      {call.feedback[category.key] || category.description || 'No feedback available'}
-    </p>
-  </PopoverContent>
-</Popover>
-                    )
-                  })}
+  {scoreCategories.map((category) => {
+    const score = call.scores[category.key];
+    const color = getColorByScore(score);
+    return (
+      <Popover key={category.key}>
+        <PopoverTrigger asChild>
+          <div className="relative overflow-hidden rounded-xl cursor-pointer" style={{ backgroundColor: `${color}20` }}>
+            <div className="px-4 py-3 text-sm font-medium flex flex-col justify-between h-full items-center text-center">
+              <span className="text-slate-600">{category.label}</span>
+              <div className="flex items-center gap-1">
+                <div className="text-2xl font-bold" style={{ color: getColorByScore(score) }}>
+                  {score}/100
                 </div>
+                <Info className="h-3.5 w-3.5 text-slate-400" />
+              </div>
+            </div>
+            <div 
+              className="absolute bottom-0 left-0 h-1 transition-all duration-300"
+              style={{ 
+                width: `${score}%`,
+                backgroundColor: color
+              }}
+            />
+          </div>
+        </PopoverTrigger>
+        <PopoverContent className="w-80 rounded-[20px] p-4 bg-white border shadow-lg">
+          <h3 className="text-lg font-semibold mb-2">{category.label}</h3>
+          <p className="text-sm text-slate-600">
+            {call.feedback[category.key] || category.description || 'No feedback available'}
+          </p>
+        </PopoverContent>
+      </Popover>
+    );
+  })}
+</div>
 
-                <Button
-                  variant="ghost"
-                  className="text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-100 w-full mt-4 rounded-xl"
-                  onClick={() => toggleExpandCard(call.id)}
-                >
-                  {expandedCards[call.id] ? (
-                    <>
-                      Hide Details <ChevronUp className="ml-2 h-4 w-4" />
-                    </>
-                  ) : (
-                    <>
-                      Call Details <ChevronDown className="ml-2 h-4 w-4" />
-                    </>
-                  )}
-                </Button>
-
-                {expandedCards[call.id] && (
-                  <div className="mt-6 p-6 bg-white rounded-[32px] shadow-sm">
-                    <h3 className="text-2xl font-bold text-slate-900 mb-4">Call Details</h3>
-                    <div className="space-y-6">
-                      <div className="grid grid-cols-2 gap-4">
-                        <Card className="relative overflow-hidden border-0 bg-white rounded-[32px] shadow-lg">
-  <CardContent className="p-6">
-    <h3 className="text-lg font-semibold text-slate-900 mb-2">⚡ Power Moment!</h3>
-    <p className="text-white p-4 rounded-xl" style={{ backgroundColor: 'rgba(91, 6, 190, 0.5)' }}>
-      {call.power_moment || "No power moment recorded"}
-    </p>
-                          </CardContent>
-                        </Card>
-                        <Card className="relative overflow-hidden border-0 bg-white rounded-[32px] shadow-lg">
-  <CardContent className="p-6">
-    <h3 className="text-lg font-semibold text-slate-900 mb-2">Call Notes</h3>
-    <Textarea
-      placeholder="Enter your notes here..."
-      value={callNotes[call.id] ?? call.call_notes}
-      onChange={(e) => handleNotesChange(call.id, e.target.value)}
-      className="min-h-[100px] mb-2 rounded-[20px]"
-    />
-    <Button 
-  onClick={() => saveNotes(call.id)}
-  className="w-full rounded-[20px]"
+                {/* Toggle Button */}
+<Button
+  variant="ghost"
+  className="text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-100 w-full mt-4 rounded-xl"
+  onClick={() => toggleExpandCard(call.id)}
 >
-  {savedStates[call.id] ? "Saved!" : "Save Notes"}
+  {expandedCards[call.id] ? (
+    <>
+      Hide Details <ChevronUp className="ml-2 h-4 w-4" />
+    </>
+  ) : (
+    <>
+      Call Details <ChevronDown className="ml-2 h-4 w-4" />
+    </>
+  )}
 </Button>
-  </CardContent>
-</Card>
-                      </div>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <Card className="relative overflow-hidden border-0 bg-white rounded-[32px] shadow-lg">
-                          <CardContent className="p-6">
-                            <div className="flex justify-between items-center mb-6">
-                              <span className="text-slate-900 text-xl font-semibold">Detailed Analysis</span>
-                            </div>
-                            <div className="space-y-4">
-                              <div className="flex justify-between items-center">
-  <span className="font-medium text-slate-600">Overall Score</span>
-  <span className="text-2xl font-bold" style={{ color: getColorByScore(call.scores.average_success) }}>
-    {call.scores.average_success}/100
-  </span>
-</div>
-<div className="h-2 bg-slate-200 rounded-full overflow-hidden">
-  <div 
-    className="h-full rounded-full"
-    style={{ 
-      width: `${call.scores.average_success}%`,
-      backgroundColor: getColorByScore(call.scores.average_success)
-    }}
-  />
-</div>
-                              <p className="text-slate-600">
-  {call.call_details || "No detailed analysis available"}
-</p>
-                            </div>
-                          </CardContent>
-                        </Card>
-                        <Card className="relative overflow-hidden border-0 bg-white rounded-[32px] shadow-lg">
-  <CardContent className="p-6">
-    <div className="flex justify-between items-center mb-6">
-      <span className="text-slate-900 text-xl font-semibold">Level Up Plan</span>
-    </div>
-    <div className="space-y-4">
-      {(!call.level_up_1 && !call.level_up_2 && !call.level_up_3) ? (
-        <div className="bg-[#fef8e8] text-slate-800 p-4 rounded-xl flex items-center gap-2">
-          No Plan
-        </div>
-      ) : (
-        <>
-          {call.level_up_1 && (
-            <div className="bg-[#fef8e8] text-slate-800 p-4 rounded-xl flex items-center gap-2">
-              <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M4 15L9 9L13 13L20 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-              {call.level_up_1}
-            </div>
-          )}
-          {call.level_up_2 && (
-            <div className="bg-[#fef8e8] text-slate-800 p-4 rounded-xl flex items-center gap-2">
-              <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M4 15L9 9L13 13L20 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-              {call.level_up_2}
-            </div>
-          )}
-          {call.level_up_3 && (
-            <div className="bg-[#fef8e8] text-slate-800 p-4 rounded-xl flex items-center gap-2">
-              <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M4 15L9 9L13 13L20 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-              {call.level_up_3}
-            </div>
-          )}
-        </>
-      )}
-    </div>
-  </CardContent>
-</Card>
-</div>
 
-<Card className="relative overflow-hidden border-0 bg-white rounded-[32px] shadow-lg w-full">
-  <CardContent className="p-6">
-    <div className="flex justify-between items-center mb-4">
-      <span className="text-slate-900 text-xl font-semibold">Call Recording</span>
-    </div>
-    <AudioPlayer src={call.call_recording_url} />
-  </CardContent>
-</Card>
+{/* Expandable Content */}
+<div className={`transition-all duration-300 ease-in-out overflow-hidden ${
+  expandedCards[call.id] 
+    ? 'max-h-[5000px] opacity-100 mt-6' 
+    : 'max-h-0 opacity-0 mt-0'
+}`}>
+  <div className="p-6 bg-white rounded-[32px] shadow-sm">
+    <h3 className="text-2xl font-bold text-slate-900 mb-4">Call Details</h3>
+    <div className="space-y-6">
+      {/* Power Moment and Notes Section */}
+      <div className="grid grid-cols-2 gap-4">
+        <Card className="relative overflow-hidden border-0 bg-white rounded-[32px] shadow-lg">
+          <CardContent className="p-6">
+            <h3 className="text-lg font-semibold text-slate-900 mb-2">⚡ Power Moment!</h3>
+            <p className="text-white p-4 rounded-xl" style={{ backgroundColor: 'rgba(91, 6, 190, 0.5)' }}>
+              {call.power_moment || "No power moment recorded"}
+            </p>
+          </CardContent>
+        </Card>
 
-<Card className="relative overflow-hidden border-0 bg-white rounded-[32px] shadow-lg w-full">
-  <CardContent className="p-6">
-    <div className="flex justify-between items-center mb-6">
-      <span className="text-slate-900 text-xl font-semibold">Call Transcript</span>
-    </div>
-   <div className="space-y-4 max-h-[400px] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent hover:scrollbar-thumb-gray-400">
-     {call.call_transcript.split('role:').map((segment, index) => {
-       if (!segment.trim()) return null;
-       
-       const [roleType, ...messageParts] = segment.split('message:');
-       if (!messageParts.length) return null;
+        <Card className="relative overflow-hidden border-0 bg-white rounded-[32px] shadow-lg">
+          <CardContent className="p-6">
+            <h3 className="text-lg font-semibold text-slate-900 mb-2">Call Notes</h3>
+            <Textarea
+              placeholder="Enter your notes here..."
+              value={callNotes[call.id] ?? call.call_notes}
+              onChange={(e) => handleNotesChange(call.id, e.target.value)}
+              className="min-h-[100px] mb-2 rounded-[20px]"
+            />
+            <Button 
+              onClick={() => saveNotes(call.id)}
+              className="w-full rounded-[20px]"
+            >
+              {savedStates[call.id] ? "Saved!" : "Save Notes"}
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
 
-       const isBot = roleType.trim() === 'bot';
-       const message = messageParts.join('message:').trim();
-       
-       return (
-         <div 
-           key={index}
-           className="p-3 rounded-lg"
-           style={{ 
-             backgroundColor: isBot 
-               ? 'rgba(248, 185, 34, 0.1)'  // Changed to 0.1 opacity (90% transparent)
-               : 'rgba(91, 6, 190, 0.1)'    // Changed to 0.1 opacity (90% transparent)
-           }}
-         >
-           <div className="flex items-center gap-2 mb-2">
-             <div className="w-6 h-6">
-               <img
-                 src={isBot ? call.agent_picture_url : call.user_picture_url || '/placeholder.svg?height=24&width=24'}
-                 alt={`${isBot ? call.agent_name : call.user_name}'s avatar`}
-                 className="w-full h-full rounded-[20px]"
-               />
-             </div>
-             <span className="text-sm" style={{ color: '#000' }}>
-               {isBot ? call.agent_name : call.user_name}
-             </span>
-           </div>
-           <p className="text-sm" style={{ color: '#000' }}>
-             {message}
-           </p>
-         </div>
-       );
-     })}
-   </div>
- </CardContent>
-</Card>
+      {/* Analysis and Level Up Section */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Analysis Card */}
+        <Card className="relative overflow-hidden border-0 bg-white rounded-[32px] shadow-lg">
+          <CardContent className="p-6">
+            <div className="flex justify-between items-center mb-6">
+              <span className="text-slate-900 text-xl font-semibold">Detailed Analysis</span>
+            </div>
+            <div className="space-y-4">
+              <div className="flex justify-between items-center">
+                <span className="font-medium text-slate-600">Overall Score</span>
+                <span className="text-2xl font-bold" style={{ color: getColorByScore(call.scores.average_success) }}>
+                  {call.scores.average_success}/100
+                </span>
+              </div>
+              <div className="h-2 bg-slate-200 rounded-full overflow-hidden">
+                <div 
+                  className="h-full rounded-full"
+                  style={{ 
+                    width: `${call.scores.average_success}%`,
+                    backgroundColor: getColorByScore(call.scores.average_success)
+                  }}
+                />
+              </div>
+              <p className="text-slate-600">
+                {call.call_details || "No detailed analysis available"}
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Level Up Plan Card */}
+        <Card className="relative overflow-hidden border-0 bg-white rounded-[32px] shadow-lg">
+          <CardContent className="p-6">
+            <div className="flex justify-between items-center mb-6">
+              <span className="text-slate-900 text-xl font-semibold">Level Up Plan</span>
+            </div>
+            <div className="space-y-4">
+              {(!call.level_up_1 && !call.level_up_2 && !call.level_up_3) ? (
+                <div className="bg-[#fef8e8] text-slate-800 p-4 rounded-xl flex items-center gap-2">
+                  No Plan
+                </div>
+              ) : (
+                <>
+                  {call.level_up_1 && (
+                    <div className="bg-[#fef8e8] text-slate-800 p-4 rounded-xl flex items-center gap-2">
+                      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M4 15L9 9L13 13L20 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                      {call.level_up_1}
                     </div>
+                  )}
+                  {call.level_up_2 && (
+                    <div className="bg-[#fef8e8] text-slate-800 p-4 rounded-xl flex items-center gap-2">
+                      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M4 15L9 9L13 13L20 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                      {call.level_up_2}
+                    </div>
+                  )}
+                  {call.level_up_3 && (
+                    <div className="bg-[#fef8e8] text-slate-800 p-4 rounded-xl flex items-center gap-2">
+                      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M4 15L9 9L13 13L20 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                      {call.level_up_3}
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Call Recording Section */}
+      <Card className="relative overflow-hidden border-0 bg-white rounded-[32px] shadow-lg w-full">
+        <CardContent className="p-6">
+          <div className="flex justify-between items-center mb-4">
+            <span className="text-slate-900 text-xl font-semibold">Call Recording</span>
+          </div>
+          <AudioPlayer src={call.call_recording_url} />
+        </CardContent>
+      </Card>
+
+      {/* Call Transcript Section */}
+      <Card className="relative overflow-hidden border-0 bg-white rounded-[32px] shadow-lg w-full">
+        <CardContent className="p-6">
+          <div className="flex justify-between items-center mb-6">
+            <span className="text-slate-900 text-xl font-semibold">Call Transcript</span>
+          </div>
+          <div className="space-y-4 max-h-[400px] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent hover:scrollbar-thumb-gray-400">
+            {call.call_transcript.split('role:').map((segment, index) => {
+              if (!segment.trim()) return null;
+              
+              const [roleType, ...messageParts] = segment.split('message:');
+              if (!messageParts.length) return null;
+
+              const isBot = roleType.trim() === 'bot';
+              const message = messageParts.join('message:').trim();
+              
+              return (
+                <div 
+                  key={index}
+                  className="p-3 rounded-lg"
+                  style={{ 
+                    backgroundColor: isBot 
+                      ? 'rgba(248, 185, 34, 0.1)'
+                      : 'rgba(91, 6, 190, 0.1)'
+                  }}
+                >
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="w-6 h-6">
+                      <img
+                        src={isBot ? call.agent_picture_url : call.user_picture_url || '/placeholder.svg?height=24&width=24'}
+                        alt={`${isBot ? call.agent_name : call.user_name}'s avatar`}
+                        className="w-full h-full rounded-[20px]"
+                      />
+                    </div>
+                    <span className="text-sm" style={{ color: '#000' }}>
+                      {isBot ? call.agent_name : call.user_name}
+                    </span>
                   </div>
-                )}
+                  <p className="text-sm" style={{ color: '#000' }}>
+                    {message}
+                  </p>
+                </div>
+              );
+            })}
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  </div>
+</div>
               </CardContent>
             </Card>
           ))}
         </div>
 
+        {/* Pagination */}
         <div className="flex items-center justify-center gap-2 p-6 mt-8">
           <Button
             variant="outline"
@@ -900,7 +971,7 @@ const saveNotes = async (id: number) => {
             disabled={currentPage === 1}
             className="h-10 w-10 rounded-full"
           >
-            <ChevronLeft className="h-4w-4" />
+            <ChevronLeft className="h-4 w-4" />
             <span className="sr-only">Previous page</span>
           </Button>
           {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
@@ -928,41 +999,6 @@ const saveNotes = async (id: number) => {
             <span className="sr-only">Next page</span>
           </Button>
         </div>
-
-        <Dialog open={detailsModal.isOpen} onOpenChange={(isOpen) => setDetailsModal({ ...detailsModal, isOpen })}>
-          <DialogContent className="bg-white text-slate-900 border-0 rounded-3xl">
-            <DialogHeader>
-              <DialogTitle className="text-2xl font-bold text-slate-900 text-center">
-                Call Details
-              </DialogTitle>
-              <DialogDescription className="text-slate-600 text-center">
-                {detailsModal.call && new Date(detailsModal.call.call_date).toLocaleDateString('en-US', {
-                  year: 'numeric', 
-                  month: 'long', 
-                  day: 'numeric',
-                  hour: '2-digit',
-                  minute: '2-digit'
-                })}
-              </DialogDescription>
-            </DialogHeader>
-            <div className="p-6">
-              <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  {detailsModal.call && Object.entries(detailsModal.call)
-                    .filter(([key]) => !['id', 'created_at'].includes(key))
-                    .map(([key, value]) => (
-                      <div key={key} className="space-y-1">
-                        <h3 className="text-sm font-medium text-slate-900 capitalize">
-                          {key.replace(/_/g, ' ')}
-                        </h3>
-                        <p className="text-sm text-slate-600">{value}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </DialogContent>
-        </Dialog>
       </div>
     </div>
   );
