@@ -464,32 +464,37 @@ function DashboardContent() {
   }
 
   useEffect(() => {
-    const fetchCalls = async () => {
-      const memberId = searchParams.get('memberId')
-      if (!memberId) {
-        setError('No member ID provided')
-        setIsLoading(false)
-        return
-      }
-      
-      setIsLoading(true)
-      try {
-        const response = await fetch(`/api/dashboard?memberId=${memberId}`)
-        if (!response.ok) {
-          throw new Error('Failed to fetch calls')
-        }
-        const data = await response.json()
-        setCallLogs(data)
-        setError(null)
-      } catch (error) {
-        setError(error instanceof Error ? error.message : 'Failed to load calls')
-      } finally {
-        setIsLoading(false)
-      }
+  const fetchCalls = async () => {
+    const memberId = searchParams.get('memberId')
+    if (!memberId) {
+      setError('No member ID provided')
+      setIsLoading(false)
+      return
     }
+    
+    setIsLoading(true)
+    try {
+      const response = await fetch(`/api/dashboard?memberId=${memberId}`)
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}))
+        throw new Error(errorData.error || `HTTP error! status: ${response.status}`)
+      }
+      const data = await response.json()
+      if (!Array.isArray(data)) {
+        throw new Error('Invalid data format received from server')
+      }
+      setCallLogs(data)
+      setError(null)
+    } catch (error) {
+      console.error('Dashboard Error:', error)
+      setError(error instanceof Error ? error.message : 'Failed to load calls')
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
-    fetchCalls()
-  }, [searchParams])
+  fetchCalls()
+}, [searchParams])
 
   const indexOfLastRecord = currentPage * recordsPerPage
   const indexOfFirstRecord = indexOfLastRecord - recordsPerPage
@@ -575,16 +580,47 @@ const saveNotes = async (id: number) => {
 }
 
   if (error) {
-    return (
-      <div className="flex items-center justify-center min-h-screen text-red-500">
-        {error}
+  return (
+    <div className="min-h-screen p-8 bg-slate-50">
+      <div className="max-w-7xl mx-auto">
+        <Card className="bg-white shadow-lg rounded-[32px] overflow-hidden border-0">
+          <CardContent className="p-6">
+            <h2 className="text-2xl font-bold text-red-500 mb-4">Error Loading Dashboard</h2>
+            <p className="text-slate-600 mb-4">{error}</p>
+            {process.env.NODE_ENV === 'development' && (
+              <pre className="bg-slate-100 p-4 rounded-xl overflow-auto text-sm">
+                {JSON.stringify(error, null, 2)}
+              </pre>
+            )}
+            <Button 
+              onClick={() => window.location.reload()}
+              className="mt-4"
+            >
+              Try Again
+            </Button>
+          </CardContent>
+        </Card>
       </div>
-    )
-  }
+    </div>
+  );
+}
 
   if (isLoading) {
-    return <div className="flex items-center justify-center min-h-screen">Loading...</div>
-  }
+  return (
+    <div className="min-h-screen p-8 bg-slate-50">
+      <div className="max-w-7xl mx-auto">
+        <div className="animate-pulse space-y-6">
+          <div className="h-[400px] bg-white rounded-[32px] shadow-lg" />
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[...Array(6)].map((_, i) => (
+              <div key={i} className="h-[300px] bg-white rounded-[32px] shadow-lg" />
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
 
   if (!callLogs.length) {
     return <div className="flex items-center justify-center min-h-screen">No call data found</div>
