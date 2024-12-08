@@ -129,32 +129,21 @@ type ChartProps = {
 }
 
 const Chart = ({ data, category, dateRange, setDateRange, setExpandedCards, setCurrentPage, recordsPerPage }: ChartProps) => {
-  const [activeTooltip, setActiveTooltip] = useState<number | null>(null);
-  if (!data.length) {
-    return (
-      <Card className="relative overflow-hidden border-0 bg-white rounded-[32px] shadow-lg h-[400px] flex items-center justify-center">
-        <div className="text-slate-500">No data available</div>
-      </Card>
-    );
-  }
-
-  const filterByDateRange = (date: string) => {
-    if (!dateRange) return true;
-    const itemDate = new Date(date);
-    const fromDate = new Date(dateRange.from.setHours(0, 0, 0, 0));
-    const toDate = new Date(dateRange.to.setHours(23, 59, 59, 999));
-    return itemDate >= fromDate && itemDate <= toDate;
-  };
-
+  // Add this data processing code right here, after the component declaration
   const chartData = React.useMemo(() => {
-  return data
-    .filter(item => filterByDateRange(item.date))
-    .map((item, index) => ({
-      name: item.name,
-      date: item.date,
-      value: category ? (item[category.key as keyof CategoryScore] ?? 0) : (item.value ?? 0)
-    }));
-}, [data, dateRange, category]);
+    return data
+      .filter(item => {
+        if (!dateRange) return true;
+        const itemDate = new Date(item.date);
+        const fromDate = new Date(dateRange.from.setHours(0, 0, 0, 0));
+        const toDate = new Date(dateRange.to.setHours(23, 59, 59, 999));
+        return itemDate >= fromDate && itemDate <= toDate;
+      })
+      .map(item => ({
+        name: item.name,
+        value: category ? (item[category.key as keyof CategoryScore] ?? 0) : (item.value ?? 0)
+      }));
+  }, [data, dateRange, category]);
 
   const average = React.useMemo(() => {
     if (chartData.length === 0) return 0;
@@ -164,12 +153,13 @@ const Chart = ({ data, category, dateRange, setDateRange, setExpandedCards, setC
 
   const color = getColorByScore(average);
 
-  const noDataContent = (
-    <div className="absolute inset-0 flex flex-col items-center justify-center text-slate-500">
-      <div className="text-lg">No data</div>
-      <div className="text-sm mt-1">for selected time period</div>
-    </div>
-  );
+  if (!data.length) {
+    return (
+      <Card className="relative overflow-hidden border-0 bg-white rounded-[32px] shadow-lg h-[400px] flex items-center justify-center">
+        <div className="text-slate-500">No data available</div>
+      </Card>
+    );
+  }
 
   return (
     <Card className="relative overflow-hidden border-0 bg-white rounded-[32px] shadow-lg [&>*:last-child]:overflow-visible">
@@ -179,19 +169,18 @@ const Chart = ({ data, category, dateRange, setDateRange, setExpandedCards, setC
         </span>
       </div>
       <CardContent className="p-0">
-        {chartData.length === 0 ? noDataContent : (
+        {chartData.length === 0 ? (
+          <div className="absolute inset-0 flex flex-col items-center justify-center text-slate-500">
+            <div className="text-lg">No data</div>
+            <div className="text-sm mt-1">for selected time period</div>
+          </div>
+        ) : (
           <div className="h-[320px] relative -mx-8 -mb-8 overflow-visible">
             <ResponsiveContainer width="100%" height="100%">
-             <AreaChart 
-  data={chartData} 
-  margin={{ top: 16, right: 16, bottom: -48, left: -48 }}
-  onMouseMove={(state) => {
-    if (state?.activeTooltipIndex !== undefined) {
-      setActiveTooltip(state.activeTooltipIndex);
-    }
-  }}
-  onMouseLeave={() => setActiveTooltip(null)}
->
+              <AreaChart 
+                data={chartData} 
+                margin={{ top: 16, right: 16, bottom: -48, left: -48 }}
+              >
                 <defs>
                   <linearGradient id={`colorGradient-${category ? category.key : 'overall'}`} x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor={color} stopOpacity={0.4}/>
@@ -211,69 +200,47 @@ const Chart = ({ data, category, dateRange, setDateRange, setExpandedCards, setC
                   tick={false}
                   domain={[0, 100]} 
                 />
-               <Tooltip 
-  wrapperStyle={{ zIndex: 100 }}
-  cursor={false}
-  content={({ active, payload }) => {
-    if (active && payload && payload[0]?.payload) {
-      const data = payload[0].payload;
-      const callNumber = parseInt(data.name) + 1;
-      return (
-        <div 
-          className="bg-[#1c1c1c] p-3 rounded-lg shadow-lg min-w-[140px] cursor-pointer hover:bg-[#2c2c2c] transition-colors"
-          onClick={() => {
-            const targetPage = Math.ceil(callNumber / recordsPerPage);
-            setCurrentPage(targetPage);
-            setExpandedCards(prev => ({
-              ...prev,
-              [callNumber]: true
-            }));
-          }}
-        >
-          <p className="text-white text-lg">
-            Call #{callNumber} - {Number(payload[0].value).toFixed(1)}/100
-          </p>
-        </div>
-      );
-    }
-    return null;
-  }}
-/>
+                <Tooltip 
+                  content={({ active, payload }) => {
+                    if (active && payload && payload.length) {
+                      const data = payload[0].payload;
+                      const callNumber = parseInt(data.name) + 1;
+                      return (
+                        <div className="bg-[#1c1c1c] p-3 rounded-lg shadow-lg min-w-[140px]">
+                          <p className="text-white text-lg">
+                            Call #{callNumber} - {Number(payload[0].value).toFixed(1)}/100
+                          </p>
+                        </div>
+                      );
+                    }
+                    return null;
+                  }}
+                  cursor={false}
+                />
                 <Area 
-  type="monotone" 
-  dataKey="value" 
-  stroke={color}
-  strokeWidth={2}
-  fill={`url(#colorGradient-${category ? category.key : 'overall'})`}
-  dot={{
-    r: 4,
-    strokeWidth: 2,
-    fill: "white",
-    stroke: color,
-  }}
-  activeDot={{
-    r: 8,
-    fill: color,
-    stroke: "white",
-    strokeWidth: 2,
-    className: "drop-shadow-md cursor-pointer",
-    onClick: (props: any) => {
-      if (props.payload) {
-        const callNumber = parseInt(props.payload.name);
-        const targetPage = Math.ceil(callNumber / recordsPerPage);
-        setCurrentPage(targetPage);
-        setExpandedCards(prev => ({
-          ...prev,
-          [callNumber]: true
-        }));
-      }
-    }
-  }}
-/>
+                  type="monotone" 
+                  dataKey="value" 
+                  stroke={color}
+                  strokeWidth={2}
+                  fill={`url(#colorGradient-${category ? category.key : 'overall'})`}
+                  dot={{
+                    r: 4,
+                    strokeWidth: 2,
+                    fill: "white",
+                    stroke: color,
+                  }}
+                  activeDot={{
+                    r: 8,
+                    fill: color,
+                    stroke: "white",
+                    strokeWidth: 2,
+                    className: "drop-shadow-md cursor-pointer"
+                  }}
+                />
               </AreaChart>
             </ResponsiveContainer>
             <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <div className="text-[64px] font-bold tracking-tight" style={{ color: getColorByScore(average) }}>
+              <div className="text-[64px] font-bold tracking-tight" style={{ color }}>
                 {Math.round(average)}/100
               </div>
               <div className="text-lg text-slate-600 mt-1">Average Score</div>
