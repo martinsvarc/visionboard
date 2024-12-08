@@ -15,6 +15,7 @@ import { useSearchParams } from 'next/navigation'
 import getColorByScore from '../../../utils/colors'
 import { Montserrat } from 'next/font/google';
 import { MessageSquare, CheckCircle2, XCircle } from 'lucide-react'
+import Image from 'next/image'
 
 const montserrat = Montserrat({
   subsets: ['latin'],
@@ -855,15 +856,47 @@ const saveNotes = async (id: number) => {
 
   if (isLoading) {
   return (
-    <div ref={containerRef} className="min-h-screen p-8 bg-slate-50">
-      <div className="max-w-7xl mx-auto">
-        <div className="animate-pulse space-y-6">
-          <div className="h-[400px] bg-white rounded-[32px] shadow-lg" />
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[...Array(6)].map((_, i) => (
-              <div key={i} className="h-[300px] bg-white rounded-[32px] shadow-lg" />
-            ))}
-          </div>
+    <div ref={containerRef} className="flex items-center justify-center w-full h-screen bg-transparent">
+      <div className="relative w-24 h-24" role="status" aria-label="Loading">
+        {/* Spinning loader */}
+        <svg
+          className="w-full h-full animate-spin"
+          viewBox="0 0 100 100"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          {/* Background circle */}
+          <circle
+            cx="50"
+            cy="50"
+            r="40"
+            stroke="#F5F5F5"
+            strokeWidth="12"
+            fill="none"
+            strokeLinecap="round"
+          />
+          {/* Two animated segments at opposite positions */}
+          <circle
+            cx="50"
+            cy="50"
+            r="40"
+            stroke="#5b06be"
+            strokeWidth="12"
+            fill="none"
+            strokeDasharray="30 95 30 95"
+            strokeDashoffset="-15"
+            strokeLinecap="round"
+          />
+        </svg>
+        {/* Center image */}
+        <div className="absolute inset-0 flex items-center justify-center">
+          <Image 
+            src="https://res.cloudinary.com/drkudvyog/image/upload/v1733356221/Colors_logo_gawxfo.png"
+            alt="AI Logo"
+            width={48}
+            height={48}
+            className="object-contain"
+            priority
+          />
         </div>
       </div>
     </div>
