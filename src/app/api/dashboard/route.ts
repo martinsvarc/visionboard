@@ -1,4 +1,4 @@
-import { sql } from '@vercel/postgres';
+import { createClient } from '@vercel/postgres';
 import { NextResponse } from 'next/server';
 
 interface CategoryScores {
@@ -42,6 +42,8 @@ interface CallData {
 }
 
 export const GET = async (request: Request) => {
+  const client = createClient();
+  
   try {
     const { searchParams } = new URL(request.url);
     const memberId = searchParams.get('memberId');
@@ -51,22 +53,25 @@ export const GET = async (request: Request) => {
       return NextResponse.json({ error: 'Member ID required' }, { status: 400 });
     }
 
+    await client.connect();
+
     const query = latest 
-      ? await sql`
+      ? `
           SELECT *
           FROM call_logs 
-          WHERE member_id = ${memberId}
+          WHERE member_id = $1
           ORDER BY call_date DESC
           LIMIT 10
         `
-      : await sql`
+      : `
           SELECT *
           FROM call_logs 
-          WHERE member_id = ${memberId}
+          WHERE member_id = $1
           ORDER BY call_date ASC
         `;
 
-    const { rows } = query;
+    const result = await client.query(query, [memberId]);
+    const { rows } = result;
 
     const transformedRows = rows.map(row => ({
       id: row.id,
@@ -108,13 +113,21 @@ export const GET = async (request: Request) => {
     }));
 
     return NextResponse.json(transformedRows);
-  } catch (error) {
+
+  } catch (error: any) {
     console.error('Error getting call logs:', error);
-    return NextResponse.json({ error: 'Failed to get call logs' }, { status: 500 });
+    return NextResponse.json({ 
+      error: 'Failed to get call logs',
+      details: error?.message || 'Unknown error'
+    }, { status: 500 });
+  } finally {
+    await client.end();
   }
 }
 
 export const POST = async (request: Request) => {
+  const client = createClient();
+  
   try {
     const { memberId, callData }: { memberId: string, callData: CallData } = await request.json();
     
@@ -122,16 +135,17 @@ export const POST = async (request: Request) => {
       return NextResponse.json({ error: 'Member ID and call data required' }, { status: 400 });
     }
 
-    const { rows: existingCalls } = await sql`
-      SELECT COALESCE(MAX(call_number), 0) as max_call_number
-      FROM call_logs
-      WHERE member_id = ${memberId}
-    `;
+    await client.connect();
+
+    const { rows: existingCalls } = await client.query(
+      'SELECT COALESCE(MAX(call_number), 0) as max_call_number FROM call_logs WHERE member_id = $1',
+      [memberId]
+    );
 
     const nextCallNumber = parseInt(existingCalls[0].max_call_number) + 1;
 
-    const { rows } = await sql`
-      INSERT INTO call_logs (
+    const { rows } = await client.query(
+      `INSERT INTO call_logs (
         member_id,
         call_number,
         user_name,
@@ -162,49 +176,57 @@ export const POST = async (request: Request) => {
         program_explanation_feedback,
         closing_skills_feedback,
         overall_effectiveness_feedback
-      ) VALUES (
-        ${memberId},
-        ${nextCallNumber},
-        ${callData.user_name},
-        ${callData.agent_name},
-        ${callData.agent_picture_url},
-        ${callData.call_recording_url},
-        ${callData.call_details},
-        ${callData.call_duration},
-        ${callData.power_moment},
-        ${callData.call_notes},
-        ${callData.level_up_1},
-        ${callData.level_up_2},
-        ${callData.level_up_3},
-        ${callData.call_transcript},
-        ${callData.strong_points},
-        ${callData.areas_for_improvement},
-        ${callData.scores.engagement},
-        ${callData.scores.objection_handling},
-        ${callData.scores.information_gathering},
-        ${callData.scores.program_explanation},
-        ${callData.scores.closing_skills},
-        ${callData.scores.overall_effectiveness},
-        ${callData.scores.overall_performance ?? null},
-        ${callData.scores.average_success},
-        ${callData.feedback.engagement},
-        ${callData.feedback.objection_handling},
-        ${callData.feedback.information_gathering},
-        ${callData.feedback.program_explanation},
-        ${callData.feedback.closing_skills},
-        ${callData.feedback.overall_effectiveness}
-      )
-      RETURNING *
-    `;
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $30)
+      RETURNING *`,
+      [
+        memberId,
+        nextCallNumber,
+        callData.user_name,
+        callData.agent_name,
+        callData.agent_picture_url,
+        callData.call_recording_url,
+        callData.call_details,
+        callData.call_duration,
+        callData.power_moment,
+        callData.call_notes,
+        callData.level_up_1,
+        callData.level_up_2,
+        callData.level_up_3,
+        callData.call_transcript,
+        callData.strong_points,
+        callData.areas_for_improvement,
+        callData.scores.engagement,
+        callData.scores.objection_handling,
+        callData.scores.information_gathering,
+        callData.scores.program_explanation,
+        callData.scores.closing_skills,
+        callData.scores.overall_effectiveness,
+        callData.scores.overall_performance || null,
+        callData.scores.average_success,
+        callData.feedback.engagement,
+        callData.feedback.objection_handling,
+        callData.feedback.information_gathering,
+        callData.feedback.program_explanation,
+        callData.feedback.closing_skills,
+        callData.feedback.overall_effectiveness
+      ]
+    );
 
     return NextResponse.json(rows[0]);
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error adding call log:', error);
-    return NextResponse.json({ error: 'Failed to add call log' }, { status: 500 });
+    return NextResponse.json({ 
+      error: 'Failed to add call log',
+      details: error?.message || 'Unknown error'
+    }, { status: 500 });
+  } finally {
+    await client.end();
   }
 }
 
 export const PUT = async (request: Request) => {
+  const client = createClient();
+  
   try {
     const { searchParams } = new URL(request.url);
     const callId = searchParams.get('id');
@@ -214,39 +236,65 @@ export const PUT = async (request: Request) => {
       return NextResponse.json({ error: 'Call ID required' }, { status: 400 });
     }
 
-    const { rows } = await sql`
-      UPDATE call_logs
-      SET 
-        engagement_score = COALESCE(${updateData.scores?.engagement}, engagement_score),
-        objection_handling_score = COALESCE(${updateData.scores?.objection_handling}, objection_handling_score),
-        information_gathering_score = COALESCE(${updateData.scores?.information_gathering}, information_gathering_score),
-        program_explanation_score = COALESCE(${updateData.scores?.program_explanation}, program_explanation_score),
-        closing_skills_score = COALESCE(${updateData.scores?.closing_skills}, closing_skills_score),
-        overall_effectiveness_score = COALESCE(${updateData.scores?.overall_effectiveness}, overall_effectiveness_score),
-        average_success_score = COALESCE(${updateData.scores?.average_success}, average_success_score),
-        engagement_feedback = COALESCE(${updateData.feedback?.engagement}, engagement_feedback),
-        objection_handling_feedback = COALESCE(${updateData.feedback?.objection_handling}, objection_handling_feedback),
-        information_gathering_feedback = COALESCE(${updateData.feedback?.information_gathering}, information_gathering_feedback),
-        program_explanation_feedback = COALESCE(${updateData.feedback?.program_explanation}, program_explanation_feedback),
-        closing_skills_feedback = COALESCE(${updateData.feedback?.closing_skills}, closing_skills_feedback),
-        overall_effectiveness_feedback = COALESCE(${updateData.feedback?.overall_effectiveness}, overall_effectiveness_feedback),
-        call_notes = COALESCE(${updateData.call_notes}, call_notes)
-      WHERE id = ${callId}
-      RETURNING *
-    `;
+    await client.connect();
+
+    const { rows } = await client.query(
+      `UPDATE call_logs
+       SET 
+        engagement_score = COALESCE($1, engagement_score),
+        objection_handling_score = COALESCE($2, objection_handling_score),
+        information_gathering_score = COALESCE($3, information_gathering_score),
+        program_explanation_score = COALESCE($4, program_explanation_score),
+        closing_skills_score = COALESCE($5, closing_skills_score),
+        overall_effectiveness_score = COALESCE($6, overall_effectiveness_score),
+        average_success_score = COALESCE($7, average_success_score),
+        engagement_feedback = COALESCE($8, engagement_feedback),
+        objection_handling_feedback = COALESCE($9, objection_handling_feedback),
+        information_gathering_feedback = COALESCE($10, information_gathering_feedback),
+        program_explanation_feedback = COALESCE($11, program_explanation_feedback),
+        closing_skills_feedback = COALESCE($12, closing_skills_feedback),
+        overall_effectiveness_feedback = COALESCE($13, overall_effectiveness_feedback),
+        call_notes = COALESCE($14, call_notes)
+       WHERE id = $15
+       RETURNING *`,
+      [
+        updateData.scores?.engagement,
+        updateData.scores?.objection_handling,
+        updateData.scores?.information_gathering,
+        updateData.scores?.program_explanation,
+        updateData.scores?.closing_skills,
+        updateData.scores?.overall_effectiveness,
+        updateData.scores?.average_success,
+        updateData.feedback?.engagement,
+        updateData.feedback?.objection_handling,
+        updateData.feedback?.information_gathering,
+        updateData.feedback?.program_explanation,
+        updateData.feedback?.closing_skills,
+        updateData.feedback?.overall_effectiveness,
+        updateData.call_notes,
+        callId
+      ]
+    );
 
     if (rows.length === 0) {
       return NextResponse.json({ error: 'Call log not found' }, { status: 404 });
     }
 
     return NextResponse.json(rows[0]);
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error updating call log:', error);
-    return NextResponse.json({ error: 'Failed to update call log' }, { status: 500 });
+    return NextResponse.json({ 
+      error: 'Failed to update call log',
+      details: error?.message || 'Unknown error'
+    }, { status: 500 });
+  } finally {
+    await client.end();
   }
 }
 
 export const DELETE = async (request: Request) => {
+  const client = createClient();
+  
   try {
     const { searchParams } = new URL(request.url);
     const callId = searchParams.get('id');
@@ -255,19 +303,25 @@ export const DELETE = async (request: Request) => {
       return NextResponse.json({ error: 'Call ID required' }, { status: 400 });
     }
 
-    const { rows } = await sql`
-      DELETE FROM call_logs 
-      WHERE id = ${callId}
-      RETURNING *
-    `;
+    await client.connect();
+
+    const { rows } = await client.query(
+      'DELETE FROM call_logs WHERE id = $1 RETURNING *',
+      [callId]
+    );
 
     if (rows.length === 0) {
       return NextResponse.json({ error: 'Call log not found' }, { status: 404 });
     }
 
     return NextResponse.json({ success: true });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error deleting call log:', error);
-    return NextResponse.json({ error: 'Failed to delete call log' }, { status: 500 });
+    return NextResponse.json({ 
+      error: 'Failed to delete call log',
+      details: error?.message || 'Unknown error'
+    }, { status: 500 });
+  } finally {
+    await client.end();
   }
 }
