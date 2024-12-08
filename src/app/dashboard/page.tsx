@@ -864,8 +864,10 @@ const saveNotes = async (id: number) => {
     />
     Call Records
   </h2>
-        <Card className="bg-white shadow-lg rounded-[32px] overflow-hidden border-0">
-          <CardContent className="p-12 text-center">
+  <div></div>
+</div>
+<Card className="bg-white shadow-lg rounded-[32px] overflow-hidden border-0">
+  <CardContent className="p-12 text-center">
             <div className="max-w-sm mx-auto">
               <MessageSquare className="h-12 w-12 text-slate-400 mx-auto mb-4" />
               <h3 className="text-xl font-semibold text-slate-900 mb-2">No Call History</h3>
@@ -953,8 +955,10 @@ const saveNotes = async (id: number) => {
     />
     Call Records
   </h2>
-        <div className="space-y-6">
-          {currentRecords.map((call, index) => (
+  <div></div>
+</div>
+<div className="space-y-6">
+  {currentRecords.map((call, index) => (
             <Card key={call.id} className="bg-white shadow-lg rounded-[32px] overflow-hidden border-0">
               <CardContent className="p-6">
                 <div className="flex items-center justify-start mb-6 gap-4">
