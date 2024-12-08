@@ -830,7 +830,7 @@ const saveNotes = async (id: number) => {
 
   if (error) {
   return (
-    <div ref={containerRef} className="min-h-screen p-8 bg-slate-50">
+    <div ref={containerRef} className="min-h-screen p-8" style={{ backgroundColor: '#f2f3f8' }}>
       <div className="max-w-7xl mx-auto">
         <Card className="bg-white shadow-lg rounded-[32px] overflow-hidden border-0">
           <CardContent className="p-6">
@@ -906,7 +906,7 @@ const saveNotes = async (id: number) => {
 
   if (!callLogs.length) {
   return (
-    <div ref={containerRef} className="min-h-screen p-8 bg-slate-50">
+    <div ref={containerRef} className="min-h-screen p-8" style={{ backgroundColor: '#f2f3f8' }}>
   <div className="max-w-7xl mx-auto">
     <div className="flex justify-between items-center mb-6">
       <h2 className={`${montserrat.className} text-3xl text-slate-900 flex items-center gap-2`}>
@@ -998,7 +998,7 @@ const saveNotes = async (id: number) => {
 }
 
   return (
-    <div ref={containerRef} className="min-h-screen p-8 bg-slate-50">
+    <div ref={containerRef} className="min-h-screen p-8" style={{ backgroundColor: '#f2f3f8' }}>
   <div className="max-w-7xl mx-auto">
     <div className="flex justify-between items-center mb-6">
       <h2 className={`${montserrat.className} text-3xl text-slate-900 flex items-center gap-2`}>
