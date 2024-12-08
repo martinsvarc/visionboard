@@ -2,13 +2,7 @@
 
 import React, { useState, useCallback, useRef, useEffect } from 'react'
 import { Suspense } from 'react'
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Play, Pause, ChevronRight, ChevronLeft, Calendar, ChevronDown, ChevronUp, Info } from 'lucide-react'
