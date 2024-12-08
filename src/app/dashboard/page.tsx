@@ -227,7 +227,7 @@ const Chart = ({ data, category, dateRange, setDateRange, setExpandedCards, setC
         </div>
       </div>
     ) : (
-        {chartData.length === 0 ? (
+        ) : chartData.length === 0 ? (
   <div className="absolute inset-0 flex flex-col items-center justify-center">
     <Button 
       variant="outline" 
