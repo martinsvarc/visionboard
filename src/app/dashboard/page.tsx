@@ -146,6 +146,7 @@ type ChartProps = {
 }
 
 const Chart = ({ data, category, dateRange, setDateRange, setExpandedCards, setCurrentPage, recordsPerPage }: ChartProps) => {
+  const [activeTooltip, setActiveTooltip] = useState<number | null>(null);
   if (!data.length) {
     return (
       <Card className="relative overflow-hidden border-0 bg-white rounded-[32px] shadow-lg h-[400px] flex items-center justify-center">
@@ -201,8 +202,11 @@ const Chart = ({ data, category, dateRange, setDateRange, setExpandedCards, setC
   data={chartData} 
   margin={{ top: 16, right: 16, bottom: -48, left: -48 }}
   onMouseMove={(state) => {
-    console.log('Mouse move state:', state);
+    if (state?.activeTooltipIndex !== undefined) {
+      setActiveTooltip(state.activeTooltipIndex);
+    }
   }}
+  onMouseLeave={() => setActiveTooltip(null)}
 >
                 <defs>
                   <linearGradient id={`colorGradient-${category ? category.key : 'overall'}`} x1="0" y1="0" x2="0" y2="1">
@@ -223,10 +227,22 @@ const Chart = ({ data, category, dateRange, setDateRange, setExpandedCards, setC
                   tick={false}
                   domain={[0, 100]} 
                 />
-                <Tooltip 
-  content={<CustomTooltip setCurrentPage={setCurrentPage} setExpandedCards={setExpandedCards} recordsPerPage={recordsPerPage} />}
-  cursor={false}
+               <Tooltip 
+  active={true}
   wrapperStyle={{ zIndex: 100 }}
+  content={(props) => (
+    <CustomTooltip 
+      {...props} 
+      setCurrentPage={setCurrentPage} 
+      setExpandedCards={setExpandedCards} 
+      recordsPerPage={recordsPerPage} 
+    />
+  )}
+  cursor={{
+    stroke: '#666',
+    strokeWidth: 1,
+    strokeDasharray: '4 4'
+  }}
 />
                 <Area 
                   type="monotone" 
