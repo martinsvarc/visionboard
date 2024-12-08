@@ -181,16 +181,10 @@ return (
     </div>
     <CardContent className="p-0">
       {showDetails ? (
-  <div className="relative overflow-hidden">
-    <div 
-      className={`absolute inset-0 transition-transform duration-300 ease-out ${
-        showDetails ? 'translate-y-0' : 'translate-y-full'
-      }`}
-    >
-      <div className="px-6 pb-6 space-y-6 max-h-[320px] overflow-y-auto scrollbar-thin scrollbar-thumb-slate-200 scrollbar-track-transparent hover:scrollbar-thumb-slate-300">
-        <p className="text-slate-600">
-          {category?.description || 'Evaluates the agent\'s performance trends over time.'}
-        </p>
+  <div className="px-6 pb-6 space-y-6 max-h-[320px] overflow-y-auto scrollbar-thin scrollbar-thumb-slate-200 scrollbar-track-transparent hover:scrollbar-thumb-slate-300">
+    <p className="text-slate-600">
+      {category?.description || 'Evaluates the agent\'s performance trends over time.'}
+    </p>
     
     <p className="text-slate-700 font-medium">Insights from last 10 calls</p>
     
@@ -239,12 +233,7 @@ return (
     </Button>
   </div>
 ) : (
-<div className="relative overflow-hidden">
-  <div 
-  className={`h-[320px] relative -mx-8 -mb-8 overflow-visible transition-transform duration-300 ease-out ${
-    showDetails ? '-translate-y-full opacity-0' : 'translate-y-0 opacity-100'
-  }`}
->
+  <div className="h-[320px] relative -mx-8 -mb-8 overflow-visible">
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart 
               data={chartData} 
