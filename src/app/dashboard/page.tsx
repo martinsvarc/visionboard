@@ -1012,6 +1012,15 @@ const saveNotes = async (id: number) => {
           </div>
         </CardContent>
       </Card>
+      
+      {/* Bottom Toggle Button */}
+      <Button
+        variant="ghost"
+        className="text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-100 w-full mt-6 rounded-xl"
+        onClick={() => toggleExpandCard(call.id)}
+      >
+        Hide Details <ChevronUp className="ml-2 h-4 w-4" />
+      </Button>
     </div>
   </div>
 </div>
