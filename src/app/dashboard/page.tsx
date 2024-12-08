@@ -102,6 +102,7 @@ type Category = {
   key: CategoryKey;
   label: string;
   description?: string;
+  icon?: string;
 }
 
 type CategoryScore = {
@@ -704,7 +705,7 @@ const totalPages = Math.ceil(filteredCallLogs.length / recordsPerPage)
     { key: 'objection_handling', label: 'Objection Handling', description: 'Evaluates the agent\'s ability to address and overcome customer concerns or objections.' },
     { key: 'information_gathering', label: 'Information Gathering', description: 'Assesses how effectively the agent collects relevant information from the customer.' },
     { key: 'program_explanation', label: 'Program Explanation', description: 'Rates the clarity and completeness of the agent\'s explanation of products or services.' },
-    { key: 'closing_skills', label: 'Closing Skills', description: 'Measures the agent\'s ability to guide the conversation towards a successful conclusion or sale.' },
+    { key: 'closing_skills', label: 'Closing Skills', description: 'Measures the agent\'s ability to guide the conversation towards a successful conclusion or sale.', icon: 'https://res.cloudinary.com/dmbzcxhjn/image/upload/Closing_Skills_wydaya.png' },
     { key: 'overall_effectiveness', label: 'Overall Effectiveness', description: 'A comprehensive score reflecting the agent\'s overall performance during the call.' },
   ]
 
@@ -1040,6 +1041,11 @@ const saveNotes = async (id: number) => {
         <PopoverTrigger asChild>
           <div className="relative overflow-hidden rounded-xl cursor-pointer" style={{ backgroundColor: `${color}20` }}>
             <div className="px-4 py-3 text-sm font-medium flex flex-col justify-between h-full items-center text-center">
+              {category.icon ? (
+                <img src={category.icon} alt={category.label} className="h-5 w-5 mb-2" />
+              ) : (
+                <MessageSquare className="h-5 w-5 mb-2" />
+              )}
               <span className="text-slate-600">{category.label}</span>
               <div className="flex items-center gap-1">
                 <div className="text-2xl font-bold" style={{ color: getColorByScore(score) }}>
