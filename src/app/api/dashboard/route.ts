@@ -435,21 +435,20 @@ export const DELETE = async (request: Request) => {
       }
     });
   } catch (error) {
-      console.error('Error deleting call log:', error);
-      return NextResponse.json({ 
-        error: 'Failed to delete call log', 
-        details: error instanceof Error ? error.message : 'Unknown error' 
-      }, { 
-        status: 500, 
-        headers: { 
-          'Access-Control-Allow-Origin': '*', 
-          'Content-Type': 'application/json'
-        } 
-      });
-    } finally {
-      if (client) {
-        await client.end();
-      }
+    console.error('Error deleting call log:', error);
+    return NextResponse.json({ 
+      error: 'Failed to delete call log',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    }, { 
+      status: 500, 
+      headers: { 
+        'Access-Control-Allow-Origin': '*', 
+        'Content-Type': 'application/json'
+      } 
+    });
+  } finally {
+    if (client) {
+      await client.end();
     }
   }
 }
