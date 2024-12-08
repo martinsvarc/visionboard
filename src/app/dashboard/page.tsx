@@ -185,10 +185,38 @@ return (
         alt="Information Gathering Icon" 
         className="h-10 w-10"
       />
+    ) : category.key === 'objection_handling' ? (
+      <img 
+        src="https://res.cloudinary.com/dmbzcxhjn/image/upload/Objection_Handling_aur2r6.png" 
+        alt="Objection Handling Icon" 
+        className="h-10 w-10"
+      />
+    ) : category.key === 'program_explanation' ? (
+      <img 
+        src="https://res.cloudinary.com/dmbzcxhjn/image/upload/Program_Explanation_javjwg.png" 
+        alt="Program Explanation Icon" 
+        className="h-10 w-10"
+      />
+    ) : category.key === 'overall_effectiveness' ? (
+      <img 
+        src="https://res.cloudinary.com/dmbzcxhjn/image/upload/Overall_Effectiveness_oklehz.png" 
+        alt="Overall Effectiveness Icon" 
+        className="h-10 w-10"
+      />
     ) : (
-      <MessageSquare className="h-5 w-5" />
+      <img 
+        src="https://res.cloudinary.com/dmbzcxhjn/image/upload/Average_Success_ytn31p.png" 
+        alt="Average Success Icon" 
+        className="h-10 w-10"
+      />
     )
-  ) : null}
+  ) : (
+    <img 
+      src="https://res.cloudinary.com/dmbzcxhjn/image/upload/Average_Success_ytn31p.png" 
+      alt="Average Success Icon" 
+      className="h-10 w-10"
+    />
+  )}
   <span className="text-slate-900 text-xl font-semibold">
     {category ? category.label : 'Average Success'}
   </span>
