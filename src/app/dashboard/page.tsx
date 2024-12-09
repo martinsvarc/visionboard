@@ -459,14 +459,16 @@ const DatePicker = ({ onChange }: { onChange: (range: DateRange) => void }) => {
       // First click - set start date
       setSelectedRange({ from: clickedDate })
     } else if (!selectedRange.to && clickedDate >= selectedRange.from) {
-      // Second click - set end date and trigger onChange
-      const newRange = {
-        from: selectedRange.from,
-        to: clickedDate
-      }
-      setSelectedRange(newRange)
-      onChange(newRange)
-    } else {
+  console.log('Before setting new range:', clickedDate)
+  const newRange = {
+    from: selectedRange.from,
+    to: clickedDate
+  }
+  setSelectedRange(newRange)
+  console.log('Before onChange')
+  onChange(newRange)
+  console.log('After onChange')
+} else {
       // Reset and start new selection
       setSelectedRange({ from: clickedDate })
     }
