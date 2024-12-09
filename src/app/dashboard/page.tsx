@@ -515,17 +515,22 @@ const DatePicker = ({ onChange }: { onChange: (range: DateRange) => void }) => {
               <Button
   key={index}
   variant="ghost"
-  className={`h-9 w-9 p-0 font-normal 
-    ${isSelected ? 'bg-slate-900 text-white hover:bg-slate-800 hover:text-white' : 'text-slate-900'}
-    ${isInRange ? 'bg-slate-100' : ''}
+  className={`h-9 w-9 p-0 font-normal transition-colors
+    ${isSelected 
+      ? 'bg-slate-900 !text-white hover:bg-slate-800 hover:!text-white focus:!text-white active:!text-white' 
+      : 'text-slate-900 hover:text-slate-900'
+    }
+    ${isInRange && !isSelected ? 'bg-slate-100' : ''}
     ${day === new Date().getDate() && 
       date.getMonth() === new Date().getMonth() && 
       date.getFullYear() === new Date().getFullYear()
       ? "border border-slate-200"
       : ""
     }
-    ${selectedRange.to && date.getTime() === selectedRange.to.getTime() ? '!text-white' : ''}
-  `}
+    ${selectedRange.to && date.getTime() === selectedRange.to.getTime() 
+      ? '!bg-slate-900 !text-white hover:!bg-slate-800 hover:!text-white focus:!text-white active:!text-white' 
+      : ''
+    }`}
   onClick={() => handleDateClick(currentDate)}
 >
                 {day}
