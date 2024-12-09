@@ -119,7 +119,7 @@ const [isMobile, setIsMobile] = useState(false);
               <Button
                 variant="outline" 
                 size="sm"
-                className="bg-[#f8b922] hover:bg-[#f9a238] text-white border-[#f8b922] gap-2 rounded-xl"
+                className="bg-[#ffffff] hover:bg-[#ffffff] text-white border-[#ffffff] gap-2 rounded-xl"
               >
                 <Palette />
                 Color
@@ -159,7 +159,7 @@ const [isMobile, setIsMobile] = useState(false);
           <Button
             variant="outline"
             size="sm"
-            className="bg-[#5b06be] hover:bg-[#4a5eb3] text-white border-[#5b06be] gap-2 rounded-xl"
+            className="bg-[#ffffff] hover:bg-[#ffffff] text-black border-[#ffffff] gap-2 rounded-xl"
             onClick={toggleFullScreen}
           >
             <Maximize2 />
