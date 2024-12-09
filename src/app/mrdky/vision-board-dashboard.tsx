@@ -171,7 +171,7 @@ const [isMobile, setIsMobile] = useState(false);
               onClick={toggleFullScreen}
           >
             <img 
-              src="https://res.cloudinary.com/drkudvyog/image/upload/v1733777350/Full_screen_icon_duha_zxcwgp.png"
+              src="https://res.cloudinary.com/drkudvyog/image/upload/v1733777679/Full_screen_icon_duha_qrdpsa.png"
               alt="Full Screen"
               className="w-4 h-4"
             />
