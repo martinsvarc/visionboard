@@ -150,7 +150,7 @@ const [isMobile, setIsMobile] = useState(false);
           <Button
             variant="outline"
             size="sm"
-            className="bg-[#ce00cb] hover:bg-[#ce00cb] text-white border-[#ce00cb] gap-2 rounded-xl"
+            className="bg-[#ffffff] hover:bg-[#ffffff] text-black border-[#ffffff] gap-2 rounded-xl"
             onClick={() => fileInputRef.current?.click()}
           >
             <Upload />
