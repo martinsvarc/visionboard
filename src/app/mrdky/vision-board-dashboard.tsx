@@ -148,12 +148,16 @@ const [isMobile, setIsMobile] = useState(false);
             </PopoverContent>
           </Popover>
           <Button
-            variant="outline"
-            size="sm"
-            className="bg-[#ffffff] hover:bg-[#ffffff] text-black border-[#ffffff] gap-2 rounded-xl"
-            onClick={() => fileInputRef.current?.click()}
-          >
-            <Upload />
+              variant="outline"
+              size="sm"
+              className="bg-[#ffffff] hover:bg-[#ffffff] text-black border-[#ffffff] gap-2 rounded-xl"
+              onClick={() => fileInputRef.current?.click()}
+            >
+              <img 
+              src="https://res.cloudinary.com/drkudvyog/image/upload/v1733750646/upload_icon_bjsfxf.png"
+              alt="Upload"
+              className="w-4 h-4"
+            />
             Add Vision
           </Button>
           <Button
