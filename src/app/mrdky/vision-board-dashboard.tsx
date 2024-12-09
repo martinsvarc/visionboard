@@ -165,12 +165,16 @@ const [isMobile, setIsMobile] = useState(false);
             Add Vision
           </Button>
           <Button
-            variant="outline"
-            size="sm"
-            className="bg-[#ffffff] hover:bg-[#ffffff] text-black border-[#ffffff] gap-2 rounded-xl"
-            onClick={toggleFullScreen}
+              variant="outline"
+              size="sm"
+              className="bg-[#ffffff] hover:bg-[#ffffff] text-black border-[#ffffff] gap-2 rounded-xl"
+              onClick={toggleFullScreen}
           >
-            <Maximize2 />
+            <img 
+              src="https://res.cloudinary.com/drkudvyog/image/upload/v1733777350/Full_screen_icon_duha_zxcwgp.png"
+              alt="Full Screen"
+              className="w-4 h-4"
+            />
             {isFullScreen ? 'Exit Full Screen' : 'Full Screen'}
           </Button>
         </div>
