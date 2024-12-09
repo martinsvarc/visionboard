@@ -116,13 +116,17 @@ const [isMobile, setIsMobile] = useState(false);
         <div className="flex gap-2">
           <Popover>
             <PopoverTrigger>
-              <Button
-                variant="outline" 
-                size="sm"
-                className="bg-[#ffffff] hover:bg-[#ffffff] text-black border-[#ffffff] gap-2 rounded-xl"
-              >
-                <Palette />
-                Color
+             <Button
+               variant="outline" 
+               size="sm"
+               className="bg-[#ffffff] hover:bg-[#ffffff] text-black border-[#ffffff] gap-2 rounded-xl"
+            >
+             <img 
+               src="https://res.cloudinary.com/drkudvyog/image/upload/v1733772222/Color_icon_duha_d6sapd.png"
+               alt="Color"
+               className="w-4 h-4" 
+             />
+             Color
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0 z-[9999]" align="end">
