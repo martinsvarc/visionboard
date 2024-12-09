@@ -119,7 +119,7 @@ const [isMobile, setIsMobile] = useState(false);
               <Button
                 variant="outline" 
                 size="sm"
-                className="bg-[#ffffff] hover:bg-[#ffffff] text-white border-[#ffffff] gap-2 rounded-xl"
+                className="bg-[#ffffff] hover:bg-[#ffffff] text-black border-[#ffffff] gap-2 rounded-xl"
               >
                 <Palette />
                 Color
