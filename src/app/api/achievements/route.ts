@@ -223,7 +223,7 @@ const chartData = dailyPoints.map(({ date, points }) => ({
         SELECT COALESCE(SUM(value::numeric), 0)
         FROM jsonb_each_text(ua.daily_points)
         WHERE key::date >= ${weekStart.toISOString()}::date
-          AND key::date < ${getNextSunday().toISOString()}::date
+          AND key::date <= CURRENT_DATE
       ) as points
     FROM user_achievements ua
     WHERE weekly_reset_at = ${getNextSunday().toISOString()}
@@ -243,33 +243,33 @@ const chartData = dailyPoints.map(({ date, points }) => ({
 
     // Get team rankings if team exists
 const { rows: teamRankings } = await pool.sql`
- WITH team_totals AS (
-   SELECT 
-     ua.member_id, 
-     ua.user_name, 
-     ua.user_picture, 
-     ua.unlocked_badges,
-     (
-       SELECT COALESCE(SUM(value::numeric), 0)
-       FROM jsonb_each_text(ua.daily_points)
-       WHERE key::date >= ${weekStart.toISOString()}::date
-         AND key::date < ${getNextSunday().toISOString()}::date
-     ) as points
-   FROM user_achievements ua
-   WHERE ua.team_id = ${userData?.team_id}
-   AND ua.weekly_reset_at = ${getNextSunday().toISOString()}
- )
- SELECT 
-   member_id, 
-   user_name, 
-   user_picture, 
-   points, 
-   unlocked_badges,
-   RANK() OVER (ORDER BY points DESC NULLS LAST) as rank
- FROM team_totals
- WHERE points > 0
- ORDER BY points DESC 
- LIMIT 10;
+  WITH team_totals AS (
+    SELECT 
+      ua.member_id, 
+      ua.user_name, 
+      ua.user_picture, 
+      ua.unlocked_badges,
+      (
+        SELECT COALESCE(SUM(value::numeric), 0)
+        FROM jsonb_each_text(ua.daily_points)
+        WHERE key::date >= ${weekStart.toISOString()}::date
+          AND key::date <= CURRENT_DATE
+      ) as points
+    FROM user_achievements ua
+    WHERE ua.team_id = ${userData?.team_id}
+    AND ua.weekly_reset_at = ${getNextSunday().toISOString()}
+  )
+  SELECT 
+    member_id, 
+    user_name, 
+    user_picture, 
+    points, 
+    unlocked_badges,
+    RANK() OVER (ORDER BY points DESC NULLS LAST) as rank
+  FROM team_totals
+  WHERE points > 0
+  ORDER BY points DESC 
+  LIMIT 10;
 `;
 
     return NextResponse.json({
