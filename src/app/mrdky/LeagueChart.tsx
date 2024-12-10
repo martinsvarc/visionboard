@@ -39,19 +39,19 @@ const findPointsForDate = (date: string, points: number) => {
 // And then replace the old dataWithTopPlayer with:
 const findCumulativePoints = (currentDate: string, allData: ChartDataPoint[], topPlayerTotal: number) => {
   const currentPointDate = new Date(currentDate);
-  let runningTotal = 0;
+  const todayStr = new Date().toISOString().split('T')[0];
+  const currentDateStr = new Date(currentDate).toISOString().split('T')[0];
   
-  // Go through all dates up to the current point's date
-  allData.forEach(point => {
-    const pointDate = new Date(point.date);
-    if (pointDate <= currentPointDate) {
-      if (pointDate.toISOString().split('T')[0] === new Date().toISOString().split('T')[0]) {
-        runningTotal = topPlayerTotal;
-      }
-    }
-  });
+  if (currentDateStr === todayStr) {
+    return topPlayerTotal;
+  }
   
-  return runningTotal;
+  // Find the proportion of points based on the day of the week
+  const dayIndex = allData.findIndex(point => point.date === currentDate);
+  if (dayIndex === -1) return 0;
+  
+  // Calculate the proportion of total points up to this day
+  return (dayIndex + 1) * (topPlayerTotal / allData.length);
 };
 
 const dataWithTopPlayer = shouldShowTopPlayer ? data.map(point => ({
