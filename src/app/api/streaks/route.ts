@@ -36,12 +36,14 @@ export async function GET(request: Request) {
     }
 
     // Calculate monthly consistency
-    const thisMonth = dates.filter(date => 
-      date.getMonth() === today.getMonth() && 
-      date.getFullYear() === today.getFullYear()
-    ).length;
-    const daysInMonth = today.getDate();
-    const consistency = Math.round((thisMonth / daysInMonth) * 100);
+const uniqueDatesThisMonth = new Set(
+  dates.filter(date => 
+    date.getMonth() === today.getMonth() && 
+    date.getFullYear() === today.getFullYear()
+  ).map(date => date.toISOString().split('T')[0])
+).size;
+const daysInMonth = today.getDate();
+const consistency = Math.round((uniqueDatesThisMonth / daysInMonth) * 100);
 
     // Calculate longest streak
     let longestStreak = 0;
