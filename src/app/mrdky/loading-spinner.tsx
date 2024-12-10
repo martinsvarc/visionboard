@@ -38,7 +38,7 @@ const LoadingSpinner = () => {
         {/* Center image */}
         <div className="absolute inset-0 flex items-center justify-center">
           <Image 
-            src="https://res.cloudinary.com/drkudvyog/image/upload/v1733356221/Colors_logo_gawxfo.png"
+            src="https://res.cloudinary.com/dmbzcxhjn/image/upload/Colors_logo_gawxfo_kvyozr.png"
             alt="AI Logo"
             width={24}
             height={24}
