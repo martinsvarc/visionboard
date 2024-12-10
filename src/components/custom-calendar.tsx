@@ -89,7 +89,7 @@ export const CustomCalendar: React.FC<CustomCalendarProps> = ({ streakData }) =>
 
   return (
     <Card className="p-3 bg-white rounded-[20px] shadow-lg flex flex-col h-full">
-      <h2 className="text-2xl font-semibold text-[#556bc7] mb-6">Calendar & Streak</h2>
+      <h2 className="text-2xl font-semibold text-[#000000] mb-6">Calendar & Streak</h2>
       <div className="flex gap-3 mb-6">
         <div className="bg-[#556bc7] text-white px-3 py-2 rounded-[20px] flex-1">
           <div className="text-xs font-medium text-center">Current</div>
