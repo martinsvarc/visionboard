@@ -251,9 +251,9 @@ const getBadgeImages = (unlocked_badges: string | null | undefined): string[] =>
 ) : (
   <>
     <div className="mb-6">
-      <LeagueChart 
+     <LeagueChart 
   chartData={apiData?.chartData || []}
-  topPlayerScore={topPlayerScore}
+  weeklyRankings={apiData?.weeklyRankings || []}
 />
     </div>
 
