@@ -4,7 +4,6 @@ interface ChartDataPoint {
   day: string;
   date: string;
   you: number;
-  topPlayer?: number;
 }
 
 interface LeagueChartProps {
@@ -17,35 +16,26 @@ export function LeagueChart({ chartData, topPlayerScore }: LeagueChartProps) {
   const currentDayIndex = today.getDay() === 0 ? 6 : today.getDay() - 1;
   const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
-  // Calculate daily progression for top player
-  const data = chartData.map((point, index) => {
-    // Calculate what percentage of the week has passed
-    const daysPassed = index + 1;
-    const weekProgress = daysPassed / 7;
-    
-    // Top player's projected score for this day
-    const topPlayerPoint = Math.round(topPlayerScore * weekProgress);
-
-    return {
-      ...point,
-      topPlayer: topPlayerPoint
-    };
-  });
-
-  // Calculate max score for Y-axis
-  const maxYourScore = Math.max(...data.map(point => point.you));
-  const maxScore = Math.max(topPlayerScore, maxYourScore);
-  
-  // Ensure we show only the days up to today
-  const visibleDays = days.slice(0, currentDayIndex + 1);
-  const visibleData = data.filter((_, index) => index <= currentDayIndex);
+  // Calculate cumulative totals
+  let runningTotal = 0;
+  const data = chartData
+    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+    .map(point => {
+      runningTotal += point.you;
+      return {
+        ...point,
+        you: runningTotal,
+        // For top player, we'll show linear progression towards their total
+        topPlayer: Math.round(topPlayerScore * (new Date(point.date).getDay() / 6))
+      };
+    });
 
   return (
     <div className="w-full overflow-x-auto">
       <div className="min-h-[200px] w-full min-w-[300px]">
         <ResponsiveContainer width="100%" height={200}>
           <LineChart 
-            data={visibleData}
+            data={data}
             margin={{ top: 5, right: 5, left: 0, bottom: 5 }}
           >
             <CartesianGrid 
@@ -60,7 +50,7 @@ export function LeagueChart({ chartData, topPlayerScore }: LeagueChartProps) {
               tick={{ fill: '#DAF0F2', fontSize: '0.625rem' }}
               dy={5}
               interval={0}
-              ticks={visibleDays}
+              ticks={days.slice(0, currentDayIndex + 1)}
               angle={-20}
               textAnchor="end"
               height={40}
@@ -69,7 +59,7 @@ export function LeagueChart({ chartData, topPlayerScore }: LeagueChartProps) {
               axisLine={false}
               tickLine={false}
               tick={{ fill: '#DAF0F2', fontSize: '0.625rem' }}
-              domain={[0, maxScore]}
+              domain={[0, Math.max(topPlayerScore, data[data.length - 1]?.you || 0)]}
               allowDecimals={false}
               width={25}
             />
@@ -83,7 +73,6 @@ export function LeagueChart({ chartData, topPlayerScore }: LeagueChartProps) {
               }}
               itemStyle={{ color: '#000000', fontSize: '0.625rem' }}
               labelStyle={{ color: '#000000', fontWeight: 600, marginBottom: '0.125rem', fontSize: '0.625rem' }}
-              formatter={(value: number) => [`${value.toLocaleString()} points`, undefined]}
             />
             <Line 
               type="monotone" 
