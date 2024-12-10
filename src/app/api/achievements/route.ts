@@ -37,8 +37,7 @@ function calculateWeeklyTotal(daily_points: Record<string, number>, weekly_reset
 
 export async function POST(request: Request) {
   try {
-    const body = await request.json();
-    const { memberId, userName, userPicture, teamId, points } = body;
+    const { memberId, userName, userPicture, teamId, points } = await request.json();
     
     if (!memberId || !userName) {
       return NextResponse.json({ error: 'Member ID and username required' }, { status: 400 });
@@ -50,7 +49,6 @@ export async function POST(request: Request) {
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    const todayStr = today.toISOString();
     const todayKey = getDayKey(today);
 
     // Get existing user data
@@ -59,32 +57,30 @@ export async function POST(request: Request) {
       WHERE member_id = ${memberId};
     `;
 
-    // Always use next Sunday for weekly reset
-    const weekly_reset_at = getNextSunday().toISOString();
-
-    // Calculate streaks
+    // Calculate streak
     const yesterday = new Date();
     yesterday.setDate(yesterday.getDate() - 1);
     const yesterdayStr = getDayKey(yesterday);
-    
+    const todayStr = getDayKey(today);
+
     const current_streak = existingUser?.last_session_date === todayStr ? 
       (existingUser.current_streak || 1) : 
       (existingUser?.last_session_date === yesterdayStr ? (existingUser.current_streak || 0) + 1 : 1);
     
     const longest_streak = Math.max(current_streak, existingUser?.longest_streak || 0);
-    const total_sessions = (existingUser?.total_sessions || 0) + 1;
 
-    // Update daily points for current week
+    // Update points and sessions
     const current_daily_points = {
       ...existingUser?.daily_points,
-      [todayKey]: parseFloat((existingUser?.daily_points || {})[todayKey] || 0) + parseFloat(points)
+      [todayKey]: (parseFloat(existingUser?.daily_points?.[todayKey] || '0') + parseFloat(points))
     };
 
+    const total_sessions = (existingUser?.total_sessions || 0) + 1;
     const sessions_today = existingUser?.last_session_date === todayStr ? 
       (existingUser?.sessions_today || 0) + 1 : 1;
     const sessions_this_week = (existingUser?.sessions_this_week || 0) + 1;
 
-    // Badge handling
+    // Handle badges
     let unlocked_badges = Array.isArray(existingUser?.unlocked_badges) 
       ? [...existingUser.unlocked_badges] 
       : [];
@@ -101,35 +97,22 @@ export async function POST(request: Request) {
     if (total_sessions >= 50) unlocked_badges = addBadge(unlocked_badges, 'calls_50');
     if (total_sessions >= 100) unlocked_badges = addBadge(unlocked_badges, 'calls_100');
 
+   const weekly_reset_at = getNextSunday().toISOString();
+
+    // Update user data
     const { rows: [updated] } = await pool.sql`
       INSERT INTO user_achievements (
-        member_id, 
-        user_name, 
-        user_picture, 
-        team_id,
-        current_streak,
-        longest_streak,
-        total_sessions,
-        sessions_today,
-        sessions_this_week,
-        last_session_date,
-        unlocked_badges,
-        weekly_reset_at,
-        daily_points
+        member_id, user_name, user_picture, team_id,
+        current_streak, longest_streak, total_sessions,
+        sessions_today, sessions_this_week,
+        last_session_date, unlocked_badges,
+        weekly_reset_at, daily_points
       ) VALUES (
-        ${memberId},
-        ${userName},
-        ${userPicture},
-        ${teamId},
-        ${current_streak},
-        ${longest_streak},
-        ${total_sessions},
-        ${sessions_today},
-        ${sessions_this_week},
-        ${todayStr},
-        ${JSON.stringify(unlocked_badges)},
-        ${weekly_reset_at},
-        ${JSON.stringify(current_daily_points)}
+        ${memberId}, ${userName}, ${userPicture}, ${teamId},
+        ${current_streak}, ${longest_streak}, ${total_sessions},
+        ${sessions_today}, ${sessions_this_week},
+        ${todayStr}, ${JSON.stringify(unlocked_badges)},
+        ${weekly_reset_at}, ${JSON.stringify(current_daily_points)}
       )
       ON CONFLICT (member_id) DO UPDATE SET
         user_name = EXCLUDED.user_name,
@@ -142,13 +125,11 @@ export async function POST(request: Request) {
         sessions_this_week = EXCLUDED.sessions_this_week,
         last_session_date = EXCLUDED.last_session_date,
         unlocked_badges = EXCLUDED.unlocked_badges,
-        weekly_reset_at = ${weekly_reset_at},
         daily_points = EXCLUDED.daily_points,
         updated_at = CURRENT_TIMESTAMP
       RETURNING *;
     `;
 
-    // Calculate weekly total for response
     const weeklyTotal = calculateWeeklyTotal(current_daily_points, weekly_reset_at);
 
     return NextResponse.json({
