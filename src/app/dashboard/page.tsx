@@ -161,6 +161,10 @@ type ChartProps = {
 
 // Add after ChartProps type and before Chart component
 const getLatestNonEmptyFeedback = (data: ChartData[]) => {
+  const sortedData = [...data].sort((a, b) => 
+    new Date(b.date).getTime() - new Date(a.date).getTime()
+  );
+
   const feedbackFields = {
     strong_points_average_success: '',
     areas_for_improvement_average_success: '',
@@ -178,15 +182,18 @@ const getLatestNonEmptyFeedback = (data: ChartData[]) => {
     overall_effectiveness_areas_for_improvement: ''
   };
 
-  for (const record of data) {
-    for (const field of Object.keys(feedbackFields) as Array<keyof typeof feedbackFields>) {
-      if (!feedbackFields[field] && record[field]) {
-        feedbackFields[field] = record[field] as string;
-      }
+  // For each field, find the first non-null value in date order
+  for (const field of Object.keys(feedbackFields) as Array<keyof typeof feedbackFields>) {
+    // Find first non-null value for this field
+    const firstValidEntry = sortedData.find(record => 
+      record[field] !== null && 
+      record[field] !== undefined && 
+      record[field] !== ''
+    );
+    
+    if (firstValidEntry) {
+      feedbackFields[field] = firstValidEntry[field] as string;
     }
-
-    const allFieldsFound = Object.values(feedbackFields).every(value => value !== '');
-    if (allFieldsFound) break;
   }
 
   return feedbackFields;
