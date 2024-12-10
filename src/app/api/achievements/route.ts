@@ -173,27 +173,23 @@ export async function GET(request: Request) {
     const weekEnd = getNextSunday(weekStart);
 
     // Get daily points and sort chronologically
-    const dailyPoints = Object.entries(userData.daily_points || {})
-      .filter(([date]) => {
-        const pointDate = new Date(date);
-        return pointDate >= weekStart && pointDate < weekEnd;
-      })
-      .map(([date, points]) => ({
-        date,
-        points: Number(points) || 0
-      }))
-      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+const dailyPoints = Object.entries(userData.daily_points || {})
+  .filter(([date]) => {
+    const pointDate = new Date(date);
+    return pointDate >= weekStart && pointDate < weekEnd;
+  })
+  .map(([date, points]) => ({
+    date,
+    points: Number(points) || 0
+  }))
+  .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
-    // Calculate running totals for chart
-    let runningTotal = 0;
-    const chartData = dailyPoints.map(({ date, points }) => {
-      runningTotal += points;
-      return {
-        day: new Date(date).toLocaleDateString('en-US', { weekday: 'long' }),
-        date,
-        you: runningTotal
-      };
-    });
+// Use actual daily points instead of running total
+const chartData = dailyPoints.map(({ date, points }) => ({
+  day: new Date(date).toLocaleDateString('en-US', { weekday: 'long' }),
+  date,
+  you: points  // Just use the daily points, not cumulative
+}));
 
     // Map achievements
     const achievementsData = {
