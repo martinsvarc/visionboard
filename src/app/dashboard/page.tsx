@@ -310,40 +310,41 @@ return (
     
     <p className="text-slate-700 font-medium">Latest Insights</p>
     
-    <div className="grid grid-cols-2 gap-2"> {/* Changed gap-4 to gap-2 */}
+    <div className="grid grid-cols-2 gap-2">
   {/* Strong Points */}
-  <div className="bg-green-50 p-3 rounded-xl space-y-2"> {/* Changed p-4 to p-3 and space-y-3 to space-y-2 */}
-    <h3 className="text-green-700 font-semibold">Strong Points</h3>
-    <ul className="space-y-1"> {/* Changed space-y-2 to space-y-1 */}
+  <div className="bg-green-50 p-3 rounded-xl space-y-2">
+    <h3 className="text-green-700 font-semibold text-xs">Strong Points</h3> {/* Changed to text-xs */}
+    <ul className="space-y-1">
       {latestFeedback && (category ? 
         latestFeedback[`${category.key}_strong_points`]?.split(' - ')?.filter(Boolean)?.map((point, index) => (
           <li key={index}>
-            <span className="text-slate-700 text-sm">{point}</span> {/* Added text-sm */}
+            <span className="text-slate-700 text-xs">{point}</span> {/* Changed to text-xs */}
           </li>
         ))
         : 
         latestFeedback.strong_points_average_success?.split(' - ')?.filter(Boolean)?.map((point, index) => (
           <li key={index}>
-            <span className="text-slate-700 text-sm">{point}</span> {/* Added text-sm */}
+            <span className="text-slate-700 text-xs">{point}</span> {/* Changed to text-xs */}
           </li>
         ))
       )}
     </ul>
   </div>
-      
-    <div className="bg-red-50 p-3 rounded-xl space-y-2"> {/* Changed p-4 to p-3 and space-y-3 to space-y-2 */}
-    <h3 className="text-red-700 font-semibold">Areas for Improvement</h3>
-    <ul className="space-y-1"> {/* Changed space-y-2 to space-y-1 */}
+  
+  {/* Areas for Improvement */}
+  <div className="bg-red-50 p-3 rounded-xl space-y-2">
+    <h3 className="text-red-700 font-semibold text-xs">Areas for Improvement</h3> {/* Changed to text-xs */}
+    <ul className="space-y-1">
       {latestFeedback && (category ?
         latestFeedback[`${category.key}_areas_for_improvement`]?.split(' - ')?.filter(Boolean)?.map((point, index) => (
           <li key={index}>
-            <span className="text-slate-700 text-sm">{point}</span> {/* Added text-sm */}
+            <span className="text-slate-700 text-xs">{point}</span> {/* Changed to text-xs */}
           </li>
         ))
         :
         latestFeedback.areas_for_improvement_average_success?.split(' - ')?.filter(Boolean)?.map((point, index) => (
           <li key={index}>
-            <span className="text-slate-700 text-sm">{point}</span> {/* Added text-sm */}
+            <span className="text-slate-700 text-xs">{point}</span> {/* Changed to text-xs */}
           </li>
         ))
       )}
