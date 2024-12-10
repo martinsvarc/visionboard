@@ -159,6 +159,39 @@ type ChartProps = {
   recordsPerPage: number;
 }
 
+// Add after ChartProps type and before Chart component
+const getLatestNonEmptyFeedback = (data: ChartData[]) => {
+  const feedbackFields = {
+    strong_points_average_success: '',
+    areas_for_improvement_average_success: '',
+    engagement_strong_points: '',
+    engagement_areas_for_improvement: '',
+    objection_handling_strong_points: '',
+    objection_handling_areas_for_improvement: '',
+    information_gathering_strong_points: '',
+    information_gathering_areas_for_improvement: '',
+    program_explanation_strong_points: '',
+    program_explanation_areas_for_improvement: '',
+    closing_skills_strong_points: '',
+    closing_skills_areas_for_improvement: '',
+    overall_effectiveness_strong_points: '',
+    overall_effectiveness_areas_for_improvement: ''
+  };
+
+  for (const record of data) {
+    for (const field of Object.keys(feedbackFields) as Array<keyof typeof feedbackFields>) {
+      if (!feedbackFields[field] && record[field]) {
+        feedbackFields[field] = record[field] as string;
+      }
+    }
+
+    const allFieldsFound = Object.values(feedbackFields).every(value => value !== '');
+    if (allFieldsFound) break;
+  }
+
+  return feedbackFields;
+};
+
 const Chart = ({ data, category, dateRange, setDateRange, setExpandedCards, setCurrentPage, recordsPerPage }: ChartProps) => {
   const [showDetails, setShowDetails] = useState(false);
   const chartData = React.useMemo(() => {
@@ -183,6 +216,8 @@ const Chart = ({ data, category, dateRange, setDateRange, setExpandedCards, setC
   }, [chartData]);
 
   const color = getColorByScore(average);
+
+  const latestFeedback = React.useMemo(() => getLatestNonEmptyFeedback(data), [data]);
 
   if (!data.length) {
     return (
@@ -266,28 +301,23 @@ return (
       {category?.description || 'Evaluates the agent\'s performance trends over time.'}
     </p>
     
-    <p className="text-slate-700 font-medium">Insights from last 10 calls</p>
+    <p className="text-slate-700 font-medium">Latest Insights</p>
     
     <div className="grid grid-cols-2 gap-4">
       {/* Strong Points */}
       <div className="bg-green-50 p-4 rounded-xl space-y-3">
         <h3 className="text-green-700 font-semibold">Strong Points</h3>
         <ul className="space-y-2">
-          {data[0] && (category ? 
-            data[0][`${category.key}_strong_points`]?.split(' - ').filter(Boolean).map((point, index) => (
-              <li key={index} className="flex items-start gap-2">
-                <CheckCircle2 className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
-                <span className="text-slate-700">{point}</span>
-              </li>
-            ))
+          {(category ? 
+            latestFeedback[`${category.key}_strong_points`]?.split(' - ').filter(Boolean)
             : 
-            data[0].strong_points_average_success?.split(' - ').filter(Boolean).map((point, index) => (
-              <li key={index} className="flex items-start gap-2">
-                <CheckCircle2 className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
-                <span className="text-slate-700">{point}</span>
-              </li>
-            ))
-          )}
+            latestFeedback.strong_points_average_success?.split(' - ').filter(Boolean)
+          ).map((point, index) => (
+            <li key={index} className="flex items-start gap-2">
+              <CheckCircle2 className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
+              <span className="text-slate-700">{point}</span>
+            </li>
+          ))}
         </ul>
       </div>
       
@@ -295,21 +325,16 @@ return (
       <div className="bg-red-50 p-4 rounded-xl space-y-3">
         <h3 className="text-red-700 font-semibold">Areas for Improvement</h3>
         <ul className="space-y-2">
-          {data[0] && (category ?
-            data[0][`${category.key}_areas_for_improvement`]?.split(' - ').filter(Boolean).map((point, index) => (
-              <li key={index} className="flex items-start gap-2">
-                <XCircle className="h-5 w-5 text-red-500 mt-0.5 flex-shrink-0" />
-                <span className="text-slate-700">{point}</span>
-              </li>
-            ))
+          {(category ?
+            latestFeedback[`${category.key}_areas_for_improvement`]?.split(' - ').filter(Boolean)
             :
-            data[0].areas_for_improvement_average_success?.split(' - ').filter(Boolean).map((point, index) => (
-              <li key={index} className="flex items-start gap-2">
-                <XCircle className="h-5 w-5 text-red-500 mt-0.5 flex-shrink-0" />
-                <span className="text-slate-700">{point}</span>
-              </li>
-            ))
-          )}
+            latestFeedback.areas_for_improvement_average_success?.split(' - ').filter(Boolean)
+          ).map((point, index) => (
+            <li key={index} className="flex items-start gap-2">
+              <XCircle className="h-5 w-5 text-red-500 mt-0.5 flex-shrink-0" />
+              <span className="text-slate-700">{point}</span>
+            </li>
+          ))}
         </ul>
       </div>
     </div>
