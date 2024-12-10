@@ -310,41 +310,46 @@ return (
     
     <p className="text-slate-700 font-medium">Latest Insights</p>
     
-    <div className="grid grid-cols-2 gap-4">
-      {/* Strong Points */}
-      <div className="bg-green-50 p-4 rounded-xl space-y-3">
-        <h3 className="text-green-700 font-semibold">Strong Points</h3>
-        <ul className="space-y-2">
-          {(category ? 
-            latestFeedback[`${category.key}_strong_points`]?.split(' - ').filter(Boolean)
-            : 
-            latestFeedback.strong_points_average_success?.split(' - ').filter(Boolean)
-          ).map((point, index) => (
-            <li key={index} className="flex items-start gap-2">
-              <CheckCircle2 className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
-              <span className="text-slate-700">{point}</span>
-            </li>
-          ))}
-        </ul>
-      </div>
+    <div className="grid grid-cols-2 gap-2"> {/* Changed gap-4 to gap-2 */}
+  {/* Strong Points */}
+  <div className="bg-green-50 p-3 rounded-xl space-y-2"> {/* Changed p-4 to p-3 and space-y-3 to space-y-2 */}
+    <h3 className="text-green-700 font-semibold">Strong Points</h3>
+    <ul className="space-y-1"> {/* Changed space-y-2 to space-y-1 */}
+      {latestFeedback && (category ? 
+        latestFeedback[`${category.key}_strong_points`]?.split(' - ')?.filter(Boolean)?.map((point, index) => (
+          <li key={index}>
+            <span className="text-slate-700 text-sm">{point}</span> {/* Added text-sm */}
+          </li>
+        ))
+        : 
+        latestFeedback.strong_points_average_success?.split(' - ')?.filter(Boolean)?.map((point, index) => (
+          <li key={index}>
+            <span className="text-slate-700 text-sm">{point}</span> {/* Added text-sm */}
+          </li>
+        ))
+      )}
+    </ul>
+  </div>
       
-      {/* Areas for Improvement */}
-      <div className="bg-red-50 p-4 rounded-xl space-y-3">
-        <h3 className="text-red-700 font-semibold">Areas for Improvement</h3>
-        <ul className="space-y-2">
-          {(category ?
-            latestFeedback[`${category.key}_areas_for_improvement`]?.split(' - ').filter(Boolean)
-            :
-            latestFeedback.areas_for_improvement_average_success?.split(' - ').filter(Boolean)
-          ).map((point, index) => (
-            <li key={index} className="flex items-start gap-2">
-              <XCircle className="h-5 w-5 text-red-500 mt-0.5 flex-shrink-0" />
-              <span className="text-slate-700">{point}</span>
-            </li>
-          ))}
-        </ul>
-      </div>
-    </div>
+    <div className="bg-red-50 p-3 rounded-xl space-y-2"> {/* Changed p-4 to p-3 and space-y-3 to space-y-2 */}
+    <h3 className="text-red-700 font-semibold">Areas for Improvement</h3>
+    <ul className="space-y-1"> {/* Changed space-y-2 to space-y-1 */}
+      {latestFeedback && (category ?
+        latestFeedback[`${category.key}_areas_for_improvement`]?.split(' - ')?.filter(Boolean)?.map((point, index) => (
+          <li key={index}>
+            <span className="text-slate-700 text-sm">{point}</span> {/* Added text-sm */}
+          </li>
+        ))
+        :
+        latestFeedback.areas_for_improvement_average_success?.split(' - ')?.filter(Boolean)?.map((point, index) => (
+          <li key={index}>
+            <span className="text-slate-700 text-sm">{point}</span> {/* Added text-sm */}
+          </li>
+        ))
+      )}
+    </ul>
+  </div>
+</div>
   </div>
 ) : chartData.length === 0 ? (
   <div className="absolute inset-0 flex flex-col items-center justify-center">
