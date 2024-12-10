@@ -272,25 +272,25 @@ return (
     ) : category.key === 'overall_effectiveness' ? (
       <img 
         src="https://res.cloudinary.com/dmbzcxhjn/image/upload/Overall_Effectiveness_oklehz.png" 
-        alt="Overall Effectiveness Icon" 
+        alt="Effectiveness Icon" 
         className="h-10 w-10"
       />
     ) : (
       <img 
         src="https://res.cloudinary.com/dmbzcxhjn/image/upload/Average_Success_ytn31p.png" 
-        alt="Average Success Icon" 
+        alt="Overall Performance Icon" 
         className="h-10 w-10"
       />
     )
   ) : (
     <img 
       src="https://res.cloudinary.com/dmbzcxhjn/image/upload/Average_Success_ytn31p.png" 
-      alt="Average Success Icon" 
+      alt="Overall Performance Icon" 
       className="h-10 w-10"
     />
   )}
   <span className="text-slate-900 text-xl font-semibold">
-    {category ? category.label : 'Average Success'}
+    {category ? category.label : 'Overall Performance'}
   </span>
 </div>
       <Button
@@ -846,7 +846,7 @@ const totalPages = Math.ceil(filteredCallLogs.length / recordsPerPage)
     { key: 'information_gathering', label: 'Information Gathering', description: 'Assesses how effectively the agent collects relevant information from the customer.' },
     { key: 'program_explanation', label: 'Program Explanation', description: 'Rates the clarity and completeness of the agent\'s explanation.' },
     { key: 'closing_skills', label: 'Closing Skills', description: 'Measures the agent\'s ability to guide the conversation towards a successful conclusion or sale.' },
-    { key: 'overall_effectiveness', label: 'Overall Effectiveness', description: 'A comprehensive score reflecting the agent\'s overall performance during the call.' },
+    { key: 'overall_effectiveness', label: 'Effectiveness', description: 'A comprehensive score reflecting the agent\'s overall performance during the call.' },
   ]
 
   const chartData = React.useMemo(() => callLogs.map((call, index) => ({
