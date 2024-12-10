@@ -280,7 +280,7 @@ const { rows: teamRankings } = await pool.sql`
         weeklyTotal: calculateWeeklyTotal(userData.daily_points, userData.weekly_reset_at)
       },
       weeklyRankings,
-      teamRankings: teamRankings.rows,
+      teamRankings,
       chartData
     });
 
