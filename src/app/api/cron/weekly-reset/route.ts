@@ -10,9 +10,15 @@ const getNextSunday = (date: Date = new Date()) => {
   return newDate;
 };
 
+interface UserAchievement {
+  member_id: string;
+  unlocked_badges: string[];
+  final_rank?: number;
+  final_points?: number;
+}
+
 export async function GET(request: Request) {
   try {
-    // Verify this is a cron job request
     const authHeader = request.headers.get('authorization');
     if (authHeader !== `Bearer ${process.env.CRON_SECRET_KEY}`) {
       return new Response('Unauthorized', { status: 401 });
@@ -24,7 +30,6 @@ export async function GET(request: Request) {
 
     console.log('Starting weekly reset process...');
     
-    // First, get all users who need to be reset (their weekly_reset_at is in the past)
     const { rows: usersToReset } = await pool.sql`
       SELECT member_id, points, user_name
       FROM user_achievements
@@ -109,16 +114,17 @@ export async function GET(request: Request) {
         (SELECT rankings FROM rankings_snapshot) as final_rankings;
     `;
 
-    // Log detailed information about the reset
+    const typedRows = rows as UserAchievement[];
+    
     const resetSummary = {
-      totalUsersReset: rows.length,
-      topPerformers: rows
+      totalUsersReset: typedRows.length,
+      topPerformers: typedRows
         .filter(row => row.final_rank && row.final_points)
         .map(row => ({
           memberId: row.member_id,
           rank: row.final_rank,
           points: row.final_points,
-          newBadge: row.unlocked_badges?.find(badge => 
+          newBadge: row.unlocked_badges?.find((badge: string) => 
             ['league_first', 'league_second', 'league_third'].includes(badge)
           )
         }))
@@ -130,11 +136,11 @@ export async function GET(request: Request) {
 
     return NextResponse.json({
       message: 'Weekly reset completed successfully',
-      usersUpdated: rows.length,
+      usersUpdated: typedRows.length,
       nextResetDate: getNextSunday().toISOString(),
       summary: resetSummary,
-      finalRankings: rows[0]?.final_rankings || [],
-      updatedUsers: rows.map(row => ({
+      finalRankings: typedRows[0]?.final_rankings || [],
+      updatedUsers: typedRows.map(row => ({
         memberId: row.member_id,
         newBadges: row.unlocked_badges,
         finalStats: {
