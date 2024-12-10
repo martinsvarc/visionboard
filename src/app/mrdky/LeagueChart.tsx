@@ -29,15 +29,18 @@ export function LeagueChart({ chartData, weeklyRankings }: LeagueChartProps) {
   const topPlayer = weeklyRankings.length > 1 ? weeklyRankings[0] : null;
   const shouldShowTopPlayer = topPlayer && topPlayer.points > (data[data.length - 1]?.you || 0);
   
-  // If there is a top player, calculate their progress line
-  const dataWithTopPlayer = shouldShowTopPlayer ? data.map(point => {
-    const dayIndex = days.indexOf(point.day);
-    const topPlayerProgress = Math.round((dayIndex + 1) * (topPlayer.points / days.length));
-    return {
-      ...point,
-      topPlayer: topPlayerProgress
-    };
-  }) : data;
+  // Add this function inside your LeagueChart component, before the return:
+const findPointsForDate = (date: string, points: number) => {
+  const pointDate = new Date(date).toISOString().split('T')[0];
+  const todayStr = new Date().toISOString().split('T')[0];
+  return pointDate === todayStr ? points : 0;
+};
+
+// And then replace the old dataWithTopPlayer with:
+const dataWithTopPlayer = shouldShowTopPlayer ? data.map(point => ({
+  ...point,
+  topPlayer: findPointsForDate(point.date, topPlayer.points)
+})) : data;
 
   return (
     <div className="w-full overflow-x-auto">
