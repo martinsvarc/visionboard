@@ -171,7 +171,11 @@ export const POST = async (request: Request) => {
   const client = createClient();
   
   try {
-    const { memberId, callData }: { memberId: string, callData: CallData } = await request.json();
+    const { memberId, callData, updateLatestOnly }: { 
+      memberId: string, 
+      callData: CallData, 
+      updateLatestOnly?: boolean 
+    } = await request.json();
     
     if (!memberId || !callData) {
       return NextResponse.json({ error: 'Member ID and call data required' }, { status: 400 });
@@ -179,6 +183,65 @@ export const POST = async (request: Request) => {
 
     await client.connect();
 
+    // If updateLatestOnly is true, only update analysis fields of the latest row
+    if (updateLatestOnly) {
+      // Get the latest row's ID
+      const { rows: latestRow } = await client.query(
+        `SELECT id 
+         FROM call_logs 
+         WHERE member_id = $1 
+         ORDER BY call_date DESC 
+         LIMIT 1`,
+        [memberId]
+      );
+
+      if (latestRow.length === 0) {
+        return NextResponse.json({ error: 'No existing call log found for this member' }, { status: 404 });
+      }
+
+      // Update only the analysis fields
+      const { rows } = await client.query(
+        `UPDATE call_logs
+         SET 
+          strong_points_average_success = COALESCE($1, strong_points_average_success),
+          areas_for_improvement_average_success = COALESCE($2, areas_for_improvement_average_success),
+          engagement_strong_points = COALESCE($3, engagement_strong_points),
+          engagement_areas_for_improvement = COALESCE($4, engagement_areas_for_improvement),
+          objection_handling_strong_points = COALESCE($5, objection_handling_strong_points),
+          objection_handling_areas_for_improvement = COALESCE($6, objection_handling_areas_for_improvement),
+          information_gathering_strong_points = COALESCE($7, information_gathering_strong_points),
+          information_gathering_areas_for_improvement = COALESCE($8, information_gathering_areas_for_improvement),
+          program_explanation_strong_points = COALESCE($9, program_explanation_strong_points),
+          program_explanation_areas_for_improvement = COALESCE($10, program_explanation_areas_for_improvement),
+          closing_skills_strong_points = COALESCE($11, closing_skills_strong_points),
+          closing_skills_areas_for_improvement = COALESCE($12, closing_skills_areas_for_improvement),
+          overall_effectiveness_strong_points = COALESCE($13, overall_effectiveness_strong_points),
+          overall_effectiveness_areas_for_improvement = COALESCE($14, overall_effectiveness_areas_for_improvement)
+         WHERE id = $15
+         RETURNING *`,
+        [
+          callData.strong_points_average_success,
+          callData.areas_for_improvement_average_success,
+          callData.engagement_strong_points,
+          callData.engagement_areas_for_improvement,
+          callData.objection_handling_strong_points,
+          callData.objection_handling_areas_for_improvement,
+          callData.information_gathering_strong_points,
+          callData.information_gathering_areas_for_improvement,
+          callData.program_explanation_strong_points,
+          callData.program_explanation_areas_for_improvement,
+          callData.closing_skills_strong_points,
+          callData.closing_skills_areas_for_improvement,
+          callData.overall_effectiveness_strong_points,
+          callData.overall_effectiveness_areas_for_improvement,
+          latestRow[0].id
+        ]
+      );
+
+      return NextResponse.json(rows[0]);
+    }
+
+    // If updateLatestOnly is false or undefined, create a new call log (existing functionality)
     const { rows: existingCalls } = await client.query(
       'SELECT COALESCE(MAX(call_number), 0) as max_call_number FROM call_logs WHERE member_id = $1',
       [memberId]
@@ -186,103 +249,103 @@ export const POST = async (request: Request) => {
 
     const nextCallNumber = parseInt(existingCalls[0].max_call_number) + 1;
 
-   const { rows } = await client.query(
-  `INSERT INTO call_logs (
-    member_id,
-    call_number,
-    user_name,
-    agent_name,
-    agent_picture_url,
-    call_recording_url,
-    call_details,
-    call_duration,
-    power_moment,
-    call_notes,
-    level_up_1,
-    level_up_2,
-    level_up_3,
-    call_transcript,
-    strong_points_average_success,
-    areas_for_improvement_average_success,
-    engagement_strong_points,
-    engagement_areas_for_improvement,
-    objection_handling_strong_points,
-    objection_handling_areas_for_improvement,
-    information_gathering_strong_points,
-    information_gathering_areas_for_improvement,
-    program_explanation_strong_points,
-    program_explanation_areas_for_improvement,
-    closing_skills_strong_points,
-    closing_skills_areas_for_improvement,
-    overall_effectiveness_strong_points,
-    overall_effectiveness_areas_for_improvement,
-    engagement_score,
-    objection_handling_score,
-    information_gathering_score,
-    program_explanation_score,
-    closing_skills_score,
-    overall_effectiveness_score,
-    overall_performance,
-    average_success_score,
-    engagement_feedback,
-    objection_handling_feedback,
-    information_gathering_feedback,
-    program_explanation_feedback,
-    closing_skills_feedback,
-    overall_effectiveness_feedback
-  ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $30, $31, $32, $33, $34, $35, $36, $37, $38, $39, $40, $41, $42)
-  RETURNING *`,
-  [
-    memberId,
-    nextCallNumber,
-    callData.user_name,
-    callData.agent_name,
-    callData.agent_picture_url,
-    callData.call_recording_url,
-    callData.call_details,
-    callData.call_duration,
-    callData.power_moment,
-    callData.call_notes,
-    callData.level_up_1,
-    callData.level_up_2,
-    callData.level_up_3,
-    callData.call_transcript,
-    callData.strong_points_average_success,
-    callData.areas_for_improvement_average_success,
-    callData.engagement_strong_points,
-    callData.engagement_areas_for_improvement,
-    callData.objection_handling_strong_points,
-    callData.objection_handling_areas_for_improvement,
-    callData.information_gathering_strong_points,
-    callData.information_gathering_areas_for_improvement,
-    callData.program_explanation_strong_points,
-    callData.program_explanation_areas_for_improvement,
-    callData.closing_skills_strong_points,
-    callData.closing_skills_areas_for_improvement,
-    callData.overall_effectiveness_strong_points,
-    callData.overall_effectiveness_areas_for_improvement,
-    callData.scores?.engagement,
-    callData.scores?.objection_handling,
-    callData.scores?.information_gathering,
-    callData.scores?.program_explanation,
-    callData.scores?.closing_skills,
-    callData.scores?.overall_effectiveness,
-    callData.scores?.overall_performance,
-    callData.scores?.average_success,
-    callData.feedback?.engagement,
-    callData.feedback?.objection_handling,
-    callData.feedback?.information_gathering,
-    callData.feedback?.program_explanation,
-    callData.feedback?.closing_skills,
-    callData.feedback?.overall_effectiveness
-  ]
-);
+    const { rows } = await client.query(
+      `INSERT INTO call_logs (
+        member_id,
+        call_number,
+        user_name,
+        agent_name,
+        agent_picture_url,
+        call_recording_url,
+        call_details,
+        call_duration,
+        power_moment,
+        call_notes,
+        level_up_1,
+        level_up_2,
+        level_up_3,
+        call_transcript,
+        strong_points_average_success,
+        areas_for_improvement_average_success,
+        engagement_strong_points,
+        engagement_areas_for_improvement,
+        objection_handling_strong_points,
+        objection_handling_areas_for_improvement,
+        information_gathering_strong_points,
+        information_gathering_areas_for_improvement,
+        program_explanation_strong_points,
+        program_explanation_areas_for_improvement,
+        closing_skills_strong_points,
+        closing_skills_areas_for_improvement,
+        overall_effectiveness_strong_points,
+        overall_effectiveness_areas_for_improvement,
+        engagement_score,
+        objection_handling_score,
+        information_gathering_score,
+        program_explanation_score,
+        closing_skills_score,
+        overall_effectiveness_score,
+        overall_performance,
+        average_success_score,
+        engagement_feedback,
+        objection_handling_feedback,
+        information_gathering_feedback,
+        program_explanation_feedback,
+        closing_skills_feedback,
+        overall_effectiveness_feedback
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $30, $31, $32, $33, $34, $35, $36, $37, $38, $39, $40, $41, $42)
+      RETURNING *`,
+      [
+        memberId,
+        nextCallNumber,
+        callData.user_name,
+        callData.agent_name,
+        callData.agent_picture_url,
+        callData.call_recording_url,
+        callData.call_details,
+        callData.call_duration,
+        callData.power_moment,
+        callData.call_notes,
+        callData.level_up_1,
+        callData.level_up_2,
+        callData.level_up_3,
+        callData.call_transcript,
+        callData.strong_points_average_success,
+        callData.areas_for_improvement_average_success,
+        callData.engagement_strong_points,
+        callData.engagement_areas_for_improvement,
+        callData.objection_handling_strong_points,
+        callData.objection_handling_areas_for_improvement,
+        callData.information_gathering_strong_points,
+        callData.information_gathering_areas_for_improvement,
+        callData.program_explanation_strong_points,
+        callData.program_explanation_areas_for_improvement,
+        callData.closing_skills_strong_points,
+        callData.closing_skills_areas_for_improvement,
+        callData.overall_effectiveness_strong_points,
+        callData.overall_effectiveness_areas_for_improvement,
+        callData.scores?.engagement,
+        callData.scores?.objection_handling,
+        callData.scores?.information_gathering,
+        callData.scores?.program_explanation,
+        callData.scores?.closing_skills,
+        callData.scores?.overall_effectiveness,
+        callData.scores?.overall_performance,
+        callData.scores?.average_success,
+        callData.feedback?.engagement,
+        callData.feedback?.objection_handling,
+        callData.feedback?.information_gathering,
+        callData.feedback?.program_explanation,
+        callData.feedback?.closing_skills,
+        callData.feedback?.overall_effectiveness
+      ]
+    );
 
     return NextResponse.json(rows[0]);
   } catch (error: any) {
-    console.error('Error adding call log:', error);
+    console.error('Error handling call log:', error);
     return NextResponse.json({ 
-      error: 'Failed to add call log',
+      error: 'Failed to handle call log',
       details: error?.message || 'Unknown error'
     }, { status: 500 });
   } finally {
