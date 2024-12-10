@@ -10,17 +10,6 @@ const getNextSunday = (date: Date = new Date()) => {
   return newDate;
 };
 
-interface UserAchievement {
-  member_id: string;
-  unlocked_badges: string[];
-  points: number;
-  final_rankings: Array<{
-    name: string;
-    rank: number;
-    points: number;
-  }>;
-}
-
 export async function GET(request: Request) {
   try {
     // Verify this is a cron job request
@@ -36,15 +25,32 @@ export async function GET(request: Request) {
     console.log('Starting weekly reset process...');
 
     const { rows } = await pool.sql`
-      WITH user_rankings AS (
+      WITH users_to_reset AS (
+        SELECT member_id
+        FROM user_achievements
+        WHERE weekly_reset_at <= CURRENT_TIMESTAMP
+      ),
+      weekly_totals AS (
+        SELECT 
+          ua.member_id,
+          ua.user_name,
+          (SELECT SUM(value::numeric)
+           FROM jsonb_each_text(ua.daily_points)
+           WHERE key::date >= ua.weekly_reset_at::date
+             AND key::date < ${getNextSunday().toISOString()}::date
+          ) as total_points
+        FROM user_achievements ua
+        WHERE ua.member_id IN (SELECT member_id FROM users_to_reset)
+      ),
+      user_rankings AS (
         SELECT 
           member_id,
-          points,
           user_name,
-          DENSE_RANK() OVER (ORDER BY points DESC) as rank
-        FROM user_achievements
-        WHERE points > 0
-        ORDER BY points DESC
+          total_points as points,
+          DENSE_RANK() OVER (ORDER BY total_points DESC NULLS LAST) as rank
+        FROM weekly_totals
+        WHERE total_points > 0
+        ORDER BY total_points DESC
       ),
       award_badges AS (
         SELECT 
@@ -56,10 +62,20 @@ export async function GET(request: Request) {
           END as badge_to_award
         FROM user_rankings
         WHERE rank <= 3
+      ),
+      rankings_snapshot AS (
+        SELECT json_agg(
+          json_build_object(
+            'name', user_name,
+            'memberId', member_id,
+            'rank', rank,
+            'points', points
+          )
+        ) as rankings
+        FROM user_rankings
       )
       UPDATE user_achievements ua
       SET 
-        points = 0,
         daily_points = '{}'::jsonb,
         weekly_reset_at = ${getNextSunday().toISOString()},
         sessions_this_week = 0,
@@ -76,31 +92,30 @@ export async function GET(request: Request) {
           END
         )
       FROM award_badges ab
-      WHERE (ua.member_id = ab.member_id OR ab.member_id IS NULL)
+      WHERE ua.member_id IN (SELECT member_id FROM users_to_reset)
+        AND (ua.member_id = ab.member_id OR ab.member_id IS NULL)
       RETURNING 
         ua.*,
-        (SELECT json_agg(json_build_object('name', user_name, 'rank', rank, 'points', points))
-         FROM user_rankings) as final_rankings;
+        (SELECT rankings FROM rankings_snapshot) as final_rankings;
     `;
 
-    const typedRows = rows as UserAchievement[];
-
     console.log('Weekly reset completed. Rankings before reset:', 
-      typedRows[0]?.final_rankings || 'No rankings available');
+      rows[0]?.final_rankings || 'No rankings available');
     
-    console.log('Users updated:', typedRows.length);
+    console.log('Users updated:', rows.length);
     console.log('Next reset scheduled for:', getNextSunday().toISOString());
 
     return NextResponse.json({
       message: 'Weekly reset completed successfully',
-      usersUpdated: typedRows.length,
+      usersUpdated: rows.length,
       nextResetDate: getNextSunday().toISOString(),
-      finalRankings: typedRows[0]?.final_rankings || [],
-      updatedUsers: typedRows.map(row => ({
+      finalRankings: rows[0]?.final_rankings || [],
+      updatedUsers: rows.map(row => ({
         memberId: row.member_id,
         newBadges: row.unlocked_badges
       }))
     });
+
   } catch (error) {
     console.error('Error performing weekly reset:', error);
     
