@@ -166,7 +166,10 @@ export async function GET(request: Request) {
     }
 
     // Calculate chart data
-    const weekStart = new Date(userData.weekly_reset_at);
+    const today = new Date();
+    const weekStart = new Date(today);
+    weekStart.setDate(today.getDate() - today.getDay());
+    weekStart.setHours(0, 0, 0, 0);
     const weekEnd = getNextSunday(weekStart);
 
     // Get daily points and sort chronologically
@@ -223,7 +226,7 @@ export async function GET(request: Request) {
       (
         SELECT COALESCE(SUM(value::numeric), 0)
         FROM jsonb_each_text(ua.daily_points)
-        WHERE key::date >= CURRENT_DATE
+        WHERE key::date >= ${weekStart.toISOString()}::date
           AND key::date < ${getNextSunday().toISOString()}::date
       ) as points
     FROM user_achievements ua
@@ -253,7 +256,7 @@ const { rows: teamRankings } = await pool.sql`
      (
        SELECT COALESCE(SUM(value::numeric), 0)
        FROM jsonb_each_text(ua.daily_points)
-       WHERE key::date >= CURRENT_DATE
+       WHERE key::date >= ${weekStart.toISOString()}::date
          AND key::date < ${getNextSunday().toISOString()}::date
      ) as points
    FROM user_achievements ua
