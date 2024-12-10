@@ -90,6 +90,20 @@ interface CallLog {
   areas_for_improvement: string;
   scores: CategoryScores;
   feedback: CategoryFeedback;
+  strong_points_average_success: string;
+  areas_for_improvement_average_success: string;
+  engagement_strong_points: string;
+  engagement_areas_for_improvement: string;
+  objection_handling_strong_points: string;
+  objection_handling_areas_for_improvement: string;
+  information_gathering_strong_points: string;
+  information_gathering_areas_for_improvement: string;
+  program_explanation_strong_points: string;
+  program_explanation_areas_for_improvement: string;
+  closing_skills_strong_points: string;
+  closing_skills_areas_for_improvement: string;
+  overall_effectiveness_strong_points: string;
+  overall_effectiveness_areas_for_improvement: string;
 }
 
 type CategoryKey = 'engagement' | 'objection_handling' | 'information_gathering' | 'program_explanation' | 'closing_skills' | 'overall_effectiveness';
@@ -244,14 +258,21 @@ return (
       <div className="bg-green-50 p-4 rounded-xl space-y-3">
         <h3 className="text-green-700 font-semibold">Strong Points</h3>
         <ul className="space-y-2">
-          <li className="flex items-start gap-2">
-            <CheckCircle2 className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
-            <span className="text-slate-700">Increases conversion rates</span>
-          </li>
-          <li className="flex items-start gap-2">
-            <CheckCircle2 className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
-            <span className="text-slate-700">Builds trust with customers</span>
-          </li>
+          {data[0] && (category ? 
+            data[0][`${category.key}_strong_points`]?.split(' - ').filter(Boolean).map((point, index) => (
+              <li key={index} className="flex items-start gap-2">
+                <CheckCircle2 className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
+                <span className="text-slate-700">{point}</span>
+              </li>
+            ))
+            : 
+            data[0].strong_points_average_success?.split(' - ').filter(Boolean).map((point, index) => (
+              <li key={index} className="flex items-start gap-2">
+                <CheckCircle2 className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
+                <span className="text-slate-700">{point}</span>
+              </li>
+            ))
+          )}
         </ul>
       </div>
       
@@ -259,14 +280,21 @@ return (
       <div className="bg-red-50 p-4 rounded-xl space-y-3">
         <h3 className="text-red-700 font-semibold">Areas for Improvement</h3>
         <ul className="space-y-2">
-          <li className="flex items-start gap-2">
-            <XCircle className="h-5 w-5 text-red-500 mt-0.5 flex-shrink-0" />
-            <span className="text-slate-700">Can be challenging for new agents</span>
-          </li>
-          <li className="flex items-start gap-2">
-            <XCircle className="h-5 w-5 text-red-500 mt-0.5 flex-shrink-0" />
-            <span className="text-slate-700">Requires quick thinking</span>
-          </li>
+          {data[0] && (category ?
+            data[0][`${category.key}_areas_for_improvement`]?.split(' - ').filter(Boolean).map((point, index) => (
+              <li key={index} className="flex items-start gap-2">
+                <XCircle className="h-5 w-5 text-red-500 mt-0.5 flex-shrink-0" />
+                <span className="text-slate-700">{point}</span>
+              </li>
+            ))
+            :
+            data[0].areas_for_improvement_average_success?.split(' - ').filter(Boolean).map((point, index) => (
+              <li key={index} className="flex items-start gap-2">
+                <XCircle className="h-5 w-5 text-red-500 mt-0.5 flex-shrink-0" />
+                <span className="text-slate-700">{point}</span>
+              </li>
+            ))
+          )}
         </ul>
       </div>
     </div>
