@@ -308,7 +308,7 @@ return (
       {category?.description || 'Evaluates the agent\'s performance trends over time.'}
     </p>
     
-    <p className="text-slate-700 font-medium">Latest Insights</p>
+    <p className="text-slate-700 font-medium">Top Insights: Updated Every 10 Calls</p>
     
     <div className="grid grid-cols-2 gap-2">
   {/* Strong Points */}
