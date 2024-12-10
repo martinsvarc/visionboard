@@ -20,6 +20,20 @@ function isNewMonth(lastDate: Date, currentDate: Date = new Date()) {
          lastDate.getFullYear() !== currentDate.getFullYear();
 }
 
+// Helper to calculate total points from daily_points within the current week
+function calculateWeeklyTotal(daily_points: Record<string, number>, weekly_reset_at: string) {
+  const resetDate = new Date(weekly_reset_at);
+  const nextSunday = getNextSunday(resetDate);
+  
+  return Object.entries(daily_points || {}).reduce((total, [date, points]) => {
+    const pointDate = new Date(date);
+    if (pointDate >= resetDate && pointDate < nextSunday) {
+      return total + points;
+    }
+    return total;
+  }, 0);
+}
+
 export async function POST(request: Request) {
   try {
     const body = await request.json();
@@ -32,13 +46,6 @@ export async function POST(request: Request) {
     const pool = createPool({
       connectionString: process.env.visionboard_PRISMA_URL
     });
-
-    // Check if we need to reset points due to week change
-    const { rows: [weekCheck] } = await pool.sql`
-      SELECT weekly_reset_at 
-      FROM user_achievements 
-      WHERE member_id = ${memberId};
-    `;
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -61,13 +68,8 @@ export async function POST(request: Request) {
     
     const longest_streak = Math.max(current_streak, existingUser?.longest_streak || 0);
     const total_sessions = (existingUser?.total_sessions || 0) + 1;
-    
-    // Points calculations
-    const shouldResetWeek = weekCheck?.rows?.[0]?.weekly_reset_at && 
-                           new Date() > new Date(weekCheck.rows[0].weekly_reset_at);
-    
-    const current_points = shouldResetWeek ? points : (existingUser?.points || 0) + points;
 
+    // Update daily points
     const current_daily_points = {
       ...existingUser?.daily_points,
       [todayKey]: parseFloat((existingUser?.daily_points || {})[todayKey] || 0) + parseFloat(points)
@@ -86,7 +88,7 @@ export async function POST(request: Request) {
     const sessions_today = lastSessionDate && lastSessionDate.getTime() === today.getTime() ? 
       (existingUser?.sessions_today || 0) + 1 : 1;
 
-    const sessions_this_week = shouldResetWeek ? 1 : (existingUser?.sessions_this_week || 0) + 1;
+    const sessions_this_week = (existingUser?.sessions_this_week || 0) + 1;
 
     const sessions_this_month = shouldResetMonth ? 
       1 : 
@@ -114,8 +116,7 @@ export async function POST(request: Request) {
     if (sessions_this_week >= 50) unlocked_badges = addBadge(unlocked_badges, 'weekly_50');
     if (sessions_this_month >= 100) unlocked_badges = addBadge(unlocked_badges, 'monthly_100');
 
-    const weekly_reset_at = shouldResetWeek ? getNextSunday() : 
-                           existingUser?.weekly_reset_at || getNextSunday();
+    const weekly_reset_at = existingUser?.weekly_reset_at || getNextSunday().toISOString();
 
     const { rows: [updated] } = await pool.sql`
       INSERT INTO user_achievements (
@@ -123,7 +124,6 @@ export async function POST(request: Request) {
         user_name, 
         user_picture, 
         team_id,
-        points,
         current_streak,
         longest_streak,
         total_sessions,
@@ -139,7 +139,6 @@ export async function POST(request: Request) {
         ${userName},
         ${userPicture},
         ${teamId},
-        ${points},
         1,
         1,
         1,
@@ -148,49 +147,66 @@ export async function POST(request: Request) {
         ${sessions_this_month},
         ${todayStr},
         ${JSON.stringify(unlocked_badges)},
-        ${weekly_reset_at.toISOString()},
+        ${weekly_reset_at},
         ${JSON.stringify(current_daily_points)}
       )
       ON CONFLICT (member_id) DO UPDATE SET
         user_name = EXCLUDED.user_name,
         user_picture = ${userPicture || 'https://res.cloudinary.com/dmbzcxhjn/image/upload/v1732590120/WhatsApp_Image_2024-11-26_at_04.00.13_58e32347_owfpnt.jpg'},
         team_id = EXCLUDED.team_id,
-        points = ${current_points},
         total_sessions = user_achievements.total_sessions + 1,
         sessions_today = ${sessions_today},
-        sessions_this_week = ${sessions_this_week},
-        sessions_this_month = ${sessions_this_month},
+        sessions_this_week = user_achievements.sessions_this_week + 1,
+        sessions_this_month = CASE 
+          WHEN TO_CHAR(user_achievements.last_session_date::date, 'YYYY-MM') != TO_CHAR(CURRENT_DATE, 'YYYY-MM') THEN 1
+          ELSE user_achievements.sessions_this_month + 1
+        END,
         current_streak = ${current_streak},
         longest_streak = ${longest_streak},
         last_session_date = ${today.toISOString()},
         unlocked_badges = ${JSON.stringify(unlocked_badges)},
-        weekly_reset_at = ${weekly_reset_at.toISOString()},
+        weekly_reset_at = ${weekly_reset_at},
         daily_points = ${JSON.stringify(current_daily_points)},
         updated_at = CURRENT_TIMESTAMP
       RETURNING *;
     `;
 
-    // Get current rankings for the same week only
+    // Calculate current rankings based on weekly totals
     const { rows: currentRankings } = await pool.sql`
+      WITH weekly_totals AS (
+        SELECT 
+          member_id,
+          (SELECT SUM(value::numeric)
+           FROM jsonb_each_text(daily_points)
+           WHERE key::date >= weekly_reset_at::date
+             AND key::date < ${getNextSunday(new Date(weekly_reset_at)).toISOString()}::date
+          ) as total_points
+        FROM user_achievements
+        WHERE weekly_reset_at = ${weekly_reset_at}
+      )
       SELECT 
         member_id,
-        DENSE_RANK() OVER (ORDER BY points DESC) as rank
-      FROM user_achievements
-      WHERE weekly_reset_at = ${weekly_reset_at.toISOString()}
-      ORDER BY points DESC;
+        DENSE_RANK() OVER (ORDER BY total_points DESC) as rank
+      FROM weekly_totals
+      WHERE total_points > 0
+      ORDER BY total_points DESC;
     `;
 
     const userRank = currentRankings.find(r => r.member_id === memberId)?.rank;
 
     return NextResponse.json({
       ...updated,
+      weeklyTotal: calculateWeeklyTotal(current_daily_points, weekly_reset_at),
       rank: userRank
     });
+
   } catch (error) {
     console.error('Error updating achievements:', error);
     return NextResponse.json({ error: 'Failed to update achievements' }, { status: 500 });
   }
 }
+
+// Continue GET method from the same file
 
 export async function GET(request: Request) {
   try {
@@ -209,21 +225,25 @@ export async function GET(request: Request) {
       SELECT * FROM user_achievements WHERE member_id = ${memberId};
     `;
 
-    // Transform daily points for the chart
+    // Transform daily points for the chart - only show current week's data
     const dailyPointsData = userData?.daily_points || {};
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    const weekStart = new Date(userData?.weekly_reset_at);
+    const weekEnd = getNextSunday(weekStart);
 
+    let runningTotal = 0;
     const chartData = Object.entries(dailyPointsData)
       .filter(([date]) => {
         const pointDate = new Date(date);
-        return pointDate >= new Date(userData.weekly_reset_at) && pointDate <= getNextSunday(today);
+        return pointDate >= weekStart && pointDate < weekEnd;
       })
-      .map(([date, points]) => ({
-        day: new Date(date).toLocaleDateString('en-US', { weekday: 'long' }),
-        date,
-        you: points
-      }))
+      .map(([date, points]) => {
+        runningTotal += Number(points);
+        return {
+          day: new Date(date).toLocaleDateString('en-US', { weekday: 'long' }),
+          date,
+          you: runningTotal
+        };
+      })
       .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
     const achievementsData = {
@@ -262,38 +282,71 @@ export async function GET(request: Request) {
       })
     };
 
+    // Get weekly rankings based on sum of daily points
     const { rows: weeklyRankings } = await pool.sql`
+      WITH weekly_totals AS (
+        SELECT 
+          ua.member_id, 
+          ua.user_name, 
+          ua.user_picture, 
+          ua.unlocked_badges,
+          (SELECT SUM(value::numeric)
+           FROM jsonb_each_text(ua.daily_points)
+           WHERE key::date >= ua.weekly_reset_at::date
+             AND key::date < ${getNextSunday(new Date(userData?.weekly_reset_at)).toISOString()}::date
+          ) as points
+        FROM user_achievements ua
+        WHERE ua.weekly_reset_at = ${userData?.weekly_reset_at}
+      )
       SELECT 
         member_id, 
         user_name, 
         user_picture, 
         points, 
         unlocked_badges,
-        RANK() OVER (ORDER BY points DESC) as rank
-      FROM user_achievements 
-      WHERE weekly_reset_at = ${userData?.weekly_reset_at}
+        RANK() OVER (ORDER BY points DESC NULLS LAST) as rank
+      FROM weekly_totals
+      WHERE points > 0
       ORDER BY points DESC 
       LIMIT 10;
     `;
 
+    // Get team rankings based on sum of daily points
     const { rows: teamRankings } = await pool.sql`
+      WITH team_totals AS (
+        SELECT 
+          ua.member_id, 
+          ua.user_name, 
+          ua.user_picture, 
+          ua.unlocked_badges,
+          (SELECT SUM(value::numeric)
+           FROM jsonb_each_text(ua.daily_points)
+           WHERE key::date >= ua.weekly_reset_at::date
+             AND key::date < ${getNextSunday(new Date(userData?.weekly_reset_at)).toISOString()}::date
+          ) as points
+        FROM user_achievements ua
+        WHERE ua.team_id = ${userData?.team_id}
+        AND ua.weekly_reset_at = ${userData?.weekly_reset_at}
+      )
       SELECT 
         member_id, 
         user_name, 
         user_picture, 
-        points,
+        points, 
         unlocked_badges,
-        RANK() OVER (ORDER BY points DESC) as rank
-      FROM user_achievements 
-      WHERE team_id = ${userData?.team_id}
-      AND weekly_reset_at = ${userData?.weekly_reset_at}
+        RANK() OVER (ORDER BY points DESC NULLS LAST) as rank
+      FROM team_totals
+      WHERE points > 0
       ORDER BY points DESC 
       LIMIT 10;
     `;
 
     return NextResponse.json({
       ...achievementsData,
-      userData,
+      userData: {
+        ...userData,
+        weeklyTotal: calculateWeeklyTotal(userData?.daily_points, userData?.weekly_reset_at)
+      },
       weeklyRankings,
       teamRankings,
       chartData
@@ -307,4 +360,11 @@ export async function GET(request: Request) {
 
 function addBadge(badges: string[], newBadge: string): string[] {
   return badges.includes(newBadge) ? badges : [...badges, newBadge];
+}
+
+export type { ChartDataPoint };
+interface ChartDataPoint {
+  day: string;
+  date: string;
+  you: number;
 }
