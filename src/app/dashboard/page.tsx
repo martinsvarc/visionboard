@@ -333,7 +333,7 @@ return (
   
   {/* Areas for Improvement */}
   <div className="bg-red-50 p-3 rounded-xl space-y-2">
-    <h3 className="text-red-700 font-semibold text-xs">Areas for Improvement</h3> {/* Changed to text-xs */}
+    <h3 className="text-red-700 font-semibold text-xs">Improvement Areas</h3> {/* Changed to text-xs */}
     <ul className="space-y-1">
       {latestFeedback && (category ?
         latestFeedback[`${category.key}_areas_for_improvement`]?.split(' - ')?.filter(Boolean)?.map((point, index) => (
