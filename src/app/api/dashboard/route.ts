@@ -256,6 +256,7 @@ export const POST = async (request: Request) => {
         user_name,
         agent_name,
         agent_picture_url,
+        user_picture_url,
         call_recording_url,
         call_details,
         call_duration,
@@ -293,7 +294,7 @@ export const POST = async (request: Request) => {
         program_explanation_feedback,
         closing_skills_feedback,
         overall_effectiveness_feedback
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $30, $31, $32, $33, $34, $35, $36, $37, $38, $39, $40, $41, $42)
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $30, $31, $32, $33, $34, $35, $36, $37, $38, $39, $40, $41, $42, $43)
       RETURNING *`,
       [
         memberId,
@@ -301,6 +302,7 @@ export const POST = async (request: Request) => {
         callData.user_name,
         callData.agent_name,
         callData.agent_picture_url,
+        callData.user_picture_url,
         callData.call_recording_url,
         callData.call_details,
         callData.call_duration,
