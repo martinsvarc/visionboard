@@ -15,6 +15,7 @@ export async function GET(request: Request) {
       connectionString: process.env.visionboard_PRISMA_URL
     });
 
+    // Get all practice dates for the member
     const { rows } = await pool.sql`
       SELECT practice_date
       FROM practice_streaks
@@ -22,39 +23,28 @@ export async function GET(request: Request) {
       ORDER BY practice_date DESC;
     `;
 
-    // Calculate streak data
     const dates = rows.map(row => new Date(row.practice_date));
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
     // Calculate current streak
     let currentStreak = 0;
-    let checkDate = today;
+    let checkDate = new Date(today);
+    
     while (dates.some(date => date.toDateString() === checkDate.toDateString())) {
       currentStreak++;
       checkDate.setDate(checkDate.getDate() - 1);
     }
 
-    // Calculate monthly consistency
-// Calculate monthly consistency
-const datesThisMonth = dates.filter(date => 
-  date.getMonth() === today.getMonth() && 
-  date.getFullYear() === today.getFullYear()
-);
+    // Calculate consistency for current month
+    const currentMonthDates = dates.filter(date => 
+      date.getMonth() === today.getMonth() && 
+      date.getFullYear() === today.getFullYear()
+    );
 
-const uniqueDatesThisMonth = new Set(
-  datesThisMonth.map(date => date.toISOString().split('T')[0])
-).size;
-
-console.log('Today:', today);
-console.log('Days in current month so far:', today.getDate());
-console.log('All dates this month:', datesThisMonth);
-console.log('Unique dates count:', uniqueDatesThisMonth);
-
-const daysInMonth = today.getDate();
-const consistency = Math.round((uniqueDatesThisMonth / daysInMonth) * 100);
-
-console.log('Calculated consistency:', consistency);
+    const daysElapsedInMonth = today.getDate(); // This gives us the current day of the month
+    const practicedDaysCount = currentMonthDates.length;
+    const consistency = Math.round((practicedDaysCount / daysElapsedInMonth) * 100);
 
     // Calculate longest streak
     let longestStreak = 0;
@@ -65,7 +55,9 @@ console.log('Calculated consistency:', consistency);
       if (i === 0) {
         tempStreak = 1;
       } else {
-        const diff = Math.floor((sortedDates[i].getTime() - sortedDates[i-1].getTime()) / (1000 * 60 * 60 * 24));
+        const diff = Math.floor(
+          (sortedDates[i].getTime() - sortedDates[i-1].getTime()) / (1000 * 60 * 60 * 24)
+        );
         if (diff === 1) {
           tempStreak++;
         } else if (diff !== 0) {
@@ -75,30 +67,13 @@ console.log('Calculated consistency:', consistency);
       longestStreak = Math.max(longestStreak, tempStreak);
     }
 
-    const datesThisMonth = dates.filter(date => 
-  date.getMonth() === today.getMonth() && 
-  date.getFullYear() === today.getFullYear()
-);
-
-const uniqueDatesThisMonth = new Set(
-  datesThisMonth.map(date => date.toISOString().split('T')[0])
-).size;
-
-const daysInMonth = today.getDate();
-const consistency = Math.round((uniqueDatesThisMonth / daysInMonth) * 100);
-
-const streakData = {
-  current: currentStreak,
-  consistency: `${consistency}%`,
-  longest: longestStreak,
-  dates: dates,
-  debug: {
-    uniqueDatesThisMonth,
-    daysInMonth,
-    rawConsistency: uniqueDatesThisMonth / daysInMonth,
-    datesThisMonth: datesThisMonth.map(d => d.toISOString().split('T')[0])
-  }
-};
+    // Return the streak data
+    const streakData = {
+      current: currentStreak,
+      consistency: `${consistency}%`,
+      longest: longestStreak,
+      dates: dates
+    };
 
     return NextResponse.json(streakData);
   } catch (error) {
