@@ -37,9 +37,18 @@ const findPointsForDate = (date: string, points: number) => {
 };
 
 // And then replace the old dataWithTopPlayer with:
+const findCumulativePointsForDate = (date: string, points: number, data: ChartDataPoint[]) => {
+  const pointDate = new Date(date);
+  const today = new Date();
+  if (pointDate.toISOString().split('T')[0] === today.toISOString().split('T')[0]) {
+    return points;
+  }
+  return 0;
+};
+
 const dataWithTopPlayer = shouldShowTopPlayer ? data.map(point => ({
   ...point,
-  topPlayer: findPointsForDate(point.date, topPlayer.points)
+  topPlayer: findCumulativePointsForDate(point.date, topPlayer.points, data)
 })) : data;
 
   return (
