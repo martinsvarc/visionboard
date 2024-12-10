@@ -8,34 +8,43 @@ interface ChartDataPoint {
 
 interface LeagueChartProps {
   chartData: ChartDataPoint[];
-  topPlayerScore: number;
+  weeklyRankings: Array<{
+    member_id: string;
+    points: number;
+  }>;
 }
 
-export function LeagueChart({ chartData, topPlayerScore }: LeagueChartProps) {
+export function LeagueChart({ chartData, weeklyRankings }: LeagueChartProps) {
   const today = new Date();
   const currentDayIndex = today.getDay() === 0 ? 6 : today.getDay() - 1;
   const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
-  // Calculate cumulative totals
-  let runningTotal = 0;
-  const data = chartData
-    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
-    .map(point => {
-      runningTotal += point.you;
-      return {
-        ...point,
-        you: runningTotal,
-        // For top player, we'll show linear progression towards their total
-        topPlayer: Math.round(topPlayerScore * (new Date(point.date).getDay() / 6))
-      };
-    });
+  // Filter data up to current day
+  const data = chartData.filter(point => {
+    const pointDate = new Date(point.date);
+    return pointDate <= today;
+  });
+
+  // Find top player (excluding yourself)
+  const topPlayer = weeklyRankings.length > 1 ? weeklyRankings[0] : null;
+  const shouldShowTopPlayer = topPlayer && topPlayer.points > (data[data.length - 1]?.you || 0);
+  
+  // If there is a top player, calculate their progress line
+  const dataWithTopPlayer = shouldShowTopPlayer ? data.map(point => {
+    const dayIndex = days.indexOf(point.day);
+    const topPlayerProgress = Math.round((dayIndex + 1) * (topPlayer.points / days.length));
+    return {
+      ...point,
+      topPlayer: topPlayerProgress
+    };
+  }) : data;
 
   return (
     <div className="w-full overflow-x-auto">
       <div className="min-h-[200px] w-full min-w-[300px]">
         <ResponsiveContainer width="100%" height={200}>
           <LineChart 
-            data={data}
+            data={dataWithTopPlayer}
             margin={{ top: 5, right: 5, left: 0, bottom: 5 }}
           >
             <CartesianGrid 
@@ -59,7 +68,7 @@ export function LeagueChart({ chartData, topPlayerScore }: LeagueChartProps) {
               axisLine={false}
               tickLine={false}
               tick={{ fill: '#DAF0F2', fontSize: '0.625rem' }}
-              domain={[0, Math.max(topPlayerScore, data[data.length - 1]?.you || 0)]}
+              domain={[0, Math.max(topPlayer?.points || 0, data[data.length - 1]?.you || 0)]}
               allowDecimals={false}
               width={25}
             />
@@ -73,6 +82,7 @@ export function LeagueChart({ chartData, topPlayerScore }: LeagueChartProps) {
               }}
               itemStyle={{ color: '#000000', fontSize: '0.625rem' }}
               labelStyle={{ color: '#000000', fontWeight: 600, marginBottom: '0.125rem', fontSize: '0.625rem' }}
+              formatter={(value: number) => [`${value.toLocaleString()} points`]}
             />
             <Line 
               type="monotone" 
@@ -82,14 +92,16 @@ export function LeagueChart({ chartData, topPlayerScore }: LeagueChartProps) {
               strokeWidth={2}
               dot={false}
             />
-            <Line 
-              type="monotone" 
-              dataKey="topPlayer" 
-              name="Top Player"
-              stroke="#f8b922" 
-              strokeWidth={2}
-              dot={false}
-            />
+            {shouldShowTopPlayer && (
+              <Line 
+                type="monotone" 
+                dataKey="topPlayer" 
+                name="Top Player"
+                stroke="#f8b922" 
+                strokeWidth={2}
+                dot={false}
+              />
+            )}
           </LineChart>
         </ResponsiveContainer>
       </div>
