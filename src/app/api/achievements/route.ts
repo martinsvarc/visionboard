@@ -214,64 +214,64 @@ export async function GET(request: Request) {
 
     // Get weekly rankings
     const { rows: weeklyRankings } = await pool.sql`
-      WITH weekly_totals AS (
-        SELECT 
-          ua.member_id, 
-          ua.user_name, 
-          ua.user_picture, 
-          ua.unlocked_badges,
-          (
-            SELECT COALESCE(SUM(value::numeric), 0)
-            FROM jsonb_each_text(ua.daily_points)
-            WHERE key::date >= ua.weekly_reset_at::date
-              AND key::date < ${getNextSunday(new Date(userData.weekly_reset_at)).toISOString()}::date
-          ) as points
-        FROM user_achievements ua
-        WHERE ua.weekly_reset_at = ${userData.weekly_reset_at}
-      )
-      SELECT 
-        member_id, 
-        user_name, 
-        user_picture, 
-        points, 
-        unlocked_badges,
-        RANK() OVER (ORDER BY points DESC NULLS LAST) as rank
-      FROM weekly_totals
-      WHERE points > 0
-      ORDER BY points DESC 
-      LIMIT 10;
-    `;
+  WITH weekly_totals AS (
+    SELECT 
+      ua.member_id, 
+      ua.user_name, 
+      ua.user_picture, 
+      ua.unlocked_badges,
+      (
+        SELECT COALESCE(SUM(value::numeric), 0)
+        FROM jsonb_each_text(ua.daily_points)
+        WHERE key::date >= CURRENT_DATE
+          AND key::date < ${getNextSunday().toISOString()}::date
+      ) as points
+    FROM user_achievements ua
+    WHERE weekly_reset_at = ${getNextSunday().toISOString()}
+  )
+  SELECT 
+    member_id, 
+    user_name, 
+    user_picture, 
+    points, 
+    unlocked_badges,
+    RANK() OVER (ORDER BY points DESC NULLS LAST) as rank
+  FROM weekly_totals
+  WHERE points > 0
+  ORDER BY points DESC 
+  LIMIT 10;
+`;
 
     // Get team rankings if team exists
-    const teamRankings = userData.team_id ? await pool.sql`
-      WITH team_totals AS (
-        SELECT 
-          ua.member_id, 
-          ua.user_name, 
-          ua.user_picture, 
-          ua.unlocked_badges,
-          (
-            SELECT COALESCE(SUM(value::numeric), 0)
-            FROM jsonb_each_text(ua.daily_points)
-            WHERE key::date >= ua.weekly_reset_at::date
-              AND key::date < ${getNextSunday(new Date(userData.weekly_reset_at)).toISOString()}::date
-          ) as points
-        FROM user_achievements ua
-        WHERE ua.team_id = ${userData.team_id}
-        AND ua.weekly_reset_at = ${userData.weekly_reset_at}
-      )
-      SELECT 
-        member_id, 
-        user_name, 
-        user_picture, 
-        points, 
-        unlocked_badges,
-        RANK() OVER (ORDER BY points DESC NULLS LAST) as rank
-      FROM team_totals
-      WHERE points > 0
-      ORDER BY points DESC 
-      LIMIT 10;
-    ` : { rows: [] };
+const { rows: teamRankings } = await pool.sql`
+ WITH team_totals AS (
+   SELECT 
+     ua.member_id, 
+     ua.user_name, 
+     ua.user_picture, 
+     ua.unlocked_badges,
+     (
+       SELECT COALESCE(SUM(value::numeric), 0)
+       FROM jsonb_each_text(ua.daily_points)
+       WHERE key::date >= CURRENT_DATE
+         AND key::date < ${getNextSunday().toISOString()}::date
+     ) as points
+   FROM user_achievements ua
+   WHERE ua.team_id = ${userData?.team_id}
+   AND ua.weekly_reset_at = ${getNextSunday().toISOString()}
+ )
+ SELECT 
+   member_id, 
+   user_name, 
+   user_picture, 
+   points, 
+   unlocked_badges,
+   RANK() OVER (ORDER BY points DESC NULLS LAST) as rank
+ FROM team_totals
+ WHERE points > 0
+ ORDER BY points DESC 
+ LIMIT 10;
+`;
 
     return NextResponse.json({
       ...achievementsData,
