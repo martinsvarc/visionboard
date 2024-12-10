@@ -185,11 +185,19 @@ const dailyPoints = Object.entries(userData.daily_points || {})
   .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
 // Use actual daily points instead of running total
-const chartData = dailyPoints.map(({ date, points }) => ({
-  day: new Date(date).toLocaleDateString('en-US', { weekday: 'long' }),
-  date,
-  you: points  // Just use the daily points, not cumulative
-}));
+const chartData = dailyPoints.reduce((acc, { date, points }, index) => {
+  const cumulativePoints = dailyPoints
+    .slice(0, index + 1)
+    .reduce((sum, dp) => sum + dp.points, 0);
+
+  acc.push({
+    day: new Date(date).toLocaleDateString('en-US', { weekday: 'long' }),
+    date,
+    you: cumulativePoints
+  });
+
+  return acc;
+}, [] as Array<{day: string; date: string; you: number}>);
 
     // Map achievements
     const achievementsData = {
