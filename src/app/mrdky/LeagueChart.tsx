@@ -17,22 +17,35 @@ export function LeagueChart({ chartData, topPlayerScore }: LeagueChartProps) {
   const currentDayIndex = today.getDay() === 0 ? 6 : today.getDay() - 1;
   const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
+  // Calculate daily progression for top player
   const data = chartData.map((point, index) => {
-    const topPlayerPoint = (point.you / chartData[chartData.length - 1].you) * topPlayerScore;
+    // Calculate what percentage of the week has passed
+    const daysPassed = index + 1;
+    const weekProgress = daysPassed / 7;
+    
+    // Top player's projected score for this day
+    const topPlayerPoint = Math.round(topPlayerScore * weekProgress);
+
     return {
       ...point,
-      topPlayer: Math.round(topPlayerPoint)
+      topPlayer: topPlayerPoint
     };
   });
 
-  const maxScore = Math.max(topPlayerScore, data[data.length - 1]?.you || 0);
+  // Calculate max score for Y-axis
+  const maxYourScore = Math.max(...data.map(point => point.you));
+  const maxScore = Math.max(topPlayerScore, maxYourScore);
+  
+  // Ensure we show only the days up to today
+  const visibleDays = days.slice(0, currentDayIndex + 1);
+  const visibleData = data.filter((_, index) => index <= currentDayIndex);
 
   return (
     <div className="w-full overflow-x-auto">
       <div className="min-h-[200px] w-full min-w-[300px]">
         <ResponsiveContainer width="100%" height={200}>
           <LineChart 
-            data={data}
+            data={visibleData}
             margin={{ top: 5, right: 5, left: 0, bottom: 5 }}
           >
             <CartesianGrid 
@@ -47,7 +60,7 @@ export function LeagueChart({ chartData, topPlayerScore }: LeagueChartProps) {
               tick={{ fill: '#DAF0F2', fontSize: '0.625rem' }}
               dy={5}
               interval={0}
-              ticks={days.slice(0, currentDayIndex + 1)}
+              ticks={visibleDays}
               angle={-20}
               textAnchor="end"
               height={40}
@@ -70,6 +83,7 @@ export function LeagueChart({ chartData, topPlayerScore }: LeagueChartProps) {
               }}
               itemStyle={{ color: '#000000', fontSize: '0.625rem' }}
               labelStyle={{ color: '#000000', fontWeight: 600, marginBottom: '0.125rem', fontSize: '0.625rem' }}
+              formatter={(value: number) => [`${value.toLocaleString()} points`, undefined]}
             />
             <Line 
               type="monotone" 
