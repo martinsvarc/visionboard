@@ -132,7 +132,22 @@ type ChartData = {
   name: string;
   date: string;
   value?: number;
-} & Partial<CategoryScore>
+} & Partial<CategoryScore> & {
+  engagement_strong_points?: string;
+  engagement_areas_for_improvement?: string;
+  objection_handling_strong_points?: string;
+  objection_handling_areas_for_improvement?: string;
+  information_gathering_strong_points?: string;
+  information_gathering_areas_for_improvement?: string;
+  program_explanation_strong_points?: string;
+  program_explanation_areas_for_improvement?: string;
+  closing_skills_strong_points?: string;
+  closing_skills_areas_for_improvement?: string;
+  overall_effectiveness_strong_points?: string;
+  overall_effectiveness_areas_for_improvement?: string;
+  strong_points_average_success?: string;
+  areas_for_improvement_average_success?: string;
+}
 
 type ChartProps = {
   data: Array<ChartData>;
@@ -804,7 +819,21 @@ const totalPages = Math.ceil(filteredCallLogs.length / recordsPerPage)
   information_gathering: call.scores.information_gathering,
   program_explanation: call.scores.program_explanation,
   closing_skills: call.scores.closing_skills,
-  overall_effectiveness: call.scores.overall_effectiveness
+  overall_effectiveness: call.scores.overall_effectiveness,
+  engagement_strong_points: call.engagement_strong_points,
+  engagement_areas_for_improvement: call.engagement_areas_for_improvement,
+  objection_handling_strong_points: call.objection_handling_strong_points,
+  objection_handling_areas_for_improvement: call.objection_handling_areas_for_improvement,
+  information_gathering_strong_points: call.information_gathering_strong_points,
+  information_gathering_areas_for_improvement: call.information_gathering_areas_for_improvement,
+  program_explanation_strong_points: call.program_explanation_strong_points,
+  program_explanation_areas_for_improvement: call.program_explanation_areas_for_improvement,
+  closing_skills_strong_points: call.closing_skills_strong_points,
+  closing_skills_areas_for_improvement: call.closing_skills_areas_for_improvement,
+  overall_effectiveness_strong_points: call.overall_effectiveness_strong_points,
+  overall_effectiveness_areas_for_improvement: call.overall_effectiveness_areas_for_improvement,
+  strong_points_average_success: call.strong_points_average_success,
+  areas_for_improvement_average_success: call.areas_for_improvement_average_success
 })), [callLogs]);
 
  const averageSuccessData = React.useMemo(() => callLogs.map((call, index) => ({
