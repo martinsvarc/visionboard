@@ -37,8 +37,24 @@ interface CallData {
   level_up_2: string;
   level_up_3: string; 
   call_transcript: string;
-  strong_points: string;
-  areas_for_improvement: string;
+  analysis: CategoryAnalysis;
+}
+
+interface CategoryAnalysis {
+  strong_points_average_success: string;
+  areas_for_improvement_average_success: string;
+  engagement_strong_points: string;
+  engagement_areas_for_improvement: string;
+  objection_handling_strong_points: string;
+  objection_handling_areas_for_improvement: string;
+  information_gathering_strong_points: string;
+  information_gathering_areas_for_improvement: string;
+  program_explanation_strong_points: string;
+  program_explanation_areas_for_improvement: string;
+  closing_skills_strong_points: string;
+  closing_skills_areas_for_improvement: string;
+  overall_effectiveness_strong_points: string;
+  overall_effectiveness_areas_for_improvement: string;
 }
 
 export const GET = async (request: Request) => {
