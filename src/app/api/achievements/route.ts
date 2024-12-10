@@ -3,29 +3,21 @@ import { NextResponse } from 'next/server';
 import { ACHIEVEMENTS } from '@/lib/achievement-data';
 
 const getNextSunday = (date: Date = new Date()) => {
-  // Create date in local time
-  const newDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-  // Get days until next Sunday (0 = Sunday, 1 = Monday, etc)
+  const newDate = new Date(date);
+  newDate.setHours(0, 0, 0, 0);
   const dayOfWeek = newDate.getDay();
-  // If it's Sunday, add 7 days, otherwise add days until next Sunday
-  const daysToAdd = dayOfWeek === 0 ? 7 : 7 - dayOfWeek;
-  newDate.setDate(newDate.getDate() + daysToAdd);
+  const daysUntilNextSunday = 7 - dayOfWeek;
+  newDate.setDate(newDate.getDate() + daysUntilNextSunday);
   return newDate;
 };
 
-function isNewWeek(lastResetDate: Date) {
-  const now = new Date();
-  // If we're past the last reset date, it's a new week
-  return now > lastResetDate;
+function getDayKey(date: Date) {
+  return date.toISOString().split('T')[0];
 }
 
 function isNewMonth(lastDate: Date, currentDate: Date = new Date()) {
   return lastDate.getMonth() !== currentDate.getMonth() || 
          lastDate.getFullYear() !== currentDate.getFullYear();
-}
-
-function getDayKey(date: Date) {
-  return date.toISOString().split('T')[0];
 }
 
 export async function POST(request: Request) {
@@ -40,6 +32,13 @@ export async function POST(request: Request) {
     const pool = createPool({
       connectionString: process.env.visionboard_PRISMA_URL
     });
+
+    // Check if we need to reset points due to week change
+    const { rows: [weekCheck] } = await pool.sql`
+      SELECT weekly_reset_at 
+      FROM user_achievements 
+      WHERE member_id = ${memberId};
+    `;
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -64,13 +63,15 @@ export async function POST(request: Request) {
     const total_sessions = (existingUser?.total_sessions || 0) + 1;
     
     // Points calculations
-const current_points = (existingUser?.points || 0) + points;
-const total_points = (existingUser?.total_points || 0) + points;
+    const shouldResetWeek = weekCheck?.rows?.[0]?.weekly_reset_at && 
+                           new Date() > new Date(weekCheck.rows[0].weekly_reset_at);
+    
+    const current_points = shouldResetWeek ? points : (existingUser?.points || 0) + points;
 
-const current_daily_points = {
-    ...existingUser?.daily_points,
-    [todayKey]: parseFloat((existingUser?.daily_points || {})[todayKey] || 0) + parseFloat(points)
-};
+    const current_daily_points = {
+      ...existingUser?.daily_points,
+      [todayKey]: parseFloat((existingUser?.daily_points || {})[todayKey] || 0) + parseFloat(points)
+    };
 
     // Session counts
     const shouldResetMonth = !existingUser?.last_session_date ? 
@@ -85,7 +86,7 @@ const current_daily_points = {
     const sessions_today = lastSessionDate && lastSessionDate.getTime() === today.getTime() ? 
       (existingUser?.sessions_today || 0) + 1 : 1;
 
-    const sessions_this_week = (existingUser?.sessions_this_week || 0) + 1;
+    const sessions_this_week = shouldResetWeek ? 1 : (existingUser?.sessions_this_week || 0) + 1;
 
     const sessions_this_month = shouldResetMonth ? 
       1 : 
@@ -96,7 +97,7 @@ const current_daily_points = {
       ? [...existingUser.unlocked_badges] 
       : [];
 
-    // Unlock streak badges
+    // Keep existing badge logic
     if (current_streak >= 5) unlocked_badges = addBadge(unlocked_badges, 'streak_5');
     if (current_streak >= 10) unlocked_badges = addBadge(unlocked_badges, 'streak_10');
     if (current_streak >= 30) unlocked_badges = addBadge(unlocked_badges, 'streak_30');
@@ -104,16 +105,17 @@ const current_daily_points = {
     if (current_streak >= 180) unlocked_badges = addBadge(unlocked_badges, 'streak_180');
     if (current_streak >= 365) unlocked_badges = addBadge(unlocked_badges, 'streak_365');
 
-    // Unlock call badges
     if (total_sessions >= 10) unlocked_badges = addBadge(unlocked_badges, 'calls_10');
     if (total_sessions >= 25) unlocked_badges = addBadge(unlocked_badges, 'calls_25');
     if (total_sessions >= 50) unlocked_badges = addBadge(unlocked_badges, 'calls_50');
     if (total_sessions >= 100) unlocked_badges = addBadge(unlocked_badges, 'calls_100');
 
-    // Activity badges
     if (sessions_today >= 10) unlocked_badges = addBadge(unlocked_badges, 'daily_10');
     if (sessions_this_week >= 50) unlocked_badges = addBadge(unlocked_badges, 'weekly_50');
     if (sessions_this_month >= 100) unlocked_badges = addBadge(unlocked_badges, 'monthly_100');
+
+    const weekly_reset_at = shouldResetWeek ? getNextSunday() : 
+                           existingUser?.weekly_reset_at || getNextSunday();
 
     const { rows: [updated] } = await pool.sql`
       INSERT INTO user_achievements (
@@ -122,7 +124,6 @@ const current_daily_points = {
         user_picture, 
         team_id,
         points,
-        total_points,
         current_streak,
         longest_streak,
         total_sessions,
@@ -139,7 +140,6 @@ const current_daily_points = {
         ${userPicture},
         ${teamId},
         ${points},
-        ${points},
         1,
         1,
         1,
@@ -148,39 +148,35 @@ const current_daily_points = {
         ${sessions_this_month},
         ${todayStr},
         ${JSON.stringify(unlocked_badges)},
-        ${getNextSunday().toISOString()},
+        ${weekly_reset_at.toISOString()},
         ${JSON.stringify(current_daily_points)}
       )
       ON CONFLICT (member_id) DO UPDATE SET
         user_name = EXCLUDED.user_name,
         user_picture = ${userPicture || 'https://res.cloudinary.com/dmbzcxhjn/image/upload/v1732590120/WhatsApp_Image_2024-11-26_at_04.00.13_58e32347_owfpnt.jpg'},
         team_id = EXCLUDED.team_id,
-        points = user_achievements.points + ${points},
-total_points = user_achievements.total_points + ${points},
+        points = ${current_points},
         total_sessions = user_achievements.total_sessions + 1,
-        sessions_today = CASE 
-          WHEN user_achievements.last_session_date = ${todayStr} THEN user_achievements.sessions_today + 1
-          ELSE 1
-        END,
-        sessions_this_week = user_achievements.sessions_this_week + 1,
-        sessions_this_month = CASE 
-          WHEN TO_CHAR(user_achievements.last_session_date::date, 'YYYY-MM') != TO_CHAR(CURRENT_DATE, 'YYYY-MM') THEN 1
-          ELSE user_achievements.sessions_this_month + 1
-        END,
+        sessions_today = ${sessions_today},
+        sessions_this_week = ${sessions_this_week},
+        sessions_this_month = ${sessions_this_month},
+        current_streak = ${current_streak},
+        longest_streak = ${longest_streak},
         last_session_date = ${today.toISOString()},
         unlocked_badges = ${JSON.stringify(unlocked_badges)},
-        weekly_reset_at = COALESCE(user_achievements.weekly_reset_at, ${getNextSunday().toISOString()}),
+        weekly_reset_at = ${weekly_reset_at.toISOString()},
         daily_points = ${JSON.stringify(current_daily_points)},
         updated_at = CURRENT_TIMESTAMP
       RETURNING *;
     `;
 
+    // Get current rankings for the same week only
     const { rows: currentRankings } = await pool.sql`
       SELECT 
         member_id,
         DENSE_RANK() OVER (ORDER BY points DESC) as rank
       FROM user_achievements
-      WHERE weekly_reset_at = ${updated.weekly_reset_at}
+      WHERE weekly_reset_at = ${weekly_reset_at.toISOString()}
       ORDER BY points DESC;
     `;
 
@@ -213,19 +209,22 @@ export async function GET(request: Request) {
       SELECT * FROM user_achievements WHERE member_id = ${memberId};
     `;
 
-// Transform daily points for the chart
-const dailyPointsData = userData?.daily_points || {};
-const today = new Date();
-today.setHours(0, 0, 0, 0);
+    // Transform daily points for the chart
+    const dailyPointsData = userData?.daily_points || {};
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
 
-const chartData = Object.entries(dailyPointsData)
-    .filter(([date]) => new Date(date) >= today) // Compare Date with Date
-    .map(([date, points]) => ({
-      day: new Date(date).toLocaleDateString('en-US', { weekday: 'long' }),
-      date,
-      you: points
-    }))
-    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+    const chartData = Object.entries(dailyPointsData)
+      .filter(([date]) => {
+        const pointDate = new Date(date);
+        return pointDate >= new Date(userData.weekly_reset_at) && pointDate <= getNextSunday(today);
+      })
+      .map(([date, points]) => ({
+        day: new Date(date).toLocaleDateString('en-US', { weekday: 'long' }),
+        date,
+        you: points
+      }))
+      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
     const achievementsData = {
       streakAchievements: ACHIEVEMENTS.streak.map(badge => ({
@@ -278,19 +277,19 @@ const chartData = Object.entries(dailyPointsData)
     `;
 
     const { rows: teamRankings } = await pool.sql`
-  SELECT 
-    member_id, 
-    user_name, 
-    user_picture, 
-    points,
-    unlocked_badges,
-    RANK() OVER (ORDER BY points DESC) as rank
-  FROM user_achievements 
-  WHERE team_id = ${userData?.team_id}
-  AND weekly_reset_at = ${userData?.weekly_reset_at}
-  ORDER BY points DESC 
-  LIMIT 10;
-`;
+      SELECT 
+        member_id, 
+        user_name, 
+        user_picture, 
+        points,
+        unlocked_badges,
+        RANK() OVER (ORDER BY points DESC) as rank
+      FROM user_achievements 
+      WHERE team_id = ${userData?.team_id}
+      AND weekly_reset_at = ${userData?.weekly_reset_at}
+      ORDER BY points DESC 
+      LIMIT 10;
+    `;
 
     return NextResponse.json({
       ...achievementsData,
@@ -307,5 +306,5 @@ const chartData = Object.entries(dailyPointsData)
 }
 
 function addBadge(badges: string[], newBadge: string): string[] {
-    return badges.includes(newBadge) ? badges : [...badges, newBadge];
+  return badges.includes(newBadge) ? badges : [...badges, newBadge];
 }
