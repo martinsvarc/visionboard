@@ -75,12 +75,30 @@ console.log('Calculated consistency:', consistency);
       longestStreak = Math.max(longestStreak, tempStreak);
     }
 
-    const streakData = {
-      current: currentStreak,
-      consistency: `${consistency}%`,
-      longest: longestStreak,
-      dates: dates
-    };
+    const datesThisMonth = dates.filter(date => 
+  date.getMonth() === today.getMonth() && 
+  date.getFullYear() === today.getFullYear()
+);
+
+const uniqueDatesThisMonth = new Set(
+  datesThisMonth.map(date => date.toISOString().split('T')[0])
+).size;
+
+const daysInMonth = today.getDate();
+const consistency = Math.round((uniqueDatesThisMonth / daysInMonth) * 100);
+
+const streakData = {
+  current: currentStreak,
+  consistency: `${consistency}%`,
+  longest: longestStreak,
+  dates: dates,
+  debug: {
+    uniqueDatesThisMonth,
+    daysInMonth,
+    rawConsistency: uniqueDatesThisMonth / daysInMonth,
+    datesThisMonth: datesThisMonth.map(d => d.toISOString().split('T')[0])
+  }
+};
 
     return NextResponse.json(streakData);
   } catch (error) {
