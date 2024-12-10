@@ -23,21 +23,35 @@ interface CategoryFeedback {
 
 interface CallData {
   user_name: string;
-  user_picture_url: string;
+  user_picture_url?: string;
   agent_name: string;
   agent_picture_url: string;
   call_recording_url: string;
   call_details: string;
   scores: CategoryScores;
-  feedback: CategoryFeedback;
+  feedback?: CategoryFeedback;
   call_duration: number;
-  power_moment: string;
-  call_notes: string;
-  level_up_1: string;
-  level_up_2: string;
-  level_up_3: string; 
-  call_transcript: string;
-  analysis: CategoryAnalysis;
+  power_moment?: string;
+  call_notes?: string;
+  level_up_1?: string;
+  level_up_2?: string;
+  level_up_3?: string; 
+  call_transcript?: string;
+  analysis?: CategoryAnalysis;
+  strong_points_average_success?: string;
+  areas_for_improvement_average_success?: string;
+  engagement_strong_points?: string;
+  engagement_areas_for_improvement?: string;
+  objection_handling_strong_points?: string;
+  objection_handling_areas_for_improvement?: string;
+  information_gathering_strong_points?: string;
+  information_gathering_areas_for_improvement?: string;
+  program_explanation_strong_points?: string;
+  program_explanation_areas_for_improvement?: string;
+  closing_skills_strong_points?: string;
+  closing_skills_areas_for_improvement?: string;
+  overall_effectiveness_strong_points?: string;
+  overall_effectiveness_areas_for_improvement?: string;
 }
 
 interface CategoryAnalysis {
@@ -106,8 +120,20 @@ export const GET = async (request: Request) => {
       level_up_2: row.level_up_2 || '',
       level_up_3: row.level_up_3 || '',
       call_transcript: row.call_transcript || '',
-      strong_points: row.strong_points || '',
-      areas_for_improvement: row.areas_for_improvement || '',
+      strong_points_average_success: row.strong_points_average_success || '',
+      areas_for_improvement_average_success: row.areas_for_improvement_average_success || '',
+      engagement_strong_points: row.engagement_strong_points || '',
+      engagement_areas_for_improvement: row.engagement_areas_for_improvement || '',
+      objection_handling_strong_points: row.objection_handling_strong_points || '',
+      objection_handling_areas_for_improvement: row.objection_handling_areas_for_improvement || '',
+      information_gathering_strong_points: row.information_gathering_strong_points || '',
+      information_gathering_areas_for_improvement: row.information_gathering_areas_for_improvement || '',
+      program_explanation_strong_points: row.program_explanation_strong_points || '',
+      program_explanation_areas_for_improvement: row.program_explanation_areas_for_improvement || '',
+      closing_skills_strong_points: row.closing_skills_strong_points || '',
+      closing_skills_areas_for_improvement: row.closing_skills_areas_for_improvement || '',
+      overall_effectiveness_strong_points: row.overall_effectiveness_strong_points || '',
+      overall_effectiveness_areas_for_improvement: row.overall_effectiveness_areas_for_improvement || '',
       scores: {
         engagement: Number(row.engagement_score) || 0,
         objection_handling: Number(row.objection_handling_score) || 0,
@@ -224,7 +250,21 @@ export const POST = async (request: Request) => {
         callData.feedback.information_gathering,
         callData.feedback.program_explanation,
         callData.feedback.closing_skills,
-        callData.feedback.overall_effectiveness
+        callData.feedback.overall_effectiveness,
+        callData.strong_points_average_success || null,
+        callData.areas_for_improvement_average_success || null,
+        callData.engagement_strong_points || null,
+        callData.engagement_areas_for_improvement || null,
+        callData.objection_handling_strong_points || null,
+        callData.objection_handling_areas_for_improvement || null,
+        callData.information_gathering_strong_points || null,
+        callData.information_gathering_areas_for_improvement || null,
+        callData.program_explanation_strong_points || null,
+        callData.program_explanation_areas_for_improvement || null,
+        callData.closing_skills_strong_points || null,
+        callData.closing_skills_areas_for_improvement || null,
+        callData.overall_effectiveness_strong_points || null,
+        callData.overall_effectiveness_areas_for_improvement || null
       ]
     );
 
@@ -270,8 +310,22 @@ export const PUT = async (request: Request) => {
         program_explanation_feedback = COALESCE($11, program_explanation_feedback),
         closing_skills_feedback = COALESCE($12, closing_skills_feedback),
         overall_effectiveness_feedback = COALESCE($13, overall_effectiveness_feedback),
-        call_notes = COALESCE($14, call_notes)
-       WHERE id = $15
+        call_notes = COALESCE($14, call_notes),
+        strong_points_average_success = COALESCE($15, strong_points_average_success),
+        areas_for_improvement_average_success = COALESCE($16, areas_for_improvement_average_success),
+        engagement_strong_points = COALESCE($17, engagement_strong_points),
+        engagement_areas_for_improvement = COALESCE($18, engagement_areas_for_improvement),
+        objection_handling_strong_points = COALESCE($19, objection_handling_strong_points),
+        objection_handling_areas_for_improvement = COALESCE($20, objection_handling_areas_for_improvement),
+        information_gathering_strong_points = COALESCE($21, information_gathering_strong_points),
+        information_gathering_areas_for_improvement = COALESCE($22, information_gathering_areas_for_improvement),
+        program_explanation_strong_points = COALESCE($23, program_explanation_strong_points),
+        program_explanation_areas_for_improvement = COALESCE($24, program_explanation_areas_for_improvement),
+        closing_skills_strong_points = COALESCE($25, closing_skills_strong_points),
+        closing_skills_areas_for_improvement = COALESCE($26, closing_skills_areas_for_improvement),
+        overall_effectiveness_strong_points = COALESCE($27, overall_effectiveness_strong_points),
+        overall_effectiveness_areas_for_improvement = COALESCE($28, overall_effectiveness_areas_for_improvement)
+       WHERE id = $29
        RETURNING *`,
       [
         updateData.scores?.engagement,
@@ -288,6 +342,20 @@ export const PUT = async (request: Request) => {
         updateData.feedback?.closing_skills,
         updateData.feedback?.overall_effectiveness,
         updateData.call_notes,
+        updateData.strong_points_average_success || null,
+        updateData.areas_for_improvement_average_success || null,
+        updateData.engagement_strong_points || null,
+        updateData.engagement_areas_for_improvement || null,
+        updateData.objection_handling_strong_points || null,
+        updateData.objection_handling_areas_for_improvement || null,
+        updateData.information_gathering_strong_points || null,
+        updateData.information_gathering_areas_for_improvement || null,
+        updateData.program_explanation_strong_points || null,
+        updateData.program_explanation_areas_for_improvement || null,
+        updateData.closing_skills_strong_points || null,
+        updateData.closing_skills_areas_for_improvement || null,
+        updateData.overall_effectiveness_strong_points || null,
+        updateData.overall_effectiveness_areas_for_improvement || null,
         callId
       ]
     );
