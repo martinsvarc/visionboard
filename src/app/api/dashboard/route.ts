@@ -186,7 +186,7 @@ export const POST = async (request: Request) => {
 
     const nextCallNumber = parseInt(existingCalls[0].max_call_number) + 1;
 
-    const { rows } = await client.query(
+   const { rows } = await client.query(
       `INSERT INTO call_logs (
         member_id,
         call_number,
@@ -202,8 +202,20 @@ export const POST = async (request: Request) => {
         level_up_2,
         level_up_3,
         call_transcript,
-        strong_points,
-        areas_for_improvement,
+        strong_points_average_success,
+        areas_for_improvement_average_success,
+        engagement_strong_points,
+        engagement_areas_for_improvement,
+        objection_handling_strong_points,
+        objection_handling_areas_for_improvement,
+        information_gathering_strong_points,
+        information_gathering_areas_for_improvement,
+        program_explanation_strong_points,
+        program_explanation_areas_for_improvement,
+        closing_skills_strong_points,
+        closing_skills_areas_for_improvement,
+        overall_effectiveness_strong_points,
+        overall_effectiveness_areas_for_improvement,
         engagement_score,
         objection_handling_score,
         information_gathering_score,
@@ -218,7 +230,7 @@ export const POST = async (request: Request) => {
         program_explanation_feedback,
         closing_skills_feedback,
         overall_effectiveness_feedback
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $30)
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $30, $31, $32, $33, $34, $35, $36, $37, $38, $39, $40, $41, $42)
       RETURNING *`,
       [
         memberId,
@@ -235,8 +247,8 @@ export const POST = async (request: Request) => {
         callData.level_up_2,
         callData.level_up_3,
         callData.call_transcript,
-        callData.strong_points,
-        callData.areas_for_improvement,
+        callData.strong_points_average_success, 
+        callData.areas_for_improvement_average_success,
         callData.scores.engagement,
         callData.scores.objection_handling,
         callData.scores.information_gathering,
