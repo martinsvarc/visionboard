@@ -1,14 +1,18 @@
-import React from 'react';
+'use client'
+
+import Image from 'next/image'
 
 const LoadingSpinner = () => {
   return (
     <div className="flex items-center justify-center w-full h-screen bg-transparent">
       <div className="relative w-24 h-24" role="status" aria-label="Loading">
+        {/* Spinning loader */}
         <svg
           className="w-full h-full animate-spin"
           viewBox="0 0 100 100"
           xmlns="http://www.w3.org/2000/svg"
         >
+          {/* Background circle */}
           <circle
             cx="50"
             cy="50"
@@ -18,6 +22,7 @@ const LoadingSpinner = () => {
             fill="none"
             strokeLinecap="round"
           />
+          {/* Two animated segments at opposite positions */}
           <circle
             cx="50"
             cy="50"
@@ -30,9 +35,20 @@ const LoadingSpinner = () => {
             strokeLinecap="round"
           />
         </svg>
+        {/* Center image */}
+        <div className="absolute inset-0 flex items-center justify-center">
+          <Image 
+            src="https://res.cloudinary.com/drkudvyog/image/upload/v1733356221/Colors_logo_gawxfo.png"
+            alt="AI Logo"
+            width={24}
+            height={24}
+            className="object-contain"
+            priority
+          />
+        </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default LoadingSpinner;
+export default LoadingSpinner
