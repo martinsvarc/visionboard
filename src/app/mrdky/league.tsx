@@ -214,10 +214,17 @@ const getBadgeImages = (unlocked_badges: string | null | undefined): string[] =>
 
   return (
     <Card className="p-3 bg-white rounded-[20px] shadow-lg h-full">
-      <h2 className="text-2xl font-semibold text-[#5b06be] mb-4">League</h2>
+      <div className="flex items-center gap-2 mb-4">
+        <img 
+          src="https://res.cloudinary.com/drkudvyog/image/upload/v1733941975/League_icon_duha_ai73hb.png"
+          alt="League Icon"
+          className="h-6 w-6"
+        />
+        <h2 className="text-2xl font-semibold text-[#000000]">League</h2>
+      </div>
       
       <div className="flex gap-2 mb-6">
-        <Button 
+        <Button
           onClick={() => setActiveLeagueCategory('weekly')}
           aria-label="Weekly League"
           className={cn(
@@ -276,7 +283,7 @@ const getBadgeImages = (unlocked_badges: string | null | undefined): string[] =>
             </div>
           )}
 
-          <h3 className="text-base font-semibold text-[#5b06be] mt-4 mb-2">Top 3 places</h3>
+          <h3 className="text-base font-semibold text-[#000000] mt-4 mb-2">Top 3 places</h3>
 
           {categoryData.slice(0, 3).map((player, index) => (
             <div 
