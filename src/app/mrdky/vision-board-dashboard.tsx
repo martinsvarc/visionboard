@@ -454,9 +454,9 @@ useEffect(() => {
       if (response.ok) {
         const data = await response.json();
         setDailyTasks([
-          { text: data.task_1, color: 'bg-[#f8b922]' },
-          { text: data.task_2, color: 'bg-[#f8b922]' },
-          { text: data.task_3, color: 'bg-[#f8b922]' },
+          { text: data.task_1, color: 'bg-[#ffffff]' },
+          { text: data.task_2, color: 'bg-[#ffffff]' },
+          { text: data.task_3, color: 'bg-[#ffffff]' },
         ]);
       }
     } catch (error) {
@@ -525,9 +525,9 @@ useEffect(() => {
         
         setActivities([
           { value: data.today, label: 'TODAY', progress: (data.today / 10) * 100, color: '#5b06be', icon: 'clock', max: 10 },
-          { value: data.week, label: 'THIS WEEK', progress: (data.week / 50) * 100, color: '#ce00cb', icon: 'calendar', max: 50 },
-          { value: data.month, label: 'THIS MONTH', progress: (data.month / 100) * 100, color: '#f8b922', icon: 'calendar', max: 100 },
-          { value: data.year, label: 'THIS YEAR', progress: (data.year / 1000) * 100, color: '#f8b922', icon: 'calendar', max: 1000 }
+          { value: data.week, label: 'THIS WEEK', progress: (data.week / 50) * 100, color: '#5b06be', icon: 'calendar', max: 50 },
+          { value: data.month, label: 'THIS MONTH', progress: (data.month / 100) * 100, color: '#5b06be', icon: 'calendar', max: 100 },
+          { value: data.year, label: 'THIS YEAR', progress: (data.year / 1000) * 100, color: '#5b06be', icon: 'calendar', max: 1000 }
         ]);
       }
     } catch (error) {
@@ -1025,7 +1025,14 @@ return (
               <Card className="p-3 bg-white rounded-[20px] shadow-lg flex-1">
                 <div className="space-y-4">
                   <div className="flex justify-between items-center">
-                    <h2 className="text-2xl font-semibold text-[#000000]">Daily Personalized Plan</h2>
+                    <div className="flex items-center gap-2">
+                      <img 
+                        src="https://res.cloudinary.com/drkudvyog/image/upload/v1733950454/Daily_improvement_plan_icon_duha_tikinw.png"
+                        alt="Daily Plan Icon"
+                        className="h-6 w-6"
+                      />
+                      <h2 className="text-2xl font-semibold text-[#000000]">Daily Personalized Plan</h2>
+                    </div>
                     <Button variant="ghost" size="icon" className="hover:bg-transparent">
                       <RefreshCcw className="w-4 h-4 text-gray-400" />
                     </Button>
@@ -1049,11 +1056,18 @@ return (
               <Card className="p-3 bg-white rounded-[20px] shadow-lg flex-1">
                 <div className="space-y-4">
                   <div className="flex justify-between items-center">
-                    <h2 className="text-2xl font-semibold text-[#000000]">Areas of Improvement</h2>
-                    <Button variant="ghost" size="icon" className="hover:bg-transparent">
-                      <RefreshCcw className="w-4 h-4 text-gray-400" />
-                    </Button>
-                  </div>
+                    <div className="flex items-center gap-2">
+                      <img 
+                        src="https://res.cloudinary.com/drkudvyog/image/upload/v1733951551/Areas_of_Improvement_icon_duha_kplce1.png"
+                        alt="Areas of Improvement Icon"
+                        className="h-6 w-6"
+                      />
+                      <h2 className="text-2xl font-semibold text-[#000000]">Areas of Improvement</h2>
+                    </div>
+                  <Button variant="ghost" size="icon" className="hover:bg-transparent">
+                    <RefreshCcw className="w-4 h-4 text-gray-400" />
+                  </Button>
+                </div>
                   <div className="space-y-2">
                     {improvements.map((item, index) => (
                       <div key={index} className={`${item.color} p-2 rounded-[16px] flex items-start gap-2`}>
@@ -1069,7 +1083,14 @@ return (
             <AchievementContent achievements={achievementData} />
 
             <Card className="p-2 bg-white rounded-[20px] shadow-lg h-[280px]">
-              <h2 className="text-2xl font-semibold text-[#000000] mb-6">Activity Circles</h2>
+              <div className="flex items-center gap-2 mb-6">
+                <img 
+                  src="https://res.cloudinary.com/drkudvyog/image/upload/v1733953052/Activity_circles_icon_duha_m0t99f.png"
+                  alt="Activity Circles Icon"
+                  className="h-6 w-6"
+                />
+                <h2 className="text-2xl font-semibold text-[#000000]">Activity Circles</h2>
+              </div>
               <div className="relative flex justify-center items-center mb-2">
                 <Button
                   variant="ghost"
