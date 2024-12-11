@@ -102,22 +102,11 @@ export const CustomCalendar: React.FC<CustomCalendarProps> = ({ streakData }) =>
           <div className="text-xs font-medium text-center">Current</div>
           <div className="text-2xl font-bold text-center">{streakData.current}</div>
         </div>
-        <div>
-          {/* Helper function to determine background color based on consistency percentage */}
-          const getConsistencyColor = (percentage) => {
-            if (percentage >= 95) return 'bg-[#00bf63]';  // Green
-            if (percentage >= 70) return 'bg-[#38b6ff]';  // Blue
-            if (percentage >= 40) return 'bg-[#ff914d]';  // Orange
-            return 'bg-[#ff3131]';  // Red
-          };
-
-          {/* Modified component using dynamic color class */}
-          <div className={`${getConsistencyColor(streakData.consistency)} text-white px-3 py-2 rounded-[20px] flex-1`}>
-            <div className="text-xs font-medium text-center">Consistency</div>
-            <div className="text-2xl font-bold text-center">{streakData.consistency}</div>
-          </div>
+        <div className="bg-[#51c1a9] text-white px-3 py-2 rounded-[20px] flex-1">
+          <div className="text-xs font-medium text-center">Consistency</div>
+          <div className="text-2xl font-bold text-center">{streakData.consistency}</div>
         </div>
-        <div className="bg-[#f8b922] text-white px-3 py-2 rounded-[20px] flex-1">
+        <div className="bg-[#ce00cb] text-white px-3 py-2 rounded-[20px] flex-1">
           <div className="text-xs font-medium text-center">Longest</div>
           <div className="text-2xl font-bold text-center">{streakData.longest}</div>
         </div>
