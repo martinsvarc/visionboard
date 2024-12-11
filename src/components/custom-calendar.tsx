@@ -112,9 +112,10 @@ export const CustomCalendar: React.FC<CustomCalendarProps> = ({ streakData }) =>
         };
 
         {/* Modified component using dynamic color class */}
-      <div className={`${getConsistencyColor(streakData.consistency)} text-white px-3 py-2 rounded-[20px] flex-1`}>
-        <div className="text-xs font-medium text-center">Consistency</div>
-        <div className="text-2xl font-bold text-center">{streakData.consistency}</div>
+        <div className={`${getConsistencyColor(streakData.consistency)} text-white px-3 py-2 rounded-[20px] flex-1`}>
+          <div className="text-xs font-medium text-center">Consistency</div>
+          <div className="text-2xl font-bold text-center">{streakData.consistency}</div>
+        </div>
       </div>
     </div>
         <div className="bg-[#f8b922] text-white px-3 py-2 rounded-[20px] flex-1">
