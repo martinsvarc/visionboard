@@ -102,7 +102,7 @@ export const CustomCalendar: React.FC<CustomCalendarProps> = ({ streakData }) =>
           <div className="text-xs font-medium text-center">Current</div>
           <div className="text-2xl font-bold text-center">{streakData.current}</div>
         </div>
-        <div className="bg-[#51c1a9] text-white px-3 py-2 rounded-[20px] flex-1">
+        <div className="bg-[#f8b922] text-white px-3 py-2 rounded-[20px] flex-1">
           <div className="text-xs font-medium text-center">Consistency</div>
           <div className="text-2xl font-bold text-center">{streakData.consistency}</div>
         </div>
