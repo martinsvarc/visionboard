@@ -187,7 +187,14 @@ const AchievementContentInner = ({ achievements }: AchievementContentProps) => {
 
   return (
     <Card className="p-4 bg-white rounded-[20px] shadow-lg md:col-span-2 h-[280px] flex flex-col">
-      <h2 className="text-xl md:text-2xl font-semibold text-[#000000] mb-4">Achievement Showcase</h2>
+      <div className="flex items-center gap-2 mb-4">
+        <img 
+          src="https://res.cloudinary.com/drkudvyog/image/upload/v1733955503/Achiement_showcase_icon_duha_tisous.png"
+          alt="Achievement Showcase Icon"
+          className="h-6 w-6"
+        />
+        <h2 className="text-xl md:text-2xl font-semibold text-[#000000]">Achievement Showcase</h2>
+      </div>
       
       <div className="flex gap-2 mb-4 overflow-x-auto pb-2 -mx-2 px-2 no-scrollbar">
         {Object.keys(categories).map((category) => (
