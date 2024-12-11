@@ -561,15 +561,15 @@ useEffect(() => {
 }, []);
 
   const [dailyTasks, setDailyTasks] = useState([
-  { text: 'Loading...', color: 'bg-[#f8b922]' },
-  { text: 'Loading...', color: 'bg-[#f8b922]' },
-  { text: 'Loading...', color: 'bg-[#f8b922]' },
+  { text: 'Loading...', color: 'bg-[#ffffff]' },
+  { text: 'Loading...', color: 'bg-[#ffffff]' },
+  { text: 'Loading...', color: 'bg-[#ffffff]' },
 ]);
 
   const [improvements, setImprovements] = useState([
-  { text: 'Loading...', color: 'bg-[#5b06be]' },
-  { text: 'Loading...', color: 'bg-[#5b06be]' },
-  { text: 'Loading...', color: 'bg-[#5b06be]' },
+  { text: 'Loading...', color: 'bg-[#ffffff]' },
+  { text: 'Loading...', color: 'bg-[#ffffff]' },
+  { text: 'Loading...', color: 'bg-[#ffffff]' },
 ]);
 
   const [activities, setActivities] = useState<ActivityCircle[]>([
@@ -1027,7 +1027,7 @@ return (
                   <div className="flex justify-between items-center">
                     <div className="flex items-center gap-2">
                       <img 
-                        src="https://res.cloudinary.com/drkudvyog/image/upload/v1733950454/Daily_improvement_plan_icon_duha_tikinw.png"
+                        src="https://res.cloudinary.com/drkudvyog/image/upload/v1733951551/Areas_of_Improvement_icon_duha_kplce1.png"
                         alt="Daily Plan Icon"
                         className="h-6 w-6"
                       />
@@ -1041,10 +1041,10 @@ return (
                     {dailyTasks.map((task, index) => (
                       <div
                         key={index}
-                        className={`${task.color} p-2 rounded-[16px] flex items-start gap-2`}
+                        className={`${task.color} p-2 rounded-[16px] flex items-start gap-2 shadow-[0_2px_8px_0_rgba(0,0,0,0.08)]`}
                       >
                         <div className="w-4 h-4 rounded-lg border-2 border-white/90 flex-shrink-0 mt-0.5" />
-                        <div className="text-white text-sm font-medium leading-tight">
+                        <div className="text-black text-sm font-medium leading-tight">
                           {task.text}
                         </div>
                       </div>
@@ -1058,7 +1058,7 @@ return (
                   <div className="flex justify-between items-center">
                     <div className="flex items-center gap-2">
                       <img 
-                        src="https://res.cloudinary.com/drkudvyog/image/upload/v1733951551/Areas_of_Improvement_icon_duha_kplce1.png"
+                        src="https://res.cloudinary.com/drkudvyog/image/upload/v1733953951/Areas_of_improvement_icon_duha_u5o65j.png"
                         alt="Areas of Improvement Icon"
                         className="h-6 w-6"
                       />
@@ -1070,9 +1070,9 @@ return (
                 </div>
                   <div className="space-y-2">
                     {improvements.map((item, index) => (
-                      <div key={index} className={`${item.color} p-2 rounded-[16px] flex items-start gap-2`}>
+                      <div key={index} className={`${item.color} p-2 rounded-[16px] flex items-start gap-2 shadow-[0_2px_8px_0_rgba(0,0,0,0.08)]`}>
                         <TrendingUp className="w-4 h-4 text-white/90 mt-0.5" />
-                        <div className="text-white text-sm font-medium">{item.text}</div>
+                        <div className="text-black text-sm font-medium">{item.text}</div>
                       </div>
                     ))}
                   </div>
@@ -1085,7 +1085,7 @@ return (
             <Card className="p-2 bg-white rounded-[20px] shadow-lg h-[280px]">
               <div className="flex items-center gap-2 mb-6">
                 <img 
-                  src="https://res.cloudinary.com/drkudvyog/image/upload/v1733953052/Activity_circles_icon_duha_m0t99f.png"
+                  src="https://res.cloudinary.com/drkudvyog/image/upload/v1733953590/Activity_circles_icon_duha_lfbkjx.png"
                   alt="Activity Circles Icon"
                   className="h-6 w-6"
                 />
