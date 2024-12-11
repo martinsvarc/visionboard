@@ -112,7 +112,14 @@ const [isMobile, setIsMobile] = useState(false);
   return (
     <div>
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-2xl font-semibold text-[#000000]">Interactive Vision Board</h2>
+        <div className="flex items-center gap-2">
+          <img 
+            src="https://res.cloudinary.com/drkudvyog/image/upload/v1733941009/Interactie_vision_board_icon_nja1aq.png"
+            alt="Vision Board Icon"
+            className="h-6 w-6"
+          />
+          <h2 className="text-2xl font-semibold text-[#000000]">Interactive Vision Board</h2>
+        </div>
         <div className="flex gap-2">
           <Popover>
             <PopoverTrigger>
