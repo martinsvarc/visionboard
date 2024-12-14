@@ -428,9 +428,6 @@ export default function VisionBoardDashboardClient() {
       updateQuote();
     }
 
-  return () => clearInterval(interval);
-}, []);
-
     const interval = setInterval(() => {
       const stored = localStorage.getItem('dailyQuote');
       if (stored) {
@@ -1081,7 +1078,7 @@ return (
       </div>
     </div>
   </Card>
-  </div>
+</div>
 
 
             <AchievementContent achievements={achievementData} />
