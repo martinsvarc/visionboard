@@ -365,7 +365,7 @@ return (
     </Button>
   </div>
 ) : (
-  <div className="h-[320px] relative -mx-8 -mb-8 overflow-visible">
+  <div className="relative -mx-8 -mb-8 overflow-visible">
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart 
               data={chartData} 
@@ -734,26 +734,27 @@ function DashboardContent() {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const containerRef = useRef<HTMLDivElement>(null)  // ADD THIS LINE
-const sendHeightToParent = useCallback(() => {
+  const sendHeightToParent = useCallback(() => {
   if (!containerRef.current) return;
-  
-  // Get actual content height by summing up visible children
-  const visibleContent = containerRef.current.children[0];  // Get the max-w-7xl container
-  let totalHeight = 0;
-  
-  if (visibleContent) {
-    // Get real height of visible content
-    const contentRect = visibleContent.getBoundingClientRect();
-    totalHeight = contentRect.height;
-  }
 
-  // Add minimal padding only if there's content
-  const paddingToAdd = totalHeight > 0 ? 32 : 0;
+  // Get all elements including expanded cards
+  const allContent = Array.from(containerRef.current.getElementsByTagName('*'));
   
+  // Calculate the maximum bottom position of all elements
+  let maxBottom = 0;
+  allContent.forEach(element => {
+    const rect = element.getBoundingClientRect();
+    const bottom = rect.bottom + window.scrollY;
+    maxBottom = Math.max(maxBottom, bottom);
+  });
+
+  // Calculate total height needed
+  const totalHeight = maxBottom + 32; // Small padding at bottom
+
   if (window !== window.parent) {
     window.parent.postMessage({
       type: 'setHeight',
-      height: totalHeight + paddingToAdd
+      height: totalHeight
     }, 'https://app.trainedbyai.com');
   }
 }, [expandedCards]);
@@ -1035,7 +1036,7 @@ const saveNotes = async (id: number) => {
 
   if (!callLogs.length) {
   return (
-    <div ref={containerRef} className="min-h-screen p-8" style={{ backgroundColor: '#f2f3f8' }}>
+    <div ref={containerRef} className="p-8" style={{ backgroundColor: '#f2f3f8' }}>
   <div className="max-w-7xl mx-auto">
     <div className="flex justify-between items-center mb-6">
       <h2 className={`${montserrat.className} text-3xl text-slate-900 flex items-center gap-2`}>
@@ -1428,7 +1429,7 @@ const saveNotes = async (id: number) => {
           <div className="flex justify-between items-center mb-6">
             <span className="text-slate-900 text-xl font-semibold">Call Transcript</span>
           </div>
-          <div className="space-y-4 max-h-[400px] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent hover:scrollbar-thumb-gray-400">
+          <div className="space-y-4"
             {call.call_transcript.split('role:').map((segment, index) => {
               if (!segment.trim()) return null;
               
