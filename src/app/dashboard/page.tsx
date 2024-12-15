@@ -734,33 +734,45 @@ function DashboardContent() {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const containerRef = useRef<HTMLDivElement>(null)  // ADD THIS LINE
-  const sendHeightToParent = useCallback(() => {
+const sendHeightToParent = useCallback(() => {
   if (!containerRef.current) return;
   
-  // Get actual content height
-  const contentHeight = containerRef.current.getBoundingClientRect().height;
+  // Get actual content height by summing up visible children
+  const visibleContent = containerRef.current.children[0];  // Get the max-w-7xl container
+  let totalHeight = 0;
   
-  // Calculate total height of expanded cards
-  const expandedSections = Object.values(expandedCards).filter(Boolean).length;
-  const expandedHeight = expandedSections * 400; // Reduced from 800 to prevent excessive spacing
+  if (visibleContent) {
+    // Get real height of visible content
+    const contentRect = visibleContent.getBoundingClientRect();
+    totalHeight = contentRect.height;
+  }
+
+  // Add minimal padding only if there's content
+  const paddingToAdd = totalHeight > 0 ? 32 : 0;
   
-  // Send the total height
   if (window !== window.parent) {
     window.parent.postMessage({
       type: 'setHeight',
-      height: Math.max(contentHeight, expandedHeight) + 32 // Add minimal padding
+      height: totalHeight + paddingToAdd
     }, 'https://app.trainedbyai.com');
   }
 }, [expandedCards]);
 
-// Only update height when specific things change
 useEffect(() => {
+  // Initial height calculation
   sendHeightToParent();
+  
+  // Add a small delay to recalculate after content changes
+  const timer = setTimeout(() => {
+    sendHeightToParent();
+  }, 100);
+  
+  return () => clearTimeout(timer);
 }, [
-  expandedCards, // When cards expand/collapse
-  currentPage,   // When page changes
-  dateRange,     // When date filter changes
-  callLogs.length, // When data loads
+  expandedCards,
+  currentPage,
+  dateRange,
+  callLogs.length,
   sendHeightToParent
 ]);
 
