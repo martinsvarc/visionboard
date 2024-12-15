@@ -734,27 +734,24 @@ function DashboardContent() {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const containerRef = useRef<HTMLDivElement>(null)  // ADD THIS LINE
- const sendHeightToParent = useCallback(() => {
+  const sendHeightToParent = useCallback(() => {
   if (!containerRef.current) return;
   
-  // Get all expandable sections
+  // Get actual content height
+  const contentHeight = containerRef.current.getBoundingClientRect().height;
+  
+  // Calculate total height of expanded cards
   const expandedSections = Object.values(expandedCards).filter(Boolean).length;
+  const expandedHeight = expandedSections * 400; // Reduced from 800 to prevent excessive spacing
   
-  // Base height for the dashboard
-  let totalHeight = containerRef.current.scrollHeight;
-  
-  // Add fixed amount per expanded card
-  if (expandedSections > 0) {
-    totalHeight += (expandedSections * 800); // Approximate height for expanded content
-  }
-  
+  // Send the total height
   if (window !== window.parent) {
     window.parent.postMessage({
       type: 'setHeight',
-      height: totalHeight + 100 // Fixed buffer
+      height: Math.max(contentHeight, expandedHeight) + 32 // Add minimal padding
     }, 'https://app.trainedbyai.com');
   }
-}, [expandedCards]); // Only depend on expandedCards
+}, [expandedCards]);
 
 // Only update height when specific things change
 useEffect(() => {
@@ -766,6 +763,24 @@ useEffect(() => {
   callLogs.length, // When data loads
   sendHeightToParent
 ]);
+
+// Add the new useEffect RIGHT HERE
+useEffect(() => {
+  // Small delay to let the content render
+  const timer = setTimeout(() => {
+    if (containerRef.current) {
+      const height = containerRef.current.getBoundingClientRect().height;
+      if (window !== window.parent) {
+        window.parent.postMessage({
+          type: 'setHeight',
+          height: height + 32
+        }, 'https://app.trainedbyai.com');
+      }
+    }
+  }, 100);
+
+  return () => clearTimeout(timer);
+}, [currentPage]); // Only trigger on page changes  
 
   // Fetch calls effect
   useEffect(() => {
@@ -932,7 +947,7 @@ const saveNotes = async (id: number) => {
 
   if (error) {
   return (
-    <div ref={containerRef} className="min-h-screen p-8" style={{ backgroundColor: '#f2f3f8' }}>
+    <div ref={containerRef} className="p-8" style={{ backgroundColor: '#f2f3f8' }}>
       <div className="max-w-7xl mx-auto">
         <Card className="bg-white shadow-lg rounded-[32px] overflow-hidden border-0">
           <CardContent className="p-6">
