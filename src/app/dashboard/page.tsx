@@ -934,7 +934,7 @@ const saveNotes = async (id: number) => {
 
   if (error) {
   return (
-    <div ref={containerRef} className="min-h-screen p-8" style={{ backgroundColor: '#f2f3f8' }}>
+    <div ref={containerRef} className="flex items-center justify-center w-full min-h-[620px] py-20 bg-transparent">
       <div className="max-w-7xl mx-auto">
         <Card className="bg-white shadow-lg rounded-[32px] overflow-hidden border-0">
           <CardContent className="p-6">
