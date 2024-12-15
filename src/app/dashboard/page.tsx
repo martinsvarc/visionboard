@@ -365,7 +365,7 @@ return (
     </Button>
   </div>
 ) : (
-  <div className="relative -mx-8 -mb-8 overflow-visible">
+  <div className="h-[320px] relative -mx-8 -mb-8 overflow-visible">
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart 
               data={chartData} 
@@ -733,67 +733,41 @@ function DashboardContent() {
   const [callLogs, setCallLogs] = useState<CallLog[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const containerRef = useRef<HTMLDivElement>(null)  // ADD THIS LINE
-  const sendHeightToParent = useCallback(() => {
+  const containerRef = useRef<HTMLDivElement>(null)
+  const resizeObserver = useRef<ResizeObserver>()
+
+ const sendHeightToParent = useCallback(() => {
   if (!containerRef.current) return;
-
-  // Get all elements including expanded cards
-  const allContent = Array.from(containerRef.current.getElementsByTagName('*'));
   
-  // Calculate the maximum bottom position of all elements
-  let maxBottom = 0;
-  allContent.forEach(element => {
-    const rect = element.getBoundingClientRect();
-    const bottom = rect.bottom + window.scrollY;
-    maxBottom = Math.max(maxBottom, bottom);
-  });
-
-  // Calculate total height needed
-  const totalHeight = maxBottom + 32; // Small padding at bottom
-
+  // Get all expandable sections
+  const expandedSections = Object.values(expandedCards).filter(Boolean).length;
+  
+  // Base height for the dashboard
+  let totalHeight = containerRef.current.scrollHeight;
+  
+  // Add fixed amount per expanded card
+  if (expandedSections > 0) {
+    totalHeight += (expandedSections * 800); // Approximate height for expanded content
+  }
+  
   if (window !== window.parent) {
     window.parent.postMessage({
       type: 'setHeight',
-      height: totalHeight
+      height: totalHeight + 100 // Fixed buffer
     }, 'https://app.trainedbyai.com');
   }
-}, [expandedCards]);
+}, [expandedCards]); // Only depend on expandedCards
 
+// Only update height when specific things change
 useEffect(() => {
-  // Initial height calculation
   sendHeightToParent();
-  
-  // Add a small delay to recalculate after content changes
-  const timer = setTimeout(() => {
-    sendHeightToParent();
-  }, 100);
-  
-  return () => clearTimeout(timer);
 }, [
-  expandedCards,
-  currentPage,
-  dateRange,
-  callLogs.length,
+  expandedCards, // When cards expand/collapse
+  currentPage,   // When page changes
+  dateRange,     // When date filter changes
+  callLogs.length, // When data loads
   sendHeightToParent
 ]);
-
-// Add the new useEffect RIGHT HERE
-useEffect(() => {
-  // Small delay to let the content render
-  const timer = setTimeout(() => {
-    if (containerRef.current) {
-      const height = containerRef.current.getBoundingClientRect().height;
-      if (window !== window.parent) {
-        window.parent.postMessage({
-          type: 'setHeight',
-          height: height + 32
-        }, 'https://app.trainedbyai.com');
-      }
-    }
-  }, 100);
-
-  return () => clearTimeout(timer);
-}, [currentPage]); // Only trigger on page changes  
 
   // Fetch calls effect
   useEffect(() => {
@@ -960,7 +934,7 @@ const saveNotes = async (id: number) => {
 
   if (error) {
   return (
-    <div ref={containerRef} className="p-8" style={{ backgroundColor: '#f2f3f8' }}>
+    <div ref={containerRef} className="min-h-screen p-8" style={{ backgroundColor: '#f2f3f8' }}>
       <div className="max-w-7xl mx-auto">
         <Card className="bg-white shadow-lg rounded-[32px] overflow-hidden border-0">
           <CardContent className="p-6">
@@ -986,7 +960,7 @@ const saveNotes = async (id: number) => {
 
  if (isLoading) {
   return (
-    <div ref={containerRef} className="flex items-center justify-center w-full min-h-[620px] py-20 bg-transparent">
+    <div ref={containerRef} className="flex items-center justify-center w-full h-screen bg-transparent">
       <div className="relative w-24 h-24" role="status" aria-label="Loading">
         {/* Spinning loader */}
         <svg
@@ -1036,7 +1010,7 @@ const saveNotes = async (id: number) => {
 
   if (!callLogs.length) {
   return (
-    <div ref={containerRef} className="p-8" style={{ backgroundColor: '#f2f3f8' }}>
+    <div ref={containerRef} className="min-h-screen p-8" style={{ backgroundColor: '#f2f3f8' }}>
   <div className="max-w-7xl mx-auto">
     <div className="flex justify-between items-center mb-6">
       <h2 className={`${montserrat.className} text-3xl text-slate-900 flex items-center gap-2`}>
@@ -1429,7 +1403,7 @@ const saveNotes = async (id: number) => {
           <div className="flex justify-between items-center mb-6">
             <span className="text-slate-900 text-xl font-semibold">Call Transcript</span>
           </div>
-          <div className="space-y-4"
+          <div className="space-y-4 max-h-[400px] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent hover:scrollbar-thumb-gray-400">
             {call.call_transcript.split('role:').map((segment, index) => {
               if (!segment.trim()) return null;
               
