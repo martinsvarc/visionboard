@@ -323,10 +323,10 @@ return (
   ))
   : 
   latestFeedback['strong_points_average_success']?.split(' - ')?.filter(Boolean)?.map((point, index) => (
-    <li key={index}>
-      <span className="text-slate-700 text-xs">{point}</span>
-    </li>
-  ))
+  <li key={index}>
+    <span className="text-slate-700 text-xs">{point}</span>
+  </li>
+))
 )}
     </ul>
   </div>
@@ -342,11 +342,11 @@ return (
           </li>
         ))
         :
-        latestFeedback.areas_for_improvement_average_success?.split(' - ')?.filter(Boolean)?.map((point, index) => (
-          <li key={index}>
-            <span className="text-slate-700 text-xs">{point}</span> {/* Changed to text-xs */}
-          </li>
-        ))
+        latestFeedback['areas_for_improvement_average_success']?.split(' - ')?.filter(Boolean)?.map((point, index) => (
+  <li key={index}>
+    <span className="text-slate-700 text-xs">{point}</span>
+  </li>
+))
       )}
     </ul>
   </div>
