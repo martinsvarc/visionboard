@@ -733,6 +733,7 @@ function DashboardContent() {
   const [callLogs, setCallLogs] = useState<CallLog[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const containerRef = useRef<HTMLDivElement>(null)  // ADD THIS LINE
  const sendHeightToParent = useCallback(() => {
   if (!containerRef.current) return;
   
