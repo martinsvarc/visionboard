@@ -960,7 +960,7 @@ const saveNotes = async (id: number) => {
 
  if (isLoading) {
   return (
-    <div ref={containerRef} className="flex items-center justify-center w-full h-screen bg-transparent">
+    <div ref={containerRef} className="flex items-center justify-center w-full min-h-[620px] py-20 bg-transparent">
       <div className="relative w-24 h-24" role="status" aria-label="Loading">
         {/* Spinning loader */}
         <svg
