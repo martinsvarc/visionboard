@@ -72,25 +72,11 @@
   }
   body {
     @apply bg-background text-foreground;
-  }
-}
-
-// This is already there:
-@layer base {
-  * {
-    @apply border-border;
-  }
-  body {
-    @apply bg-background text-foreground;
+    @apply h-full min-h-screen;
   }
 
-  // Add these new styles right after:
   html {
     @apply h-full antialiased;
-  }
-
-  body {
-    @apply h-full min-h-screen;
   }
 
   #__next,
@@ -103,5 +89,26 @@
   iframe {
     @apply w-full h-full min-h-screen;
     flex: 1;
+  }
+}
+
+@layer utilities {
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 3px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
   }
 }
