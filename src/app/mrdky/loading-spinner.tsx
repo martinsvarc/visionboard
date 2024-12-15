@@ -4,7 +4,7 @@ import Image from 'next/image'
 
 const LoadingSpinner = () => {
   return (
-    <div className="flex items-center justify-center w-full min-h-[550px] py-20 bg-transparent">
+    <div className="flex items-center justify-center w-full min-h-[620px] py-20 bg-transparent">
       <div className="relative w-24 h-24" role="status" aria-label="Loading">
         {/* Spinning loader */}
         <svg
