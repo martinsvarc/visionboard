@@ -1145,7 +1145,7 @@ return (
   /* New height management styles */
   html, body {
     margin: 0;
-    padding: 0;
+    padding: 20;
     overflow: hidden;
     height: auto !important;
     min-height: 100%;
