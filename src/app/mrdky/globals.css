@@ -73,20 +73,6 @@
   body {
     @apply bg-background text-foreground;
   }
-
-  html {
-    @apply h-full antialiased;
-  }
-
-  #__next,
-  main {
-    @apply min-h-screen;
-  }
-
-  /* Height for regular content */
-  .content-wrapper {
-    @apply w-full h-auto;
-  }
 }
 
 @layer utilities {
@@ -105,10 +91,6 @@
     border-radius: 3px;
   }
 
-  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    background: #a8a8a8;
-  }
-}
   .custom-scrollbar::-webkit-scrollbar-thumb:hover {
     background: #a8a8a8;
   }
