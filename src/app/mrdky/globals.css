@@ -75,23 +75,33 @@
   }
 }
 
-@layer utilities {
-  .custom-scrollbar::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
+// This is already there:
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
   }
 
-  .custom-scrollbar::-webkit-scrollbar-track {
-    background: #f1f1f1;
-    border-radius: 3px;
+  // Add these new styles right after:
+  html {
+    @apply h-full antialiased;
   }
 
-  .custom-scrollbar::-webkit-scrollbar-thumb {
-    background: #c1c1c1;
-    border-radius: 3px;
+  body {
+    @apply h-full min-h-screen;
   }
 
-  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    background: #a8a8a8;
+  #__next,
+  main {
+    @apply h-full min-h-screen;
+    display: flex;
+    flex-direction: column;
+  }
+
+  iframe {
+    @apply w-full h-full min-h-screen;
+    flex: 1;
   }
 }
