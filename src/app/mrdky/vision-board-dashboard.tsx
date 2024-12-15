@@ -190,7 +190,7 @@ const [isMobile, setIsMobile] = useState(false);
 
       <div 
   ref={boardRef} 
-  className={`relative w-full rounded-3xl bg-[#f0f1f7] shadow-lg border overflow-hidden min-h-[1000px]`}
+  className={`relative w-full rounded-3xl bg-[#f0f1f7] shadow-lg border overflow-hidden min-h-[512px]`}
   style={{
     borderColor: glowColor,
     boxShadow: `0 0 10px ${glowColor}, 0 0 20px ${glowColor.replace('0.3', '0.2')}`,
