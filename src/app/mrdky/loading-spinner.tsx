@@ -3,9 +3,20 @@ import Image from 'next/image'
 
 const LoadingSpinner = () => {
   return (
-    // Added fixed inline style to ensure immediate height application
-    <div style={{ height: '600px', position: 'relative', overflow: 'hidden' }}
-         className="flex items-center justify-center w-full bg-transparent">
+    // Force immediate full height and block any inheritance
+    <div style={{ 
+        height: '500px', 
+        position: 'relative', 
+        overflow: 'hidden',
+        minHeight: '500px',
+        maxHeight: '500px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: '100%'
+      }}
+      className="bg-transparent"
+    >
       <div className="relative w-24 h-24" role="status" aria-label="Loading">
         <svg
           className="w-full h-full animate-spin"
