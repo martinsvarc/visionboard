@@ -1031,7 +1031,7 @@ return (
           style={{
             fontSize: 'clamp(0.8rem, 2.5vw, 1rem)',
             lineHeight: '1.4',
-            maxWidth: '100%',
+            maxWidth: '98%',
           }}
         >
           {quote.text && `"${quote.text}"`}
@@ -1065,7 +1065,7 @@ return (
           style={{
             fontSize: 'clamp(0.8rem, 3vw, 1.2rem)',
             lineHeight: '1.2',
-            maxWidth: '100%',
+            maxWidth: '98%',
             overflow: 'hidden',
             textOverflow: 'ellipsis',
             display: '-webkit-box',
