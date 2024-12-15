@@ -190,7 +190,7 @@ const [isMobile, setIsMobile] = useState(false);
 
       <div 
   ref={boardRef} 
-  className={`relative w-full rounded-3xl bg-[#f0f1f7] shadow-lg border overflow-hidden min-h-[512px]`}
+  className={`relative w-full rounded-3xl bg-[#f0f1f7] shadow-lg border overflow-hidden min-h-[1000px]`}
   style={{
     borderColor: glowColor,
     boxShadow: `0 0 10px ${glowColor}, 0 0 20px ${glowColor.replace('0.3', '0.2')}`,
@@ -466,7 +466,7 @@ useEffect(() => {
             x: item.x_position,
             y: item.y_position,
             width: item.width,
-            height: 500px,
+            height: item.height,
             zIndex: item.z_index,
             aspectRatio: item.width / item.height
           })))
