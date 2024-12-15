@@ -737,44 +737,42 @@ function DashboardContent() {
   const containerRef = useRef<HTMLDivElement>(null)
   const resizeObserver = useRef<ResizeObserver>()
 
-  const sendHeightToParent = useCallback(() => {
-  useEffect(() => {
-    if (!containerRef.current) return;
+const sendHeightToParent = useCallback(() => {
+  if (!containerRef.current) return;
+    
+  const totalHeight = containerRef.current.scrollHeight;
+    
+  if (window !== window.parent) {
+    window.parent.postMessage({
+      type: 'setHeight',
+      height: totalHeight + 100
+    }, 'https://app.trainedbyai.com');
+  }
+}, [expandedCards]); 
 
-    const sendHeightToParent = () => {
-      if (!containerRef.current) return;
-      const height = containerRef.current.scrollHeight;
-      
-      if (window !== window.parent) {
-        window.parent.postMessage({
-          type: 'setHeight',
-          height: height + 100
-        }, '*');
-      }
-    };
+useEffect(() => {
+  if (!containerRef.current) return;
 
-    resizeObserver.current = new ResizeObserver(() => {
-      sendHeightToParent();
-    });
-
-    resizeObserver.current.observe(containerRef.current);
+  resizeObserver.current = new ResizeObserver(() => {
     sendHeightToParent();
+  });
 
-    return () => {
-      if (resizeObserver.current) {
-        resizeObserver.current.disconnect();
-      }
-    };
-  }, []);
+  resizeObserver.current.observe(containerRef.current);
 
-// Only update height when specific things change
+  return () => {
+    if (resizeObserver.current) {
+      resizeObserver.current.disconnect();
+    }
+  };
+}, [sendHeightToParent]);
+
 useEffect(() => {
   sendHeightToParent();
 }, [
-  expandedCards, // When cards expand/collapse
-  currentPage,   // When page changes
-  dateRange,     // When date filter changes
-  callLogs.length, // When data loads
+  expandedCards,
+  currentPage,
+  dateRange,
+  callLogs.length,
   sendHeightToParent
 ]);
 
