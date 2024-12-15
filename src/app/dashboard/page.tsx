@@ -316,18 +316,18 @@ return (
     <h3 className="text-green-700 font-semibold text-xs">Strong Points</h3> {/* Changed to text-xs */}
     <ul className="space-y-1">
       {latestFeedback && (category ? 
-        latestFeedback[`${category.key}_strong_points`]?.split(' - ')?.filter(Boolean)?.map((point, index) => (
-          <li key={index}>
-            <span className="text-slate-700 text-xs">{point}</span> {/* Changed to text-xs */}
-          </li>
-        ))
-        : 
-        latestFeedback.strong_points_average_success?.split(' - ')?.filter(Boolean)?.map((point, index) => (
-          <li key={index}>
-            <span className="text-slate-700 text-xs">{point}</span> {/* Changed to text-xs */}
-          </li>
-        ))
-      )}
+  latestFeedback[`${category.key}_strong_points`]?.split(' - ')?.filter(Boolean)?.map((point, index) => (
+    <li key={index}>
+      <span className="text-slate-700 text-xs">{point}</span>
+    </li>
+  ))
+  : 
+  latestFeedback['strong_points_average_success']?.split(' - ')?.filter(Boolean)?.map((point, index) => (
+    <li key={index}>
+      <span className="text-slate-700 text-xs">{point}</span>
+    </li>
+  ))
+)}
     </ul>
   </div>
   
