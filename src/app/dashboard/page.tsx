@@ -733,46 +733,39 @@ function DashboardContent() {
   const [callLogs, setCallLogs] = useState<CallLog[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  
   const containerRef = useRef<HTMLDivElement>(null)
   const resizeObserver = useRef<ResizeObserver>()
 
-const sendHeightToParent = useCallback(() => {
+ const sendHeightToParent = useCallback(() => {
   if (!containerRef.current) return;
-    
-  const totalHeight = containerRef.current.scrollHeight;
-    
+  
+  // Get all expandable sections
+  const expandedSections = Object.values(expandedCards).filter(Boolean).length;
+  
+  // Base height for the dashboard
+  let totalHeight = containerRef.current.scrollHeight;
+  
+  // Add fixed amount per expanded card
+  if (expandedSections > 0) {
+    totalHeight += (expandedSections * 800); // Approximate height for expanded content
+  }
+  
   if (window !== window.parent) {
     window.parent.postMessage({
       type: 'setHeight',
-      height: totalHeight + 100
+      height: totalHeight + 100 // Fixed buffer
     }, 'https://app.trainedbyai.com');
   }
-}, [expandedCards]); 
+}, [expandedCards]); // Only depend on expandedCards
 
-useEffect(() => {
-  if (!containerRef.current) return;
-
-  resizeObserver.current = new ResizeObserver(() => {
-    sendHeightToParent();
-  });
-
-  resizeObserver.current.observe(containerRef.current);
-
-  return () => {
-    if (resizeObserver.current) {
-      resizeObserver.current.disconnect();
-    }
-  };
-}, [sendHeightToParent]);
-
+// Only update height when specific things change
 useEffect(() => {
   sendHeightToParent();
 }, [
-  expandedCards,
-  currentPage,
-  dateRange,
-  callLogs.length,
+  expandedCards, // When cards expand/collapse
+  currentPage,   // When page changes
+  dateRange,     // When date filter changes
+  callLogs.length, // When data loads
   sendHeightToParent
 ]);
 
