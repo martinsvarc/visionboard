@@ -34,7 +34,7 @@ const LoadingSpinner = () => {
           />
         </svg>
         {/ Center image */}
-        <div className="flex items-center justify-center w-full min-h-[600px] py-0 bg-transparent">
+        <div className="flex items-center justify-center w-full min-h-[600px] py-20 bg-transparent">
           <Image 
             src="https://res.cloudinary.com/dmbzcxhjn/image/upload/Colors_logo_gawxfo_kvyozr.png"
             alt="AI Logo"
