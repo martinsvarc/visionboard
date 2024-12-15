@@ -1,10 +1,21 @@
 'use client'
-
 import Image from 'next/image'
+
+// Add this style block right after your imports and before the component
+const styles = {
+  container: {
+    minHeight: '600px',
+    height: '600px'
+  }
+}
 
 const LoadingSpinner = () => {
   return (
-    <div className="flex items-center justify-center w-full min-h-[600px] py-20 bg-transparent">
+    // Replace your existing outer div with this one
+    <div 
+      className="flex items-center justify-center w-full py-20 bg-transparent transition-all duration-300 ease-in-out"
+      style={styles.container}
+    >
       <div className="relative w-24 h-24" role="status" aria-label="Loading">
         {/* Spinning loader */}
         <svg
