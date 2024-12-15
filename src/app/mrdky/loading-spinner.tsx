@@ -4,7 +4,7 @@ import Image from 'next/image'
 
 const LoadingSpinner = () => {
   return (
-    <div className="flex items-center justify-center w-full h-screen bg-transparent">
+    <div className="flex items-center justify-center w-full min-h-[500px] py-20 bg-transparent">
       <div className="relative w-24 h-24" role="status" aria-label="Loading">
         {/* Spinning loader */}
         <svg
@@ -36,7 +36,7 @@ const LoadingSpinner = () => {
           />
         </svg>
         {/* Center image */}
-        <div className="flex items-center justify-center w-full min-h-[600px] py-20 bg-transparent">
+        <div className="absolute inset-0 flex items-center justify-center">
           <Image 
             src="https://res.cloudinary.com/dmbzcxhjn/image/upload/Colors_logo_gawxfo_kvyozr.png"
             alt="AI Logo"
