@@ -80,7 +80,7 @@ const inProgressComponentsData = [
     id: 2,
     name: "Voice Mood Mirror: Real-Time Emotion Intelligence Coach",
     description: "Transform your communication by understanding the hidden melody of your voice. Our AI analyzes your tone, tempo, and emotional patterns as you speak, providing instant feedback to help you connect better with others. Like having a personal communication coach who whispers insights about your voice's emotional impact right when you need them.",
-    icon: Waveform,
+    icon: WaveformIcon,
     backgroundImage: "https://res.cloudinary.com/drkudvyog/image/upload/v1734285872/fialova_2_lmaocp.png",
     comments: []
   },
