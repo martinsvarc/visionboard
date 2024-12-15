@@ -13,7 +13,7 @@ const LoadingSpinner = () => {
   return (
     // Replace your existing outer div with this one
     <div 
-      className="flex items-center justify-center w-full py-20 bg-transparent transition-all duration-300 ease-in-out"
+      className="flex items-center justify-center w-full py-0 bg-transparent transition-all duration-0 ease-in-out"
       style={styles.container}
     >
       <div className="relative w-24 h-24" role="status" aria-label="Loading">
