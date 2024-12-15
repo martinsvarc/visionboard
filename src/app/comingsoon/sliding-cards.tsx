@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ChevronDown, ChevronUp, ThumbsUp, ThumbsDown, Send, Mic, AudioWaveformIcon as Waveform, Users, ChevronLeft, ChevronRight, Trash2 } from 'lucide-react'
+import { ChevronDown, ChevronUp, ThumbsUp, ThumbsDown, Send, Mic, Waveform, Users, ChevronLeft, ChevronRight, Trash2 } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Input } from "@/components/ui/input"
