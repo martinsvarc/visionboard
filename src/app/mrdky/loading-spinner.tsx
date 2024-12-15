@@ -1,9 +1,10 @@
 'use client'
+
 import Image from 'next/image'
 
 const LoadingSpinner = () => {
   return (
-    <div className="fixed inset-0 w-full min-h-[100vh] flex items-center justify-center bg-[#f0f1f7] z-[9999]">
+    <div className="flex items-center justify-center w-full h-screen bg-transparent">
       <div className="relative w-24 h-24" role="status" aria-label="Loading">
         {/* Spinning loader */}
         <svg
