@@ -1,29 +1,17 @@
 'use client'
 import Image from 'next/image'
 
-// Add this style block right after your imports and before the component
-const styles = {
-  container: {
-    minHeight: '600px',
-    height: '600px'
-  }
-}
-
 const LoadingSpinner = () => {
   return (
-    // Replace your existing outer div with this one
-    <div 
-      className="flex items-center justify-center w-full py-0 bg-transparent transition-all duration-0 ease-in-out"
-      style={styles.container}
-    >
+    // Added fixed inline style to ensure immediate height application
+    <div style={{ height: '600px', position: 'relative', overflow: 'hidden' }}
+         className="flex items-center justify-center w-full bg-transparent">
       <div className="relative w-24 h-24" role="status" aria-label="Loading">
-        {/* Spinning loader */}
         <svg
           className="w-full h-full animate-spin"
           viewBox="0 0 100 100"
           xmlns="http://www.w3.org/2000/svg"
         >
-          {/* Background circle */}
           <circle
             cx="50"
             cy="50"
@@ -33,7 +21,6 @@ const LoadingSpinner = () => {
             fill="none"
             strokeLinecap="round"
           />
-          {/* Two animated segments at opposite positions */}
           <circle
             cx="50"
             cy="50"
@@ -46,7 +33,6 @@ const LoadingSpinner = () => {
             strokeLinecap="round"
           />
         </svg>
-        {/* Center image */}
         <div className="absolute inset-0 flex items-center justify-center">
           <Image 
             src="https://res.cloudinary.com/dmbzcxhjn/image/upload/Colors_logo_gawxfo_kvyozr.png"
