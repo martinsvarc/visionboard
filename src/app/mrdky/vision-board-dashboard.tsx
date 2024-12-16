@@ -16,6 +16,7 @@ import { debounce } from 'lodash';
 import { Maximize2 } from 'lucide-react'
 import LoadingSpinner from './loading-spinner'
 import { getRandomQuote, shouldUpdateQuote } from './quoteUtils';
+import { getRandomFocusMessage } from './focusMessages';
 
 const MobileNotice = () => (
   <Card className="p-6 bg-white rounded-[20px] shadow-lg text-center">
@@ -415,6 +416,18 @@ export default function VisionBoardDashboardClient() {
     }));
   };
 
+  const [focusMessage, setFocusMessage] = useState("");
+
+  const updateFocusMessage = () => {
+    const newMessage = getRandomFocusMessage();
+    setFocusMessage(newMessage);
+    localStorage.setItem('dailyFocus', JSON.stringify({
+      message: newMessage,
+      timestamp: new Date().toISOString()
+    }));
+  };
+
+  // Quote effect
   useEffect(() => {
     const stored = localStorage.getItem('dailyQuote');
     if (stored) {
@@ -433,13 +446,40 @@ export default function VisionBoardDashboardClient() {
       if (stored) {
         const { timestamp } = JSON.parse(stored);
         if (shouldUpdateQuote(timestamp)) {
-        updateQuote();
+          updateQuote();
         }
       }
     }, 60000);
 
     return () => clearInterval(interval);
   }, []);
+
+// Focus message effect (separate)
+useEffect(() => {
+  const stored = localStorage.getItem('dailyFocus');
+  if (stored) {
+    const { message: storedMessage, timestamp } = JSON.parse(stored);
+    if (shouldUpdateQuote(timestamp)) {
+      updateFocusMessage();
+    } else {
+      setFocusMessage(storedMessage);
+    }
+  } else {
+    updateFocusMessage();
+  }
+
+  const interval = setInterval(() => {
+    const stored = localStorage.getItem('dailyFocus');
+    if (stored) {
+      const { timestamp } = JSON.parse(stored);
+      if (shouldUpdateQuote(timestamp)) {
+        updateFocusMessage();
+      }
+    }
+  }, 60000);
+
+  return () => clearInterval(interval);
+}, []);
 
 useEffect(() => {
     getMemberId().then(setMemberId);
@@ -1031,7 +1071,7 @@ return (
           style={{
             fontSize: 'clamp(0.8rem, 2.5vw, 1rem)',
             lineHeight: '1.4',
-            maxWidth: '98%',
+            maxWidth: '100%',
           }}
         >
           {quote.text && `"${quote.text}"`}
@@ -1055,7 +1095,12 @@ return (
         />
         <h2 className="text-2xl font-bold text-[#000000]">Today's Focus</h2>
       </div>
-      <Button variant="ghost" size="icon" className="hover:bg-transparent text-gray-400 hover:text-gray-600">
+      <Button 
+        variant="ghost" 
+        size="icon" 
+        className="hover:bg-transparent text-gray-400 hover:text-gray-600"
+        onClick={updateFocusMessage}
+      >
         <RotateCw className="w-5 h-5" />
       </Button>
     </div>
@@ -1065,7 +1110,7 @@ return (
           style={{
             fontSize: 'clamp(0.8rem, 3vw, 1.2rem)',
             lineHeight: '1.2',
-            maxWidth: '98%',
+            maxWidth: '100%',
             overflow: 'hidden',
             textOverflow: 'ellipsis',
             display: '-webkit-box',
@@ -1073,12 +1118,12 @@ return (
             WebkitBoxOrient: 'vertical',
           }}
         >
-          Investor should ask clearer questions on final terms and conditions
+          {focusMessage}
         </p>
       </div>
     </div>
   </Card>
-</div>
+  </div>
 
 
             <AchievementContent achievements={achievementData} />
@@ -1145,7 +1190,7 @@ return (
   /* New height management styles */
   html, body {
     margin: 0;
-    padding: 20;
+    padding: 0;
     overflow: hidden;
     height: auto !important;
     min-height: 100%;
