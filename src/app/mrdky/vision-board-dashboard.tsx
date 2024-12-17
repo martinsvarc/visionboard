@@ -1069,7 +1069,7 @@ return (
         <p 
           className="text-center font-medium flex-grow flex items-center justify-center"
           style={{
-            fontSize: 'clamp(0.8rem, 2.5vw, 1rem)',
+            fontSize: 'clamp(0.8rem, 3vw, 1.2rem)',
             lineHeight: '1.4',
             maxWidth: '100%',
           }}
