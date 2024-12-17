@@ -1108,7 +1108,7 @@ return (
       <div className="p-4 bg-white rounded-2xl shadow-[0_2px_8px_rgba(0,0,0,0.08)] h-full flex items-center justify-center">
         <p className="text-center font-medium"
           style={{
-            fontSize: 'clamp(0.8rem, 2.5vw, 1rem)',
+            fontSize: 'clamp(0.7rem, 2vw, 0.9rem)',
             lineHeight: '1.2',
             maxWidth: '100%',
             overflow: 'hidden',
