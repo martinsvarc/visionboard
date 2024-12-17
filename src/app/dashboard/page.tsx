@@ -1214,7 +1214,7 @@ const saveNotes = async (id: number) => {
                       })}
                     </p>
                     <p className="text-sm font-medium text-slate-700 mt-1">
-                      Call duration: {call.call_duration} minutes
+                      Call duration: {call.call_duration} seconds
                     </p>
                   </div>
                 </div>
