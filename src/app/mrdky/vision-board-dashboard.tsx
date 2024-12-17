@@ -1093,7 +1093,7 @@ return (
           alt="Today's Focus Icon"
           className="h-6 w-6"
         />
-        <h2 className="text-2xl font-bold text-[#000000]">Today's Focus</h2>
+        <h2 className="text-2xl font-bold text-[#000000]">Daily Insight</h2>
       </div>
       <Button 
         variant="ghost" 
