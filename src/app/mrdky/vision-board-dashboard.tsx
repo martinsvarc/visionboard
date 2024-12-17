@@ -1069,7 +1069,7 @@ return (
         <p 
           className="text-center font-medium flex-grow flex items-center justify-center"
           style={{
-            fontSize: 'clamp(0.8rem, 3vw, 1.2rem)',
+            fontSize: 'clamp(0.8rem, 2.5vw, 1rem)',
             lineHeight: '1.4',
             maxWidth: '100%',
           }}
@@ -1108,7 +1108,7 @@ return (
       <div className="p-4 bg-white rounded-2xl shadow-[0_2px_8px_rgba(0,0,0,0.08)] h-full flex items-center justify-center">
         <p className="text-center font-medium"
           style={{
-            fontSize: 'clamp(0.8rem, 3vw, 1.2rem)',
+            fontSize: 'clamp(0.8rem, 2.5vw, 1rem)',
             lineHeight: '1.2',
             maxWidth: '100%',
             overflow: 'hidden',
