@@ -162,8 +162,41 @@ export async function GET(request: Request) {
     `;
 
     if (!userData) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 });
-    }
+  return NextResponse.json({
+    streakAchievements: ACHIEVEMENTS.streak.map(badge => ({
+      ...badge,
+      unlocked: false
+    })),
+    callAchievements: ACHIEVEMENTS.calls.map(badge => ({
+      ...badge,
+      unlocked: false
+    })),
+    activityAchievements: ACHIEVEMENTS.activity.map(badge => ({
+      ...badge,
+      unlocked: false
+    })),
+    leagueAchievements: ACHIEVEMENTS.league.map(badge => ({
+      ...badge,
+      unlocked: false
+    })),
+    userData: {
+      member_id: memberId,
+      current_streak: 0,
+      longest_streak: 0,
+      total_sessions: 0,
+      sessions_today: 0,
+      sessions_this_week: 0,
+      last_session_date: null,
+      unlocked_badges: [],
+      weekly_reset_at: getNextSunday().toISOString(),
+      daily_points: {},
+      weeklyTotal: 0
+    },
+    weeklyRankings: [],
+    teamRankings: [],
+    chartData: []
+  });
+}
 
     // Calculate chart data
     const today = new Date();
