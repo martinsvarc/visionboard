@@ -317,37 +317,37 @@ return (
   <ul className="space-y-1">
     {latestFeedback && (
       (category ? 
-        latestFeedback[`${category.key}_strong_points`] 
-        : 
-        latestFeedback.strong_points_average_success
-      )?.split(' - ')
-      .filter(Boolean)
-      .map((point, index) => (
-        <li key={index}>
-          <span className="text-slate-700 text-xs">{point}</span>
-        </li>
-      ))
-    )}
+        {/* Strong Points */}
+<div className="bg-green-50 p-3 rounded-xl space-y-2">
+  <h3 className="text-green-700 font-semibold text-xs">Strong Points</h3>
+  <ul className="space-y-1">
+    {latestFeedback && !category && latestFeedback.strong_points_average_success?.split(' - ')?.filter(Boolean)?.map((point, index) => (
+      <li key={index}>
+        <span className="text-slate-700 text-xs">{point}</span>
+      </li>
+    ))}
+    {latestFeedback && category && latestFeedback[`${category.key}_strong_points`]?.split(' - ')?.filter(Boolean)?.map((point, index) => (
+      <li key={index}>
+        <span className="text-slate-700 text-xs">{point}</span>
+      </li>
+    ))}
   </ul>
 </div>
-  
-  {/* Areas for Improvement */}
-  <div className="bg-red-50 p-3 rounded-xl space-y-2">
+
+{/* Areas for Improvement */}
+<div className="bg-red-50 p-3 rounded-xl space-y-2">
   <h3 className="text-red-700 font-semibold text-xs">Improvement Areas</h3>
   <ul className="space-y-1">
-    {latestFeedback && (
-      (category ? 
-        latestFeedback[`${category.key}_areas_for_improvement`]
-        : 
-        latestFeedback.areas_for_improvement_average_success
-      )?.split(' - ')
-      .filter(Boolean)
-      .map((point, index) => (
-        <li key={index}>
-          <span className="text-slate-700 text-xs">{point}</span>
-        </li>
-      ))
-    )}
+    {latestFeedback && !category && latestFeedback.areas_for_improvement_average_success?.split(' - ')?.filter(Boolean)?.map((point, index) => (
+      <li key={index}>
+        <span className="text-slate-700 text-xs">{point}</span>
+      </li>
+    ))}
+    {latestFeedback && category && latestFeedback[`${category.key}_areas_for_improvement`]?.split(' - ')?.filter(Boolean)?.map((point, index) => (
+      <li key={index}>
+        <span className="text-slate-700 text-xs">{point}</span>
+      </li>
+    ))}
   </ul>
 </div>
 </div>
