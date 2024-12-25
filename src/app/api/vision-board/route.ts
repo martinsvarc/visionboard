@@ -16,9 +16,9 @@ export async function GET(request: Request) {
  try {
    const client = await getDbClient();
    const { rows } = await client.query(
-     'SELECT id, memberstack_id, image_url, x_position, y_position, width, height, z_index, board_color FROM vision_board_items WHERE memberstack_id = $1 ORDER BY z_index ASC',
-     [memberId]
-   );
+  'SELECT * FROM vision_board_items WHERE memberstack_id = $1 ORDER BY z_index ASC',
+  [memberId]
+);
 
    const response = NextResponse.json(rows);
    response.headers.set('Cache-Control', 'public, max-age=300');
