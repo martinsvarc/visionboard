@@ -8,27 +8,25 @@ const getDbClient = async () => {
 };
 
 export async function GET(request: Request) {
- const { searchParams } = new URL(request.url);
- const memberId = searchParams.get('memberId');
- 
- if (!memberId) return NextResponse.json({ error: 'Member ID required' }, { status: 400 });
+  const { searchParams } = new URL(request.url);
+  const memberId = searchParams.get('memberId');
+  
+  if (!memberId) return NextResponse.json({ error: 'Member ID required' }, { status: 400 });
 
- try {
-   const client = await getDbClient();
-   const { rows } = await client.query(
-  'SELECT * FROM vision_board_items WHERE memberstack_id = $1 ORDER BY z_index ASC',
-  [memberId]
-);
-
-   const response = NextResponse.json(rows);
-   response.headers.set('Cache-Control', 'public, max-age=300');
-   response.headers.set('Content-Encoding', 'gzip');
-   await client.end();
-   return response;
- } catch (err) {
-   const error = err as Error;
-   return NextResponse.json({ error: 'Failed to load vision board', details: error?.toString() }, { status: 500 });
- }
+  try {
+    const client = await getDbClient();
+    const { rows } = await client.query(
+      'SELECT * FROM vision_board_items WHERE memberstack_id = $1 ORDER BY z_index ASC',
+      [memberId]
+    );
+    const response = NextResponse.json(rows);
+    response.headers.set('Cache-Control', 'public, max-age=300');
+    await client.end();
+    return response;
+  } catch (err) {
+    const error = err as Error;
+    return NextResponse.json({ error: 'Failed to load vision board', details: error?.toString() }, { status: 500 });
+  }
 }
 
 export async function POST(request: Request) {
