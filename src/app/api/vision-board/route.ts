@@ -20,6 +20,8 @@ export async function GET(request: Request) {
       'SELECT * FROM vision_board_items WHERE memberstack_id = $1 ORDER BY z_index ASC',
       [memberId]
     );
+
+    console.log('First item URL:', rows[0]?.image_url); 
     const response = NextResponse.json(rows);
     response.headers.set('Cache-Control', 'public, max-age=300');
     await client.end();
