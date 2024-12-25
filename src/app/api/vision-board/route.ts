@@ -23,7 +23,7 @@ export async function GET(request: Request) {
 
     console.log('First item URL:', rows[0]?.image_url); 
     const response = NextResponse.json(rows);
-    response.headers.set('Cache-Control', 'public, max-age=300');
+    response.headers.set('Cache-Control', 'public, max-age=60');
     await client.end();
     return response;
   } catch (err) {
