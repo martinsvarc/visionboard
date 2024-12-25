@@ -311,26 +311,32 @@ return (
     <p className="text-slate-700 font-medium">Top Insights: Updated Every 10 Calls</p>
     
     <div className="grid grid-cols-2 gap-2">
-  {/* Strong Points */}
-  <div className="bg-green-50 p-3 rounded-xl space-y-2">
-  <h3 className="text-green-700 font-semibold text-xs">Strong Points</h3>
-  <ul className="space-y-1">
-    {latestFeedback && (
-      (category ? 
-        {/* Strong Points */}
+
+      {/* Strong Points */}
 <div className="bg-green-50 p-3 rounded-xl space-y-2">
   <h3 className="text-green-700 font-semibold text-xs">Strong Points</h3>
   <ul className="space-y-1">
-    {latestFeedback && !category && latestFeedback.strong_points_average_success?.split(' - ')?.filter(Boolean)?.map((point, index) => (
-      <li key={index}>
-        <span className="text-slate-700 text-xs">{point}</span>
-      </li>
-    ))}
-    {latestFeedback && category && latestFeedback[`${category.key}_strong_points`]?.split(' - ')?.filter(Boolean)?.map((point, index) => (
-      <li key={index}>
-        <span className="text-slate-700 text-xs">{point}</span>
-      </li>
-    ))}
+    {latestFeedback && !category && (
+      latestFeedback.strong_points_average_success?.split(' - ')?.filter(Boolean)?.map((point, index) => (
+        <li key={index}>
+          <span className="text-slate-700 text-xs">{point}</span>
+        </li>
+      ))
+    )}
+  </ul>
+</div>
+
+{/* Areas for Improvement */}
+<div className="bg-red-50 p-3 rounded-xl space-y-2">
+  <h3 className="text-red-700 font-semibold text-xs">Improvement Areas</h3>
+  <ul className="space-y-1">
+    {latestFeedback && !category && (
+      latestFeedback.areas_for_improvement_average_success?.split(' - ')?.filter(Boolean)?.map((point, index) => (
+        <li key={index}>
+          <span className="text-slate-700 text-xs">{point}</span>
+        </li>
+      ))
+    )}
   </ul>
 </div>
 
@@ -877,7 +883,9 @@ const totalPages = Math.ceil(filteredCallLogs.length / recordsPerPage)
  const averageSuccessData = React.useMemo(() => callLogs.map((call, index) => ({
   name: `${index + 1}`,
   date: call.call_date,
-  value: call.scores.average_success
+  value: call.scores.average_success,
+  strong_points_average_success: call.strong_points_average_success,
+  areas_for_improvement_average_success: call.areas_for_improvement_average_success
 })), [callLogs]);
 
   const toggleExpandCard = useCallback((id: number) => {
