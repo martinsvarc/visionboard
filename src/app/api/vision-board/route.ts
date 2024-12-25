@@ -33,48 +33,34 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    console.log("Received body:", { ...body, image_url: body.image_url?.substring(0, 100) + '...' }); // Log truncated version
-    
     const { memberstack_id, image_url, x_position, y_position, width, height, z_index, board_color } = body;
     
-    // If the image is base64
     let finalImageUrl = image_url;
     if (image_url.startsWith('data:image')) {
-      console.log("Processing base64 image...");
-      // Convert base64 to blob
       const base64Data = image_url.split(',')[1];
       const blob = Buffer.from(base64Data, 'base64');
-      
-      console.log("Uploading to blob storage...");
-      // Upload to Vercel Blob Storage
-      const { url } = await put(
-        `vision-board/${memberstack_id}/${Date.now()}.jpg`, 
-        blob, 
-        { access: 'public' }
-      );
-      
-      console.log("Got URL from blob storage:", url);
+      const { url } = await put(`vision-board/${memberstack_id}/${Date.now()}.jpg`, blob, { 
+        access: 'public',
+        addRandomSuffix: true
+      });
       finalImageUrl = url;
     }
-    
-    console.log("Saving to database with URL:", finalImageUrl);
+
     const client = await getDbClient();
     const { rows } = await client.query(
-      `INSERT INTO vision_board_items 
-       (memberstack_id, image_url, x_position, y_position, width, height, z_index, board_color)
+      `INSERT INTO vision_board_items (memberstack_id, image_url, x_position, y_position, width, height, z_index, board_color)
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
        RETURNING *`,
       [memberstack_id, finalImageUrl, x_position, y_position, width, height, z_index, board_color]
     );
-    
+
     const response = NextResponse.json(rows[0]);
     response.headers.set('Cache-Control', 'no-store');
     await client.end();
     return response;
   } catch (err) {
-    const error = err as Error;
-    console.error('Full error details:', error);
-    return NextResponse.json({ error: 'Failed to save item', details: error?.toString() }, { status: 500 });
+    console.error('Error details:', err);
+    return NextResponse.json({ error: 'Failed to save item', details: err?.toString() }, { status: 500 });
   }
 }
 
